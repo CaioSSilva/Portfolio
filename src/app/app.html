@@ -1,0 +1,23 @@
+@if (!systemReady()) {
+  <app-boot (bootFinished)="systemReady.set(true)"></app-boot>
+} @else {
+  @if (shutingDown()) {
+    <app-shutdown (shutdown)="shutingDown.set($event)"></app-shutdown>
+  }
+  <div
+    class="h-full w-full flex flex-col relative overflow-hidden bg-cover bg-center"
+    [style.background-image]="'url(' + settingsService.wallpaper() + ')'"
+  >
+    <app-top-bar (onShutdown)="shutingDown.set($event)"></app-top-bar>
+
+    <div class="flex-1 relative desktop-area">
+      @for (process of processManager.processes(); track process.id) {
+        <app-window [process]="process"></app-window>
+      }
+
+      <app-apps-grid></app-apps-grid>
+      <app-dock></app-dock>
+      <app-window-switcher></app-window-switcher>
+    </div>
+  </div>
+}

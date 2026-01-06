@@ -1,0 +1,94 @@
+@if (windowService.snapGhost(); as ghost) {
+  <div
+    class="fixed z-[9000] bg-gnome-bg/20 backdrop-blur-md rounded-lg border-2 border-white/40 transition-all duration-100 pointer-events-none"
+    [style.top.px]="ghost.y"
+    [style.left.px]="ghost.x"
+    [style.width.px]="ghost.w"
+    [style.height.px]="ghost.h"
+  ></div>
+}
+
+<div
+  #windowFrame
+  class="absolute flex flex-col will-change-transform"
+  [style.z-index]="process().zIndex"
+  [style.width.px]="windowService.isMaximized() ? null : 900"
+  [style.height.px]="windowService.isMaximized() ? null : 600"
+  [ngClass]="{
+    'fixed inset-0 z-[9999] !w-full !h-full': windowService.isMaximized(),
+    'pointer-events-none': process().isMinimized || !windowService.isVisible(),
+  }"
+>
+  <div
+    class="w-full h-full flex flex-col overflow-hidden shadow-2xl border border-gnome-border/40 bg-gnome-bg transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]"
+    (mousedown)="windowService.focus()"
+    [style.transform-origin]="windowService.transformOrigin()"
+    [ngClass]="{
+      'rounded-xl': !windowService.isMaximized() && !windowService.isSnapped(),
+      'opacity-0 scale-[0.05]': process().isMinimized || !windowService.isVisible(),
+      'opacity-100 scale-100': !process().isMinimized && windowService.isVisible(),
+    }"
+  >
+    <div
+      (mousedown)="windowService.startDrag($event)"
+      (dblclick)="windowService.toggleMaximize()"
+      class="h-12 bg-gnome-header flex items-center justify-between px-3 select-none border-b border-black/5 cursor-default shrink-0"
+      [class.cursor-grab]="!windowService.isMaximized() && !windowService.isSnapped()"
+      [class.active:cursor-grabbing]="windowService.isDragging()"
+    >
+      <div
+        class="font-bold text-sm tracking-wide text-gnome-text opacity-90 pl-2 flex items-center gap-2 pointer-events-none"
+      >
+        <i [class]="process().icon" class="text-gnome-text-secondary"></i>
+        <span>{{ $any(lang.t().apps)[process().appId] || process().title }}</span>
+      </div>
+
+      <div class="flex items-center gap-2" (mousedown)="$event.stopPropagation()">
+        <button
+          (click)="windowService.minimize()"
+          [title]="lang.t().window.minimize"
+          class="w-6 h-6 cursor-pointer rounded-full hover:bg-gnome-text/5 flex items-center justify-center transition-colors text-gnome-text-secondary"
+        >
+          <i class="fas fa-minus text-xs"></i>
+        </button>
+        <button
+          (click)="windowService.toggleMaximize()"
+          [title]="windowService.isMaximized() ? lang.t().window.restore : lang.t().window.maximize"
+          class="w-6 h-6 cursor-pointer rounded-full hover:bg-gnome-text/5 flex items-center justify-center transition-colors text-gnome-text-secondary"
+        >
+          <i
+            [class]="windowService.isMaximized() ? 'far fa-clone' : 'far fa-square'"
+            class="text-xs"
+          ></i>
+        </button>
+        <button
+          (click)="windowService.close()"
+          [title]="lang.t().window.close"
+          class="w-6 h-6 cursor-pointer rounded-full hover:bg-gnome-red hover:text-white flex items-center justify-center transition-colors text-gnome-text-secondary group"
+        >
+          <i class="fas fa-xmark text-xs group-hover:text-white mb-[1px]"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 bg-gnome-bg relative overflow-hidden text-gnome-text">
+      @if (windowService.isDragging() || windowService.isResizing()) {
+        <div class="absolute inset-0 z-50 bg-transparent"></div>
+      }
+      <div class="h-full w-full overflow-auto p-1">
+        <ng-container
+          *ngComponentOutlet="process().component; inputs: { data: process().data }"
+        ></ng-container>
+      </div>
+    </div>
+  </div>
+
+  @if (!windowService.isMaximized() && !windowService.isSnapped()) {
+    <div
+      (mousedown)="windowService.startResize($event)"
+      class="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 z-50 opacity-0 hover:opacity-100 transition-opacity"
+    >
+      <div class="w-2 h-2 border-r-2 border-b-2 border-gnome-text-secondary"></div>
+    </div>
+  }
+</div>

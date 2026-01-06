@@ -1,0 +1,145 @@
+<div
+  class="flex h-full bg-gnome-bg text-gnome-text overflow-hidden selection:bg-gnome-blue/30 relative font-gnome"
+>
+  <app-files-sidebar
+    [tree]="fs.tree()"
+    [width]="sidebarWidth()"
+    [currentFolderId]="currentFolderId()"
+    [selectedId]="selectedId()"
+    [expandedFolders]="expandedFolders()"
+    (onNavigate)="handleNavigate($event)"
+    (onToggle)="handleToggleExpand($event)"
+  >
+  </app-files-sidebar>
+
+  <div
+    (mousedown)="startResizing($event)"
+    [style.left.px]="sidebarWidth() - 2"
+    class="absolute top-0 bottom-0 w-1 z-20 cursor-col-resize hover:bg-gnome-blue/40 active:bg-gnome-blue transition-colors"
+  ></div>
+
+  <div class="flex-1 flex flex-col min-w-0">
+    <header
+      class="h-12 shrink-0 flex items-center px-3 gap-3 bg-gnome-header border-b border-gnome-border"
+    >
+      <button
+        (click)="goBack()"
+        [disabled]="pathIds().length <= 1"
+        [title]="lang.t().files.back"
+        class="flex-none w-7 h-7 rounded flex items-center justify-center hover:bg-black/5 disabled:opacity-20 transition-opacity outline-none"
+      >
+        <i class="fas fa-chevron-left text-xs"></i>
+      </button>
+
+      <div class="group flex-1 flex items-center gap-2 min-w-0">
+        <app-files-breadcrumbs
+          [items]="breadcrumbs()"
+          (onJump)="jumpTo($event)"
+          class="flex-1 min-w-0 group-focus-within:flex-none group-focus-within:w-48"
+        >
+        </app-files-breadcrumbs>
+
+        <div class="relative flex-none flex items-center lg:w-32 group-focus-within:flex-1">
+          <i
+            class="fas fa-search absolute left-2.5 text-[10px] text-gnome-text-secondary opacity-50"
+          ></i>
+          <input
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            [placeholder]="lang.t().files.searchPlaceholder"
+            class="w-full h-8 pl-8 pr-8 py-1 text-[12px] bg-black/5 dark:bg-white/5 border border-gnome-border rounded-md text-gnome-text outline-none focus:ring-1 focus:ring-gnome-blue/50 transition-all placeholder:opacity-50"
+          />
+          @if (searchQuery()) {
+            <button
+              (click)="searchQuery.set('')"
+              class="absolute right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text"
+            >
+              <i class="fas fa-times-circle text-[10px]"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="flex-none flex border border-gnome-border rounded-md overflow-hidden shadow-sm">
+        <button
+          (click)="viewMode.set('grid')"
+          [class.bg-black/10]="viewMode() === 'grid'"
+          [class.text-gnome-blue]="viewMode() === 'grid'"
+          [title]="lang.t().files.gridView"
+          class="w-8 h-7 flex justify-center items-center bg-gnome-surface hover:bg-black/5 border-r border-gnome-border outline-none"
+        >
+          <i class="fas fa-th-large text-[10px]"></i>
+        </button>
+        <button
+          (click)="viewMode.set('list')"
+          [class.bg-black/10]="viewMode() === 'list'"
+          [class.text-gnome-blue]="viewMode() === 'list'"
+          [title]="lang.t().files.listView"
+          class="w-8 h-7 flex justify-center items-center bg-gnome-surface hover:bg-black/5 outline-none"
+        >
+          <i class="fas fa-list text-[10px]"></i>
+        </button>
+      </div>
+    </header>
+
+    <main
+      class="flex-1 overflow-y-auto select-none bg-gnome-bg custom-scrollbar relative"
+      (click)="selectedId.set(null)"
+    >
+      @if (fs.isLoaded()) {
+        @if (viewMode() === 'grid') {
+          <app-files-grid
+            [files]="filteredFiles()"
+            [selectedId]="selectedId()"
+            [gridSize]="gridSize()"
+            (onSelect)="selectedId.set($event)"
+            (onNavigate)="handleNavigate($event)"
+          >
+          </app-files-grid>
+        } @else {
+          <app-files-list
+            [files]="filteredFiles()"
+            [selectedId]="selectedId()"
+            (onSelect)="selectedId.set($event)"
+            (onNavigate)="handleNavigate($event)"
+          >
+          </app-files-list>
+        }
+      }
+    </main>
+
+    <footer
+      class="h-10 shrink-0 flex items-center justify-between px-4 bg-gnome-header border-t border-gnome-border z-10"
+    >
+      <div class="text-[10px] uppercase tracking-widest font-bold text-gnome-text opacity-60">
+        {{ filteredFiles().length }}
+        {{ filteredFiles().length === 1 ? lang.t().files.item : lang.t().files.items }}
+      </div>
+
+      <div class="flex items-center gap-3">
+        @if (viewMode() === 'grid') {
+          <div class="flex items-center gap-2">
+            <i class="fas fa-image text-[10px] text-gnome-text-secondary opacity-40"></i>
+            <input
+              type="range"
+              min="80"
+              max="300"
+              step="10"
+              [value]="gridSize()"
+              (input)="updateGridSize($event)"
+              class="w-24 h-1 bg-gnome-blue rounded-lg appearance-none cursor-pointer accent-gnome-blue outline-none"
+            />
+            <i class="fas fa-image text-sm text-gnome-text-secondary opacity-40"></i>
+          </div>
+        } @else {
+          <div
+            class="text-[10px] mr-4 uppercase tracking-widest font-bold text-gnome-text opacity-60"
+          >
+            {{ lang.t().files.totalSize }}: {{ totalSize() }}
+          </div>
+        }
+      </div>
+    </footer>
+  </div>
+</div>

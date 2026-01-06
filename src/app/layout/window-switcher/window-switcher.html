@@ -1,0 +1,31 @@
+@if (isVisible()) {
+  <div
+    class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/20"
+    (click)="isVisible.set(false)"
+  >
+    <div
+      class="flex gap-2 p-4 bg-gnome-bg/80 backdrop-blur-xl border border-gnome-border rounded-[28px] shadow-2xl animate-in"
+      (click)="$event.stopPropagation()"
+    >
+      @for (proc of processes(); track proc.id; let i = $index) {
+        <div
+          (mouseenter)="selectedIndex.set(i)"
+          (click)="selectAndFocus(i)"
+          class="flex flex-col items-center gap-3 p-4 rounded-2xl transition-all duration-150 w-28 text-center cursor-pointer"
+          [class.bg-white/10]="i === selectedIndex()"
+          [class.ring-2]="i === selectedIndex()"
+          [class.ring-gnome-blue]="i === selectedIndex()"
+        >
+          <div
+            class="w-16 h-16 flex items-center justify-center rounded-2xl bg-gnome-header shadow-lg"
+          >
+            <i [class]="proc.icon + ' text-3xl'" [style.color]="proc.color"></i>
+          </div>
+          <span class="text-[10px] font-bold text-gnome-text truncate w-full">
+            {{ proc.title }}
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+}

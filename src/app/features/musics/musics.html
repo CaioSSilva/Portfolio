@@ -1,0 +1,149 @@
+<div class="flex h-full w-full bg-gnome-bg overflow-hidden select-none text-gnome-text">
+  <aside
+    [class.w-64]="isSidebarOpen()"
+    [class.w-0]="!isSidebarOpen()"
+    class="flex flex-col bg-gnome-surface border-r z-31 border-gnome-border transition-all duration-300 overflow-hidden shrink-0"
+  >
+    <div class="p-4 border-b border-gnome-border flex items-center justify-between min-w-[256px]">
+      <span class="text-xs font-bold uppercase tracking-widest opacity-50">{{
+        lang.t().audioPlayer.title
+      }}</span>
+      <i class="fas fa-list-music opacity-50"></i>
+    </div>
+    <div class="flex-1 overflow-y-auto custom-scrollbar min-w-[256px]">
+      @for (track of musicLibrary(); track track.url) {
+      <button
+        (click)="player.play(track, musicLibrary())"
+        [class.bg-gnome-blue]="player.currentTrack()?.url === track.url"
+        [class.text-white]="player.currentTrack()?.url === track.url"
+        class="w-full flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors text-left group hover:bg-white/5"
+      >
+        <div class="w-8 h-8 rounded-lg bg-black/20 flex items-center justify-center shrink-0">
+          <i
+            class="fas"
+            [class.fa-play]="player.currentTrack()?.url !== track.url"
+            [class.fa-volume-high]="player.currentTrack()?.url === track.url"
+          ></i>
+        </div>
+        <div class="flex-1 truncate">
+          <p class="text-xs font-medium truncate">{{ track.name }}</p>
+          <p class="text-[10px] opacity-60">{{ lang.t().audioPlayer.appSubtitle }}</p>
+        </div>
+      </button>
+      }
+    </div>
+  </aside>
+
+  <div class="relative flex-1 flex flex-col min-w-0 overflow-y-auto">
+    <button
+      (click)="isSidebarOpen.set(!isSidebarOpen())"
+      [class.left-68]="isSidebarOpen()"
+      [class.left-4]="!isSidebarOpen()"
+      class="fixed cursor-pointer transition-all duration-500 top-15 z-30 w-10 h-10 flex items-center justify-center bg-gnome-surface border border-gnome-border rounded-xl shadow-lg hover:bg-gnome-header"
+    >
+      <i class="fas" [class.fa-indent]="!isSidebarOpen()" [class.fa-outdent]="isSidebarOpen()"></i>
+    </button>
+
+    <main class="flex-1 flex flex-col items-center justify-center p-3">
+      @if (!player.currentTrack()) {
+      <div class="text-center animate-fade-in">
+        <div
+          class="w-32 h-32 bg-gnome-surface rounded-3xl flex items-center justify-center mb-6 shadow-xl mx-auto border border-gnome-border"
+        >
+          <i class="fas fa-music text-5xl opacity-20"></i>
+        </div>
+        <h2 class="text-lg font-bold">{{ lang.t().audioPlayer.noAudio }}</h2>
+        <button
+          (click)="goToFiles()"
+          class="mt-4 text-gnome-blue font-bold text-xs hover:underline cursor-pointer"
+        >
+          {{ lang.t().common.openFiles }}
+        </button>
+      </div>
+      } @else if (!player.hasError()) {
+      <div
+        class="w-64 h-64 bg-gnome-blue rounded-2xl shadow-2xl flex items-center justify-center mb-8 relative overflow-hidden"
+      >
+        <i
+          class="fas fa-compact-disc text-8xl text-white"
+          [class.animate-spin-slow]="player.isPlaying() && !player.isLoading()"
+        ></i>
+        @if (player.isLoading()) {
+        <div class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div
+            class="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin"
+          ></div>
+        </div>
+        }
+      </div>
+      <div class="text-center mb-8 w-full max-w-md">
+        <h1 class="text-lg font-bold truncate px-4">{{ fileName() }}</h1>
+        <p class="text-sm text-gnome-text-secondary">{{ lang.t().audioPlayer.appSubtitle }}</p>
+      </div>
+      <div class="w-full max-w-md space-y-6">
+        <div class="mb-2">
+          <input
+            type="range"
+            [min]="0"
+            [max]="player.duration()"
+            [value]="player.currentTime()"
+            (input)="handleSeek($event)"
+            class="gnome-slider w-full h-1.5 appearance-none cursor-pointer bg-gnome-border rounded-full"
+          />
+          <div class="flex justify-between text-[10px] font-mono opacity-60 mt-1">
+            <span>{{ formatTime(player.currentTime()) }}</span>
+            <span>{{ formatTime(player.duration()) }}</span>
+          </div>
+        </div>
+        <div class="flex items-center justify-center gap-8">
+          <button (click)="player.prevTrack()" class="opacity-40 hover:opacity-100 cursor-pointer">
+            <i class="fas fa-backward-step text-xl"></i>
+          </button>
+          <button
+            (click)="player.togglePlay()"
+            class="w-16 h-16 flex items-center justify-center bg-white text-black rounded-full shadow-xl hover:scale-105 cursor-pointer"
+          >
+            <i
+              class="fas"
+              [class.fa-play]="!player.isPlaying()"
+              [class.fa-pause]="player.isPlaying()"
+            ></i>
+          </button>
+          <button (click)="player.nextTrack()" class="opacity-40 hover:opacity-100 cursor-pointer">
+            <i class="fas fa-forward-step text-xl"></i>
+          </button>
+        </div>
+        <div class="flex items-center gap-4 px-8 opacity-60">
+          <button (click)="player.toggleMute()" class="w-8">
+            <i
+              class="fas"
+              [class.fa-volume-high]="!player.isMuted()"
+              [class.fa-volume-mute]="player.isMuted()"
+            ></i>
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            [value]="player.volume()"
+            (input)="handleVolume($event)"
+            class="gnome-slider flex-1 h-1 appearance-none bg-gnome-border rounded-full"
+          />
+        </div>
+      </div>
+      } @else {
+      <div class="text-center">
+        <i class="fas fa-circle-xmark text-5xl text-red-500 mb-4"></i>
+        <h2 class="text-sm font-bold">{{ lang.t().audioPlayer.errorTitle }}</h2>
+        <button
+          (click)="player.currentTrack.set(null)"
+          class="mt-6 text-gnome-blue font-bold cursor-pointer"
+        >
+          Voltar
+        </button>
+      </div>
+      }
+    </main>
+  </div>
+</div>

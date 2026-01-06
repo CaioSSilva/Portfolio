@@ -1,0 +1,102 @@
+@use 'tailwindcss';
+@use '@fortawesome/fontawesome-free/css/all.css';
+
+@layer base {
+  :root {
+    --color-gnome-bg: #ffffff;
+    --color-gnome-header: #f6f5f4;
+    --color-gnome-header-dark: #e4e4de;
+    --color-gnome-panel: #000000;
+    --color-gnome-surface: #f6f5f4;
+    --color-gnome-blue: #3584e4;
+    --color-gnome-blue-dark: #2a6ac0;
+    --color-gnome-red: #e01b24;
+    --color-gnome-text: #2e3436;
+    --color-gnome-text-secondary: #5e5c64;
+    --color-gnome-border: #deddda;
+
+    user-select: none;
+  }
+
+  .dark {
+    --color-gnome-bg: #1e1e1e;
+    --color-gnome-header: #303030;
+    --color-gnome-header-dark: #212121;
+    --color-gnome-panel: #111111;
+    --color-gnome-surface: #242424;
+    --color-gnome-text: #ffffff;
+    --color-gnome-text-secondary: #9a9996;
+    --color-gnome-border: #3a3a3a;
+  }
+}
+
+@theme {
+  --font-gnome: 'Cantarell', 'Inter', system-ui, sans-serif;
+  --color-gnome-bg: var(--color-gnome-bg);
+  --color-gnome-header: var(--color-gnome-header);
+  --color-gnome-header-dark: var(--color-gnome-header-dark)
+  --color-gnome-panel: var(--color-gnome-panel);
+  --color-gnome-surface: var(--color-gnome-surface);
+  --color-gnome-blue: var(--color-gnome-blue);
+  --color-gnome-blue-dark: var(--color-gnome-blue-dark);
+  --color-gnome-red: var(--color-gnome-red);
+  --color-gnome-text: var(--color-gnome-text);
+  --color-gnome-text-secondary: var(--color-gnome-text-secondary);
+  --color-gnome-border: var(--color-gnome-border);
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  font-family: var(--font-gnome);
+  background-color: var(--color-gnome-bg);
+  @apply text-gnome-text antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-500;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gnome-border) transparent; /* Para Firefox */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--color-gnome-border);
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gnome-border);
+}

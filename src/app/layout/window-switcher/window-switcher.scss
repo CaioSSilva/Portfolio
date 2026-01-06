@@ -1,0 +1,14 @@
+.animate-in {
+  animation: switcherIn 0.1s ease-out;
+}
+
+@keyframes switcherIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

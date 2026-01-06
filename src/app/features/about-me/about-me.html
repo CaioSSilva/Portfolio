@@ -1,0 +1,206 @@
+<div
+  class="h-full flex flex-col items-center bg-gnome-bg text-gnome-text overflow-y-auto custom-scrollbar p-8"
+>
+  <div class="flex flex-col items-center mb-10 animate-in fade-in duration-700">
+    <div
+      class="mb-6 shadow-lg rounded-full p-[3px] inline-block bg-gradient-to-tr from-red-500 via-orange-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500"
+    >
+      <div
+        class="w-28 h-28 rounded-full border-[4px] border-gnome-bg overflow-hidden relative group bg-gnome-bg"
+      >
+        <img
+          src="profile.png"
+          alt="Me"
+          class="w-full h-full object-cover group-hover:opacity-0 transition-opacity duration-300 ease-in-out relative z-10"
+        />
+        <img
+          src="cat.jpg"
+          alt="Secret Cat"
+          class="w-full h-full object-cover absolute top-0 left-0"
+        />
+      </div>
+    </div>
+
+    <h1 class="text-3xl font-black italic tracking-tight mb-2">@CaioSSilva</h1>
+    <h3 class="text-xs uppercase tracking-[0.3em] text-gnome-blue font-bold mb-6">
+      {{ lang.t().aboutMe.title }}
+    </h3>
+    <p class="text-gnome-text-secondary text-center max-w-2xl leading-relaxed text-sm mb-8">
+      {{ lang.t().aboutMe.intro }}
+    </p>
+
+    <div
+      class="relative py-4 px-8 border-l-2 border-gnome-blue/30 italic text-gnome-text/80 max-w-lg text-center bg-gnome-blue/5 rounded-r-2xl"
+    >
+      <span class="text-2xl absolute top-0 left-2 opacity-20 font-serif">"</span>
+      <p class="text-sm tracking-wide">
+        {{ lang.t().aboutMe.quote }}
+      </p>
+      <span class="text-2xl absolute bottom-0 right-2 opacity-20 font-serif">"</span>
+    </div>
+  </div>
+
+  <div
+    class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in slide-in-from-bottom-4 duration-700 delay-300 pb-10"
+  >
+    <div
+      (click)="openFiles()"
+      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+    >
+      <div
+        class="w-12 h-12 bg-[#3584e4] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+      >
+        <i class="fas fa-folder text-xl"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.files.name }}</h4>
+        <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
+          {{ lang.t().aboutMe.apps.files.desc }}
+        </p>
+      </div>
+    </div>
+
+    <div
+      (click)="openPhotos()"
+      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+    >
+      <div
+        class="w-12 h-12 bg-[#4a90e2] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+      >
+        <i class="fas fa-image text-xl"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.photos.name }}</h4>
+        <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
+          {{ lang.t().aboutMe.apps.photos.desc }}
+        </p>
+      </div>
+    </div>
+
+    <div
+      (click)="openMusic()"
+      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+    >
+      <div
+        class="w-12 h-12 bg-[#0077b6] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+      >
+        <i class="fas fa-music text-xl"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.music.name }}</h4>
+        <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
+          {{ lang.t().aboutMe.apps.music.desc }}
+        </p>
+      </div>
+    </div>
+
+    <div
+      (click)="openDocs()"
+      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+    >
+      <div
+        class="w-12 h-12 bg-[#e01b24] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+      >
+        <i class="fas fa-file text-xl"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.docs.name }}</h4>
+        <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
+          {{ lang.t().aboutMe.apps.docs.desc }}
+        </p>
+      </div>
+    </div>
+
+    <div
+      (click)="openFirefox()"
+      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+    >
+      <div
+        class="w-12 h-12 bg-[#ff7139] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+      >
+        <i class="fab fa-firefox-browser text-xl"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.browser.name }}</h4>
+        <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
+          {{ lang.t().aboutMe.apps.browser.desc }}
+        </p>
+      </div>
+    </div>
+
+    <div
+      (click)="openTerminal()"
+      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+    >
+      <div
+        class="w-12 h-12 bg-[#77767b] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+      >
+        <i class="fas fa-terminal text-xl"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.terminal.name }}</h4>
+        <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
+          {{ lang.t().aboutMe.apps.terminal.desc }}
+        </p>
+      </div>
+    </div>
+
+    <div
+      (click)="openSettings()"
+      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98] md:col-span-2 lg:col-span-3"
+    >
+      <div
+        class="w-12 h-12 bg-[#FE6F5E] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+      >
+        <i class="fas fa-cog text-xl"></i>
+      </div>
+      <div class="text-left flex-1">
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.settings.name }}</h4>
+        <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
+          {{ lang.t().aboutMe.apps.settings.desc }}
+        </p>
+      </div>
+      <i
+        class="fas fa-chevron-right text-gnome-text opacity-0 group-hover:opacity-20 transition-opacity mr-4"
+      ></i>
+    </div>
+  </div>
+
+  <div
+    class="mt-12 flex flex-col items-center gap-6 animate-in slide-in-from-bottom-4 duration-700 delay-500 pb-8"
+  >
+    <div class="flex items-center gap-4">
+      <a
+        href="https://github.com/CaioSSilva"
+        target="_blank"
+        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-101 hover:border-white/40 hover:bg-zinc-800 text-gnome-text hover:text-white"
+      >
+        <i class="fab fa-github"></i>
+      </a>
+
+      <a
+        href="https://www.linkedin.com/in/caio-souza-silva/"
+        target="_blank"
+        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-101 hover:border-blue-400/40 hover:bg-[#0077b5] text-gnome-text hover:text-white"
+      >
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+
+      <a
+        href="https://www.instagram.com/caios_silvaa/"
+        target="_blank"
+        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-101 hover:border-pink-400/40 hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] text-gnome-text hover:text-white"
+      >
+        <i class="fab fa-instagram"></i>
+      </a>
+
+      <a
+        href="https://twitter.com/Caiomas_levanto"
+        target="_blank"
+        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-101 hover:border-zinc-400/40 hover:bg-black text-gnome-text hover:text-white"
+      >
+        <i class="fab fa-x-twitter"></i>
+      </a>
+    </div>
+  </div>
+</div>

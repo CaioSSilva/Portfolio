@@ -1,0 +1,83 @@
+<div
+  class="fixed top-12 left-1/2 -translate-x-1/2 z-[50000] flex flex-col gap-2 pointer-events-none"
+>
+  @if (!notifService.isPanelOpen()) { @for (n of notifService.activeNotifications(); track n.id) {
+  <div
+    (click)="n.action?.()"
+    class="cursor-pointer flex items-center gap-4 p-3 min-w-[320px] bg-gnome-bg/90 backdrop-blur-md border border-gnome-border/30 rounded-2xl shadow-2xl animate-in slide-in-from-top-4"
+  >
+    <div
+      class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-sm"
+      [style.background-color]="n.color"
+    >
+      <i [class]="n.icon" class="text-white text-lg"></i>
+    </div>
+    <div class="flex-1 text-[13px]">
+      <div class="font-bold text-gnome-text">{{ n.title }}</div>
+      <div class="text-gnome-text-secondary leading-tight">{{ n.message }}</div>
+    </div>
+  </div>
+  } }
+</div>
+
+@if (notifService.isPanelOpen()) {
+<div class="fixed inset-0 z-[8000]" (click)="notifService.isPanelOpen.set(false)"></div>
+
+<div
+  class="fixed top-10 left-1/2 -translate-x-1/2 w-[480px] max-h-[85vh] z-[8001] bg-gnome-bg/85 backdrop-blur-xl border border-gnome-border rounded-[28px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 fade-in duration-200"
+  (click)="$event.stopPropagation()"
+>
+  <div
+    class="p-4 border-b border-gnome-border flex justify-between items-center bg-gnome-surface/50"
+  >
+    <span class="text-[11px] font-bold uppercase tracking-[0.1em] text-gnome-text-secondary">{{
+      lang.t().notifications.title
+    }}</span>
+    <button
+      (click)="notifService.clearHistory()"
+      class="text-[11px] cursor-pointer font-medium bg-gnome-surface hover:bg-gnome-border text-gnome-text px-4 py-1.5 rounded-full transition-all active:scale-95 border border-gnome-border/50"
+    >
+      {{ lang.t().notifications.clearAll }}
+    </button>
+  </div>
+
+  <div
+    class="flex-1 overflow-y-auto p-3 flex flex-col gap-2 custom-scrollbar bg-transparent"
+    style="max-height: 250px"
+  >
+    @if (notifService.history().length === 0) {
+    <div class="flex flex-col items-center justify-center py-24 text-gnome-text-secondary/40">
+      <i class="fas fa-bell-slash text-5xl mb-4"></i>
+      <p class="text-sm font-medium">{{ lang.t().notifications.noNotifications }}</p>
+    </div>
+    } @for (n of notifService.history(); track n.id) {
+    <div
+      [style.cursor]="n.action ? 'pointer' : 'default'"
+      class="cursor-pointer bg-gnome-surface/40 hover:bg-gnome-surface/80 p-4 rounded-2xl flex gap-4 transition-all group border border-gnome-border/10 shrink-0"
+    >
+      <div
+        class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md"
+        [style.background-color]="n.color"
+      >
+        <i [class]="n.icon" class="text-white text-lg"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex justify-between items-start mb-0.5">
+          <span class="text-[13px] font-bold text-gnome-text truncate">{{ n.title }}</span>
+          <span class="text-[10px] text-gnome-text-secondary font-medium">
+            {{ formatTimestamp(n.timestamp) }}
+          </span>
+        </div>
+        <p class="text-[12px] text-gnome-text-secondary leading-snug">{{ n.message }}</p>
+      </div>
+    </div>
+    }
+  </div>
+
+  <div class="py-3 px-4 bg-gnome-surface/50 border-t border-gnome-border text-center">
+    <span class="text-[12px] font-bold text-gnome-text-secondary/80">
+      {{ now | date : 'fullDate' : '' : (lang.currentLang() === 'pt' ? 'pt-BR' : 'en-US') }}
+    </span>
+  </div>
+</div>
+}

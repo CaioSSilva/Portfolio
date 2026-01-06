@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Cai_OS | Web Desktop</title>
+
+    <meta name="title" content="Cai_OS | Fullstack Developer Portfolio" />
+    <meta
+      name="description"
+      content="Explore um ambiente desktop interativo inspirado no GNOME Linux, desenvolvido com Angular por Caio Silva. Conheça meu terminal, explorador de arquivos e projetos de software."
+    />
+    <meta
+      name="keywords"
+      content="portfolio, web desktop, GNOME, Linux, Angular, Fullstack Developer, Web OS, Terminal, Caio Silva, caiossilva"
+    />
+    <meta name="author" content="Caio Silva" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://caiossilva.com/" />
+    <meta property="og:title" content="Cai_OS | Web Desktop Portfolio" />
+    <meta
+      property="og:description"
+      content="Uma experiência interativa de portfólio simulando um Sistema Operacional completo diretamente no navegador."
+    />
+    <meta property="og:image" content="https://caiossilva.com/og-preview.png" />
+
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://caiossilva.com/" />
+    <meta property="twitter:title" content="Cai_OS | Web Desktop Portfolio" />
+    <meta
+      property="twitter:description"
+      content="Um portfólio transformado em sistema operacional. Explore meus apps, terminal interativo e stack tecnológica."
+    />
+    <meta property="twitter:image" content="https://caiossilva.com/og-preview.png" />
+
+    <meta name="theme-color" content="#1e1e1e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.png" />
+    <script>
+      (function () {
+        const theme = localStorage.getItem('theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (theme === 'dark' || (!theme && systemDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>

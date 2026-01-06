@@ -1,0 +1,35 @@
+<div class="flex flex-col min-w-full text-nowrap">
+  <div
+    class="flex items-center px-4 py-2 border-b border-gnome-border text-[11px] font-bold text-gnome-text-secondary uppercase"
+  >
+    <div class="flex-1">{{ lang.t().files.name }}</div>
+    <div class="w-24 text-right px-4">{{ lang.t().files.size }}</div>
+  </div>
+
+  @for (file of files(); track file.id) {
+    <div
+      (click)="$event.stopPropagation(); onSelect.emit(file.id)"
+      (dblclick)="onNavigate.emit(file)"
+      class="flex items-center px-4 py-1.5 text-[13px] border-b border-gnome-border/10 cursor-default transition-colors"
+      [class.bg-gnome-blue]="selectedId() === file.id"
+      [class.text-white]="selectedId() === file.id"
+      [class.hover:bg-gnome-blue/10]="selectedId() !== file.id"
+    >
+      <div class="flex-1 flex items-center gap-3 truncate">
+        <i
+          [class]="file.icon"
+          [style.color]="selectedId() === file.id ? 'white' : file.color || '#3584e4'"
+          class="w-4 text-center text-sm"
+        ></i>
+
+        <span class="truncate">
+          {{ $any(lang.t().files)[file.id.toLowerCase()] || file.name }}
+        </span>
+      </div>
+
+      <div class="w-24 text-right opacity-60 text-[12px] px-4">
+        {{ fs.formatFileSize(file.size || 0) }}
+      </div>
+    </div>
+  }
+</div>

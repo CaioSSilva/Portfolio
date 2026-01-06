@@ -1,0 +1,40 @@
+<div
+  class="fixed top-0 left-0 right-0 h-1 z-[9999] will-change-transform"
+  (mouseenter)="forceShow.set(true)"
+></div>
+
+<div
+  (mouseleave)="forceShow.set(false)"
+  [class.-translate-y-full]="
+    processManager.isTopBarHidden() && !forceShow() && !notfService.isPanelOpen()
+  "
+  class="fixed top-0 left-0 right-0 h-8 bg-gnome-bg/80 backdrop-blur-md text-gnome-text text-sm flex items-center justify-between px-4 select-none z-50 shadow-md font-medium transition-transform duration-300 ease-in-out"
+>
+  <div class="flex items-center"></div>
+
+  <div
+    (click)="notfService.togglePanel()"
+    class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-full hover:bg-gnome-text/20 transition-colors cursor-pointer text-[11px] font-bold"
+    [class.bg-gnome-text/10]="notfService.isPanelOpen()"
+  >
+    {{
+      now() | date: 'longDate' : '' : (languageService.currentLang() === 'pt' ? 'pt-BR' : 'en-US')
+    }}
+    <span class="opacity-50 ml-1 font-medium">{{ now() | date: 'HH:mm' }}</span>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <div
+      class="flex items-center gap-1 bg-gnome-text/5 p-0.1 rounded-full border border-gnome-border/10"
+    >
+      <button
+        (click)="handlePowerOff()"
+        class="flex cursor-pointer items-center justify-center w-6 h-6 hover:bg-gnome-red/20 hover:text-gnome-red rounded-full transition-colors outline-none border-none active:scale-90"
+      >
+        <i class="fas fa-power-off" style="font-size: 10px"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-notification-center></app-notification-center>

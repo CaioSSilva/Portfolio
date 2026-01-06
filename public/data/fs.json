@@ -1,0 +1,568 @@
+{
+  "root": {
+    "id": "root",
+    "name": "Cai_OS",
+    "type": "folder",
+    "icon": "fas fa-hdd",
+    "children": [
+      {
+        "id": "home",
+        "name": "Início",
+        "type": "folder",
+        "icon": "fas fa-home",
+        "color": "#3584e4",
+        "children": [
+          {
+            "id": "certificates",
+            "name": "Certificados",
+            "type": "folder",
+            "icon": "fas fa-certificate",
+            "color": "#e4b135",
+            "children": [
+              {
+                "id": "cert1",
+                "name": "Agile Explorer.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 75702,
+                "url": "/data/root/home/certificates/Agile Explorer.pdf"
+              },
+              {
+                "id": "cert2",
+                "name": "Campus Expert.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 264809,
+                "url": "/data/root/home/certificates/Campus Expert.pdf"
+              },
+              {
+                "id": "cert3",
+                "name": "Coleções - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543748,
+                "url": "/data/root/home/certificates/Coleções - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert4",
+                "name": "CS50 Harvard.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 903295,
+                "url": "/data/root/home/certificates/CS50 Harvard.pdf"
+              },
+              {
+                "id": "cert5",
+                "name": "DOM - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543512,
+                "url": "/data/root/home/certificates/DOM - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert6",
+                "name": "Dubug, Error Handling - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543489,
+                "url": "/data/root/home/certificates/Dubug, Error Handling - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert7",
+                "name": "Enterprise Design Thinking Practitioner.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 241940,
+                "url": "/data/root/home/certificates/Enterprise Design Thinking Practitioner.pdf"
+              },
+              {
+                "id": "cert8",
+                "name": "Funções - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543748,
+                "url": "/data/root/home/certificates/Funções - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert9",
+                "name": "IBM Virtual Colaboration.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 86604,
+                "url": "/data/root/home/certificates/IBM Virtual Colaboration.pdf"
+              },
+              {
+                "id": "cert10",
+                "name": "Introdução a Criação de Websites com HTML e CSS - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543795,
+                "url": "/data/root/home/certificates/Introdução a Criação de Websites com HTML e CSS - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert11",
+                "name": "Introdução ao Git e ao Github - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543768,
+                "url": "/data/root/home/certificates/Introdução ao Git e ao Github - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert12",
+                "name": "Introdução ao Javascript - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543784,
+                "url": "/data/root/home/certificates/Introdução ao Javascript - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert13",
+                "name": "Introdução ao Pensamento Computacional - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543848,
+                "url": "/data/root/home/certificates/Introdução ao Pensamento Computacional - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert14",
+                "name": "Introdução ao Typescript - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543829,
+                "url": "/data/root/home/certificates/Introdução ao Typescript - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert15",
+                "name": "Javascript Assincrono - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543605,
+                "url": "/data/root/home/certificates/Javascript Assincrono - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert16",
+                "name": "Javascript Modules - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543604,
+                "url": "/data/root/home/certificates/Javascript Modules - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert17",
+                "name": "Map, Filter, Reduce - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543489,
+                "url": "/data/root/home/certificates/Map, Filter, Reduce - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert18",
+                "name": "Módulo 2 - HTML, CSS, JS - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543618,
+                "url": "/data/root/home/certificates/Módulo 2 - HTML, CSS, JS - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert19",
+                "name": "Orientação a Objetos - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543763,
+                "url": "/data/root/home/certificates/Orientação a Objetos - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert20",
+                "name": "Posicionamento com Flexbox - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543517,
+                "url": "/data/root/home/certificates/Posicionamento com Flexbox - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert21",
+                "name": "Primeiro Repositório Github - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543648,
+                "url": "/data/root/home/certificates/Primeiro Repositório Github - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert22",
+                "name": "Recriando Landing Page Instagram - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543605,
+                "url": "/data/root/home/certificates/Recriando Landing Page Instagram - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert23",
+                "name": "Salesforce AI Associate.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 796335,
+                "url": "/data/root/home/certificates/Salesforce AI Associate.pdf"
+              },
+              {
+                "id": "cert24",
+                "name": "Santander Fullstack.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 583983,
+                "url": "/data/root/home/certificates/Santander Fullstack.pdf"
+              },
+              {
+                "id": "cert25",
+                "name": "Sintaxe e Operadores - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543487,
+                "url": "/data/root/home/certificates/Sintaxe e Operadores - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert26",
+                "name": "Trilha Conectar - Rocketseat_.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 89793,
+                "url": "/data/root/home/certificates/Trilha Conectar - Rocketseat_.pdf"
+              },
+              {
+                "id": "cert27",
+                "name": "Typescript Prático - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543861,
+                "url": "/data/root/home/certificates/Typescript Prático - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert28",
+                "name": "Variáveis e Tipos - Santander Bootcamp.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543578,
+                "url": "/data/root/home/certificates/Variáveis e Tipos - Santander Bootcamp.pdf"
+              }
+            ]
+          },
+          {
+            "id": "feedbacks",
+            "name": "Avaliações",
+            "type": "folder",
+            "icon": "fas fa-comment",
+            "color": "#ff9900",
+            "children": [
+              {
+                "id": "fb1",
+                "name": "02. Junho, 2025.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 392283,
+                "url": "/data/root/home/feedbacks/02. Junho, 2025.png"
+              },
+              {
+                "id": "fb2",
+                "name": "03. Agosto, 2025_2.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 236984,
+                "url": "/data/root/home/feedbacks/03. Agosto, 2025_2.png"
+              },
+              {
+                "id": "fb3",
+                "name": "03. Agosto, 2025.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 373828,
+                "url": "/data/root/home/feedbacks/03. Agosto, 2025.png"
+              },
+              {
+                "id": "fb4",
+                "name": "03. Nov, 2025_2.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 236688,
+                "url": "/data/root/home/feedbacks/03. Nov, 2025_2.png"
+              },
+              {
+                "id": "fb5",
+                "name": "03. Nov, 2025.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 373704,
+                "url": "/data/root/home/feedbacks/03. Nov, 2025.png"
+              },
+              {
+                "id": "fb6",
+                "name": "06. Nov, 2025.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 275639,
+                "url": "/data/root/home/feedbacks/06. Nov, 2025.png"
+              },
+              {
+                "id": "fb7",
+                "name": "11 Nov, 2025.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 659452,
+                "url": "/data/root/home/feedbacks/11 Nov, 2025.png"
+              },
+              {
+                "id": "fb8",
+                "name": "11. Julho, 2025.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 253279,
+                "url": "/data/root/home/feedbacks/11. Julho, 2025.png"
+              },
+              {
+                "id": "fb9",
+                "name": "23. Maio, 2025.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 199488,
+                "url": "/data/root/home/feedbacks/23. Maio, 2025.png"
+              },
+              {
+                "id": "fb10",
+                "name": "26. Maio, 2025.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 262662,
+                "url": "/data/root/home/feedbacks/26. Maio, 2025.png"
+              },
+              {
+                "id": "fb11",
+                "name": "FeedBack 1-4 - Danielle Salgueiro.png",
+                "type": "file",
+                "icon": "fas fa-image",
+                "color": "#ff9900",
+                "size": 384652,
+                "url": "/data/root/home/feedbacks/FeedBack 1-4 - Danielle Salgueiro.png"
+              }
+            ]
+          },
+          {
+            "id": "photos",
+            "name": "Fotos",
+            "type": "folder",
+            "icon": "fas fa-photo-film",
+            "color": "#e45b99",
+            "children": [
+              {
+                "id": "faisca",
+                "name": "Faisca",
+                "type": "folder",
+                "icon": "fas fa-dog",
+                "color": "#e45b99",
+                "children": [
+                  {
+                    "id": "faisca1",
+                    "name": "20211020_212101.jpg",
+                    "type": "file",
+                    "icon": "fas fa-image",
+                    "color": "#e45b99",
+                    "size": 259885,
+                    "url": "/data/root/home/photos/faisca/20211020_212101.jpg"
+                  },
+                  {
+                    "id": "faisca2",
+                    "name": "20211103_071556.jpg",
+                    "type": "file",
+                    "icon": "fas fa-image",
+                    "color": "#e45b99",
+                    "size": 240309,
+                    "url": "/data/root/home/photos/faisca/20211103_071556.jpg"
+                  },
+                  {
+                    "id": "faisca3",
+                    "name": "20230113_082807_HDR.jpg",
+                    "type": "file",
+                    "icon": "fas fa-image",
+                    "color": "#e45b99",
+                    "size": 155247,
+                    "url": "/data/root/home/photos/faisca/20230113_082807_HDR.jpg"
+                  },
+                  {
+                    "id": "faisca4",
+                    "name": "IMG-20211211-WA0074.jpg",
+                    "type": "file",
+                    "icon": "fas fa-image",
+                    "color": "#e45b99",
+                    "size": 93210,
+                    "url": "/data/root/home/photos/faisca/IMG-20211211-WA0074.jpg"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "documents",
+            "name": "Documentos",
+            "type": "folder",
+            "icon": "fas fa-file-alt",
+            "color": "#4cc14c",
+            "children": [
+              {
+                "id": "txt1",
+                "name": "example.txt",
+                "type": "file",
+                "icon": "fas fa-file-alt",
+                "color": "#4cc14c",
+                "size": 3,
+                "url": "/data/root/home/documents/example.txt"
+              },
+              {
+                "id": "Curr1",
+                "name": "Curriculo.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 113,
+                "url": "/data/root/home/documents/Currículo.pdf"
+              },
+              {
+                "id": "Curr2",
+                "name": "Resume.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 111,
+                "url": "/data/root/home/documents/Resume.pdf"
+              }
+            ]
+          },
+          {
+            "id": "musics",
+            "name": "Musicas",
+            "type": "folder",
+            "icon": "fas fa-compact-disc",
+            "color": "#0077b6",
+            "children": [
+              {
+                "id": "mus1",
+                "name": "Ready or Not - Bridgit Mendler.mp3",
+                "type": "file",
+                "icon": "fas fa-music",
+                "color": "#0077b6",
+                "size": 8336332,
+                "url": "/data/root/home/musics/Ready or Not - Bridgit Mendler.mp3"
+              },
+              {
+                "id": "mus2",
+                "name": "I Can Do It With a Broken Heart - Taylor Swift.mp3",
+                "type": "file",
+                "icon": "fas fa-music",
+                "color": "#0077b6",
+                "size": 8905801,
+                "url": "/data/root/home/musics/I Can Do It With a Broken Heart - Taylor Swift.mp3"
+              },
+              {
+                "id": "mus3",
+                "name": "Big Star - Kenny Chesney (ft. Taylor Swift).mp3",
+                "type": "file",
+                "icon": "fas fa-music",
+                "color": "#0077b6",
+                "size": 12328887,
+                "url": "/data/root/home/musics/Big Star - Kenny Chesney (ft. Taylor Swift).mp3"
+              },
+              {
+                "id": "mus4",
+                "name": "Saúde - Rita Lee.mp3",
+                "type": "file",
+                "icon": "fas fa-music",
+                "color": "#0077b6",
+                "size": 8221393,
+                "url": "/data/root/home/musics/Saúde - Rita Lee.mp3"
+              },
+              {
+                "id": "mus5",
+                "name": "Crazier - Taylor Swift.mp3",
+                "type": "file",
+                "icon": "fas fa-music",
+                "color": "#0077b6",
+                "size": 7681181,
+                "url": "/data/root/home/musics/Crazier - Taylor Swift.mp3"
+              },
+              {
+                "id": "mus6",
+                "name": "Our Song (Speak Now World Tour) - Taylor Swift.mp3",
+                "type": "file",
+                "icon": "fas fa-music",
+                "color": "#0077b6",
+                "size": 11605817,
+                "url": "/data/root/home/musics/Our Song (Speak Now World Tour ) - Taylor Swift.mp3"
+              },
+              {
+                "id": "mus7",
+                "name": "Sangue latino - Ney Matogrosso.mp3",
+                "type": "file",
+                "icon": "fas fa-music",
+                "color": "#0077b6",
+                "size": 8688462,
+                "url": "/data/root/home/musics/Sangue latino - Ney Matogrosso.mp3"
+              },
+              {
+                "id": "mus8",
+                "name": "Taylor Swift - Mastermind.mp3",
+                "type": "file",
+                "icon": "fas fa-music",
+                "color": "#0077b6",
+                "size": 7785670,
+                "url": "/data/root/home/musics/Taylor Swift - Mastermind.mp3"
+              },
+              {
+                "id": "mus9",
+                "name": "The Alcott - The National ft. Taylor Swift.mp3",
+                "type": "file",
+                "icon": "fas fa-music",
+                "color": "#0077b6",
+                "size": 10718699,
+                "url": "/data/root/home/musics/The Alcott - The National (ft. Taylor Swift).mp3"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

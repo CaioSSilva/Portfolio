@@ -1,0 +1,86 @@
+<div class="fixed bottom-0 left-0 right-0 h-2 z-[8999]" (mouseenter)="forceShow.set(true)"></div>
+
+<div
+  (mouseleave)="forceShow.set(false)"
+  [class.translate-y-0]="forceShow()"
+  [class.translate-y-[150%]]="
+    settings.autoHideDock() && processManager.isDockHidden() && !forceShow()
+  "
+  class="fixed bottom-4 left-1/2 -translate-x-1/2 px-2 py-2 flex items-end gap-2 z-[9000] bg-gnome-bg/80 border border-gnome-border/10 rounded-[24px] shadow-2xl will-change-transform transition-all duration-300 ease-in-out"
+>
+  <div class="group relative flex justify-center items-center">
+    <button
+      (click)="apps.toggleGrid()"
+      [style.width.px]="settings.dockSize()"
+      [style.height.px]="settings.dockSize()"
+      class="relative cursor-pointer flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10"
+    >
+      <i
+        [style.font-size.px]="settings.dockSize() * 0.65"
+        class="fas fa-th text-gnome-text outline-none"
+      ></i>
+    </button>
+    <div
+      class="w-[1px] bg-gnome-text/20 mx-1 transition-opacity group-hover:opacity-0"
+      [style.height.px]="settings.dockSize() * 0.6"
+    ></div>
+  </div>
+
+  @for (item of dock.dockItems(); track item.id) {
+    <button
+      (click)="dock.handleAppClick(item, $event)"
+      [style.width.px]="settings.dockSize()"
+      [style.height.px]="settings.dockSize()"
+      class="group relative flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10 active:scale-95 cursor-pointer"
+      [class.bg-gnome-text/10]="item.isActive"
+    >
+      <div
+        class="absolute -top-14 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-gnome-bg text-gnome-text text-[11px] font-bold rounded-lg border border-gnome-border shadow-xl pointer-events-none opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 whitespace-nowrap z-50"
+      >
+        {{ $any(lang.t().apps)[item.id] || item.title }}
+        <div
+          class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gnome-border rotate-45"
+        ></div>
+      </div>
+
+      <div
+        class="relative flex items-center justify-center pointer-events-none"
+        [style.width.px]="settings.dockSize() * 0.65"
+        [style.height.px]="settings.dockSize() * 0.65"
+      >
+        <div
+          class="absolute inset-0 rounded-[10px] overflow-hidden ring-1 ring-white/10"
+          [style.background-color]="item.color || '#3584e4'"
+          [class.grayscale]="!item.isOpen && !item.pinned"
+          [class.opacity-60]="!item.isOpen && !item.pinned"
+        >
+          <div
+            class="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-white/15 to-transparent"
+          ></div>
+        </div>
+
+        <i
+          [class]="item.icon"
+          [style.font-size.px]="settings.dockSize() * 0.38"
+          class="relative z-20 text-white"
+        ></i>
+      </div>
+
+      @if (item.count > 1) {
+        <div
+          class="absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center bg-gnome-red text-white text-[9px] font-bold rounded-full z-20"
+        >
+          {{ item.count }}
+        </div>
+      }
+
+      @if (item.isOpen) {
+        <div
+          class="absolute bg-gnome-blue -bottom-1 rounded-full transition-all duration-200"
+          [style.width.px]="item.isActive ? settings.dockSize() * 0.4 : 5"
+          [style.height.px]="item.isActive ? 2 : 5"
+        ></div>
+      }
+    </button>
+  }
+</div>

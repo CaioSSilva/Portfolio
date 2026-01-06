@@ -1,0 +1,14 @@
+.resizable-handle::after,
+.resizable::after,
+[resizable]::after,
+.angular-resizable-resizing::after {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.resize-ghost-element,
+.resize-info-box {
+  display: none !important;
+}

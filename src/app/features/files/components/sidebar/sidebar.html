@@ -1,0 +1,54 @@
+<aside
+  [style.width.px]="width()"
+  class="flex flex-col shrink-0 border-r border-gnome-border bg-gnome-surface/50 p-2 gap-0.5 overflow-y-auto custom-scrollbar select-none h-full"
+>
+  <div
+    class="px-3 mb-1.5 text-[10px] font-bold text-gnome-text-secondary uppercase tracking-wider opacity-50 text-nowrap"
+  >
+    {{ lang.t().files.locations }}
+  </div>
+  @if (tree()) {
+    <ng-container *ngTemplateOutlet="navTree; context: { $implicit: tree() }"></ng-container>
+  }
+</aside>
+
+<ng-template #navTree let-item>
+  <div class="flex flex-col">
+    <div
+      class="flex items-center gap-0.5 px-2 py-1 rounded-md transition-colors text-[13px] font-medium"
+      [class.bg-gnome-blue]="isSelected(item)"
+      [class.text-white]="isSelected(item)"
+      [class.hover:bg-gnome-blue/10]="!isSelected(item)"
+    >
+      <button
+        (click)="onToggle.emit(item.id)"
+        class="w-4 h-4 flex items-center justify-center transition-transform opacity-50"
+        [class.rotate-90]="isExpanded(item.id)"
+        [class.invisible]="item.type === 'file' || !item.children?.length"
+      >
+        <i class="fas fa-chevron-right text-[8px]"></i>
+      </button>
+
+      <div
+        (click)="onNavigate.emit(item)"
+        class="flex-1 flex items-center gap-2 truncate cursor-default"
+      >
+        <i
+          [class]="item.icon + ' text-[14px] w-4 text-center'"
+          [style.color]="isSelected(item) ? 'white' : item.color || '#3584e4'"
+        ></i>
+
+        <span class="truncate">
+          {{ $any(lang.t().files)[item.id.toLowerCase()] || item.name }}
+        </span>
+      </div>
+    </div>
+    @if (isExpanded(item.id) && item.children?.length) {
+      <div class="ml-3.5 border-l border-gnome-border/20 pl-1 mt-0.5 flex flex-col gap-0.5">
+        @for (child of item.children; track child.id) {
+          <ng-container *ngTemplateOutlet="navTree; context: { $implicit: child }"></ng-container>
+        }
+      </div>
+    }
+  </div>
+</ng-template>

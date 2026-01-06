@@ -1,0 +1,83 @@
+<div
+  class="fixed inset-0 z-[100000] bg-gnome-bg flex flex-col items-center justify-center transition-all duration-1000 ease-in-out cursor-default"
+  [class.opacity-0]="isExiting()"
+  [class.scale-110]="isExiting()"
+  [class.pointer-events-none]="isExiting()"
+  (click)="startSystem()"
+>
+  @if (isMobile()) {
+    <div
+      class="absolute inset-0 z-[100001] bg-black/20 dark:bg-black/60 backdrop-blur-xl flex items-center justify-center p-6"
+    >
+      <div
+        class="bg-gnome-surface border border-gnome-border p-8 rounded-3xl max-w-sm text-center shadow-2xl transition-all duration-300"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="w-16 h-16 bg-gnome-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-6"
+        >
+          <i class="fas fa-mobile-alt text-gnome-blue text-3xl"></i>
+        </div>
+
+        <h2 class="text-gnome-text text-xl font-bold mb-3">
+          {{ translate.t().boot.mobileAlert.title }}
+        </h2>
+
+        <p class="text-gnome-text-secondary text-sm mb-8 leading-relaxed">
+          {{ translate.t().boot.mobileAlert.description }}
+        </p>
+
+        <button
+          (click)="redirectToMobile()"
+          class="w-full bg-gnome-blue hover:bg-gnome-blue/90 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-gnome-blue/20 active:scale-95 outline-none"
+        >
+          {{ translate.t().boot.mobileAlert.action }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="flex flex-col items-center gap-16 w-full max-w-[280px]">
+    <div class="flex flex-col items-center gap-4" [class.animate-pulse]="!waitingClick()">
+      <div
+        class="w-20 h-20 bg-gnome-blue rounded-2xl flex items-center justify-center shadow-[0_0_40px_rgba(53,132,228,0.2)]"
+      >
+        <span class="text-white text-4xl font-black italic">C</span>
+      </div>
+      <h1 class="text-gnome-text text-2xl font-light tracking-[0.5em] ml-[0.5em]">CAI_OS</h1>
+    </div>
+
+    <div class="w-full h-[2px] bg-gnome-border rounded-full overflow-hidden relative">
+      <div
+        class="absolute top-0 left-0 h-full bg-gnome-blue transition-all duration-300 ease-out shadow-[0_0_10px_var(--color-gnome-blue)]"
+        [style.width.%]="progress()"
+      ></div>
+    </div>
+
+    <div class="h-4 flex items-center justify-center">
+      @if (waitingClick()) {
+        <div class="flex items-center gap-2 text-gnome-blue font-mono text-[11px] tracking-widest">
+          <span>> {{ translate.t().boot.pressToStart }}</span>
+          <span class="w-2 h-4 bg-gnome-blue animate-pulse"></span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="absolute bottom-12 flex flex-col items-center gap-3">
+    <div class="text-[10px] uppercase tracking-[0.3em] text-gnome-text font-medium opacity-80">
+      {{ translate.t().boot.systemKernel }} "Tabby cat" - v1.0.0
+    </div>
+
+    <div class="flex items-center gap-2 opacity-80">
+      <i class="fab fa-angular text-gnome-text text-[12px]"></i>
+      <span class="text-[9px] uppercase tracking-[0.2em] text-gnome-text font-medium">
+        {{ translate.t().boot.poweredBy }} Angular
+      </span>
+    </div>
+
+    <span class="text-[9px] uppercase tracking-[0.2em] text-gnome-text font-medium opacity-80">
+      @CaioSSilva - 2026
+    </span>
+  </div>
+</div>

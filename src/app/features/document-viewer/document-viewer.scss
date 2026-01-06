@@ -1,0 +1,24 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+::ng-deep {
+  .ng2-pdf-viewer-container {
+    overflow: scroll !important;
+  }
+
+  .page {
+    margin-bottom: 20px !important;
+  }
+}
+
+pdf-viewer {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100%;
+  box-shadow: none;
+  height: auto !important;
+}
