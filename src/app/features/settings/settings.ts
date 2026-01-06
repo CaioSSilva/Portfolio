@@ -48,10 +48,10 @@ export class SettingsComponent extends Base {
   ]);
 
   wallpapers = [
-    '/wallpapers/default.jpg',
-    '/wallpapers/waves.jpg',
-    '/wallpapers/nebula.jpg',
-    '/wallpapers/sunset.jpg',
+    '/wallpapers/default.webp',
+    '/wallpapers/waves.webp',
+    '/wallpapers/nebula.webp',
+    '/wallpapers/sunset.webp',
   ];
 
   setSection(section: SettingSection) {
