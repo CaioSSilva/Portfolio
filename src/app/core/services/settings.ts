@@ -1,4 +1,4 @@
-import { Injectable, signal, effect, inject } from '@angular/core';
+import { Injectable, signal, effect } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',

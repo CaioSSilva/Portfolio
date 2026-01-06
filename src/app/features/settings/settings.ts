@@ -49,7 +49,7 @@ export class SettingsComponent extends Base {
 
   wallpapers = [
     '/wallpapers/default.jpg',
-    '/wallpapers/keys.jpg',
+    '/wallpapers/waves.jpg',
     '/wallpapers/nebula.jpg',
     '/wallpapers/sunset.jpg',
   ];
