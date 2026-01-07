@@ -72,7 +72,7 @@ export const en = {
         title: 'App Switcher',
         desc_part1: 'Quick navigation between processes. Using the',
         desc_part2:
-          'shortcut, you access a quick toggle interface that overlays the system, allowing you to switch focus between active windows with speed and fluidity. ',
+          'shortcut, you access a quick toggle interface that overlays the system, allowing you to switch focus between active windows with speed and fluidity.',
       },
       notifications: {
         tag: 'System',

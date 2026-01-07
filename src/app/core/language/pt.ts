@@ -70,9 +70,9 @@ export const pt = {
       appSwitcher: {
         tag: 'Multitasking',
         title: 'App Switcher',
-        desc_part1: 'Navegação rápida entre processos. Utilizando o atalho ',
+        desc_part1: 'Navegação rápida entre processos. Utilizando o atalho',
         desc_part2:
-          ', você acessa uma interface de troca rápida que sobrepõe o sistema, permitindo alternar o foco entre janelas ativas com agilidade e fluidez.',
+          'você acessa uma interface de troca rápida que sobrepõe o sistema, permitindo alternar o foco entre janelas ativas com agilidade e fluidez.',
       },
       notifications: {
         tag: 'Sistema',
