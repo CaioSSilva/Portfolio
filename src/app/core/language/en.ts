@@ -58,7 +58,7 @@ export const en = {
       'Cai_OS was developed to show the world how i perceive an operating system experience. To me, an OS is not just a tool, but an extension of our creativity. This project reflects how my journey as a developer allows me to transform abstract concepts into functional and fluid interfaces.',
     quote:
       'We can discover a lot about a person by observing how they interact with their computer.',
-    features: 'System Features',
+    features: 'System features',
     applications: 'Applications',
     featureList: {
       snaps: {

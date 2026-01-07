@@ -58,7 +58,7 @@ export const pt = {
       'O Cai_OS foi desenvolvido para mostrar ao mundo como eu enxergo uma experiência de sistema operacional. Para mim, um SO não é apenas uma ferramenta, mas uma extensão da nossa criatividade. Este projeto reflete como minha jornada como desenvolvedor me permite transformar conceitos abstratos em interfaces funcionais e fluidas.',
     quote:
       'Podemos descobrir muito sobre uma pessoa observando como ela interage com seu computador.',
-    features: 'Funcionalidades do Sistema',
+    features: 'Funcionalidades do sistema',
     applications: 'Aplicativos',
     featureList: {
       snaps: {
