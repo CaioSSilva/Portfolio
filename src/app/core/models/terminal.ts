@@ -12,5 +12,5 @@ export interface TerminalLine {
 
 export type CommandHandler = (
   args: string[],
-  currentPath: string
+  currentPath: string,
 ) => CommandResult | Promise<CommandResult>;

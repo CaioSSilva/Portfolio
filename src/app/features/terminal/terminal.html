@@ -11,37 +11,41 @@
     </div>
 
     @for (line of history(); track $index) {
-    <div class="terminal-line mb-3">
-      <div class="flex gap-2">
-        <span class="text-green-500 font-bold">user@caios:{{ line.path }}$</span>
-        <span class="text-gnome-text">{{ line.command }}</span>
-      </div>
+      <div class="terminal-line mb-3">
+        <div class="flex gap-2">
+          <span class="text-green-500 font-bold">user@caios:{{ line.path }}$</span>
+          <span class="text-gnome-text">{{ line.command }}</span>
+        </div>
 
-      @if (line.output) {
-      <div class="whitespace-pre-wrap pl-4 mt-1 border-l border-gnome-border/30">
-        @for (item of line.output.split('\n'); track $index) { @if (item.startsWith('[NEO]')) {
-        <div class="flex">
-          <span class="text-gnome-blue font-bold">
-            {{ item.substring(5).split('|')[0] }}
-          </span>
-          <span class="text-gnome-text ml-3">
-            {{ item.split('|')[1] }}
-          </span>
-        </div>
-        } @else if (item.startsWith('[DIR]')) {
-        <div class="text-gnome-blue font-bold inline-block mr-4">
-          📁 {{ item.replace('[DIR]', '') }}
-        </div>
-        } @else if (item.startsWith('[FILE]')) {
-        <div class="text-gnome-text inline-block mr-4">📄 {{ item.replace('[FILE]', '') }}</div>
-        } @else {
-        <div class="text-gnome-text-secondary/80">
-          {{ item }}
-        </div>
-        } }
+        @if (line.output) {
+          <div class="whitespace-pre-wrap pl-4 mt-1 border-l border-gnome-border/30">
+            @for (item of line.output.split('\n'); track $index) {
+              @if (item.startsWith('[NEO]')) {
+                <div class="flex">
+                  <span class="text-gnome-blue font-bold">
+                    {{ item.substring(5).split('|')[0] }}
+                  </span>
+                  <span class="text-gnome-text ml-3">
+                    {{ item.split('|')[1] }}
+                  </span>
+                </div>
+              } @else if (item.startsWith('[DIR]')) {
+                <div class="text-gnome-blue font-bold inline-block mr-4">
+                  📁 {{ item.replace('[DIR]', '') }}
+                </div>
+              } @else if (item.startsWith('[FILE]')) {
+                <div class="text-gnome-text inline-block mr-4">
+                  📄 {{ item.replace('[FILE]', '') }}
+                </div>
+              } @else {
+                <div class="text-gnome-text-secondary/80">
+                  {{ item }}
+                </div>
+              }
+            }
+          </div>
+        }
       </div>
-      }
-    </div>
     }
   </div>
 

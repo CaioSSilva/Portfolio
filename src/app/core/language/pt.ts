@@ -30,7 +30,7 @@ export const pt = {
 
   apps: {
     files: 'Arquivos',
-    about: 'Sobre mim',
+    about: 'Sobre o projeto',
     terminal: 'Terminal',
     settings: 'Ajustes',
     firefox: 'Firefox',
@@ -52,12 +52,35 @@ export const pt = {
     },
   },
 
-  aboutMe: {
+  aboutProj: {
     title: 'Porque Cai_OS?',
     intro:
       'O Cai_OS foi desenvolvido para mostrar ao mundo como eu enxergo uma experiência de sistema operacional. Para mim, um SO não é apenas uma ferramenta, mas uma extensão da nossa criatividade. Este projeto reflete como minha jornada como desenvolvedor me permite transformar conceitos abstratos em interfaces funcionais e fluidas.',
     quote:
       'Podemos descobrir muito sobre uma pessoa observando como ela interage com seu computador.',
+    features: 'Funcionalidades do Sistema',
+    applications: 'Aplicativos',
+    featureList: {
+      snaps: {
+        tag: 'Workspace',
+        title: 'Snaps',
+        description:
+          'Gerenciamento inteligente de janelas. Ao arrastar uma aplicação para as bordas ou cantos da tela, o sistema sugere e ajusta automaticamente o redimensionamento, permitindo organizar seu fluxo de trabalho em frações perfeitas de 50% ou 25% da tela.',
+      },
+      appSwitcher: {
+        tag: 'Multitasking',
+        title: 'App Switcher',
+        desc_part1: 'Navegação rápida entre processos. Utilizando o atalho ',
+        desc_part2:
+          ', você acessa uma interface de troca rápida que sobrepõe o sistema, permitindo alternar o foco entre janelas ativas com agilidade e fluidez.',
+      },
+      notifications: {
+        tag: 'Sistema',
+        title: 'Notificações',
+        description:
+          'Mantenha-se informado sem perder o foco. O sistema central de notificações organiza alertas de aplicativos e eventos do kernel em um centro dedicado, oferecendo feedback visual imediato e histórico de interações recentes.',
+      },
+    },
     apps: {
       files: {
         name: 'Arquivos',

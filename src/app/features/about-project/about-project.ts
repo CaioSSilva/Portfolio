@@ -4,13 +4,13 @@ import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
 
 @Component({
-  selector: 'app-about-me',
+  selector: 'app-about-project',
   standalone: true,
   imports: [],
-  templateUrl: './about-me.html',
-  styleUrl: './about-me.scss',
+  templateUrl: './about-project.html',
+  styleUrl: './about-project.scss',
 })
-export class AboutMe extends Base {
+export class AboutProject extends Base {
   apps = inject(Apps);
   lang = inject(LanguageService);
 

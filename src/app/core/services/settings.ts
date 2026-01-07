@@ -6,7 +6,7 @@ import { Injectable, signal, effect } from '@angular/core';
 export class Settings {
   readonly dockSize = signal<number>(Number(localStorage.getItem('dockSize')) || 48);
   readonly wallpaper = signal<string>(
-    localStorage.getItem('wallpaper') || '/wallpapers/default.webp'
+    localStorage.getItem('wallpaper') || '/wallpapers/default.webp',
   );
   readonly systemMuted = signal<boolean>(localStorage.getItem('soundMuted') === 'true');
   readonly autoHideDock = signal<boolean>(localStorage.getItem('autoHideDock') !== 'false');

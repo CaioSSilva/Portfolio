@@ -80,7 +80,7 @@ export class Terminal extends Base {
 
     if (parts.length === 1) {
       const matches = Object.keys(this.lang.t().terminal.commands).filter((c) =>
-        c.startsWith(lastPart.toLowerCase())
+        c.startsWith(lastPart.toLowerCase()),
       );
       this.applyMatch(input, parts, matches);
     } else {
@@ -91,7 +91,7 @@ export class Terminal extends Base {
   private async handleFileAutocomplete(
     input: HTMLInputElement,
     parts: string[],
-    lastPart: string
+    lastPart: string,
   ): Promise<void> {
     const segments = lastPart.split('/');
     const prefix = segments.pop()?.toLowerCase() || '';

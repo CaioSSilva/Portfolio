@@ -23,10 +23,10 @@
 
     <h1 class="text-3xl font-black italic tracking-tight mb-2">@CaioSSilva</h1>
     <h3 class="text-xs uppercase tracking-[0.3em] text-gnome-blue font-bold mb-6">
-      {{ lang.t().aboutMe.title }}
+      {{ lang.t().aboutProj.title }}
     </h3>
     <p class="text-gnome-text-secondary text-center max-w-2xl leading-relaxed text-sm mb-8">
-      {{ lang.t().aboutMe.intro }}
+      {{ lang.t().aboutProj.intro }}
     </p>
 
     <div
@@ -34,14 +34,109 @@
     >
       <span class="text-2xl absolute top-0 left-2 opacity-20 font-serif">"</span>
       <p class="text-sm tracking-wide">
-        {{ lang.t().aboutMe.quote }}
+        {{ lang.t().aboutProj.quote }}
       </p>
       <span class="text-2xl absolute bottom-0 right-2 opacity-20 font-serif">"</span>
     </div>
   </div>
 
+  <div class="w-full max-w-6xl mx-auto py-8">
+    <h1 class="font-bold text-3xl text-center pb-12 tracking-tight">
+      {{ lang.t().aboutProj.features }}
+    </h1>
+
+    <div class="flex flex-col gap-20">
+      <section
+        class="flex flex-col md:flex-row items-center gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700"
+      >
+        <div
+          class="relative group aspect-video w-full md:w-[60%] overflow-hidden rounded-2xl border border-gnome-border bg-black/20 shadow-xl"
+        >
+          <video autoplay loop muted playsinline class="w-full h-full object-cover">
+            <source src="/videos/features/snaps.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="flex-1 space-y-4">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gnome-blue/10 text-gnome-blue text-xs font-bold uppercase tracking-wider"
+          >
+            {{ lang.t().aboutProj.featureList.snaps.tag }}
+          </div>
+          <h3 class="text-2xl font-bold text-gnome-text">
+            {{ lang.t().aboutProj.featureList.snaps.title }}
+          </h3>
+          <p class="text-gnome-text-secondary leading-relaxed">
+            {{ lang.t().aboutProj.featureList.snaps.description }}
+          </p>
+        </div>
+      </section>
+
+      <section
+        class="flex flex-col md:flex-row-reverse items-center gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700"
+      >
+        <div
+          class="relative group aspect-video w-full md:w-[60%] overflow-hidden rounded-2xl border border-gnome-border bg-black/20 shadow-xl"
+        >
+          <video autoplay loop muted playsinline class="w-full h-full object-cover">
+            <source src="/videos/features/app-switch.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="flex-1 space-y-4">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-500 text-xs font-bold uppercase tracking-wider"
+          >
+            {{ lang.t().aboutProj.featureList.appSwitcher.tag }}
+          </div>
+          <h3 class="text-2xl font-bold text-gnome-text">
+            {{ lang.t().aboutProj.featureList.appSwitcher.title }}
+          </h3>
+          <p class="text-gnome-text-secondary leading-relaxed">
+            {{ lang.t().aboutProj.featureList.appSwitcher.desc_part1 }}
+
+            <kbd
+              class="px-2 py-1 bg-gnome-header border border-gnome-border rounded text-sm font-mono text-gnome-blue"
+            >
+              Ctrl + Q
+            </kbd>
+
+            {{ lang.t().aboutProj.featureList.appSwitcher.desc_part2 }}
+          </p>
+        </div>
+      </section>
+
+      <section
+        class="flex flex-col md:flex-row items-center gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700"
+      >
+        <div
+          class="relative group aspect-video w-full md:w-[60%] overflow-hidden rounded-2xl border border-gnome-border bg-black/20 shadow-xl"
+        >
+          <video autoplay loop muted playsinline class="w-full h-full object-cover">
+            <source src="/videos/features/notifications.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="flex-1 space-y-4">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-500 text-xs font-bold uppercase tracking-wider"
+          >
+            {{ lang.t().aboutProj.featureList.notifications.tag }}
+          </div>
+          <h3 class="text-2xl font-bold text-gnome-text">
+            {{ lang.t().aboutProj.featureList.notifications.title }}
+          </h3>
+          <p class="text-gnome-text-secondary leading-relaxed">
+            {{ lang.t().aboutProj.featureList.notifications.description }}
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <h1 class="font-bold text-3xl text-center pb-12 tracking-tight">
+    {{ lang.t().aboutProj.applications }}
+  </h1>
+
   <div
-    class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in slide-in-from-bottom-4 duration-700 delay-300 pb-10"
+    class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in slide-in-from-bottom-4 duration-700 delay-300 pb-10"
   >
     <div
       (click)="openFiles()"
@@ -53,9 +148,9 @@
         <i class="fas fa-folder text-xl"></i>
       </div>
       <div class="text-left">
-        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.files.name }}</h4>
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutProj.apps.files.name }}</h4>
         <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
-          {{ lang.t().aboutMe.apps.files.desc }}
+          {{ lang.t().aboutProj.apps.files.desc }}
         </p>
       </div>
     </div>
@@ -70,9 +165,9 @@
         <i class="fas fa-image text-xl"></i>
       </div>
       <div class="text-left">
-        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.photos.name }}</h4>
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutProj.apps.photos.name }}</h4>
         <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
-          {{ lang.t().aboutMe.apps.photos.desc }}
+          {{ lang.t().aboutProj.apps.photos.desc }}
         </p>
       </div>
     </div>
@@ -87,9 +182,9 @@
         <i class="fas fa-music text-xl"></i>
       </div>
       <div class="text-left">
-        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.music.name }}</h4>
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutProj.apps.music.name }}</h4>
         <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
-          {{ lang.t().aboutMe.apps.music.desc }}
+          {{ lang.t().aboutProj.apps.music.desc }}
         </p>
       </div>
     </div>
@@ -104,9 +199,9 @@
         <i class="fas fa-file text-xl"></i>
       </div>
       <div class="text-left">
-        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.docs.name }}</h4>
+        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutProj.apps.docs.name }}</h4>
         <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
-          {{ lang.t().aboutMe.apps.docs.desc }}
+          {{ lang.t().aboutProj.apps.docs.desc }}
         </p>
       </div>
     </div>
@@ -121,9 +216,11 @@
         <i class="fab fa-firefox-browser text-xl"></i>
       </div>
       <div class="text-left">
-        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.browser.name }}</h4>
+        <h4 class="font-bold text-sm text-gnome-text">
+          {{ lang.t().aboutProj.apps.browser.name }}
+        </h4>
         <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
-          {{ lang.t().aboutMe.apps.browser.desc }}
+          {{ lang.t().aboutProj.apps.browser.desc }}
         </p>
       </div>
     </div>
@@ -138,9 +235,11 @@
         <i class="fas fa-terminal text-xl"></i>
       </div>
       <div class="text-left">
-        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.terminal.name }}</h4>
+        <h4 class="font-bold text-sm text-gnome-text">
+          {{ lang.t().aboutProj.apps.terminal.name }}
+        </h4>
         <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
-          {{ lang.t().aboutMe.apps.terminal.desc }}
+          {{ lang.t().aboutProj.apps.terminal.desc }}
         </p>
       </div>
     </div>
@@ -155,9 +254,11 @@
         <i class="fas fa-cog text-xl"></i>
       </div>
       <div class="text-left flex-1">
-        <h4 class="font-bold text-sm text-gnome-text">{{ lang.t().aboutMe.apps.settings.name }}</h4>
+        <h4 class="font-bold text-sm text-gnome-text">
+          {{ lang.t().aboutProj.apps.settings.name }}
+        </h4>
         <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
-          {{ lang.t().aboutMe.apps.settings.desc }}
+          {{ lang.t().aboutProj.apps.settings.desc }}
         </p>
       </div>
       <i

@@ -1,4 +1,4 @@
-import { AboutMe } from '../../features/about-me/about-me';
+import { AboutProject } from '../../features/about-project/about-project';
 import { Browser } from '../../features/browser/browser';
 import { DocumentViewer } from '../../features/document-viewer/document-viewer';
 import { Files } from '../../features/files/files';
@@ -57,7 +57,7 @@ export const getInstalledApps = (lang: LanguageService): AppRegistry => {
       title: lang.t().apps.about,
       icon: 'fas fa-user',
       color: '#6f42c1',
-      component: AboutMe,
+      component: AboutProject,
     },
     photos: {
       id: 'photos',

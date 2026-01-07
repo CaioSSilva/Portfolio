@@ -74,7 +74,7 @@ export class FileSystem {
 
     const searchName = name.toLowerCase();
     return parent.children.find(
-      (child) => child.name.toLowerCase() === searchName || child.id.toLowerCase() === searchName
+      (child) => child.name.toLowerCase() === searchName || child.id.toLowerCase() === searchName,
     );
   }
 
@@ -118,7 +118,7 @@ export class FileSystem {
     if (resultSets.length === 0) return [];
 
     const intersection = Array.from(resultSets[0]).filter((item) =>
-      resultSets.every((set) => set.has(item))
+      resultSets.every((set) => set.has(item)),
     );
 
     return intersection.slice(0, maxResults);

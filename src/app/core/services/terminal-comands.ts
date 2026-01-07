@@ -76,7 +76,7 @@ export class TerminalComands {
       const found = children.find(
         (f) =>
           f.id.toLowerCase() === segment.toLowerCase() ||
-          f.name.toLowerCase() === segment.toLowerCase()
+          f.name.toLowerCase() === segment.toLowerCase(),
       );
 
       if (!found || found.type !== 'folder') return null;
@@ -147,7 +147,7 @@ export class TerminalComands {
     const node = children.find(
       (f) =>
         f.id.toLowerCase() === filePart.toLowerCase() ||
-        f.name.toLowerCase() === filePart.toLowerCase()
+        f.name.toLowerCase() === filePart.toLowerCase(),
     );
 
     if (!node || node.type === 'folder') {

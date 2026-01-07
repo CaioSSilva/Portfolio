@@ -57,7 +57,7 @@ export class Musics extends Base implements OnDestroy {
 
         queueMicrotask(() => this.player.play(track!, this.musicLibrary()));
       },
-      { allowSignalWrites: true }
+      { allowSignalWrites: true },
     );
   }
 
