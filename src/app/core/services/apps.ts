@@ -31,7 +31,7 @@ export class Apps {
     if (!query) return all;
 
     return all.filter(
-      (app) => app.title.toLowerCase().includes(query) || app.id.toLowerCase().includes(query)
+      (app) => app.title.toLowerCase().includes(query) || app.id.toLowerCase().includes(query),
     );
   });
 

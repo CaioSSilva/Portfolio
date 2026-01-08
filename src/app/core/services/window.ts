@@ -115,7 +115,7 @@ export class WindowService {
     const globalX = Math.max(0, Math.min(parentRect.left + this.rect.x, screenW - this.rect.w));
     const globalY = Math.max(
       this.currentTopOffset,
-      Math.min(parentRect.top + this.rect.y, screenH - this.rect.h),
+      Math.min(parentRect.top + this.rect.y, screenH - this.rect.h)
     );
 
     this.rect.x = globalX - parentRect.left;
@@ -214,19 +214,25 @@ export class WindowService {
     this.ngZone.runOutsideAngular(() => {
       const onMove = (e: MouseEvent) => {
         const parentRect = parent.getBoundingClientRect();
+
+        // Atualiza as coordenadas internas
         this.rect.x = e.clientX - this.mouseOffset.x - parentRect.left;
         this.rect.y = e.clientY - this.mouseOffset.y - parentRect.top;
 
+        // Aplicação visual imediata via DOM para 60fps+
         el.style.transform = `translate3d(${this.rect.x}px, ${this.rect.y}px, 0)`;
 
+        // Cálculo de Snaps e Colisões a cada frame
         requestAnimationFrame(() => {
           const snapRect = this.checkSnap(e.clientX, e.clientY);
-          this.ngZone.run(() => {
-            if (this.snapGhost() !== snapRect) {
-              this.snapGhost.set(snapRect);
-            }
-            this.checkCollisions();
-          });
+
+          // Rodamos as verificações de estado
+          this.checkCollisions();
+
+          // Apenas voltamos para o Angular se o estado do Ghost mudar
+          if (this.snapGhost() !== snapRect) {
+            this.ngZone.run(() => this.snapGhost.set(snapRect));
+          }
         });
       };
 
@@ -235,6 +241,52 @@ export class WindowService {
         document.removeEventListener('mouseup', onStop);
         el.style.transition = '';
         this.finalizeDrag(parent);
+      };
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onStop);
+    });
+  }
+
+  startResize(event: MouseEvent) {
+    if (this.isMaximized() || event.button !== 0 || !this.windowEl) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.isResizing.set(true);
+
+    const startX = event.clientX,
+      startY = event.clientY,
+      startRect = { ...this.rect };
+    const el = this.windowEl;
+    const parentRect = (el.offsetParent as HTMLElement)?.getBoundingClientRect() || {
+      left: 0,
+      top: 0,
+    };
+
+    el.style.transition = 'none';
+
+    this.ngZone.runOutsideAngular(() => {
+      const onMove = (e: MouseEvent) => {
+        let newW = startRect.w + (e.clientX - startX);
+        let newH = startRect.h + (e.clientY - startY);
+
+        const maxAvailableW = window.innerWidth - (parentRect.left + this.rect.x);
+        const maxAvailableH = window.innerHeight - (parentRect.top + this.rect.y);
+
+        this.rect.w = Math.max(MIN_W, Math.min(newW, maxAvailableW));
+        this.rect.h = Math.max(MIN_H, Math.min(newH, maxAvailableH));
+
+        el.style.width = `${this.rect.w}px`;
+        el.style.height = `${this.rect.h}px`;
+
+        requestAnimationFrame(() => this.checkCollisions());
+      };
+
+      const onStop = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onStop);
+        el.style.transition = '';
+        this.ngZone.run(() => this.isResizing.set(false));
       };
 
       document.addEventListener('mousemove', onMove);
@@ -285,51 +337,6 @@ export class WindowService {
         this.checkCollisions();
       }
       this.snapGhost.set(null);
-    });
-  }
-
-  startResize(event: MouseEvent) {
-    if (this.isMaximized() || event.button !== 0 || !this.windowEl) return;
-    event.preventDefault();
-    event.stopPropagation();
-    this.isResizing.set(true);
-
-    const startX = event.clientX,
-      startY = event.clientY,
-      startRect = { ...this.rect };
-    const el = this.windowEl;
-    const parentRect = (el.offsetParent as HTMLElement)?.getBoundingClientRect() || {
-      left: 0,
-      top: 0,
-    };
-    el.style.transition = 'none';
-
-    this.ngZone.runOutsideAngular(() => {
-      const onMove = (e: MouseEvent) => {
-        let newW = startRect.w + (e.clientX - startX);
-        let newH = startRect.h + (e.clientY - startY);
-
-        const maxAvailableW = window.innerWidth - (parentRect.left + this.rect.x);
-        const maxAvailableH = window.innerHeight - (parentRect.top + this.rect.y);
-
-        this.rect.w = Math.max(MIN_W, Math.min(newW, maxAvailableW));
-        this.rect.h = Math.max(MIN_H, Math.min(newH, maxAvailableH));
-
-        el.style.width = `${this.rect.w}px`;
-        el.style.height = `${this.rect.h}px`;
-
-        this.checkCollisions();
-      };
-
-      const onStop = () => {
-        document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onStop);
-        el.style.transition = '';
-        this.ngZone.run(() => this.isResizing.set(false));
-      };
-
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onStop);
     });
   }
 }

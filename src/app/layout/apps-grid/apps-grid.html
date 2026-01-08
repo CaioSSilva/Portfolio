@@ -1,110 +1,112 @@
 @if (appsService.isAppsGridOpen()) {
-<div
-  class="fixed inset-0 z-[8998] bg-gnome-bg/80 backdrop-blur-[40px] flex flex-col items-center pt-[8vh] animate-in fade-in duration-200 transition-colors duration-500"
-  (click)="appsService.toggleGrid()"
->
   <div
-    class="w-full max-w-5xl flex flex-col items-center gap-10 p-6 animate-in zoom-in-95 duration-300"
-    (click)="$event.stopPropagation()"
+    class="fixed inset-0 z-[8998] bg-gnome-bg/80 backdrop-blur-[40px] flex flex-col items-center pt-[8vh] animate-in fade-in duration-200 transition-colors duration-500"
+    (click)="appsService.toggleGrid()"
   >
-    <div class="relative w-full max-w-lg group">
-      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-        <i
-          class="fas fa-search text-lg text-gnome-text-secondary group-focus-within:text-gnome-blue transition-colors duration-300"
-        ></i>
-      </div>
-      <input
-        type="text"
-        [placeholder]="lang.t().common.search"
-        class="block cursor-pointer w-full pl-6 pr-4 py-3 bg-gnome-surface border border-gnome-border rounded-xl text-lg text-gnome-text placeholder-gnome-text-secondary outline-none focus:ring-2 focus:ring-gnome-blue/40 shadow-xl backdrop-blur-md transition-all duration-300"
-        [value]="appsService.searchQuery()"
-        (input)="onSearch($event)"
-        autoFocus
-      />
-    </div>
-
     <div
-      class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 gap-x-4 gap-y-8 w-full p-4 max-h-[70vh] overflow-y-auto custom-scrollbar justify-items-center"
+      class="w-full max-w-5xl flex flex-col items-center gap-10 p-6 animate-in zoom-in-95 duration-300"
+      (click)="$event.stopPropagation()"
     >
-      @for (app of appsService.appSearchResult(); track app.id) {
-      <button
-        draggable="true"
-        (dragstart)="ondragStart($event, app)"
-        (contextmenu)="appsService.onRightClick($event, app.id)"
-        (click)="appsService.openApp(app)"
-        class="group relative flex cursor-pointer flex-col items-center gap-3 outline-none transition-all"
+      <div class="relative w-full max-w-lg group">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i
+            class="fas fa-search text-lg text-gnome-text-secondary group-focus-within:text-gnome-blue transition-colors duration-300"
+          ></i>
+        </div>
+        <input
+          type="text"
+          [placeholder]="lang.t().common.search"
+          class="block cursor-pointer w-full pl-6 pr-4 py-3 bg-gnome-surface border border-gnome-border rounded-xl text-lg text-gnome-text placeholder-gnome-text-secondary outline-none focus:ring-2 focus:ring-gnome-blue/40 shadow-xl backdrop-blur-md transition-all duration-300"
+          [value]="appsService.searchQuery()"
+          (input)="onSearch($event)"
+          autoFocus
+        />
+      </div>
+
+      <div
+        class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 gap-x-4 gap-y-8 w-full p-4 max-h-[70vh] overflow-y-auto custom-scrollbar justify-items-center"
       >
-        <div
-          class="relative w-[60px] h-[60px] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-active:scale-95"
-        >
-          <div
-            class="absolute inset-0 rounded-[16px] overflow-hidden shadow-md ring-1 ring-white/10 dark:ring-white/5"
-            [style.background-color]="app.color || '#3584e4'"
-            [style.box-shadow]="'0 8px 20px -5px ' + (app.color || '#3584e4') + '55'"
+        @for (app of appsService.appSearchResult(); track app.id) {
+          <button
+            draggable="true"
+            (dragstart)="ondragStart($event, app)"
+            (contextmenu)="appsService.onRightClick($event, app.id)"
+            (click)="appsService.openApp(app)"
+            class="group relative flex cursor-pointer flex-col items-center gap-3 outline-none transition-all"
           >
             <div
-              class="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent"
-            ></div>
-          </div>
+              class="relative w-[60px] h-[60px] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-active:scale-95"
+            >
+              <div
+                class="absolute inset-0 rounded-[16px] overflow-hidden shadow-md ring-1 ring-white/10 dark:ring-white/5"
+                [style.background-color]="app.color || '#3584e4'"
+                [style.box-shadow]="'0 8px 20px -5px ' + (app.color || '#3584e4') + '55'"
+              >
+                <div
+                  class="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-white/20 to-transparent"
+                ></div>
+              </div>
 
-          <i [class]="app.icon" class="relative z-20 text-2xl text-white drop-shadow-md"></i>
+              <i [class]="app.icon" class="relative z-20 text-2xl text-white drop-shadow-md"></i>
+            </div>
+
+            <span
+              class="text-gnome-text font-medium text-[12px] text-center tracking-tight line-clamp-2 w-24 leading-tight opacity-90 group-hover:opacity-100 transition-opacity"
+            >
+              {{ $any(lang.t().apps)[app.id] || app.title }}
+            </span>
+          </button>
+        }
+      </div>
+
+      @if (appsService.appSearchResult().length === 0) {
+        <div class="flex flex-col items-center gap-3 text-gnome-text-secondary mt-10 opacity-60">
+          <i class="far fa-sad-tear text-3xl"></i>
+          <span class="text-base tracking-wide">{{ lang.t().files.noResults }}</span>
         </div>
-
-        <span
-          class="text-gnome-text font-medium text-[12px] text-center tracking-tight line-clamp-2 w-24 leading-tight opacity-90 group-hover:opacity-100 transition-opacity"
-        >
-          {{ $any(lang.t().apps)[app.id] || app.title }}
-        </span>
-      </button>
       }
     </div>
 
-    @if (appsService.appSearchResult().length === 0) {
-    <div class="flex flex-col items-center gap-3 text-gnome-text-secondary mt-10 opacity-60">
-      <i class="far fa-sad-tear text-3xl"></i>
-      <span class="text-base tracking-wide">{{ lang.t().files.noResults }}</span>
-    </div>
+    @if (contextMenu.isOpen()) {
+      <div
+        class="fixed z-[20000] min-w-[180px] bg-gnome-bg/95 backdrop-blur-md border border-gnome-border rounded-xl p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
+        [style.left.px]="contextMenu.position().x"
+        [style.top.px]="contextMenu.position().y"
+        [style.transform]="'translateY(-100%)'"
+      >
+        <button
+          (click)="dock.openActiveApp()"
+          class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+        >
+          <i class="fas fa-plus"></i>
+          {{
+            process.hasActiveProcessesById(contextMenu.activeAppId()!)
+              ? lang.t().common.newInstance
+              : lang.t().common.openApp
+          }}
+        </button>
+
+        @if (contextMenu.activeAppId()) {
+          <button
+            (click)="dock.unPinActiveApp()"
+            class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+          >
+            <i class="fas fa-thumbtack-slash"></i>
+            {{ lang.t().common.removeFromDock }}
+          </button>
+        }
+        @if (
+          contextMenu.activeAppId() && process.hasActiveProcessesById(contextMenu.activeAppId()!)
+        ) {
+          <button
+            (click)="dock.closeActiveApp()"
+            class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+          >
+            <i class="fas fa-x"></i>
+            {{ lang.t().common.closeApp }}
+          </button>
+        }
+      </div>
     }
   </div>
-
-  @if (contextMenu.isOpen()) {
-  <div
-    class="fixed z-[20000] min-w-[180px] bg-gnome-bg/95 backdrop-blur-md border border-gnome-border rounded-xl p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
-    [style.left.px]="contextMenu.position().x"
-    [style.top.px]="contextMenu.position().y"
-    [style.transform]="'translateY(-100%)'"
-  >
-    <button
-      (click)="dock.openActiveApp()"
-      class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
-    >
-      <i class="fas fa-plus"></i>
-      {{
-        process.hasActiveProcessesById(contextMenu.activeAppId()!)
-          ? lang.t().common.newInstance
-          : lang.t().common.openApp
-      }}
-    </button>
-
-    @if (contextMenu.activeAppId()) {
-    <button
-      (click)="dock.unPinActiveApp()"
-      class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
-    >
-      <i class="fas fa-thumbtack-slash"></i>
-      {{ lang.t().common.removeFromDock }}
-    </button>
-    } @if (contextMenu.activeAppId() && process.hasActiveProcessesById(contextMenu.activeAppId()!))
-    {
-    <button
-      (click)="dock.closeActiveApp()"
-      class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
-    >
-      <i class="fas fa-x"></i>
-      {{ lang.t().common.closeApp }}
-    </button>
-    }
-  </div>
-  }
-</div>
 }
