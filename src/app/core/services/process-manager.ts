@@ -108,7 +108,7 @@ export class ProcessManager {
           return { ...p, isMinimized: !p.isMinimized, zIndex: newZIndex };
         }
         return p;
-      })
+      }),
     );
   }
 
@@ -121,7 +121,7 @@ export class ProcessManager {
       }
 
       return current.map((p) =>
-        p.id === processId ? { ...p, zIndex: this.incrementZIndex(), isMinimized: false } : p
+        p.id === processId ? { ...p, zIndex: this.incrementZIndex(), isMinimized: false } : p,
       );
     });
   }

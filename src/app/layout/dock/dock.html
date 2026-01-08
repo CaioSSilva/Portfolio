@@ -1,4 +1,4 @@
-<div class="fixed bottom-0 left-0 right-0 h-2 z-[8999]" (mouseenter)="forceShow.set(true)"></div>
+<div class="fixed bottom-0 left-0 right-0 h-2 z-[8998]" (mouseenter)="forceShow.set(true)"></div>
 
 <div
   (mouseleave)="forceShow.set(false)"
@@ -13,7 +13,7 @@
       (click)="apps.toggleGrid()"
       [style.width.px]="settings.dockSize()"
       [style.height.px]="settings.dockSize()"
-      class="relative cursor-pointer flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10"
+      class="relative mr-[7px] cursor-pointer flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10"
     >
       <i
         [style.font-size.px]="settings.dockSize() * 0.65"
@@ -26,7 +26,12 @@
     ></div>
   </div>
 
-  <div (dragleave)="itemNewPinPos.set(null)" (dragover)="onDragOver($event)" (drop)="onDrop($event)" class="flex items-end">
+  <div
+    (dragleave)="itemNewPinPos.set(null)"
+    (dragover)="onDragOver($event)"
+    (drop)="onDrop($event)"
+    class="flex items-end"
+  >
     @for (item of dock.dockItems(); track item.id; let i = $index) {
       @if (itemNewPinPos() === i) {
         <div
@@ -38,7 +43,7 @@
 
       <button
         (click)="dock.handleAppClick(item, $event)"
-        (contextmenu)="onRightClick($event, item.id)"
+        (contextmenu)="apps.onRightClick($event, item.id)"
         [style.width.px]="settings.dockSize()"
         [style.height.px]="settings.dockSize()"
         class="dock-item group relative flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10 active:scale-95 cursor-pointer"
@@ -110,28 +115,30 @@
     [style.transform]="'translateY(-100%)'"
   >
     <button
-      (click)="openActiveApp()"
+      (click)="dock.openActiveApp()"
       class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
     >
       <i class="fas fa-plus"></i>
       {{
-        processManager.hasActiveProcessesById(activeAppId()) ? lang.t().common.newInstance : lang.t().common.openApp
+        processManager.hasActiveProcessesById(contextMenu.activeAppId()!)
+          ? lang.t().common.newInstance
+          : lang.t().common.openApp
       }}
     </button>
     <button
-      (click)="unPinActiveApp()"
+      (click)="dock.unPinActiveApp()"
       class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
     >
       <i class="fas fa-thumbtack-slash"></i>
-      {{lang.t().common.removeFromDock}}
+      {{ lang.t().common.removeFromDock }}
     </button>
-    @if (processManager.hasActiveProcessesById(activeAppId())) {
+    @if (processManager.hasActiveProcessesById(contextMenu.activeAppId()!)) {
       <button
-        (click)="closeActiveApp()"
+        (click)="dock.closeActiveApp()"
         class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
       >
         <i class="fas fa-x"></i>
-       {{lang.t().common.closeApp}}
+        {{ lang.t().common.closeApp }}
       </button>
     }
   </div>

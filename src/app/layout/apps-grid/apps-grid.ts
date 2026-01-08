@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
 import { ProcessManager } from '../../core/services/process-manager';
+import { ContextMenu } from '../../core/services/context-menu';
+import { DockService } from '../../core/services/dock';
 
 @Component({
   selector: 'app-apps-grid',
@@ -11,7 +13,9 @@ import { ProcessManager } from '../../core/services/process-manager';
 })
 export class AppsGrid {
   appsService = inject(Apps);
+  dock = inject(DockService);
   process = inject(ProcessManager);
+  contextMenu = inject(ContextMenu);
   lang = inject(LanguageService);
 
   onSearch(event: Event) {

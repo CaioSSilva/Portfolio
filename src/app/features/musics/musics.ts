@@ -28,37 +28,34 @@ export class Musics extends Base implements OnDestroy {
   constructor() {
     super();
 
-    effect(
-      () => {
-        if (!this.fs.isLoaded()) {
-          this.fs.ensureLoaded();
-          return;
-        }
-        if (!this.isLibraryLoaded()) {
-          this.loadLibrary();
-          return;
-        }
+    effect(() => {
+      if (!this.fs.isLoaded()) {
+        this.fs.ensureLoaded();
+        return;
+      }
+      if (!this.isLibraryLoaded()) {
+        this.loadLibrary();
+        return;
+      }
 
-        const external = this.data();
-        if (!external) return;
+      const external = this.data();
+      if (!external) return;
 
-        const url = (typeof external === 'string' ? external : external.url) ?? '';
-        if (!url) return;
+      const url = (typeof external === 'string' ? external : external.url) ?? '';
+      if (!url) return;
 
-        let track = this.musicLibrary().find((m) => m.url === url);
-        if (!track) {
-          track = {
-            name: decodeURIComponent(url.split('/').pop() || 'Unknown'),
-            url,
-            id: `ext-${Date.now()}`,
-          } as FileItem;
-          this.musicLibrary.update((prev) => [...prev, track!]);
-        }
+      let track = this.musicLibrary().find((m) => m.url === url);
+      if (!track) {
+        track = {
+          name: decodeURIComponent(url.split('/').pop() || 'Unknown'),
+          url,
+          id: `ext-${Date.now()}`,
+        } as FileItem;
+        this.musicLibrary.update((prev) => [...prev, track!]);
+      }
 
-        queueMicrotask(() => this.player.play(track!, this.musicLibrary()));
-      },
-      { allowSignalWrites: true },
-    );
+      queueMicrotask(() => this.player.play(track!, this.musicLibrary()));
+    });
   }
 
   async loadLibrary() {

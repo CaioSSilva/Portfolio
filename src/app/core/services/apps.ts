@@ -5,12 +5,13 @@ import { LanguageService } from './language';
 import { ProcessManager } from './process-manager';
 import { debounceTime } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { ContextMenu } from './context-menu';
 
 @Injectable({ providedIn: 'root' })
 export class Apps {
   private processManager = inject(ProcessManager);
   private lang = inject(LanguageService);
-
+  private contextMenu = inject(ContextMenu);
   isAppsGridOpen = signal<boolean>(false);
   searchQuery = signal<string>('');
 
@@ -30,7 +31,7 @@ export class Apps {
     if (!query) return all;
 
     return all.filter(
-      (app) => app.title.toLowerCase().includes(query) || app.id.toLowerCase().includes(query),
+      (app) => app.title.toLowerCase().includes(query) || app.id.toLowerCase().includes(query)
     );
   });
 
@@ -48,5 +49,19 @@ export class Apps {
 
   closeApp(instanceId: string | undefined) {
     if (instanceId) this.processManager.close(instanceId);
+  }
+
+  onRightClick(event: MouseEvent, appId: string) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const menuWidth = 180;
+    let posX = event.clientX;
+    let posY = event.clientY;
+
+    if (posX + menuWidth > window.innerWidth) {
+      posX -= menuWidth;
+    }
+    this.contextMenu.open(posX, posY, appId);
   }
 }

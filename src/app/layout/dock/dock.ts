@@ -1,4 +1,4 @@
-import { Component, computed, HostListener, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { DockService } from '../../core/services/dock';
 import { CommonModule } from '@angular/common';
 import { Apps } from '../../core/services/apps';
@@ -6,7 +6,6 @@ import { ProcessManager } from '../../core/services/process-manager';
 import { Settings } from '../../core/services/settings';
 import { LanguageService } from '../../core/services/language';
 import { ContextMenu } from '../../core/services/context-menu';
-import { AppDefinition } from '../../core/models/dock';
 
 @Component({
   selector: 'app-dock',
@@ -31,8 +30,6 @@ export class Dock implements OnInit {
       this.apps.openApp(this.apps.myApps().about);
     }, 1000);
   }
-
-  activeAppId = computed(() => this.contextMenu.activeAppId() as keyof AppDefinition);
 
   getAppLabel(appId: string, defaultTitle: string): string {
     const langData = this.lang.t();
@@ -74,41 +71,9 @@ export class Dock implements OnInit {
     this.itemNewPinPos.set(null);
   }
 
-  onRightClick(event: MouseEvent, appId: string) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const menuWidth = 180;
-    let posX = event.clientX;
-    let posY = event.clientY;
-
-    if (posX + menuWidth > window.innerWidth) {
-      posX -= menuWidth;
-    }
-
-    this.contextMenu.open(posX, posY, appId);
-  }
-
   @HostListener('document:click')
   @HostListener('document:contextmenu')
   onWindowClick() {
     this.contextMenu.close();
-  }
-
-  unPinActiveApp() {
-    const appId = this.contextMenu.activeAppId();
-    const canUnpin = this.dock.dockItems().length > 1;
-    if (appId && canUnpin) {
-      this.dock.unpinApp(appId);
-      this.contextMenu.close();
-    }
-  }
-
-  openActiveApp() {
-    this.apps.openApp(this.apps.myApps()[this.activeAppId()]!);
-  }
-
-  closeActiveApp() {
-    this.processManager.closeAllInstancesById(this.activeAppId());
   }
 }
