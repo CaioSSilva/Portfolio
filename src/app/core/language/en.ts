@@ -92,7 +92,7 @@ export const en = {
       },
       dockDrag: {
         tag: 'Interface',
-        title: 'Interactive Dock',
+        title: 'Drag and drop',
         description:
           'Customize your taskbar with total freedom. Drag new applications directly from the menu to the Dock to pin them. The system calculates the position in real-time, visually creating space for intuitive and fluid organization.',
       },

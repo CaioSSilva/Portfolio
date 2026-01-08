@@ -92,7 +92,7 @@ export const pt = {
       },
       dockDrag: {
         tag: 'Interface',
-        title: 'Dock Interativa',
+        title: 'Arrastar e soltar',
         description:
           'Personalize sua barra de tarefas com total liberdade. Arraste novos aplicativos diretamente do menu para a Dock para fixá-los. O sistema calcula a posição em tempo real, abrindo espaço visualmente para uma organização intuitiva e fluida.',
       },
