@@ -276,7 +276,7 @@ export const pt = {
       help: 'Exibe esta lista de ajuda',
       ls: 'Lista os arquivos do diretório atual',
       cd: 'Altera o diretório de trabalho',
-      open: 'Abre um arquivoo',
+      open: 'Abre um arquivo',
       date: 'Exibe a data e hora atual',
       theme: 'Alterna entre modo claro e escuro',
       clear: 'Limpa a tela do terminal',
