@@ -59,8 +59,8 @@ export class WindowService {
 
   minimize() {
     this.calculateTransformOrigin();
-    this.processManager.toggleMinimize(this.process.id);
     this.updateCollisions(false, false);
+    this.processManager.toggleMinimize(this.process.id);
   }
 
   focus() {
@@ -164,6 +164,7 @@ export class WindowService {
       this.isOverTop = top;
       this.ngZone.run(() => this.processManager.updateTopOverlap(top));
     }
+
     if (this.isOverBottom !== bottom) {
       this.isOverBottom = bottom;
       this.ngZone.run(() => this.processManager.updateBottomOverlap(bottom));
