@@ -90,6 +90,12 @@ export const en = {
         description:
           'Quick actions at your fingertips. Access essential application controls like pinning to dock, opening new instances, or closing processes directly through a streamlined right-click interface designed for speed.',
       },
+      dockDrag: {
+        tag: 'Interface',
+        title: 'Interactive Dock',
+        description:
+          'Customize your taskbar with total freedom. Drag new applications directly from the menu to the Dock to pin them. The system calculates the position in real-time, visually creating space for intuitive and fluid organization.',
+      },
     },
     apps: {
       files: {

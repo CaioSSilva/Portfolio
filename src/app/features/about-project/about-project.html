@@ -83,7 +83,7 @@
         </div>
         <div class="flex-1 space-y-4">
           <div
-            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 text-purple-500 text-xs font-bold uppercase tracking-wider"
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-xs font-bold uppercase tracking-wider"
           >
             {{ lang.t().aboutProj.featureList.appSwitcher.tag }}
           </div>
@@ -147,6 +147,31 @@
 
           <p class="text-gnome-text-secondary leading-relaxed">
             {{ lang.t().aboutProj.featureList.contextMenu.description }}
+          </p>
+        </div>
+      </section>
+
+      <section
+        class="flex flex-col md:flex-row items-center gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700"
+      >
+        <div
+          class="relative group aspect-video w-full md:w-[60%] overflow-hidden rounded-2xl border border-gnome-border bg-black/20 shadow-xl"
+        >
+          <video autoplay loop muted playsinline class="w-full h-full object-cover">
+            <source src="/videos/features/drag-drop.mp4" type="video/mp4" />
+          </video>
+        </div>
+        <div class="flex-1 space-y-4">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 text-orange-500 text-xs font-bold uppercase tracking-wider"
+          >
+            Interface
+          </div>
+          <h3 class="text-2xl font-bold text-gnome-text">
+            {{ lang.t().aboutProj.featureList.dockDrag.title }}
+          </h3>
+          <p class="text-gnome-text-secondary leading-relaxed">
+            {{ lang.t().aboutProj.featureList.dockDrag.description }}
           </p>
         </div>
       </section>
