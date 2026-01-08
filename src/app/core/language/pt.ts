@@ -84,6 +84,12 @@ export const pt = {
         description:
           'Mantenha-se informado sem perder o foco. O sistema central de notificações organiza alertas de aplicativos e eventos do kernel em um centro dedicado, oferecendo feedback visual imediato e histórico de interações recentes.',
       },
+      contextMenu: {
+        tag: 'Eficiência',
+        title: 'Menu de Contexto',
+        description:
+          'Ações rápidas ao seu alcance. Acesse controles essenciais de aplicativos, como fixar na barra de tarefas, abrir novas instâncias ou encerrar processos diretamente através de uma interface de clique direito otimizada para agilidade.',
+      },
     },
     apps: {
       files: {

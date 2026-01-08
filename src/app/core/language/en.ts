@@ -84,6 +84,12 @@ export const en = {
         description:
           'Stay informed without losing focus. The central notification system organizes app alerts and kernel events in a dedicated center, offering immediate visual feedback and a history of recent interactions.',
       },
+      contextMenu: {
+        tag: 'Efficiency',
+        title: 'Context Menus',
+        description:
+          'Quick actions at your fingertips. Access essential application controls like pinning to dock, opening new instances, or closing processes directly through a streamlined right-click interface designed for speed.',
+      },
     },
     apps: {
       files: {
