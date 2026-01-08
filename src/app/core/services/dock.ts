@@ -6,152 +6,123 @@ import { ContextMenu } from './context-menu';
 
 @Injectable({ providedIn: 'root' })
 export class DockService {
-  private processManager = inject(ProcessManager);
-  private appsService = inject(Apps);
-  private contextMenu = inject(ContextMenu);
-  public pinnedAppIds = signal<string[]>(['firefox', 'files', 'terminal']);
+  private readonly processManager = inject(ProcessManager);
+  private readonly appsService = inject(Apps);
+  private readonly contextMenu = inject(ContextMenu);
 
-  readonly dockItems = computed<DockItem[]>(() => {
+  readonly pinnedAppIds = signal<string[]>(['firefox', 'files', 'terminal']);
+
+  readonly dockItems = computed(() => {
     const apps = this.appsService.myApps();
     const processes = this.processManager.processes();
     const activeId = this.processManager.activeProcessId();
-    const pinnedIds = this.pinnedAppIds();
 
-    const itemsMap = new Map<string, DockItem>();
-
-    pinnedIds.forEach((id) => {
-      const appDef = apps[id];
-      if (appDef) {
-        itemsMap.set(id, this.createDockItem(appDef, true));
-      }
-    });
-
-    processes.forEach((p) => {
-      let item = itemsMap.get(p.appId);
-
-      if (!item) {
-        const appDef = apps[p.appId];
-        if (appDef) {
-          item = this.createDockItem(appDef, false);
-          itemsMap.set(p.appId, item);
-        }
-      }
-
-      if (item) {
-        item.isOpen = true;
-        item.count++;
-        item.pids.push(p.id);
-        if (p.id === activeId) {
-          item.isActive = true;
-        }
-      }
-    });
+    const itemsMap = this.initializePinnedItems(apps);
+    this.mergeProcessesIntoItems(itemsMap, processes, activeId);
 
     return Array.from(itemsMap.values());
   });
 
-  public handleAppClick(item: DockItem, event?: MouseEvent): void {
-    const source = this.getClickSource(event);
-
-    if (!item.isOpen) {
-      this.appsService.openApp(item);
-      return;
-    }
-
-    const process = this.getLastProcess(item);
-    if (!process) return;
-
-    if (process.isMinimized) {
-      this.restoreWindow(process, source);
-      return;
-    }
-
-    this.handleActiveWindowClick(process, item);
+  private initializePinnedItems(apps: any): Map<string, DockItem> {
+    const map = new Map<string, DockItem>();
+    this.pinnedAppIds().forEach((id) => {
+      if (apps[id]) map.set(id, this.createDockItem(apps[id], true));
+    });
+    return map;
   }
 
-  public getDockState() {
-    const items = this.dockItems();
-    return {
-      pinnedCount: this.pinnedAppIds().length,
-      runningCount: items.filter((i) => i.isOpen && !i.pinned).length,
-      totalItems: items.length,
-      isAnyActive: items.some((i) => i.isActive),
-    };
-  }
+  private mergeProcessesIntoItems(
+    map: Map<string, DockItem>,
+    processes: any[],
+    activeId: string | null
+  ) {
+    processes.forEach((p) => {
+      let item =
+        map.get(p.appId) || this.createDockItem(this.appsService.myApps()[p.appId]!, false);
 
-  pinApp(id: string, index?: number): void {
-    this.pinnedAppIds.update((ids) => {
-      let newIds = [...ids];
-      const existingIndex = newIds.indexOf(id);
-      if (existingIndex !== -1) {
-        newIds.splice(existingIndex, 1);
-      }
-      if (index === undefined || index === null) {
-        newIds.push(id);
-        return newIds;
-      }
-      newIds.splice(index, 0, id);
+      item.isOpen = true;
+      item.count++;
+      item.pids.push(p.id);
+      if (p.id === activeId) item.isActive = true;
 
-      return newIds;
+      map.set(p.appId, item);
     });
   }
 
-  unpinApp(id: string): void {
-    this.pinnedAppIds.update((ids) => ids.filter((i) => i !== id));
+  handleAppClick(item: DockItem, event?: MouseEvent) {
+    if (!item.isOpen) return this.appsService.openApp(item);
+
+    const process = this.getProcessById(item.pids[item.pids.length - 1]);
+    if (!process) return;
+
+    const source = this.calculateClickSource(event);
+
+    if (process.isMinimized) {
+      this.restoreProcess(process, source);
+    } else {
+      this.focusOrMinimize(process, item);
+    }
   }
 
-  reorderPinnedApps(newOrder: string[]): void {
-    const apps = this.appsService.myApps();
-    const validIds = newOrder.filter((id) => !!apps[id]);
-    this.pinnedAppIds.set(validIds);
-  }
-
-  private createDockItem(appDef: AppDefinition, pinned: boolean): DockItem {
-    return {
-      ...appDef,
-      pinned,
-      isOpen: false,
-      isActive: false,
-      count: 0,
-      pids: [],
-    };
-  }
-
-  private handleActiveWindowClick(process: any, item: DockItem): void {
-    const isActive = process.id === this.processManager.activeProcessId();
-    if (isActive && item.count === 1) {
+  private focusOrMinimize(process: any, item: DockItem) {
+    const isCurrentlyActive = process.id === this.processManager.activeProcessId();
+    if (isCurrentlyActive && item.count === 1) {
       this.processManager.toggleMinimize(process.id);
     } else {
       this.processManager.focus(process.id);
     }
   }
 
-  private restoreWindow(process: any, source: { x: number; y: number }): void {
+  private restoreProcess(process: any, source: any) {
     if (process.data) process.data.source = source;
     this.processManager.toggleMinimize(process.id);
   }
 
-  private getLastProcess(item: DockItem) {
-    if (item.pids.length === 0) return undefined;
-    const lastPid = item.pids[item.pids.length - 1];
-    return this.processManager.processes().find((p) => p.id === lastPid);
+  pinApp(id: string, index?: number) {
+    this.pinnedAppIds.update((ids) => {
+      const filtered = ids.filter((appId) => appId !== id);
+      if (index === undefined) return [...filtered, id];
+
+      const result = [...filtered];
+      result.splice(index, 0, id);
+      return result;
+    });
   }
 
-  private getClickSource(event?: MouseEvent): { x: number; y: number } {
-    if (!event?.target) {
-      return { x: window.innerWidth / 2, y: window.innerHeight };
-    }
-
-    const target = (event.target as HTMLElement).closest('button');
-    if (target) {
-      const rect = target.getBoundingClientRect();
-      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-    }
-
-    return { x: window.innerWidth / 2, y: window.innerHeight };
+  unpinApp(id: string) {
+    this.pinnedAppIds.update((ids) => ids.filter((i) => i !== id));
   }
 
-  public unPinActiveApp() {
+  private calculateClickSource(event?: MouseEvent) {
+    const target = (event?.target as HTMLElement)?.closest('button');
+    if (!target) return { x: window.innerWidth / 2, y: window.innerHeight };
+
+    const rect = target.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  }
+
+  private createDockItem(appDef: AppDefinition, pinned: boolean): DockItem {
+    return { ...appDef, pinned, isOpen: false, isActive: false, count: 0, pids: [] };
+  }
+
+  private getProcessById(pid: string) {
+    return this.processManager.processes().find((p) => p.id === pid);
+  }
+
+  closeActiveApp() {
+    const id = this.contextMenu.activeAppId();
+    if (id) this.processManager.closeAllInstancesById(id);
+  }
+
+  openActiveApp() {
+    const appId = this.contextMenu.activeAppId();
+    if (!appId) return;
+
+    const app = this.appsService.myApps()[appId];
+    if (app) this.appsService.openApp(app);
+  }
+
+  unPinActiveApp() {
     const appId = this.contextMenu.activeAppId();
     const canUnpin = this.pinnedAppIds().length > 1;
 
@@ -159,13 +130,5 @@ export class DockService {
       this.unpinApp(appId);
       this.contextMenu.close();
     }
-  }
-
-  openActiveApp() {
-    this.appsService.openApp(this.appsService.myApps()[this.contextMenu.activeAppId()!]!);
-  }
-
-  closeActiveApp() {
-    this.processManager.closeAllInstancesById(this.contextMenu.activeAppId()!);
   }
 }

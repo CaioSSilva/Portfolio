@@ -1,54 +1,56 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { AppRegistry, getInstalledApps } from '../models/apps';
+import { getInstalledApps } from '../models/apps';
 import { AppDefinition } from '../models/dock';
 import { LanguageService } from './language';
 import { ProcessManager } from './process-manager';
-import { debounceTime } from 'rxjs';
+import { debounceTime, map } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ContextMenu } from './context-menu';
 
 @Injectable({ providedIn: 'root' })
 export class Apps {
-  private processManager = inject(ProcessManager);
-  private lang = inject(LanguageService);
-  private contextMenu = inject(ContextMenu);
-  isAppsGridOpen = signal<boolean>(false);
-  searchQuery = signal<string>('');
+  private readonly processManager = inject(ProcessManager);
+  private readonly lang = inject(LanguageService);
+  private readonly contextMenu = inject(ContextMenu);
 
-  readonly myApps = computed<AppRegistry>(() => getInstalledApps(this.lang));
+  readonly isAppsGridOpen = signal(false);
+  readonly searchQuery = signal('');
 
-  readonly allApps = computed<AppDefinition[]>(() => {
-    const apps = this.myApps();
-    return Object.values(apps).filter((val): val is AppDefinition => !!val?.id);
-  });
+  readonly myApps = computed(() => getInstalledApps(this.lang));
 
-  readonly debouncedSearch = toSignal(toObservable(this.searchQuery).pipe(debounceTime(200)));
+  readonly allApps = computed(() =>
+    Object.values(this.myApps()).filter((app): app is AppDefinition => !!app?.id)
+  );
+
+  private readonly debouncedSearch$ = toObservable(this.searchQuery).pipe(
+    debounceTime(200),
+    map((q) => q.toLowerCase().trim())
+  );
+
+  readonly debouncedQuery = toSignal(this.debouncedSearch$, { initialValue: '' });
 
   readonly appSearchResult = computed(() => {
-    const query = this.debouncedSearch()?.toLowerCase().trim() || '';
-    const all = this.allApps();
+    const query = this.debouncedQuery();
+    const apps = this.allApps();
 
-    if (!query) return all;
-
-    return all.filter(
-      (app) => app.title.toLowerCase().includes(query) || app.id.toLowerCase().includes(query),
-    );
+    return query ? this.filterApps(apps, query) : apps;
   });
+
+  private filterApps(apps: AppDefinition[], query: string): AppDefinition[] {
+    return apps.filter(
+      (app) => app.title.toLowerCase().includes(query) || app.id.toLowerCase().includes(query)
+    );
+  }
 
   toggleGrid() {
     this.isAppsGridOpen.update((v) => !v);
-    if (!this.isAppsGridOpen()) this.searchQuery.set('');
+    if (!this.isAppsGridOpen()) this.resetSearch();
   }
 
   openApp(app: AppDefinition) {
     this.isAppsGridOpen.set(false);
-    this.searchQuery.set('');
-    const appData = (app as any).data;
-    this.processManager.open(app, appData);
-  }
-
-  closeApp(instanceId: string | undefined) {
-    if (instanceId) this.processManager.close(instanceId);
+    this.resetSearch();
+    this.processManager.open(app, app.data);
   }
 
   onRightClick(event: MouseEvent, appId: string) {
@@ -56,12 +58,13 @@ export class Apps {
     event.stopPropagation();
 
     const menuWidth = 180;
-    let posX = event.clientX;
-    let posY = event.clientY;
+    const x =
+      event.clientX + menuWidth > window.innerWidth ? event.clientX - menuWidth : event.clientX;
 
-    if (posX + menuWidth > window.innerWidth) {
-      posX -= menuWidth;
-    }
-    this.contextMenu.open(posX, posY, appId);
+    this.contextMenu.open(x, event.clientY, appId);
+  }
+
+  private resetSearch() {
+    this.searchQuery.set('');
   }
 }

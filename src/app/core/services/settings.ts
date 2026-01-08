@@ -1,23 +1,20 @@
 import { Injectable, signal, effect } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class Settings {
-  readonly dockSize = signal<number>(Number(localStorage.getItem('dockSize')) || 48);
-  readonly wallpaper = signal<string>(
-    localStorage.getItem('wallpaper') || '/wallpapers/default.webp',
-  );
-  readonly systemMuted = signal<boolean>(localStorage.getItem('soundMuted') === 'true');
-  readonly autoHideDock = signal<boolean>(localStorage.getItem('autoHideDock') !== 'false');
-  readonly tipsEnabled = signal<boolean>(localStorage.getItem('tipsEnabled') !== 'false');
+  readonly dockSize = signal<number>(this.load('dockSize', 48));
+  readonly wallpaper = signal<string>(this.load('wallpaper', '/wallpapers/default.webp'));
+  readonly systemMuted = signal<boolean>(this.load('soundMuted', false));
+  readonly autoHideDock = signal<boolean>(this.load('autoHideDock', true));
+  readonly tipsEnabled = signal<boolean>(this.load('tipsEnabled', true));
 
   constructor() {
     effect(() => {
-      localStorage.setItem('wallpaper', this.wallpaper());
-      localStorage.setItem('autoHideDock', this.autoHideDock().toString());
-      localStorage.setItem('soundMuted', this.systemMuted().toString());
-      localStorage.setItem('tipsEnabled', this.tipsEnabled().toString());
+      this.save('dockSize', this.dockSize());
+      this.save('wallpaper', this.wallpaper());
+      this.save('autoHideDock', this.autoHideDock());
+      this.save('soundMuted', this.systemMuted());
+      this.save('tipsEnabled', this.tipsEnabled());
     });
   }
 
@@ -25,20 +22,32 @@ export class Settings {
     this.wallpaper.set(path);
   }
 
+  setDockSize(size: number) {
+    this.dockSize.set(size);
+  }
+
   toggleAutoHideDock() {
     this.autoHideDock.update((v) => !v);
   }
 
   toggleSystemTips() {
-    this.tipsEnabled.update((t) => !t);
-  }
-
-  setDockSize(size: number) {
-    this.dockSize.set(size);
-    localStorage.setItem('dockSize', size.toString());
+    this.tipsEnabled.update((v) => !v);
   }
 
   toggleSystemSounds() {
     this.systemMuted.update((v) => !v);
+  }
+
+  private load<T>(key: string, defaultValue: T): T {
+    const value = localStorage.getItem(key);
+    if (value === null) return defaultValue;
+
+    if (typeof defaultValue === 'boolean') return (value === 'true') as T;
+    if (typeof defaultValue === 'number') return Number(value) as T;
+    return value as T;
+  }
+
+  private save(key: string, value: any) {
+    localStorage.setItem(key, value.toString());
   }
 }
