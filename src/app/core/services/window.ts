@@ -215,21 +215,16 @@ export class WindowService {
       const onMove = (e: MouseEvent) => {
         const parentRect = parent.getBoundingClientRect();
 
-        // Atualiza as coordenadas internas
         this.rect.x = e.clientX - this.mouseOffset.x - parentRect.left;
         this.rect.y = e.clientY - this.mouseOffset.y - parentRect.top;
 
-        // Aplicação visual imediata via DOM para 60fps+
         el.style.transform = `translate3d(${this.rect.x}px, ${this.rect.y}px, 0)`;
 
-        // Cálculo de Snaps e Colisões a cada frame
         requestAnimationFrame(() => {
           const snapRect = this.checkSnap(e.clientX, e.clientY);
 
-          // Rodamos as verificações de estado
           this.checkCollisions();
 
-          // Apenas voltamos para o Angular se o estado do Ghost mudar
           if (this.snapGhost() !== snapRect) {
             this.ngZone.run(() => this.snapGhost.set(snapRect));
           }
