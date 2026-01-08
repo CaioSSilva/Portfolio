@@ -6,7 +6,7 @@
         [class.bg-gnome-blue]="activeSection() === item.id"
         [class.text-white]="activeSection() === item.id"
         [class.hover:bg-gnome-blue/10]="activeSection() !== item.id"
-        class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+        class="cursor-pointer flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm font-medium"
       >
         <i [class]="item.icon + ' w-5'"></i> {{ item.label }}
       </button>
@@ -18,7 +18,7 @@
         [class.bg-gnome-blue]="activeSection() === 'about'"
         [class.text-white]="activeSection() === 'about'"
         [class.hover:bg-gnome-blue/10]="activeSection() !== 'about'"
-        class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm font-medium w-full text-left"
+        class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm font-medium w-full text-left cursor-pointer"
       >
         <i class="fas fa-info-circle w-5"></i> {{ lang.t().settings.about.title }}
       </button>
@@ -39,7 +39,7 @@
             >
               <button
                 (click)="theme.setDark(false)"
-                class="flex flex-col items-center gap-3 p-4 rounded-xl transition-all duration-200 group"
+                class="flex flex-col items-center gap-3 p-4 rounded-xl transition-all duration-200 group cursor-pointer"
                 [class.ring-4]="!theme.isDarkMode()"
                 [class.ring-gnome-blue]="!theme.isDarkMode()"
                 [class.bg-gnome-header]="!theme.isDarkMode()"
@@ -56,7 +56,7 @@
               </button>
               <button
                 (click)="theme.setDark(true)"
-                class="flex flex-col items-center gap-3 p-4 rounded-xl transition-all duration-200 group"
+                class="flex flex-col items-center gap-3 p-4 rounded-xl transition-all duration-200 group cursor-pointer"
                 [class.ring-4]="theme.isDarkMode()"
                 [class.ring-gnome-blue]="theme.isDarkMode()"
                 [class.bg-gnome-header]="theme.isDarkMode()"
@@ -82,7 +82,7 @@
               @for (wp of wallpapers; track wp) {
                 <button
                   (click)="settings.setWallpaper(wp)"
-                  class="group aspect-video rounded-xl overflow-hidden border-4 transition-all duration-300 relative shadow-sm"
+                  class="group aspect-video rounded-xl overflow-hidden border-4 transition-all duration-300 relative shadow-sm cursor-pointer"
                   [class.border-gnome-blue]="settings.wallpaper() === wp"
                   [class.border-transparent]="settings.wallpaper() !== wp"
                 >
@@ -117,7 +117,7 @@
               </div>
               <button
                 (click)="settings.toggleAutoHideDock()"
-                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1"
+                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
                 [class.bg-gnome-blue]="settings.autoHideDock()"
                 [class.bg-zinc-400]="!settings.autoHideDock()"
               >
@@ -142,7 +142,7 @@
                     [class.bg-gnome-blue]="settings.dockSize() === size"
                     [class.text-white]="settings.dockSize() === size"
                     [class.hover:bg-gnome-blue/10]="settings.dockSize() !== size"
-                    class="px-3 py-1 rounded text-xs font-bold transition-colors"
+                    class="px-3 py-1 rounded text-xs font-bold transition-colors cursor-pointer"
                   >
                     {{ size }}px
                   </button>
@@ -168,7 +168,7 @@
               </div>
               <button
                 (click)="settings.toggleSystemSounds()"
-                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1"
+                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
                 [class.bg-gnome-blue]="!settings.systemMuted()"
                 [class.bg-zinc-400]="settings.systemMuted()"
               >
@@ -191,7 +191,7 @@
           >
             <button
               (click)="lang.setLanguage('pt')"
-              class="w-full p-4 flex items-center justify-between hover:bg-gnome-text/5 transition-colors text-left outline-none"
+              class="w-full p-4 flex items-center justify-between hover:bg-gnome-text/5 transition-colors text-left outline-none cursor-pointer"
             >
               <div class="flex items-center gap-4">
                 <span class="text-2xl">🇧🇷</span>
@@ -208,7 +208,7 @@
             </button>
             <button
               (click)="lang.setLanguage('en')"
-              class="w-full p-4 flex items-center justify-between hover:bg-gnome-text/5 transition-colors text-left outline-none"
+              class="w-full p-4 flex items-center justify-between hover:bg-gnome-text/5 transition-colors text-left outline-none cursor-pointer"
             >
               <div class="flex items-center gap-4">
                 <span class="text-2xl">🇺🇸</span>
@@ -248,7 +248,7 @@
               </div>
               <button
                 (click)="settings.toggleSystemTips()"
-                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1"
+                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
                 [class.bg-gnome-blue]="settings.tipsEnabled()"
                 [class.bg-zinc-400]="!settings.tipsEnabled()"
               >

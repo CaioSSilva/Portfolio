@@ -6,7 +6,7 @@
     <div
       (click)="$event.stopPropagation(); onSelect.emit(file.id)"
       (dblclick)="onNavigate.emit(file)"
-      class="group flex flex-col items-center p-2 rounded-xl border-2 border-transparent transition-all cursor-default select-none"
+      class="group cursor-pointer flex flex-col items-center p-2 rounded-xl border-2 border-transparent transition-all cursor-default select-none"
       [class.bg-gnome-blue/10]="selectedId() === file.id"
       [class.border-gnome-blue/20]="selectedId() === file.id"
       [class.hover:bg-gnome-blue/5]="selectedId() !== file.id"

@@ -23,7 +23,7 @@ export class SettingsComponent extends Base {
     {
       id: 'appearance' as SettingSection,
       icon: 'fas fa-palette',
-      label: this.lang.t().settings.title,
+      label: this.lang.t().settings.appearance.title,
     },
     {
       id: 'desktop' as SettingSection,

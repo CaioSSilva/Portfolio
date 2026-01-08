@@ -10,7 +10,7 @@
     <div
       (click)="$event.stopPropagation(); onSelect.emit(file.id)"
       (dblclick)="onNavigate.emit(file)"
-      class="flex items-center px-4 py-1.5 text-[13px] border-b border-gnome-border/10 cursor-default transition-colors"
+      class="flex items-center px-4 py-1.5 text-[13px] border-b border-gnome-border/10 cursor-default transition-colors cursor-pointer"
       [class.bg-gnome-blue]="selectedId() === file.id"
       [class.text-white]="selectedId() === file.id"
       [class.hover:bg-gnome-blue/10]="selectedId() !== file.id"

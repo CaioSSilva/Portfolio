@@ -26,7 +26,7 @@
         (click)="goBack()"
         [disabled]="pathIds().length <= 1"
         [title]="lang.t().files.back"
-        class="flex-none w-7 h-7 rounded flex items-center justify-center hover:bg-black/5 disabled:opacity-20 transition-opacity outline-none"
+        class="flex-none cursor-pointer w-7 h-7 rounded flex items-center justify-center hover:bg-black/5 disabled:opacity-20 transition-opacity outline-none"
       >
         <i class="fas fa-chevron-left text-xs"></i>
       </button>
@@ -53,7 +53,7 @@
           @if (searchQuery()) {
             <button
               (click)="searchQuery.set('')"
-              class="absolute right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text"
+              class="absolute cursor-pointer right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text"
             >
               <i class="fas fa-times-circle text-[10px]"></i>
             </button>
@@ -67,7 +67,7 @@
           [class.bg-black/10]="viewMode() === 'grid'"
           [class.text-gnome-blue]="viewMode() === 'grid'"
           [title]="lang.t().files.gridView"
-          class="w-8 h-7 flex justify-center items-center bg-gnome-surface hover:bg-black/5 border-r border-gnome-border outline-none"
+          class="w-8 h-7 cursor-pointer flex justify-center items-center bg-gnome-surface hover:bg-black/5 border-r border-gnome-border outline-none"
         >
           <i class="fas fa-th-large text-[10px]"></i>
         </button>
@@ -76,7 +76,7 @@
           [class.bg-black/10]="viewMode() === 'list'"
           [class.text-gnome-blue]="viewMode() === 'list'"
           [title]="lang.t().files.listView"
-          class="w-8 h-7 flex justify-center items-center bg-gnome-surface hover:bg-black/5 outline-none"
+          class="w-8 cursor-pointer h-7 flex justify-center items-center bg-gnome-surface hover:bg-black/5 outline-none"
         >
           <i class="fas fa-list text-[10px]"></i>
         </button>
