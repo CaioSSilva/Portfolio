@@ -205,7 +205,7 @@ export class WindowService {
         this.rect = { ...ghost };
         this.isSnapped.set(true);
         this.isMaximized.set(
-          ghost.w === window.innerWidth && ghost.h === window.innerHeight - TOP_BAR_HEIGHT
+          ghost.w === window.innerWidth && ghost.h === window.innerHeight - TOP_BAR_HEIGHT,
         );
         this.applyGeometry();
       }

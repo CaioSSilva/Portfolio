@@ -62,7 +62,7 @@ export class TerminalComands {
       .getChildren(dirId)
       .find(
         (f) =>
-          f.id.toLowerCase() === name.toLowerCase() || f.name.toLowerCase() === name.toLowerCase()
+          f.id.toLowerCase() === name.toLowerCase() || f.name.toLowerCase() === name.toLowerCase(),
       );
   }
 

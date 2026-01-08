@@ -97,7 +97,7 @@ export class Terminal extends Base {
 
   private autocompleteCommand(input: HTMLInputElement, parts: string[], lastPart: string) {
     const matches = Object.keys(this.lang.t().terminal.commands).filter((c) =>
-      c.startsWith(lastPart.toLowerCase())
+      c.startsWith(lastPart.toLowerCase()),
     );
     this.applyMatch(input, parts, matches);
   }

@@ -34,7 +34,7 @@ export class DockService {
   private mergeProcessesIntoItems(
     map: Map<string, DockItem>,
     processes: any[],
-    activeId: string | null
+    activeId: string | null,
   ) {
     processes.forEach((p) => {
       let item =

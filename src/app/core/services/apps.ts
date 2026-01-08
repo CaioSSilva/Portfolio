@@ -19,12 +19,12 @@ export class Apps {
   readonly myApps = computed(() => getInstalledApps(this.lang));
 
   readonly allApps = computed(() =>
-    Object.values(this.myApps()).filter((app): app is AppDefinition => !!app?.id)
+    Object.values(this.myApps()).filter((app): app is AppDefinition => !!app?.id),
   );
 
   private readonly debouncedSearch$ = toObservable(this.searchQuery).pipe(
     debounceTime(200),
-    map((q) => q.toLowerCase().trim())
+    map((q) => q.toLowerCase().trim()),
   );
 
   readonly debouncedQuery = toSignal(this.debouncedSearch$, { initialValue: '' });
@@ -38,7 +38,7 @@ export class Apps {
 
   private filterApps(apps: AppDefinition[], query: string): AppDefinition[] {
     return apps.filter(
-      (app) => app.title.toLowerCase().includes(query) || app.id.toLowerCase().includes(query)
+      (app) => app.title.toLowerCase().includes(query) || app.id.toLowerCase().includes(query),
     );
   }
 

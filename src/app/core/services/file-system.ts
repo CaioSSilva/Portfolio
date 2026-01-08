@@ -149,7 +149,7 @@ export class FileSystem {
 
   private findParent(childId: string): FileItem | undefined {
     return Array.from(this.nodeMap.values()).find((node) =>
-      node.children?.some((child) => child.id === childId)
+      node.children?.some((child) => child.id === childId),
     );
   }
 
@@ -182,7 +182,7 @@ export class FileSystem {
     const targetExts = new Set(extensions.map((ext) => ext.toLowerCase()));
 
     return Array.from(this.nodeMap.values()).filter(
-      (node) => node.type === 'file' && targetExts.has(this.getFileExtension(node.name))
+      (node) => node.type === 'file' && targetExts.has(this.getFileExtension(node.name)),
     );
   }
 }

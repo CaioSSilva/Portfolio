@@ -87,7 +87,9 @@ export class ProcessManager {
       if (p && p.zIndex === this.globalZIndex && !p.isMinimized) return current;
 
       return current.map((item) =>
-        item.id === processId ? { ...item, zIndex: this.getNextZIndex(), isMinimized: false } : item
+        item.id === processId
+          ? { ...item, zIndex: this.getNextZIndex(), isMinimized: false }
+          : item,
       );
     });
   }
@@ -102,7 +104,7 @@ export class ProcessManager {
           isMinimized: willMinimize,
           zIndex: willMinimize ? p.zIndex : this.getNextZIndex(),
         };
-      })
+      }),
     );
   }
 

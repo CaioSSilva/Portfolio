@@ -1,11 +1,11 @@
 @if (windowService.snapGhost(); as ghost) {
-<div
-  class="fixed z-[8999] bg-gnome-bg/20 backdrop-blur-md rounded-lg border-2 border-white/40 transition-all duration-100 pointer-events-none"
-  [style.top.px]="ghost.y"
-  [style.left.px]="ghost.x"
-  [style.width.px]="ghost.w"
-  [style.height.px]="ghost.h"
-></div>
+  <div
+    class="fixed z-[8999] bg-gnome-bg/20 backdrop-blur-md rounded-lg border-2 border-white/40 transition-all duration-100 pointer-events-none"
+    [style.top.px]="ghost.y"
+    [style.left.px]="ghost.x"
+    [style.width.px]="ghost.w"
+    [style.height.px]="ghost.h"
+  ></div>
 }
 
 <div
@@ -66,7 +66,7 @@
 
     <div class="flex-1 bg-gnome-bg relative overflow-hidden text-gnome-text">
       @if (windowService.isDragging() || windowService.isResizing()) {
-      <div class="absolute inset-0 z-50 bg-transparent"></div>
+        <div class="absolute inset-0 z-50 bg-transparent"></div>
       }
       <div class="h-full w-full overflow-auto p-1">
         <ng-container
@@ -77,11 +77,11 @@
   </div>
 
   @if (!windowService.isMaximized() && !windowService.isSnapped()) {
-  <div
-    (mousedown)="windowService.startResize($event)"
-    class="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 z-50 opacity-0 hover:opacity-100 transition-opacity"
-  >
-    <div class="w-2 h-2 border-r-2 border-b-2 border-gnome-text-secondary"></div>
-  </div>
+    <div
+      (mousedown)="windowService.startResize($event)"
+      class="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 z-50 opacity-0 hover:opacity-100 transition-opacity"
+    >
+      <div class="w-2 h-2 border-r-2 border-b-2 border-gnome-text-secondary"></div>
+    </div>
   }
 </div>
