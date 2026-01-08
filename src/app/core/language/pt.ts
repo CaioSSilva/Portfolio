@@ -7,6 +7,10 @@ export const pt = {
     search: 'Pesquisar...',
     download: 'Baixar',
     openFiles: 'Abrir arquivos',
+    openApp: 'Abrir aplicativo',
+    newInstance: 'Nova instância',
+    closeApp: 'Fechar aplicativo',
+    removeFromDock: 'Remover da dock',
   },
 
   window: {

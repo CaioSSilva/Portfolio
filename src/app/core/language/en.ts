@@ -7,6 +7,10 @@ export const en = {
     search: 'Search...',
     download: 'Download',
     openFiles: 'Open files',
+    openApp: 'Open application',
+    newInstance: 'New instance',
+    closeApp: 'Close application',
+    removeFromDock: 'Remove from dock',
   },
 
   window: {

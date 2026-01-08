@@ -30,6 +30,14 @@ export class ProcessManager {
 
   readonly hasActiveProcesses = computed(() => this.processes().length > 0);
 
+  hasActiveProcessesById = (id: string): boolean => {
+    return this.processes().some((p) => p.appId === id);
+  };
+
+  closeAllInstancesById = (id: string) => {
+    this.processes.update((current) => current.filter((p) => p.appId !== id));
+  };
+
   private globalZIndex = 100;
 
   updateTopOverlap(isOverlapping: boolean) {
@@ -100,7 +108,7 @@ export class ProcessManager {
           return { ...p, isMinimized: !p.isMinimized, zIndex: newZIndex };
         }
         return p;
-      }),
+      })
     );
   }
 
@@ -113,7 +121,7 @@ export class ProcessManager {
       }
 
       return current.map((p) =>
-        p.id === processId ? { ...p, zIndex: this.incrementZIndex(), isMinimized: false } : p,
+        p.id === processId ? { ...p, zIndex: this.incrementZIndex(), isMinimized: false } : p
       );
     });
   }

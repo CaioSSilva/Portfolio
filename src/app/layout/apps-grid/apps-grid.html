@@ -1,6 +1,6 @@
 @if (appsService.isAppsGridOpen()) {
   <div
-    class="fixed inset-0 z-[10001] bg-gnome-bg/80 backdrop-blur-[40px] flex flex-col items-center pt-[8vh] animate-in fade-in duration-200 transition-colors duration-500"
+    class="fixed inset-0 z-[8998] bg-gnome-bg/80 backdrop-blur-[40px] flex flex-col items-center pt-[8vh] animate-in fade-in duration-200 transition-colors duration-500"
     (click)="appsService.toggleGrid()"
   >
     <div
@@ -28,6 +28,8 @@
       >
         @for (app of appsService.appSearchResult(); track app.id) {
           <button
+            draggable="true"
+            (dragstart)="ondragStart($event, app)"
             (click)="appsService.openApp(app)"
             class="group relative flex cursor-pointer flex-col items-center gap-3 outline-none transition-all"
           >

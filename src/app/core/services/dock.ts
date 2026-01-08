@@ -78,10 +78,20 @@ export class DockService {
     };
   }
 
-  pinApp(id: string): void {
+  pinApp(id: string, index?: number): void {
     this.pinnedAppIds.update((ids) => {
-      if (ids.includes(id)) return ids;
-      return [...ids, id];
+      let newIds = [...ids];
+      const existingIndex = newIds.indexOf(id);
+      if (existingIndex !== -1) {
+        newIds.splice(existingIndex, 1);
+      }
+      if (index === undefined || index === null) {
+        newIds.push(id);
+        return newIds;
+      }
+      newIds.splice(index, 0, id);
+
+      return newIds;
     });
   }
 
