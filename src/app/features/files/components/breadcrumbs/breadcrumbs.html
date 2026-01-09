@@ -3,21 +3,23 @@
 >
   <div class="flex items-center whitespace-nowrap px-1 overflow-x-auto custom-scrollbar w-full">
     @for (crumb of items(); track crumb.id) {
-    <button
-      (click)="onJump.emit($index)"
-      class="flex-none px-2 py-0.5 cursor-pointer rounded flex items-center gap-1.5 text-[12.5px] outline-none hover:bg-black/10"
-      [class.font-semibold]="$last"
-      [class.text-gnome-text-secondary]="!$last"
-    >
-      @if (crumb.id === 'home') {
-      <i class="fas fa-home text-[10px] opacity-50"></i>
-      } @if (crumb.id === 'root') {
-      <i class="fas fa-hdd text-[10px] opacity-50"></i>
+      <button
+        (click)="onJump.emit($index)"
+        class="flex-none px-2 py-0.5 cursor-pointer rounded flex items-center gap-1.5 text-[12.5px] outline-none hover:bg-black/10"
+        [class.font-semibold]="$last"
+        [class.text-gnome-text-secondary]="!$last"
+      >
+        @if (crumb.id === 'home') {
+          <i class="fas fa-home text-[10px] opacity-50"></i>
+        }
+        @if (crumb.id === 'root') {
+          <i class="fas fa-hdd text-[10px] opacity-50"></i>
+        }
+        {{ crumb.name }}
+      </button>
+      @if (!$last) {
+        <i class="fas fa-chevron-right text-[9px] opacity-20 mx-0.5 flex-none"></i>
       }
-      {{ crumb.name }}
-    </button>
-    @if (!$last) {
-    <i class="fas fa-chevron-right text-[9px] opacity-20 mx-0.5 flex-none"></i>
-    } }
+    }
   </div>
 </div>

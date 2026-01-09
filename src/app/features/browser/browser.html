@@ -32,64 +32,69 @@
 
   <div class="flex-1 relative bg-gnome-bg flex justify-center items-center">
     @if (hasError()) {
-    <div
-      class="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-gnome-bg"
-    >
       <div
-        class="w-16 h-16 bg-gnome-surface rounded-full flex items-center justify-center mb-6 border border-gnome-border"
+        class="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-gnome-bg"
       >
-        <i class="fas fa-circle-exclamation text-2xl text-gnome-red"></i>
-      </div>
-      <h2 class="text-xl font-bold">{{ lang.t().browser.connectionFailed }}</h2>
-      <p class="text-sm text-gnome-text-secondary mt-3 max-w-sm">
-        {{ lang.t().browser.embedWarning }}
-      </p>
+        <div
+          class="w-16 h-16 bg-gnome-surface rounded-full flex items-center justify-center mb-6 border border-gnome-border"
+        >
+          <i class="fas fa-circle-exclamation text-2xl text-gnome-red"></i>
+        </div>
+        <h2 class="text-xl font-bold">{{ lang.t().browser.connectionFailed }}</h2>
+        <p class="text-sm text-gnome-text-secondary mt-3 max-w-sm">
+          {{ lang.t().browser.embedWarning }}
+        </p>
 
-      <p class="text-sm text-gnome-text-secondary mt-3 max-w-sm">
-        {{ lang.t().browser.notExistsWarning }}
-      </p>
-      <div class="flex gap-3 mt-8">
-        <button
-          (click)="navigateToUrl()"
-          class="px-5 py-2.5 cursor-pointer bg-gnome-surface border border-gnome-border rounded-lg text-sm font-medium hover:bg-gnome-header transition-all cursor-pointer"
-        >
-          {{ lang.t().browser.tryAgain }}
-        </button>
-        <a
-          [href]="displayUrl()"
-          target="_blank"
-          class="px-5 py-2.5 bg-gnome-blue hover:bg-gnome-blue-dark text-white rounded-lg text-sm font-medium flex items-center gap-2 cursor-pointer"
-        >
-          <i class="fas fa-external-link-alt text-[10px]"></i>
-          {{ lang.t().browser.openExternal }}
-        </a>
+        <p class="text-sm text-gnome-text-secondary mt-3 max-w-sm">
+          {{ lang.t().browser.notExistsWarning }}
+        </p>
+        <div class="flex gap-3 mt-8">
+          <button
+            (click)="navigateToUrl()"
+            class="px-5 py-2.5 cursor-pointer bg-gnome-surface border border-gnome-border rounded-lg text-sm font-medium hover:bg-gnome-header transition-all cursor-pointer"
+          >
+            {{ lang.t().browser.tryAgain }}
+          </button>
+          <a
+            [href]="displayUrl()"
+            target="_blank"
+            class="px-5 py-2.5 bg-gnome-blue hover:bg-gnome-blue-dark text-white rounded-lg text-sm font-medium flex items-center gap-2 cursor-pointer"
+          >
+            <i class="fas fa-external-link-alt text-[10px]"></i>
+            {{ lang.t().browser.openExternal }}
+          </a>
+        </div>
       </div>
-    </div>
-    } @if (isLoading()) {
-    <div
-      class="absolute inset-0 z-10 flex items-center justify-center bg-gnome-bg/50 backdrop-blur-sm"
-    >
+    }
+    @if (isLoading()) {
       <div
-        class="w-8 h-8 border-4 border-gnome-blue/20 border-t-gnome-blue rounded-full animate-spin"
-      ></div>
-    </div>
-    } @if (safeUrl()) {
-    <iframe
-      sandbox=" allow-scripts allow-popups allow-forms"
-      [src]="safeUrl()!"
-      (load)="onLoad()"
-      class="w-full h-full border-none bg-white transition-opacity duration-500"
-      [class.opacity-0]="hasError() || isLoading()"
-      allow="autoplay; encrypted-media; fullscreen"
-    ></iframe>
-    } @if (!isLoading() && !hasError() && !safeUrl()) {
-    <div class="flex flex-col items-center">
-      <span class="text-gnome-text text-sm">{{ lang.t().browser.tryToSearch }}</span>
-      <div class="flex items-center justify-center gap-2">
-        <i class="fas fa-info-circle text-[8px] text-gnome-blue mt-1/2"></i>
-        <span class="text-gnome-text-secondary text-xs">{{ lang.t().browser.urlDisclaimer }}</span>
+        class="absolute inset-0 z-10 flex items-center justify-center bg-gnome-bg/50 backdrop-blur-sm"
+      >
+        <div
+          class="w-8 h-8 border-4 border-gnome-blue/20 border-t-gnome-blue rounded-full animate-spin"
+        ></div>
       </div>
-    </div>
+    }
+    @if (safeUrl()) {
+      <iframe
+        sandbox=" allow-scripts allow-popups allow-forms"
+        [src]="safeUrl()!"
+        (load)="onLoad()"
+        class="w-full h-full border-none bg-white transition-opacity duration-500"
+        [class.opacity-0]="hasError() || isLoading()"
+        allow="autoplay; encrypted-media; fullscreen"
+      ></iframe>
+    }
+    @if (!isLoading() && !hasError() && !safeUrl()) {
+      <div class="flex flex-col items-center">
+        <span class="text-gnome-text text-sm">{{ lang.t().browser.tryToSearch }}</span>
+        <div class="flex items-center justify-center gap-2">
+          <i class="fas fa-info-circle text-[8px] text-gnome-blue mt-1/2"></i>
+          <span class="text-gnome-text-secondary text-xs">{{
+            lang.t().browser.urlDisclaimer
+          }}</span>
+        </div>
+      </div>
     }
   </div>
 </div>

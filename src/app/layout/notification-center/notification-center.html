@@ -5,13 +5,14 @@
     @for (n of notifService.activeNotifications(); track n.id) {
       <div
         (click)="n.action?.()"
-        class="cursor-pointer flex items-center gap-4 p-3 min-w-[320px] bg-gnome-bg/90 backdrop-blur-md border border-gnome-border/30 rounded-2xl shadow-2xl animate-in slide-in-from-top-4"
+        [style.cursor]="n.action ? 'pointer' : 'default'"
+        class="flex items-center gap-4 p-3 min-w-[320px] bg-gnome-bg/90 backdrop-blur-md border border-gnome-border/30 rounded-2xl shadow-2xl animate-in slide-in-from-top-4"
       >
         <div
-          class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 shadow-sm"
+          class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
           [style.background-color]="n.color"
         >
-          <i [class]="n.icon" class="text-white text-lg"></i>
+          <i [class]="n.icon" class="text-gnome-text text-lg"></i>
         </div>
         <div class="flex-1 text-[13px]">
           <div class="font-bold text-gnome-text">{{ n.title }}</div>
@@ -56,13 +57,13 @@
       @for (n of notifService.history(); track n.id) {
         <div
           [style.cursor]="n.action ? 'pointer' : 'default'"
-          class="cursor-pointer bg-gnome-surface/40 hover:bg-gnome-surface/80 p-4 rounded-2xl flex gap-4 transition-all group border border-gnome-border/10 shrink-0"
+          class="cursor-pointer bg-gnome-surface/40 hover:bg-gnome-surface/80 p-4 rounded-2xl flex gap-4 transition-all group items-center border border-gnome-border/10 shrink-0"
         >
           <div
-            class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md"
+            class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
             [style.background-color]="n.color"
           >
-            <i [class]="n.icon" class="text-white text-lg"></i>
+            <i [class]="n.icon" class="text-gnome-text text-lg"></i>
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-start mb-0.5">

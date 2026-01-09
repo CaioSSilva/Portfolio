@@ -3,166 +3,172 @@
   [attr.aria-label]="lang.t().apps.documents + ': ' + fileName()"
 >
   @if (safePath() && !hasError()) {
-  <header
-    class="h-12 bg-gnome-surface border-b border-gnome-border flex items-center justify-between px-4 shrink-0 z-20 shadow-sm"
-  >
-    <div class="flex items-center gap-3">
-      <div
-        class="w-8 h-8 rounded-lg flex items-center justify-center bg-gnome-bg border border-gnome-border"
-      >
-        <i [class]="getFileIcon()" [style.color]="getIconColor()" aria-hidden="true"></i>
-      </div>
-      <span
-        class="text-[11px] font-bold text-gnome-text opacity-90 truncate max-w-[150px]"
-        [title]="fileName()"
-      >
-        {{ fileName() }}
-      </span>
-    </div>
-
-    <div class="flex items-center gap-4">
-      @if (fileType() === 'pdf') {
-      <div
-        class="flex items-center bg-gnome-bg border border-gnome-border rounded-full p-0.5 shadow-sm"
-      >
-        <button
-          (click)="changeZoom(-0.1)"
-          class="w-7 h-7 cursor-pointer flex items-center justify-center hover:bg-gnome-header rounded-full transition-colors active:scale-90"
+    <header
+      class="h-12 bg-gnome-surface border-b border-gnome-border flex items-center justify-between px-4 shrink-0 z-20 shadow-sm"
+    >
+      <div class="flex items-center gap-3">
+        <div
+          class="w-8 h-8 rounded-lg flex items-center justify-center bg-gnome-bg border border-gnome-border"
         >
-          <i class="fas fa-minus text-[10px] text-gnome-text-secondary"></i>
-        </button>
-        <span class="text-[10px] font-mono font-bold w-12 text-center text-gnome-text/80">
-          {{ (zoom() * 100).toFixed(0) }}%
+          <i [class]="getFileIcon()" [style.color]="getIconColor()" aria-hidden="true"></i>
+        </div>
+        <span
+          class="text-[11px] font-bold text-gnome-text opacity-90 truncate max-w-[150px]"
+          [title]="fileName()"
+        >
+          {{ fileName() }}
         </span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        @if (fileType() === 'pdf') {
+          <div
+            class="flex items-center bg-gnome-bg border border-gnome-border rounded-full p-0.5 shadow-sm"
+          >
+            <button
+              (click)="changeZoom(-0.1)"
+              class="w-7 h-7 cursor-pointer flex items-center justify-center hover:bg-gnome-header rounded-full transition-colors active:scale-90"
+            >
+              <i class="fas fa-minus text-[10px] text-gnome-text-secondary"></i>
+            </button>
+            <span class="text-[10px] font-mono font-bold w-12 text-center text-gnome-text/80">
+              {{ (zoom() * 100).toFixed(0) }}%
+            </span>
+            <button
+              (click)="changeZoom(0.1)"
+              class="w-7 h-7 cursor-pointer flex items-center justify-center hover:bg-gnome-header rounded-full transition-colors active:scale-90"
+            >
+              <i class="fas fa-plus text-[10px] text-gnome-text-secondary"></i>
+            </button>
+          </div>
+        }
         <button
-          (click)="changeZoom(0.1)"
-          class="w-7 h-7 cursor-pointer flex items-center justify-center hover:bg-gnome-header rounded-full transition-colors active:scale-90"
+          (click)="downloadFile()"
+          class="cursor-pointer cursor-pointer hover:bg-gnome-blue-dark bg-gnome-blue border border-gnome-border rounded-full p-0.5 shadow-sm text-sm px-5 py-1.5 active:scale-95 transition-all text-white flex items-center gap-2"
         >
-          <i class="fas fa-plus text-[10px] text-gnome-text-secondary"></i>
+          <i class="fas fa-download text-[11px]"></i>
+          <span class="text-[10px] font-bold uppercase tracking-tighter">{{
+            lang.t().common.download
+          }}</span>
         </button>
       </div>
-      }
-      <button
-        (click)="downloadFile()"
-        class="cursor-pointer cursor-pointer hover:bg-gnome-blue-dark bg-gnome-blue border border-gnome-border rounded-full p-0.5 shadow-sm text-sm px-5 py-1.5 active:scale-95 transition-all text-white flex items-center gap-2"
-      >
-        <i class="fas fa-download text-[11px]"></i>
-        <span class="text-[10px] font-bold uppercase tracking-tighter">{{
-          lang.t().common.download
-        }}</span>
-      </button>
-    </div>
-  </header>
+    </header>
   }
 
   <main class="flex-1 overflow-auto bg-zinc-800/40 custom-scrollbar relative flex flex-col">
     @if (isLoading() && (safePath() || !availableDocs().length)) {
-    <div
-      class="absolute inset-0 flex items-center justify-center z-30 bg-gnome-bg/50 backdrop-blur-sm"
-    >
       <div
-        class="w-8 h-8 border-4 border-gnome-border border-t-gnome-blue rounded-full animate-spin"
-      ></div>
-    </div>
-    } @if (!safePath()) {
-    <div class="h-full flex flex-col animate-fade-in bg-gnome-bg">
-      <div class="flex-1 overflow-y-auto p-8">
-        <header class="mb-8">
-          <p class="text-gnome-text-secondary text-sm">{{ lang.t().documents.selectSubtitle }}</p>
-        </header>
+        class="absolute inset-0 flex items-center justify-center z-30 bg-gnome-bg/50 backdrop-blur-sm"
+      >
+        <div
+          class="w-8 h-8 border-4 border-gnome-border border-t-gnome-blue rounded-full animate-spin"
+        ></div>
+      </div>
+    }
+    @if (!safePath()) {
+      <div class="h-full flex flex-col animate-fade-in bg-gnome-bg">
+        <div class="flex-1 overflow-y-auto p-8">
+          <header class="mb-8">
+            <p class="text-gnome-text-secondary text-sm">{{ lang.t().documents.selectSubtitle }}</p>
+          </header>
 
-        @if (availableDocs().length > 0) {
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          @for (doc of availableDocs(); track doc.id) {
-          <div
-            (click)="selectFile(doc)"
-            (dblclick)="openSelectedDocument()"
-            [class.ring-2]="selectedFile()?.id === doc.id"
-            [class.ring-gnome-blue]="selectedFile()?.id === doc.id"
-            [class.bg-gnome-surface]="selectedFile()?.id === doc.id"
-            class="flex flex-col items-center p-4 rounded-2xl hover:bg-gnome-surface/50 transition-all cursor-pointer group"
-          >
-            <div class="w-16 h-16 flex items-center justify-center mb-3">
-              <i
-                [class]="
-                  doc.name.endsWith('.pdf')
-                    ? 'fas fa-file-pdf text-gnome-red'
-                    : 'fas fa-file-alt text-gnome-blue'
-                "
-                class="text-4xl opacity-90 group-hover:scale-110 transition-transform"
-              ></i>
+          @if (availableDocs().length > 0) {
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              @for (doc of availableDocs(); track doc.id) {
+                <div
+                  (click)="selectFile(doc)"
+                  (dblclick)="openSelectedDocument()"
+                  [class.ring-2]="selectedFile()?.id === doc.id"
+                  [class.ring-gnome-blue]="selectedFile()?.id === doc.id"
+                  [class.bg-gnome-surface]="selectedFile()?.id === doc.id"
+                  class="flex flex-col items-center p-4 rounded-2xl hover:bg-gnome-surface/50 transition-all cursor-pointer group"
+                >
+                  <div class="w-16 h-16 flex items-center justify-center mb-3">
+                    <i
+                      [class]="
+                        doc.name.endsWith('.pdf')
+                          ? 'fas fa-file-pdf text-gnome-red'
+                          : 'fas fa-file-alt text-gnome-blue'
+                      "
+                      class="text-4xl opacity-90 group-hover:scale-110 transition-transform"
+                    ></i>
+                  </div>
+                  <span
+                    class="text-gnome-text text-[11px] font-medium text-center line-clamp-2 w-full"
+                  >
+                    {{ doc.name }}
+                  </span>
+                </div>
+              }
             </div>
-            <span class="text-gnome-text text-[11px] font-medium text-center line-clamp-2 w-full">
-              {{ doc.name }}
-            </span>
-          </div>
+          } @else if (!isLoading()) {
+            <div class="h-full flex flex-col items-center justify-center opacity-60">
+              <i class="fas fa-folder-open text-5xl mb-4 text-gnome-text-secondary"></i>
+              <p class="text-sm text-gnome-text">{{ lang.t().documents.noDocsFound }}</p>
+              <button
+                (click)="goToFiles()"
+                class="mt-4 cursor-pointer text-gnome-blue font-bold text-xs hover:underline"
+              >
+                {{ lang.t().common.openFiles }}
+              </button>
+            </div>
           }
         </div>
-        } @else if (!isLoading()) {
-        <div class="h-full flex flex-col items-center justify-center opacity-60">
-          <i class="fas fa-folder-open text-5xl mb-4 text-gnome-text-secondary"></i>
-          <p class="text-sm text-gnome-text">{{ lang.t().documents.noDocsFound }}</p>
+
+        <footer
+          class="h-20 bg-gnome-surface border-t border-gnome-border flex items-center justify-end px-8 shrink-0"
+        >
           <button
-            (click)="goToFiles()"
-            class="mt-4 cursor-pointer text-gnome-blue font-bold text-xs hover:underline"
+            [disabled]="!selectedFile()"
+            (click)="openSelectedDocument()"
+            [class.opacity-50]="!selectedFile()"
+            class="bg-gnome-blue cursor-pointer hover:bg-gnome-blue-dark text-white text-xs font-bold py-3 px-10 rounded-full shadow-lg transition-all active:scale-95 disabled:cursor-not-allowed"
           >
-            {{ lang.t().common.openFiles }}
+            {{ lang.t().documents.openButton }}
           </button>
-        </div>
+        </footer>
+      </div>
+    }
+    @if (hasError()) {
+      <div class="h-full flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <i class="fas fa-exclamation-triangle text-4xl text-gnome-red mb-4"></i>
+        <h2 class="text-gnome-text text-sm font-bold">{{ lang.t().documents.errorTitle }}</h2>
+        <p class="text-gnome-text-secondary text-xs mt-2 max-w-[250px]">
+          {{ lang.t().documents.errorDescription }}
+        </p>
+        <button
+          (click)="goToFiles()"
+          class="mt-4 cursor-pointer text-gnome-blue font-bold text-xs hover:underline"
+        >
+          {{ lang.t().common.openFiles }}
+        </button>
+      </div>
+    }
+    @if (safePath() && !hasError()) {
+      <div class="flex-1 flex flex-col min-h-full p-6">
+        @if (fileType() === 'pdf') {
+          <pdf-viewer
+            [src]="safePath()!"
+            [render-text]="true"
+            [original-size]="false"
+            [zoom]="zoom()"
+            [autoresize]="true"
+            [show-all]="true"
+            (after-load-complete)="onPdfLoadSuccess()"
+            (error)="onPdfLoadError()"
+            class="mx-auto block shadow-2xl flex-1 w-full"
+          ></pdf-viewer>
+        } @else if (fileType() === 'text') {
+          <div class="max-w-4xl mx-auto w-full">
+            <pre
+              class="bg-gnome-surface/30 border border-gnome-border/50 rounded-xl p-8 text-gnome-text font-mono text-sm leading-relaxed whitespace-pre-wrap select-text"
+            >
+          {{ textContent() }}
+        </pre
+            >
+          </div>
         }
       </div>
-
-      <footer
-        class="h-20 bg-gnome-surface border-t border-gnome-border flex items-center justify-end px-8 shrink-0"
-      >
-        <button
-          [disabled]="!selectedFile()"
-          (click)="openSelectedDocument()"
-          [class.opacity-50]="!selectedFile()"
-          class="bg-gnome-blue cursor-pointer hover:bg-gnome-blue-dark text-white text-xs font-bold py-3 px-10 rounded-full shadow-lg transition-all active:scale-95 disabled:cursor-not-allowed"
-        >
-          {{ lang.t().documents.openButton }}
-        </button>
-      </footer>
-    </div>
-    } @if (hasError()) {
-    <div class="h-full flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-      <i class="fas fa-exclamation-triangle text-4xl text-gnome-red mb-4"></i>
-      <h2 class="text-gnome-text text-sm font-bold">{{ lang.t().documents.errorTitle }}</h2>
-      <p class="text-gnome-text-secondary text-xs mt-2 max-w-[250px]">
-        {{ lang.t().documents.errorDescription }}
-      </p>
-      <button
-        (click)="goToFiles()"
-        class="mt-4 cursor-pointer text-gnome-blue font-bold text-xs hover:underline"
-      >
-        {{ lang.t().common.openFiles }}
-      </button>
-    </div>
-    } @if (safePath() && !hasError()) {
-    <div class="flex-1 flex flex-col min-h-full p-6">
-      @if (fileType() === 'pdf') {
-      <pdf-viewer
-        [src]="safePath()!"
-        [render-text]="true"
-        [original-size]="false"
-        [zoom]="zoom()"
-        [autoresize]="true"
-        [show-all]="true"
-        (after-load-complete)="onPdfLoadSuccess()"
-        (error)="onPdfLoadError()"
-        class="mx-auto block shadow-2xl flex-1 w-full"
-      ></pdf-viewer>
-      } @else if (fileType() === 'text') {
-      <div class="max-w-4xl mx-auto w-full">
-        <pre
-          class="bg-gnome-surface/30 border border-gnome-border/50 rounded-xl p-8 text-gnome-text font-mono text-sm leading-relaxed whitespace-pre-wrap select-text"
-        >
-          {{ textContent() }}
-        </pre>
-      </div>
-      }
-    </div>
     }
   </main>
 </div>

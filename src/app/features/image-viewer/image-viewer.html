@@ -1,150 +1,153 @@
 <div class="relative flex flex-col h-full w-full bg-gnome-bg overflow-hidden select-none">
   <main class="flex-1 overflow-auto custom-scrollbar relative flex flex-col">
     @if (isLoading() && (safeUrl() || !availableImages().length)) {
-    <div
-      class="absolute inset-0 flex items-center justify-center z-30 bg-gnome-bg/50 backdrop-blur-sm"
-    >
       <div
-        class="w-8 h-8 border-4 border-gnome-border border-t-gnome-blue rounded-full animate-spin"
-      ></div>
-    </div>
-    } @if (!safeUrl() && !hasError()) {
-    <div class="h-full flex flex-col animate-fade-in bg-gnome-bg">
-      <div class="flex-1 overflow-y-auto p-8">
-        <header class="mb-8">
-          <p class="text-gnome-text-secondary text-sm">
-            {{ lang.t().imageViewer.selectSubtitle }}
-          </p>
-        </header>
+        class="absolute inset-0 flex items-center justify-center z-30 bg-gnome-bg/50 backdrop-blur-sm"
+      >
+        <div
+          class="w-8 h-8 border-4 border-gnome-border border-t-gnome-blue rounded-full animate-spin"
+        ></div>
+      </div>
+    }
+    @if (!safeUrl() && !hasError()) {
+      <div class="h-full flex flex-col animate-fade-in bg-gnome-bg">
+        <div class="flex-1 overflow-y-auto p-8">
+          <header class="mb-8">
+            <p class="text-gnome-text-secondary text-sm">
+              {{ lang.t().imageViewer.selectSubtitle }}
+            </p>
+          </header>
 
-        @if (availableImages().length > 0) {
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          @for (img of availableImages(); track img.id) {
-          <div
-            (click)="selectFile(img)"
-            (dblclick)="openSelectedImage()"
-            [class.ring-2]="selectedFile()?.id === img.id"
-            [class.ring-gnome-blue]="selectedFile()?.id === img.id"
-            [class.bg-gnome-surface]="selectedFile()?.id === img.id"
-            class="flex flex-col items-center p-2 rounded-xl hover:bg-gnome-surface/50 transition-all cursor-pointer group"
-          >
-            <div
-              class="w-full aspect-square flex items-center justify-center mb-2 overflow-hidden rounded-lg bg-black/20 border border-gnome-border"
-            >
-              <img
-                [src]="img.url"
-                class="w-full h-full object-cover group-hover:scale-110 transition-transform"
-              />
+          @if (availableImages().length > 0) {
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              @for (img of availableImages(); track img.id) {
+                <div
+                  (click)="selectFile(img)"
+                  (dblclick)="openSelectedImage()"
+                  [class.ring-2]="selectedFile()?.id === img.id"
+                  [class.ring-gnome-blue]="selectedFile()?.id === img.id"
+                  [class.bg-gnome-surface]="selectedFile()?.id === img.id"
+                  class="flex flex-col items-center p-2 rounded-xl hover:bg-gnome-surface/50 transition-all cursor-pointer group"
+                >
+                  <div
+                    class="w-full aspect-square flex items-center justify-center mb-2 overflow-hidden rounded-lg bg-black/20 border border-gnome-border"
+                  >
+                    <img
+                      [src]="img.url"
+                      class="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                    />
+                  </div>
+                  <span
+                    class="text-gnome-text text-[10px] font-medium text-center line-clamp-1 w-full px-1"
+                  >
+                    {{ img.name }}
+                  </span>
+                </div>
+              }
             </div>
-            <span
-              class="text-gnome-text text-[10px] font-medium text-center line-clamp-1 w-full px-1"
-            >
-              {{ img.name }}
-            </span>
-          </div>
+          } @else if (!isLoading()) {
+            <div class="h-full flex flex-col items-center justify-center opacity-60">
+              <i class="fas fa-images text-5xl mb-4 text-gnome-text-secondary"></i>
+              <p class="text-sm text-gnome-text">{{ lang.t().imageViewer.noPhoto }}</p>
+              <button
+                (click)="goToFiles()"
+                class="mt-4 cursor-pointer text-gnome-blue font-bold text-xs hover:underline cursor-pointer"
+              >
+                {{ lang.t().common.openFiles }}
+              </button>
+            </div>
           }
         </div>
-        } @else if (!isLoading()) {
-        <div class="h-full flex flex-col items-center justify-center opacity-60">
-          <i class="fas fa-images text-5xl mb-4 text-gnome-text-secondary"></i>
-          <p class="text-sm text-gnome-text">{{ lang.t().imageViewer.noPhoto }}</p>
+
+        <footer
+          class="h-20 bg-gnome-surface border-t border-gnome-border flex items-center justify-end px-8 shrink-0"
+        >
           <button
-            (click)="goToFiles()"
-            class="mt-4 cursor-pointer text-gnome-blue font-bold text-xs hover:underline cursor-pointer"
+            [disabled]="!selectedFile()"
+            (click)="openSelectedImage()"
+            [class.opacity-50]="!selectedFile()"
+            class="bg-gnome-blue hover:bg-gnome-blue-dark text-white text-xs font-bold py-3 px-10 rounded-full shadow-lg cursor-pointer transition-all active:scale-95 disabled:cursor-not-allowed"
           >
-            {{ lang.t().common.openFiles }}
+            {{ lang.t().imageViewer.openButton }}
+          </button>
+        </footer>
+      </div>
+    }
+    @if (safeUrl() && !hasError()) {
+      <div
+        class="flex-1 flex items-center justify-center p-4 relative overflow-hidden"
+        [class.cursor-grab]="zoom() > 1 && !isDragging()"
+        [class.cursor-grabbing]="isDragging()"
+        (mousedown)="onMouseDown($event)"
+      >
+        <img
+          [src]="safeUrl()!"
+          (load)="isLoading.set(false)"
+          (error)="hasError.set(true); isLoading.set(false)"
+          [style.transform]="
+            'translate(' +
+            position().x +
+            'px, ' +
+            position().y +
+            'px) scale(' +
+            zoom() +
+            ') rotate(' +
+            rotation() +
+            'deg)'
+          "
+          class="max-w-full max-h-full object-contain shadow-2xl pointer-events-none"
+          [class.transition-transform]="!isDragging()"
+          [class.duration-300]="!isDragging()"
+          [class.opacity-0]="isLoading()"
+        />
+
+        <div
+          class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1.5 bg-gnome-header/90 backdrop-blur-md border border-gnome-border rounded-full shadow-2xl transition-opacity hover:opacity-100 opacity-60 z-20"
+        >
+          <button
+            (click)="handleZoomOut()"
+            class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
+          >
+            <i class="fas fa-search-minus"></i>
+          </button>
+          <button
+            (click)="reset()"
+            class="px-3 h-9 cursor-pointer flex items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text text-xs font-medium"
+          >
+            {{ zoom() * 100 | number: '1.0-0' }}%
+          </button>
+          <button
+            (click)="handleZoomIn()"
+            class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
+          >
+            <i class="fas fa-search-plus"></i>
+          </button>
+          <div class="w-px h-4 bg-gnome-border mx-1"></div>
+          <button
+            (click)="handleRotate()"
+            class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
+          >
+            <i class="fas fa-rotate-right"></i>
           </button>
         </div>
-        }
       </div>
-
-      <footer
-        class="h-20 bg-gnome-surface border-t border-gnome-border flex items-center justify-end px-8 shrink-0"
-      >
-        <button
-          [disabled]="!selectedFile()"
-          (click)="openSelectedImage()"
-          [class.opacity-50]="!selectedFile()"
-          class="bg-gnome-blue hover:bg-gnome-blue-dark text-white text-xs font-bold py-3 px-10 rounded-full shadow-lg cursor-pointer transition-all active:scale-95 disabled:cursor-not-allowed"
-        >
-          {{ lang.t().imageViewer.openButton }}
-        </button>
-      </footer>
-    </div>
-    } @if (safeUrl() && !hasError()) {
-    <div
-      class="flex-1 flex items-center justify-center p-4 relative overflow-hidden"
-      [class.cursor-grab]="zoom() > 1 && !isDragging()"
-      [class.cursor-grabbing]="isDragging()"
-      (mousedown)="onMouseDown($event)"
-    >
-      <img
-        [src]="safeUrl()!"
-        (load)="isLoading.set(false)"
-        (error)="hasError.set(true); isLoading.set(false)"
-        [style.transform]="
-          'translate(' +
-          position().x +
-          'px, ' +
-          position().y +
-          'px) scale(' +
-          zoom() +
-          ') rotate(' +
-          rotation() +
-          'deg)'
-        "
-        class="max-w-full max-h-full object-contain shadow-2xl pointer-events-none"
-        [class.transition-transform]="!isDragging()"
-        [class.duration-300]="!isDragging()"
-        [class.opacity-0]="isLoading()"
-      />
-
+    }
+    @if (hasError()) {
       <div
-        class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1.5 bg-gnome-header/90 backdrop-blur-md border border-gnome-border rounded-full shadow-2xl transition-opacity hover:opacity-100 opacity-60 z-20"
+        class="h-full flex flex-col items-center justify-center p-6 text-center animate-fade-in bg-gnome-bg"
       >
+        <i class="fas fa-exclamation-triangle text-4xl text-gnome-red mb-4"></i>
+        <h2 class="text-gnome-text text-sm font-bold">{{ lang.t().imageViewer.errorTitle }}</h2>
+        <p class="text-gnome-text-secondary text-xs mt-2 max-w-[250px]">
+          {{ lang.t().imageViewer.errorDescription }}
+        </p>
         <button
-          (click)="handleZoomOut()"
-          class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
+          (click)="data.set(null)"
+          class="text-gnome-blue cursor-pointer mt-6 text-xs font-bold hover:underline"
         >
-          <i class="fas fa-search-minus"></i>
-        </button>
-        <button
-          (click)="reset()"
-          class="px-3 h-9 cursor-pointer flex items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text text-xs font-medium"
-        >
-          {{ zoom() * 100 | number : '1.0-0' }}%
-        </button>
-        <button
-          (click)="handleZoomIn()"
-          class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
-        >
-          <i class="fas fa-search-plus"></i>
-        </button>
-        <div class="w-px h-4 bg-gnome-border mx-1"></div>
-        <button
-          (click)="handleRotate()"
-          class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
-        >
-          <i class="fas fa-rotate-right"></i>
+          {{ lang.t().imageViewer.backToList }}
         </button>
       </div>
-    </div>
-    } @if (hasError()) {
-    <div
-      class="h-full flex flex-col items-center justify-center p-6 text-center animate-fade-in bg-gnome-bg"
-    >
-      <i class="fas fa-exclamation-triangle text-4xl text-gnome-red mb-4"></i>
-      <h2 class="text-gnome-text text-sm font-bold">{{ lang.t().imageViewer.errorTitle }}</h2>
-      <p class="text-gnome-text-secondary text-xs mt-2 max-w-[250px]">
-        {{ lang.t().imageViewer.errorDescription }}
-      </p>
-      <button
-        (click)="data.set(null)"
-        class="text-gnome-blue cursor-pointer mt-6 text-xs font-bold hover:underline"
-      >
-        {{ lang.t().imageViewer.backToList }}
-      </button>
-    </div>
     }
   </main>
 </div>
