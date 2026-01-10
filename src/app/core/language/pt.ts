@@ -41,6 +41,7 @@ export const pt = {
     photos: 'Fotos',
     documents: 'Documentos',
     musics: 'Musicas',
+    systemMonitor: 'Monitor do sistema',
   },
 
   notifications: {
@@ -126,6 +127,10 @@ export const pt = {
         name: 'Documentos',
         desc: 'Arquitetura de informação e base técnica. Onde as ideias tomam forma escrita.',
       },
+      sysMonitor: {
+        name: 'Monitor do Sistema',
+        desc: 'Recursos e processos em tempo real.',
+      },
     },
   },
 
@@ -189,6 +194,22 @@ export const pt = {
       display: 'Tela',
       privacyWarning: 'O navegador pode limitar a exibição do hardware real por privacidade.',
     },
+  },
+
+  systemMonitor: {
+    network: {
+      networkTitle: 'Dados de rede',
+      type: 'Tipo',
+      latency: 'Latência',
+      capacity: 'Capacidade',
+      unknown: 'Desconhecido',
+      simulated: 'Simulado',
+      estimatedFlux: 'FLUXO DE DADOS ESTIMADO',
+      note: '* Nota: O navegador limita o acesso aos dados reais de tráfego (bytes/s) por segurança. Os valores acima representam a capacidade nominal da sua interface de rede.',
+    },
+    processes: 'Processos',
+    action: 'Ação',
+    app: 'Aplicativo',
   },
 
   documents: {

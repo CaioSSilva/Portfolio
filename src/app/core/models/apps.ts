@@ -5,6 +5,7 @@ import { Files } from '../../features/files/files';
 import { ImageViewer } from '../../features/image-viewer/image-viewer';
 import { Musics } from '../../features/musics/musics';
 import { SettingsComponent } from '../../features/settings/settings';
+import { SystemMonitor } from '../../features/system-monitor/system-monitor';
 import { Terminal } from '../../features/terminal/terminal';
 import { LanguageService } from '../services/language';
 import { AppDefinition } from './dock';
@@ -19,6 +20,7 @@ export interface AppRegistry {
   photos: AppDefinition;
   documents: AppDefinition;
   musics: AppDefinition;
+  systemMonitor: AppDefinition;
   [key: string]: AppDefinition | undefined;
 }
 
@@ -82,6 +84,13 @@ export const getInstalledApps = (lang: LanguageService): AppRegistry => {
       color: '#0077b6',
       component: Musics,
       handle: AUDIO_EXTENSIONS,
+    },
+    systemMonitor: {
+      id: 'systemMonitor',
+      title: lang.t().apps.systemMonitor,
+      icon: 'fas fa-chart-pie',
+      color: '#9AB973',
+      component: SystemMonitor,
     },
   };
 };

@@ -41,4 +41,8 @@ export class AboutProject extends Base {
   openDocs() {
     this.apps.openApp(this.apps.myApps().documents);
   }
+
+  openSystemMonitor() {
+    this.apps.openApp(this.apps.myApps().systemMonitor);
+  }
 }

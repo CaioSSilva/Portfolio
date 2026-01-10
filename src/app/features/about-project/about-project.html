@@ -273,6 +273,25 @@
     </div>
 
     <div
+      (click)="openSystemMonitor()"
+      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+    >
+      <div
+        class="w-12 h-12 bg-[#9AB973] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+      >
+        <i class="fas fa-microchip text-xl"></i>
+      </div>
+      <div class="text-left">
+        <h4 class="font-bold text-sm text-gnome-text">
+          {{ lang.t().aboutProj.apps.sysMonitor.name }}
+        </h4>
+        <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
+          {{ lang.t().aboutProj.apps.sysMonitor.desc }}
+        </p>
+      </div>
+    </div>
+
+    <div
       (click)="openTerminal()"
       class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
     >
@@ -293,7 +312,7 @@
 
     <div
       (click)="openSettings()"
-      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98] md:col-span-2 lg:col-span-3"
+      class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98] md:col-span-1 lg:col-span-2"
     >
       <div
         class="w-12 h-12 bg-[#FE6F5E] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
@@ -321,31 +340,28 @@
       <a
         href="https://github.com/CaioSSilva"
         target="_blank"
-        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-101 hover:border-white/40 hover:bg-zinc-800 text-gnome-text hover:text-white"
+        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:border-white/40 hover:bg-zinc-800 text-gnome-text hover:text-white"
       >
         <i class="fab fa-github"></i>
       </a>
-
       <a
         href="https://www.linkedin.com/in/caio-souza-silva/"
         target="_blank"
-        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-101 hover:border-blue-400/40 hover:bg-[#0077b5] text-gnome-text hover:text-white"
+        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:border-blue-400/40 hover:bg-[#0077b5] text-gnome-text hover:text-white"
       >
         <i class="fab fa-linkedin-in"></i>
       </a>
-
       <a
         href="https://www.instagram.com/caios_silvaa/"
         target="_blank"
-        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-101 hover:border-pink-400/40 hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] text-gnome-text hover:text-white"
+        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:border-pink-400/40 hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] text-gnome-text hover:text-white"
       >
         <i class="fab fa-instagram"></i>
       </a>
-
       <a
         href="https://twitter.com/Caiomas_levanto"
         target="_blank"
-        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-101 hover:border-zinc-400/40 hover:bg-black text-gnome-text hover:text-white"
+        class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:border-zinc-400/40 hover:bg-black text-gnome-text hover:text-white"
       >
         <i class="fab fa-x-twitter"></i>
       </a>

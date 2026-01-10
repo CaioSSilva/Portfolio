@@ -1,0 +1,204 @@
+<div class="p-4 flex flex-col gap-6 h-full bg-gnome-bg text-gnome-text">
+  <section>
+    <div class="flex mb-2 items-center">
+      <div class="flex w-full">
+        <span
+          class="text-sm w-auto text-nowrap text-gnome-text font-bold uppercase tracking-wider opacity-90"
+          >{{ lang.t().settings.about.cpu }} -
+          <span class="text-gnome-blue">{{ currentMeasurements().cpu }}%</span></span
+        >
+        <div class="w-full px-2 flex gap-2 items-center text-left opacity-70">
+          <i class="fas fa-info-circle text-[10px] text-gnome-blue"></i>
+          <p class="text-[10px] text-gnome-text-secondary font-medium leading-tight">
+            {{ lang.t().settings.about.privacyWarning }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="h-24 w-full bg-gnome-header dark:bg-gnome-surface rounded-xl border border-gnome-border shadow-inner"
+    >
+      <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <polyline
+          fill="none"
+          stroke="var(--color-gnome-blue)"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          [attr.points]="cpuPoints()"
+        />
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <div class="flex mb-2 items-center">
+      <div class="flex w-full">
+        <span
+          class="text-sm w-auto text-nowrap text-gnome-text font-bold uppercase tracking-wider opacity-90"
+          >{{ lang.t().settings.about.ram }} -
+          <span class="text-gnome-red">{{ currentMeasurements().ram }}%</span></span
+        >
+        <div class="w-full px-2 flex gap-2 items-center text-left opacity-70">
+          <i class="fas fa-info-circle text-[10px] text-gnome-blue"></i>
+          <p class="text-[10px] text-gnome-text-secondary font-medium leading-tight">
+            {{ lang.t().settings.about.privacyWarning }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="h-24 w-full bg-gnome-header dark:bg-gnome-surface rounded-xl border border-gnome-border shadow-inner"
+    >
+      <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <polyline
+          fill="none"
+          stroke="var(--color-gnome-red)"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          [attr.points]="ramPoints()"
+        />
+      </svg>
+    </div>
+  </section>
+
+  <div class="h-auto bg-gnome-bg text-gnome-text flex flex-col gap-8">
+    <span
+      class="text-sm w-auto text-nowrap text-gnome-text font-bold uppercase tracking-wider opacity-90 border-b border-gnome-border pb-1"
+      >{{ lang.t().systemMonitor.network.networkTitle }}</span
+    >
+
+    <div class="grid grid-cols-3 gap-4">
+      <div
+        class="bg-gnome-header dark:bg-gnome-surface p-3 rounded-xl border border-gnome-border shadow-sm"
+      >
+        <span
+          class="text-[10px] text-gnome-text-secondary mb-1 block uppercase font-black tracking-tighter"
+          >{{ lang.t().systemMonitor.network.type }}</span
+        >
+        <span class="font-mono text-sm uppercase font-bold">{{ effectiveType() }}</span>
+      </div>
+      <div
+        class="bg-gnome-header dark:bg-gnome-surface p-3 rounded-xl border border-gnome-border shadow-sm"
+      >
+        <span
+          class="text-[10px] text-gnome-text-secondary mb-1 block uppercase font-black tracking-tighter"
+          >{{ lang.t().systemMonitor.network.latency }}</span
+        >
+        <span class="font-mono text-sm font-bold">{{ rtt() }} ms</span>
+      </div>
+      <div
+        class="bg-gnome-header dark:bg-gnome-surface p-3 rounded-xl border border-gnome-border shadow-sm"
+      >
+        <span
+          class="text-[10px] text-gnome-text-secondary mb-1 block uppercase font-black tracking-tighter"
+          >{{ lang.t().systemMonitor.network.capacity }}</span
+        >
+        <span class="font-mono text-sm text-gnome-blue font-black">{{ downlink() }} Mbps</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="flex justify-between items-baseline">
+        <h3 class="text-[10px] font-black opacity-60 uppercase tracking-widest">
+          {{ lang.t().systemMonitor.network.estimatedFlux }}
+        </h3>
+        <span class="text-[9px] font-mono opacity-40 px-2 py-0.5 rounded bg-gnome-border/20"
+          >API: NetworkInformation</span
+        >
+      </div>
+
+      <div
+        class="h-32 w-full bg-gnome-header dark:bg-gnome-surface rounded-xl border border-gnome-border shadow-inner relative overflow-hidden"
+      >
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="w-full h-full">
+          <line
+            x1="0"
+            y1="50"
+            x2="100"
+            y2="50"
+            stroke="currentColor"
+            stroke-width="0.1"
+            opacity="0.1"
+          />
+
+          <polyline
+            fill="none"
+            stroke="var(--color-gnome-blue)"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            [attr.points]="downPoints()"
+            class="transition-all duration-[2000ms] ease-linear"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <span
+      class="text-sm w-auto text-nowrap text-gnome-text font-bold uppercase tracking-wider opacity-90 border-b border-gnome-border pb-1"
+      >{{ lang.t().systemMonitor.processes }}</span
+    >
+
+    <div
+      class="mb-6 flex flex-col bg-gnome-header dark:bg-gnome-surface/30 rounded-xl border border-gnome-border shadow-sm overflow-hidden"
+    >
+      <div
+        class="grid grid-cols-12 gap-4 px-4 py-3 bg-gnome-header-dark dark:bg-gnome-header/60 text-[10px] font-black uppercase tracking-widest text-gnome-text opacity-80 border-b border-gnome-border"
+      >
+        <div class="col-span-6">{{ lang.t().systemMonitor.processes }}</div>
+        <div class="col-span-2 text-right">{{ lang.t().settings.about.cpu }}</div>
+        <div class="col-span-2 text-right">{{ lang.t().settings.about.ram }}</div>
+        <div class="col-span-2 text-center">{{ lang.t().systemMonitor.action }}</div>
+      </div>
+
+      <div class="flex flex-col divide-y divide-gnome-border/50">
+        @for (p of processManager.processes(); track p.id) {
+        <div
+          class="grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
+        >
+          <div class="col-span-6 flex items-center gap-3 min-w-0">
+            <div
+              class="w-9 h-9 rounded-lg bg-gnome-bg border border-gnome-border flex items-center justify-center shadow-sm shrink-0"
+            >
+              <i [class]="p.icon" class="text-sm text-gnome-text"></i>
+            </div>
+
+            <div class="flex flex-col min-w-0">
+              <span class="text-sm font-bold text-gnome-text truncate">{{ p.title }}</span>
+              <span
+                class="text-[10px] opacity-50 font-mono text-gnome-text-secondary tracking-tighter"
+              >
+                PID: {{ p.id.split('-')[0] }}
+              </span>
+            </div>
+          </div>
+
+          <div class="col-span-2 text-right font-mono text-xs text-gnome-blue font-black">
+            {{ getProcessStats(p.id).cpu }}%
+          </div>
+          <div class="col-span-2 text-right font-mono text-xs text-gnome-text opacity-90">
+            {{ getProcessStats(p.id).ram }}MB
+          </div>
+
+          <div class="col-span-2 flex justify-center">
+            <button
+              (click)="killProcess(p.id)"
+              class="opacity-0 group-hover:opacity-100 p-2.5 rounded-full hover:bg-gnome-red/10 text-gnome-red transition-all active:scale-90"
+            >
+              <i class="fas fa-times-circle text-lg"></i>
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <div class="text-[10px] text-gnome-text-secondary font-medium italic pb-8 opacity-60">
+      {{ lang.t().systemMonitor.network.note }}
+    </div>
+  </div>
+</div>

@@ -14,7 +14,7 @@ export class NotificationService {
     this.isPanelOpen.update((open) => !open);
   }
 
-  show(notif: Omit<Notification, 'id' | 'timestamp'>, duration = 8000) {
+  show(notif: Omit<Notification, 'id' | 'timestamp'>, duration = 6000) {
     const newNotif = this.createNotification(notif);
 
     this.pushToState(newNotif);

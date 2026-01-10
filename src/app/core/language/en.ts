@@ -41,6 +41,7 @@ export const en = {
     photos: 'Photos',
     documents: 'Documents',
     musics: 'Musics',
+    systemMonitor: 'System monitor',
   },
 
   notifications: {
@@ -126,6 +127,10 @@ export const en = {
         name: 'Documents',
         desc: 'Information architecture and technical foundations. Where ideas take written form.',
       },
+      sysMonitor: {
+        name: 'System Monitor',
+        desc: 'Real-time resources and processes.',
+      },
     },
   },
 
@@ -187,6 +192,22 @@ export const en = {
       display: 'Display',
       privacyWarning: 'The browser may limit real hardware display for privacy reasons.',
     },
+  },
+
+  systemMonitor: {
+    network: {
+      networkTitle: 'Network data',
+      type: 'Type',
+      latency: 'Latency',
+      capacity: 'Capacity',
+      unknown: 'Unknown',
+      simulated: 'Simulated',
+      estimatedFlux: 'ESTIMATED DATA FLUX',
+      note: '*Note: The browser limits access to actual traffic data (bytes/s) for security reasons. The values ​​above represent the nominal capacity of your network interface.',
+    },
+    processes: 'Processes',
+    action: 'Action',
+    app: 'Application',
   },
 
   documents: {
