@@ -205,6 +205,7 @@ export const en = {
       estimatedFlux: 'ESTIMATED DATA FLUX',
       note: '*Note: The browser limits access to actual traffic data (bytes/s) for security reasons. The values ​​above represent the nominal capacity of your network interface.',
     },
+    name: 'Name',
     processes: 'Processes',
     action: 'Action',
     app: 'Application',

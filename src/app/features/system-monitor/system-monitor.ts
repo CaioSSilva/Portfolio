@@ -123,7 +123,7 @@ export class SystemMonitor extends Base {
     const seed = processId.length;
     return {
       cpu: ((seed * 1.5) % 4).toFixed(1),
-      ram: (seed * 12 + 40).toFixed(0),
+      ram: (seed + 12).toFixed(0),
     };
   }
 

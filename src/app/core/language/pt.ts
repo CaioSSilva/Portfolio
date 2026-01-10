@@ -207,6 +207,7 @@ export const pt = {
       estimatedFlux: 'FLUXO DE DADOS ESTIMADO',
       note: '* Nota: O navegador limita o acesso aos dados reais de tráfego (bytes/s) por segurança. Os valores acima representam a capacidade nominal da sua interface de rede.',
     },
+    name: 'Nome',
     processes: 'Processos',
     action: 'Ação',
     app: 'Aplicativo',
