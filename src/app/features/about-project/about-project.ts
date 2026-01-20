@@ -14,35 +14,31 @@ export class AboutProject extends Base {
   apps = inject(Apps);
   lang = inject(LanguageService);
 
-  openFiles() {
-    this.apps.openApp(this.apps.myApps().files);
+  aboutApps() {
+    const installed = this.apps.myApps();
+    const aboutTexts = this.lang.t().aboutProj.apps;
+
+    const displayOrder = [
+      { id: 'files', textKey: 'files' },
+      { id: 'photos', textKey: 'photos' },
+      { id: 'musics', textKey: 'music' },
+      { id: 'documents', textKey: 'docs' },
+      { id: 'firefox', textKey: 'browser' },
+      { id: 'systemMonitor', textKey: 'sysMonitor' },
+      { id: 'terminal', textKey: 'terminal' },
+      { id: 'settings', textKey: 'settings' },
+      { id: 'hermes', textKey: 'hermes' },
+    ];
+
+    return displayOrder
+      .map((item) => ({
+        config: (installed as any)[item.id],
+        info: (aboutTexts as any)[item.textKey],
+      }))
+      .filter((app) => app.config);
   }
 
-  openFirefox() {
-    this.apps.openApp(this.apps.myApps().firefox);
-  }
-
-  openTerminal() {
-    this.apps.openApp(this.apps.myApps().terminal);
-  }
-
-  openSettings() {
-    this.apps.openApp(this.apps.myApps().settings);
-  }
-
-  openPhotos() {
-    this.apps.openApp(this.apps.myApps().photos);
-  }
-
-  openMusic() {
-    this.apps.openApp(this.apps.myApps().musics);
-  }
-
-  openDocs() {
-    this.apps.openApp(this.apps.myApps().documents);
-  }
-
-  openSystemMonitor() {
-    this.apps.openApp(this.apps.myApps().systemMonitor);
+  handleOpenApp(app: any) {
+    this.apps.openApp(app);
   }
 }

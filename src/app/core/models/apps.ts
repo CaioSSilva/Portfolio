@@ -2,6 +2,7 @@ import { AboutProject } from '../../features/about-project/about-project';
 import { Browser } from '../../features/browser/browser';
 import { DocumentViewer } from '../../features/document-viewer/document-viewer';
 import { Files } from '../../features/files/files';
+import { Hermes } from '../../features/hermes/hermes';
 import { ImageViewer } from '../../features/image-viewer/image-viewer';
 import { Musics } from '../../features/musics/musics';
 import { SettingsComponent } from '../../features/settings/settings';
@@ -21,6 +22,7 @@ export interface AppRegistry {
   documents: AppDefinition;
   musics: AppDefinition;
   systemMonitor: AppDefinition;
+  hermes: AppDefinition;
   [key: string]: AppDefinition | undefined;
 }
 
@@ -91,6 +93,13 @@ export const getInstalledApps = (lang: LanguageService): AppRegistry => {
       icon: 'fas fa-chart-pie',
       color: '#9AB973',
       component: SystemMonitor,
+    },
+    hermes: {
+      id: 'hermes',
+      title: lang.t().apps.hermes,
+      icon: 'fas fa-square-h',
+      color: '#00916E',
+      component: Hermes,
     },
   };
 };

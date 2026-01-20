@@ -1,0 +1,21 @@
+<div class="flex h-full flex-1 flex-col justify-center items-center gap-6 bg-gnome-bg">
+  <div class="text-center">
+    <h1 class="text-[#00916E] font-bold text-3xl mb-2">{{ lang.t().hermes.welcome }}</h1>
+    <p class="text-sm text-gnome-text-secondary opacity-90">{{ lang.t().hermes.desc }}</p>
+  </div>
+
+  <div class="relative w-full max-w-md px-4">
+    <input
+      type="text"
+      [placeholder]="lang.t().hermes.ask"
+      class="w-full p-3 rounded-2xl border outline-none transition-all duration-300 bg-gnome-surface border-gnome-border text-gnome-text placeholder:text-gnome-text-secondary placeholder:opacity-50 focus:border-[#00916E] focus:ring-4 focus:ring-[#00916E]/15 shadow-sm"
+    />
+
+    <button
+      (click)="showNotWorking()"
+      class="absolute right-8 top-1/2 -translate-y-1/2 flex items-center justify-center text-[#00916E] hover:scale-110 active:scale-95 transition-all duration-200"
+    >
+      <i class="fas fa-feather-pointed text-md cursor-pointer"></i>
+    </button>
+  </div>
+</div>

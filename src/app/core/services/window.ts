@@ -69,6 +69,13 @@ export class WindowService {
     });
   }
 
+  private finalizeDrag() {
+    this.ngZone.run(() => {
+      this.isDragging.set(false);
+      this.applySnap();
+    });
+  }
+
   startResize(event: MouseEvent) {
     if (this.isMaximized() || event.button !== 0) return;
     event.preventDefault();
@@ -92,7 +99,10 @@ export class WindowService {
       const onStop = () => {
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onStop);
-        this.ngZone.run(() => this.isResizing.set(false));
+        this.ngZone.run(() => {
+          this.isResizing.set(false);
+          this.applySnap();
+        });
       };
 
       document.addEventListener('mousemove', onMove);
@@ -100,29 +110,30 @@ export class WindowService {
     });
   }
 
-  private fastInternalCheck(mouseX: number, mouseY: number) {
-    if (!this.isInitializing && (mouseX > 0 || mouseY > 0)) {
-      const ghost = this.calculateSnap(mouseX, mouseY);
-      if (JSON.stringify(ghost) !== JSON.stringify(this.snapGhost())) {
-        this.ngZone.run(() => this.snapGhost.set(ghost));
+  private applySnap() {
+    const ghost = this.snapGhost();
+    if (ghost) {
+      if (!this.isSnapped() && !this.isMaximized()) {
+        this.savedState = { ...this.rect };
       }
-    }
 
-    const bottomMargin = this.collisions.bottom ? 15 : 0;
-    const isOverBottom =
-      this.isMaximized() ||
-      this.rect.y + this.rect.h > window.innerHeight - DOCK_HEIGHT - bottomMargin;
+      this.rect = { x: ghost.x, y: ghost.y, w: ghost.w, h: ghost.h };
+      this.isSnapped.set(true);
 
-    if (this.collisions.bottom !== isOverBottom) {
-      this.collisions.bottom = isOverBottom;
-      this.ngZone.run(() => this.processManager.updateBottomOverlap(isOverBottom));
+      const isFullMax =
+        ghost.w === window.innerWidth && ghost.h === window.innerHeight - TOP_BAR_HEIGHT;
+
+      this.isMaximized.set(isFullMax);
+      this.applyGeometry();
     }
+    this.snapGhost.set(null);
   }
 
   private calculateSnap(mouseX: number, mouseY: number) {
     const sw = window.innerWidth;
     const sh = window.innerHeight;
     const availableH = sh - TOP_BAR_HEIGHT;
+    const midY = TOP_BAR_HEIGHT + availableH / 2;
 
     if (mouseY < TOP_BAR_HEIGHT + SNAP_EDGE && mouseX > SNAP_EDGE && mouseX < sw - SNAP_EDGE) {
       return { x: 0, y: TOP_BAR_HEIGHT, w: sw, h: availableH };
@@ -135,10 +146,10 @@ export class WindowService {
     }
 
     if (mouseY > sh - SNAP_EDGE) {
-      if (mouseX <= SNAP_EDGE)
-        return { x: 0, y: TOP_BAR_HEIGHT + availableH / 2, w: sw / 2, h: availableH / 2 };
-      if (mouseX >= sw - SNAP_EDGE)
-        return { x: sw / 2, y: TOP_BAR_HEIGHT + availableH / 2, w: sw / 2, h: availableH / 2 };
+      if (mouseX <= SNAP_EDGE) return { x: 0, y: midY, w: sw / 2, h: availableH / 2 };
+      if (mouseX >= sw - SNAP_EDGE) return { x: sw / 2, y: midY, w: sw / 2, h: availableH / 2 };
+      if (mouseX > SNAP_EDGE && mouseX < sw - SNAP_EDGE)
+        return { x: 0, y: midY, w: sw, h: availableH / 2 };
     }
 
     if (mouseX < SNAP_EDGE) return { x: 0, y: TOP_BAR_HEIGHT, w: sw / 2, h: availableH };
@@ -147,37 +158,44 @@ export class WindowService {
     return null;
   }
 
-  toggleMaximize() {
-    if (this.isMaximized()) {
-      this.rect = { ...this.savedState };
-      this.isMaximized.set(false);
-    } else {
-      this.savedState = { ...this.rect };
-      this.isMaximized.set(true);
-    }
-    this.isSnapped.set(false);
-    this.applyGeometry();
-  }
-
-  private updateTransform() {
-    this.windowEl.style.transform = `translate3d(${this.rect.x}px, ${this.rect.y}px, 0)`;
-  }
-
   private applyGeometry() {
     if (this.isMaximized()) {
       this.windowEl.style.transform = `translate3d(0, ${TOP_BAR_HEIGHT}px, 0)`;
       this.windowEl.style.width = '100vw';
       this.windowEl.style.height = `calc(100vh - ${TOP_BAR_HEIGHT}px)`;
-      this.rect.x = 0;
-      this.rect.y = TOP_BAR_HEIGHT;
-      this.rect.w = window.innerWidth;
-      this.rect.h = window.innerHeight - TOP_BAR_HEIGHT;
+      this.rect = {
+        x: 0,
+        y: TOP_BAR_HEIGHT,
+        w: window.innerWidth,
+        h: window.innerHeight - TOP_BAR_HEIGHT,
+      };
     } else {
       this.updateTransform();
       this.windowEl.style.width = `${this.rect.w}px`;
       this.windowEl.style.height = `${this.rect.h}px`;
     }
     this.fastInternalCheck(0, 0);
+  }
+
+  private updateTransform() {
+    this.windowEl.style.transform = `translate3d(${this.rect.x}px, ${this.rect.y}px, 0)`;
+  }
+
+  private fastInternalCheck(mouseX: number, mouseY: number) {
+    if (!this.isInitializing && (mouseX > 0 || mouseY > 0)) {
+      const ghost = this.calculateSnap(mouseX, mouseY);
+      if (JSON.stringify(ghost) !== JSON.stringify(this.snapGhost())) {
+        this.ngZone.run(() => this.snapGhost.set(ghost));
+      }
+    }
+
+    const isOverBottom =
+      this.isMaximized() || this.rect.y + this.rect.h > window.innerHeight - DOCK_HEIGHT;
+
+    if (this.collisions.bottom !== isOverBottom) {
+      this.collisions.bottom = isOverBottom;
+      this.ngZone.run(() => this.processManager.updateBottomOverlap(isOverBottom));
+    }
   }
 
   private prepareDragState(event: MouseEvent) {
@@ -194,37 +212,16 @@ export class WindowService {
     this.mouseOffset = { x: event.clientX - rect.left, y: event.clientY - rect.top };
   }
 
-  private finalizeDrag() {
-    this.ngZone.run(() => {
-      this.isDragging.set(false);
-      const ghost = this.snapGhost();
-      if (ghost) {
-        if (!this.isSnapped() && !this.isMaximized()) {
-          this.savedState = { ...this.rect };
-        }
-        this.rect = { ...ghost };
-        this.isSnapped.set(true);
-        this.isMaximized.set(
-          ghost.w === window.innerWidth && ghost.h === window.innerHeight - TOP_BAR_HEIGHT,
-        );
-        this.applyGeometry();
-      }
-      this.snapGhost.set(null);
-    });
-  }
-
-  recalculateBounds() {
-    if (this.isMaximized() || this.isDragging() || this.isResizing()) return;
-    const sw = window.innerWidth;
-    const sh = window.innerHeight;
-    this.rect.x = Math.max(0, Math.min(this.rect.x, sw - this.rect.w));
-    this.rect.y = Math.max(TOP_BAR_HEIGHT, Math.min(this.rect.y, sh - this.rect.h));
+  toggleMaximize() {
+    if (this.isMaximized()) {
+      this.rect = { ...this.savedState };
+      this.isMaximized.set(false);
+    } else {
+      this.savedState = { ...this.rect };
+      this.isMaximized.set(true);
+    }
+    this.isSnapped.set(false);
     this.applyGeometry();
-  }
-
-  private centerWindow() {
-    this.rect.x = (window.innerWidth - this.rect.w) / 2;
-    this.rect.y = (window.innerHeight - this.rect.h) / 2;
   }
 
   close() {
@@ -239,5 +236,10 @@ export class WindowService {
 
   focus() {
     this.processManager.focus(this.process.id);
+  }
+
+  private centerWindow() {
+    this.rect.x = (window.innerWidth - this.rect.w) / 2;
+    this.rect.y = (window.innerHeight - this.rect.h) / 2;
   }
 }

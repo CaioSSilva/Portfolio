@@ -42,6 +42,7 @@ export const pt = {
     documents: 'Documentos',
     musics: 'Musicas',
     systemMonitor: 'Monitor do sistema',
+    hermes: 'Hermes',
   },
 
   notifications: {
@@ -130,6 +131,10 @@ export const pt = {
       sysMonitor: {
         name: 'Monitor do Sistema',
         desc: 'Recursos e processos em tempo real.',
+      },
+      hermes: {
+        name: 'Hermes',
+        desc: 'Seu agente de IA, feito para o Cai_OS',
       },
     },
   },
@@ -338,9 +343,16 @@ export const pt = {
     unknownArtist: 'Artista Desconhecido',
   },
 
+  hermes: {
+    welcome: 'Bem vindo ao Hermes!',
+    desc: 'Peça algo para começar!',
+    ask: 'Pergunte algo...',
+  },
+
   errors: {
     systemError: 'Erro de sistema',
     noFileHandler: 'O sistema não possui um aplicativo capaz de abrir este arquivo!',
     enableToLoadFs: 'Erro ao carregar sistema de arquivos!',
+    seviceUnavailable: 'Serviço indisponível no momento!',
   },
 };

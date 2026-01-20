@@ -162,7 +162,7 @@ export class FileSystem {
     this.nots.show({
       title: this.lang.t().errors.systemError,
       message: this.lang.t().errors.enableToLoadFs,
-      icon: 'fas circle-exclamation',
+      icon: 'fa circle-exclamation',
     });
   }
 

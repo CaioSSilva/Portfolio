@@ -124,7 +124,7 @@ export class ProcessManager {
     this.nots.show({
       title: this.lang.t().errors.systemError,
       message: this.lang.t().errors.noFileHandler,
-      icon: 'fas circle-exclamation',
+      icon: 'fas fa-circle-exclamation',
     });
   }
 

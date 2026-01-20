@@ -35,6 +35,8 @@ export class Window {
 
   @HostListener('window:resize')
   onWindowResize() {
-    this.windowService.recalculateBounds();
+    if (this.windowService.isMaximized()) {
+      this.windowService.toggleMaximize();
+    }
   }
 }
