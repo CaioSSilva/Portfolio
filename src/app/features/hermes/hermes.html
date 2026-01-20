@@ -1,21 +1,51 @@
-<div class="flex h-full flex-1 flex-col justify-center items-center gap-6 bg-gnome-bg">
-  <div class="text-center">
-    <h1 class="text-[#00916E] font-bold text-3xl mb-2">{{ lang.t().hermes.welcome }}</h1>
-    <p class="text-sm text-gnome-text-secondary opacity-90">{{ lang.t().hermes.desc }}</p>
+<div class="flex h-full flex-1 flex-col bg-gnome-bg p-6">
+  <div class="flex-1 overflow-y-auto mb-4 space-y-4 custom-scrollbar">
+    @if (messages().length === 0) {
+      <div class="flex flex-col items-center justify-center h-full text-center">
+        <h1 class="text-[#00916E] font-bold text-3xl mb-2">{{ lang.t().hermes.welcome }}</h1>
+        <p class="text-sm text-gnome-text-secondary">{{ lang.t().hermes.desc }}</p>
+      </div>
+    }
+
+    @for (msg of messages(); track $index) {
+      <div class="flex" [ngClass]="msg.role === 'user' ? 'justify-end' : 'justify-start'">
+        <div
+          [ngClass]="
+            msg.role === 'user'
+              ? 'bg-[#00916E] text-white rounded-l-2xl rounded-tr-2xl'
+              : 'bg-gnome-surface border border-gnome-border text-gnome-text rounded-r-2xl rounded-tl-2xl'
+          "
+          class="max-w-[80%] p-3 shadow-sm text-sm"
+        >
+          {{ msg.text }}
+        </div>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="flex justify-start">
+        <div class="bg-gnome-surface p-3 rounded-2xl animate-pulse">
+          <span class="text-xs italic text-gnome-text-secondary">Hermes...</span>
+        </div>
+      </div>
+    }
   </div>
 
-  <div class="relative w-full max-w-md px-4">
+  <div class="relative w-full max-w-2xl mx-auto">
     <input
       type="text"
+      [(ngModel)]="userInput"
+      (keyup.enter)="handleSendMessage()"
       [placeholder]="lang.t().hermes.ask"
-      class="w-full p-3 rounded-2xl border outline-none transition-all duration-300 bg-gnome-surface border-gnome-border text-gnome-text placeholder:text-gnome-text-secondary placeholder:opacity-50 focus:border-[#00916E] focus:ring-4 focus:ring-[#00916E]/15 shadow-sm"
+      class="w-full p-4 rounded-2xl border outline-none transition-all duration-300 bg-gnome-surface border-gnome-border text-gnome-text focus:border-[#00916E] focus:ring-4 focus:ring-[#00916E]/15 shadow-lg"
     />
 
     <button
-      (click)="showNotWorking()"
-      class="absolute right-8 top-1/2 -translate-y-1/2 flex items-center justify-center text-[#00916E] hover:scale-110 active:scale-95 transition-all duration-200"
+      (click)="handleSendMessage()"
+      [disabled]="isButtonDisabled()"
+      class="absolute right-4 top-1/2 -translate-y-1/2 text-[#00916E] disabled:opacity-30 enabled:hover:scale-110 transition-transform"
     >
-      <i class="fas fa-feather-pointed text-md cursor-pointer"></i>
+      <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-feather-pointed'"></i>
     </button>
   </div>
 </div>
