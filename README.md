@@ -1070,4 +1070,4 @@ Para dúvidas, sugestões ou reportar bugs:
 
 **Desenvolvido com ❤️ usando Angular 21**
 
-**Última Atualização**: Janeiro 2025****
+**Última Atualização**: Janeiro 2025
