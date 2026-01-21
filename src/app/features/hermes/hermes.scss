@@ -1,0 +1,33 @@
+:host ::ng-deep {
+  b,
+  strong {
+    font-weight: 700;
+    color: inherit;
+  }
+
+  p {
+    margin-bottom: 0.5rem;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 145, 110, 0.2) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 145, 110, 0.2);
+    border-radius: 20px;
+  }
+}
+
+img {
+  display: block;
+  user-select: none;
+  pointer-events: auto;
+}
