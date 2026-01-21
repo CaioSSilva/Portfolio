@@ -195,7 +195,7 @@ export class WindowService {
         h: window.innerHeight - TOP_BAR_HEIGHT,
       };
     } else {
-      this.updateTransform();
+      this.windowEl.style.transform = `translate3d(${this.rect.x}px, ${this.rect.y}px, 0)`;
       this.windowEl.style.width = `${this.rect.w}px`;
       this.windowEl.style.height = `${this.rect.h}px`;
     }
@@ -246,12 +246,14 @@ export class WindowService {
     if (this.isMaximized()) {
       this.rect = { ...this.savedState };
       this.isMaximized.set(false);
+      this.isSnapped.set(false);
+      this.applyGeometry();
     } else {
       this.savedState = { ...this.rect };
       this.isMaximized.set(true);
+      this.isSnapped.set(false);
+      this.applyGeometry();
     }
-    this.isSnapped.set(false);
-    this.applyGeometry();
   }
 
   close() {
