@@ -28,6 +28,8 @@ export class WindowService {
   private collisions = { bottom: false };
   private mouseOffset = { x: 0, y: 0 };
   private isInitializing = true;
+  private rafId: number | null = null;
+  private lastSnapGhost: string | null = null;
 
   init(element: HTMLElement, process: Process) {
     this.windowEl = element;
@@ -50,15 +52,26 @@ export class WindowService {
 
     this.ngZone.runOutsideAngular(() => {
       const onMove = (e: MouseEvent) => {
-        const parentRect = parent.getBoundingClientRect();
-        this.rect.x = e.clientX - parentRect.left - this.mouseOffset.x;
-        this.rect.y = e.clientY - parentRect.top - this.mouseOffset.y;
+        if (this.rafId !== null) {
+          cancelAnimationFrame(this.rafId);
+        }
 
-        this.updateTransform();
-        this.fastInternalCheck(e.clientX, e.clientY);
+        this.rafId = requestAnimationFrame(() => {
+          const parentRect = parent.getBoundingClientRect();
+          this.rect.x = e.clientX - parentRect.left - this.mouseOffset.x;
+          this.rect.y = e.clientY - parentRect.top - this.mouseOffset.y;
+
+          this.updateTransform();
+          this.fastInternalCheck(e.clientX, e.clientY);
+          this.rafId = null;
+        });
       };
 
       const onStop = () => {
+        if (this.rafId !== null) {
+          cancelAnimationFrame(this.rafId);
+          this.rafId = null;
+        }
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onStop);
         this.finalizeDrag();
@@ -88,15 +101,26 @@ export class WindowService {
 
     this.ngZone.runOutsideAngular(() => {
       const onMove = (e: MouseEvent) => {
-        this.rect.w = Math.max(MIN_W, startRect.w + (e.clientX - startX));
-        this.rect.h = Math.max(MIN_H, startRect.h + (e.clientY - startY));
+        if (this.rafId !== null) {
+          cancelAnimationFrame(this.rafId);
+        }
 
-        this.windowEl.style.width = `${this.rect.w}px`;
-        this.windowEl.style.height = `${this.rect.h}px`;
-        this.fastInternalCheck(e.clientX, e.clientY);
+        this.rafId = requestAnimationFrame(() => {
+          this.rect.w = Math.max(MIN_W, startRect.w + (e.clientX - startX));
+          this.rect.h = Math.max(MIN_H, startRect.h + (e.clientY - startY));
+
+          this.windowEl.style.width = `${this.rect.w}px`;
+          this.windowEl.style.height = `${this.rect.h}px`;
+          this.fastInternalCheck(e.clientX, e.clientY);
+          this.rafId = null;
+        });
       };
 
       const onStop = () => {
+        if (this.rafId !== null) {
+          cancelAnimationFrame(this.rafId);
+          this.rafId = null;
+        }
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mouseup', onStop);
         this.ngZone.run(() => {
@@ -121,12 +145,16 @@ export class WindowService {
       this.isSnapped.set(true);
 
       const isFullMax =
-        ghost.w === window.innerWidth && ghost.h === window.innerHeight - TOP_BAR_HEIGHT;
+        ghost.x === 0 &&
+        ghost.y === 0 &&
+        ghost.w === window.innerWidth &&
+        ghost.h === window.innerHeight;
 
       this.isMaximized.set(isFullMax);
       this.applyGeometry();
     }
     this.snapGhost.set(null);
+    this.lastSnapGhost = null;
   }
 
   private calculateSnap(mouseX: number, mouseY: number) {
@@ -135,8 +163,8 @@ export class WindowService {
     const availableH = sh - TOP_BAR_HEIGHT;
     const midY = TOP_BAR_HEIGHT + availableH / 2;
 
-    if (mouseY < TOP_BAR_HEIGHT + SNAP_EDGE && mouseX > SNAP_EDGE && mouseX < sw - SNAP_EDGE) {
-      return { x: 0, y: TOP_BAR_HEIGHT, w: sw, h: availableH };
+    if (mouseY < SNAP_EDGE && mouseX > SNAP_EDGE && mouseX < sw - SNAP_EDGE) {
+      return { x: 0, y: 0, w: sw, h: sh };
     }
 
     if (mouseY < TOP_BAR_HEIGHT + SNAP_EDGE) {
@@ -160,14 +188,15 @@ export class WindowService {
 
   private applyGeometry() {
     if (this.isMaximized()) {
-      this.windowEl.style.transform = `translate3d(0, ${TOP_BAR_HEIGHT}px, 0)`;
+      this.windowEl.style.transform = 'translate3d(0, 0, 0)';
       this.windowEl.style.width = '100vw';
-      this.windowEl.style.height = `calc(100vh - ${TOP_BAR_HEIGHT}px)`;
+      this.windowEl.style.height = '100vh';
+
       this.rect = {
         x: 0,
-        y: TOP_BAR_HEIGHT,
+        y: 0,
         w: window.innerWidth,
-        h: window.innerHeight - TOP_BAR_HEIGHT,
+        h: window.innerHeight,
       };
     } else {
       this.updateTransform();
@@ -184,13 +213,17 @@ export class WindowService {
   private fastInternalCheck(mouseX: number, mouseY: number) {
     if (!this.isInitializing && (mouseX > 0 || mouseY > 0)) {
       const ghost = this.calculateSnap(mouseX, mouseY);
-      if (JSON.stringify(ghost) !== JSON.stringify(this.snapGhost())) {
+      const ghostStr = JSON.stringify(ghost);
+
+      if (ghostStr !== this.lastSnapGhost) {
+        this.lastSnapGhost = ghostStr;
         this.ngZone.run(() => this.snapGhost.set(ghost));
       }
     }
 
-    const isOverBottom =
-      this.isMaximized() || this.rect.y + this.rect.h > window.innerHeight - DOCK_HEIGHT;
+    const bottomEdge = this.rect.y + this.rect.h;
+    const viewportBottom = window.innerHeight;
+    const isOverBottom = this.isMaximized() || bottomEdge > viewportBottom - DOCK_HEIGHT;
 
     if (this.collisions.bottom !== isOverBottom) {
       this.collisions.bottom = isOverBottom;
@@ -204,6 +237,7 @@ export class WindowService {
       this.rect.w = this.savedState.w;
       this.rect.h = this.savedState.h;
       this.rect.x = event.clientX - this.rect.w * ratio;
+      this.rect.y = event.clientY - this.mouseOffset.y;
       this.isMaximized.set(false);
       this.isSnapped.set(false);
       this.applyGeometry();
@@ -225,6 +259,10 @@ export class WindowService {
   }
 
   close() {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
     this.processManager.updateBottomOverlap(false);
     this.processManager.close(this.process.id);
   }
@@ -241,5 +279,9 @@ export class WindowService {
   private centerWindow() {
     this.rect.x = (window.innerWidth - this.rect.w) / 2;
     this.rect.y = (window.innerHeight - this.rect.h) / 2;
+
+    if (this.rect.y < TOP_BAR_HEIGHT) {
+      this.rect.y = TOP_BAR_HEIGHT;
+    }
   }
 }
