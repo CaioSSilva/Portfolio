@@ -14,6 +14,14 @@
 10. [Instalação e Configuração](#instalação-e-configuração)
 11. [Comandos Disponíveis](#comandos-disponíveis)
 12. [Personalização](#personalização)
+13. [Troubleshooting](#troubleshooting)
+14. [Recursos Adicionais](#recursos-adicionais)
+15. [Contribuindo](#contribuindo)
+16. [Licença](#licença)
+17. [Autor](#autor)
+18. [Agradecimentos](#agradecimentos)
+19. [Estatísticas do Projeto](#estatísticas-do-projeto)
+20. [Suporte](#suporte)
 
 ---
 
@@ -915,7 +923,7 @@ ng generate service nome-servico
 | `clear`    | Limpa tela do terminal       | `clear`               |
 | `neofetch` | Info do sistema              | `neofetch`            |
 | `whoami`   | Info do desenvolvedor        | `whoami`              |
---------------------------------------------------------------------
+
 ---
 
 ## 🎨 Personalização
@@ -1022,10 +1030,10 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 👤 Autor
 
-**Desenvolvedor**: [Caio Souza Silva]
-**Contato**: [caiosouzasilva13650@gmail.com]
-**Portfolio**: [caiossiva.com]
-**GitHub**: [https://github.com/CaioSSilva/]
+**Desenvolvedor**: Caio Souza Silva  
+**Contato**: caiosouzasilva13650@gmail.com  
+**Portfolio**: [caiossiva.com](https://caiossiva.com)  
+**GitHub**: [github.com/CaioSSilva](https://github.com/CaioSSilva/)
 
 ---
 
@@ -1049,6 +1057,8 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 - **Idiomas**: 2
 - **Performance Score**: 90+
 
+---
+
 ## 📞 Suporte
 
 Para dúvidas, sugestões ou reportar bugs:
@@ -1060,4 +1070,4 @@ Para dúvidas, sugestões ou reportar bugs:
 
 **Desenvolvido com ❤️ usando Angular 21**
 
-**Última Atualização**: Janeiro 2025
+**Última Atualização**: Janeiro 2025****
