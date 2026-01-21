@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Process } from '../../../core/models/process';
-import { WindowService } from '../../../core/services/window';
+import { TOP_BAR_HEIGHT, WindowService } from '../../../core/services/window';
 import { LanguageService } from '../../../core/services/language';
 
 @Component({
@@ -26,6 +26,7 @@ export class Window {
   windowFrame = viewChild.required<ElementRef<HTMLElement>>('windowFrame');
 
   protected windowService = inject(WindowService);
+  TOP_BAR_HEIGHT: number = TOP_BAR_HEIGHT;
 
   constructor() {
     afterNextRender(() => {

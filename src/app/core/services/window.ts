@@ -2,8 +2,7 @@ import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { Process } from '../models/process';
 import { ProcessManager } from './process-manager';
 
-const TOP_BAR_HEIGHT = 32;
-const DOCK_HEIGHT = 90;
+export const TOP_BAR_HEIGHT = 32;
 const MIN_W = 320;
 const MIN_H = 240;
 const SNAP_EDGE = 15;
@@ -42,8 +41,8 @@ export class WindowService {
 
   startDrag(event: MouseEvent) {
     if (event.button !== 0 || this.isResizing()) return;
-
     this.processManager.focus(this.process.id);
+
     const parent = this.windowEl.offsetParent as HTMLElement;
     if (!parent) return;
 
@@ -55,11 +54,12 @@ export class WindowService {
         if (this.rafId !== null) {
           cancelAnimationFrame(this.rafId);
         }
-
         this.rafId = requestAnimationFrame(() => {
           const parentRect = parent.getBoundingClientRect();
           this.rect.x = e.clientX - parentRect.left - this.mouseOffset.x;
           this.rect.y = e.clientY - parentRect.top - this.mouseOffset.y;
+
+          this.rect.y = Math.max(TOP_BAR_HEIGHT, this.rect.y);
 
           this.updateTransform();
           this.fastInternalCheck(e.clientX, e.clientY);
@@ -104,11 +104,9 @@ export class WindowService {
         if (this.rafId !== null) {
           cancelAnimationFrame(this.rafId);
         }
-
         this.rafId = requestAnimationFrame(() => {
           this.rect.w = Math.max(MIN_W, startRect.w + (e.clientX - startX));
           this.rect.h = Math.max(MIN_H, startRect.h + (e.clientY - startY));
-
           this.windowEl.style.width = `${this.rect.w}px`;
           this.windowEl.style.height = `${this.rect.h}px`;
           this.fastInternalCheck(e.clientX, e.clientY);
@@ -140,15 +138,14 @@ export class WindowService {
       if (!this.isSnapped() && !this.isMaximized()) {
         this.savedState = { ...this.rect };
       }
-
       this.rect = { x: ghost.x, y: ghost.y, w: ghost.w, h: ghost.h };
       this.isSnapped.set(true);
 
       const isFullMax =
         ghost.x === 0 &&
-        ghost.y === 0 &&
+        ghost.y === TOP_BAR_HEIGHT &&
         ghost.w === window.innerWidth &&
-        ghost.h === window.innerHeight;
+        ghost.h === window.innerHeight - TOP_BAR_HEIGHT;
 
       this.isMaximized.set(isFullMax);
       this.applyGeometry();
@@ -164,7 +161,7 @@ export class WindowService {
     const midY = TOP_BAR_HEIGHT + availableH / 2;
 
     if (mouseY < SNAP_EDGE && mouseX > SNAP_EDGE && mouseX < sw - SNAP_EDGE) {
-      return { x: 0, y: 0, w: sw, h: sh };
+      return { x: 0, y: TOP_BAR_HEIGHT, w: sw, h: availableH };
     }
 
     if (mouseY < TOP_BAR_HEIGHT + SNAP_EDGE) {
@@ -191,12 +188,11 @@ export class WindowService {
       this.windowEl.style.transform = 'translate3d(0, 0, 0)';
       this.windowEl.style.width = '100vw';
       this.windowEl.style.height = '100vh';
-
       this.rect = {
         x: 0,
-        y: 0,
+        y: TOP_BAR_HEIGHT,
         w: window.innerWidth,
-        h: window.innerHeight,
+        h: window.innerHeight - TOP_BAR_HEIGHT,
       };
     } else {
       this.updateTransform();
@@ -214,7 +210,6 @@ export class WindowService {
     if (!this.isInitializing && (mouseX > 0 || mouseY > 0)) {
       const ghost = this.calculateSnap(mouseX, mouseY);
       const ghostStr = JSON.stringify(ghost);
-
       if (ghostStr !== this.lastSnapGhost) {
         this.lastSnapGhost = ghostStr;
         this.ngZone.run(() => this.snapGhost.set(ghost));
@@ -223,7 +218,7 @@ export class WindowService {
 
     const bottomEdge = this.rect.y + this.rect.h;
     const viewportBottom = window.innerHeight;
-    const isOverBottom = this.isMaximized() || bottomEdge > viewportBottom - DOCK_HEIGHT;
+    const isOverBottom = this.isMaximized() || bottomEdge > viewportBottom;
 
     if (this.collisions.bottom !== isOverBottom) {
       this.collisions.bottom = isOverBottom;
@@ -237,11 +232,12 @@ export class WindowService {
       this.rect.w = this.savedState.w;
       this.rect.h = this.savedState.h;
       this.rect.x = event.clientX - this.rect.w * ratio;
-      this.rect.y = event.clientY - this.mouseOffset.y;
+      this.rect.y = Math.max(TOP_BAR_HEIGHT, event.clientY - this.mouseOffset.y);
       this.isMaximized.set(false);
       this.isSnapped.set(false);
       this.applyGeometry();
     }
+
     const rect = this.windowEl.getBoundingClientRect();
     this.mouseOffset = { x: event.clientX - rect.left, y: event.clientY - rect.top };
   }

@@ -7,15 +7,17 @@
     [style.height.px]="ghost.h"
   ></div>
 }
-
 <div
   #windowFrame
-  class="absolute flex flex-col will-change-transform"
-  [style.z-index]="process().zIndex"
+  class="will-change-transform"
   [ngClass]="{
-    'fixed inset-0 z-[9999] !w-full !h-full': windowService.isMaximized(),
+    'fixed top-0 left-0 z-[9999] !w-screen': windowService.isMaximized(),
+    absolute: !windowService.isMaximized(),
     'pointer-events-none': process().isMinimized || !windowService.isVisible(),
   }"
+  [style.height]="windowService.isMaximized() ? 'calc(100vh - ' + TOP_BAR_HEIGHT + 'px)' : 'auto'"
+  [style.marginTop.px]="windowService.isMaximized() ? TOP_BAR_HEIGHT : 0"
+  [style.z-index]="process().zIndex"
 >
   <div
     class="w-full h-full flex flex-col overflow-hidden shadow-2xl border border-gnome-border/40 bg-gnome-bg transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]"
@@ -36,9 +38,8 @@
         class="font-bold text-sm tracking-wide text-gnome-text opacity-90 pl-2 flex items-center gap-2 pointer-events-none"
       >
         <i [class]="process().icon" class="text-gnome-text-secondary"></i>
-        <span>{{ $any(lang.t().apps)[process().appId] || process().title }}</span>
+        <span>{{ $any(lang.t()).apps[process().appId] || process().title }}</span>
       </div>
-
       <div class="flex items-center gap-2" (mousedown)="$event.stopPropagation()">
         <button
           (click)="windowService.minimize()"
@@ -63,7 +64,6 @@
         </button>
       </div>
     </div>
-
     <div class="flex-1 bg-gnome-bg relative overflow-hidden text-gnome-text">
       @if (windowService.isDragging() || windowService.isResizing()) {
         <div class="absolute inset-0 z-50 bg-transparent"></div>
@@ -75,7 +75,6 @@
       </div>
     </div>
   </div>
-
   @if (!windowService.isMaximized() && !windowService.isSnapped()) {
     <div
       (mousedown)="windowService.startResize($event)"
