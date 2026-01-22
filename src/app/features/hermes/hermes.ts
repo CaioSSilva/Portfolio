@@ -65,6 +65,17 @@ export class Hermes extends Base {
     const currentFile = this.selectedFile();
     const currentPreview = this.previewUrl();
 
+    const historyFormatted = this.messages()
+      .map((m) => `${m.role === 'user' ? 'User' : 'Hermes'}: ${m.text}`)
+      .join('\n');
+
+    const historyHeader =
+      this.lang.currentLang() === 'pt'
+        ? '\n\nHistórico da conversa:\n'
+        : '\n\nConversation history:\n';
+
+    const history = this.messages().length > 0 ? historyHeader + historyFormatted : '';
+
     this.messages.update((prev) => [
       ...prev,
       {
@@ -79,7 +90,11 @@ export class Hermes extends Base {
     this.isLoading.set(true);
 
     try {
-      const response = await this.gemini.generateResponse(currentText, currentFile ?? undefined);
+      const response = await this.gemini.generateResponse(
+        currentText,
+        history,
+        currentFile ?? undefined,
+      );
 
       this.messages.update((prev) => [
         ...prev,

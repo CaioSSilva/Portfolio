@@ -10,6 +10,7 @@ export class Gemini {
 
   async generateResponse(
     prompt: string,
+    history: string,
     fileData?: { mimeType: string; b64: string },
   ): Promise<string> {
     const totalKeys = environment.geminiApiKeys.length;
@@ -23,8 +24,8 @@ export class Gemini {
 
         const systemInstruction =
           currentLang === 'pt'
-            ? 'Você é Hermes, um assistente integrado ao Cai_OS. Responda sempre em Português Brasileiro.'
-            : 'You are Hermes, an assistant integrated into Cai_OS. Always respond in English.';
+            ? `Você é Hermes, um assistente integrado ao CaiOS. Responda sempre em Português Brasileiro.${history}`
+            : `You are Hermes, an assistant integrated into CaiOS. Always respond in English.${history}`;
 
         const model = genAI.getGenerativeModel({
           model: 'gemini-2.5-flash',
