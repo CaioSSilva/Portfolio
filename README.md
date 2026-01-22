@@ -1,90 +1,91 @@
-# Documentação Completa - Cai_OS
+# Complete Documentation - Cai_OS
 
-## 📋 Sumário
+## 📋 Table of Contents
 
-1. [Visão Geral](#-visão-geral)
-2. [Arquitetura do Sistema](#️-arquitetura-do-sistema)
-3. [Tecnologias Utilizadas](#️-tecnologias-utilizadas)
-4. [Estrutura do Projeto](#-estrutura-do-projeto)
-5. [Componentes Principais](#-componentes-principais)
-6. [Serviços](#️-serviços)
-7. [Modelos de Dados](#-modelos-de-dados)
-8. [Funcionalidades do Sistema](#-funcionalidades-do-sistema)
-9. [Aplicativos](#-aplicativos)
-10. [Instalação e Configuração](#-instalação-e-configuração)
-11. [Comandos Disponíveis](#-comandos-disponíveis)
-12. [Personalização](#-personalização)
+1. [Overview](#-overview)
+2. [System Architecture](#️-system-architecture)
+3. [Technologies Used](#️-technologies-used)
+4. [Project Structure](#-project-structure)
+5. [Main Components](#-main-components)
+6. [Services](#️-services)
+7. [Data Models](#-data-models)
+8. [System Features](#-system-features)
+9. [Applications](#-applications)
+10. [Installation and Configuration](#-installation-and-configuration)
+11. [Available Commands](#-available-commands)
+12. [Customization](#-customization)
 13. [Troubleshooting](#-troubleshooting)
-14. [Recursos Adicionais](#-recursos-adicionais)
-15. [Contribuindo](#-contribuindo)
-16. [Licença](#-licença)
-17. [Autor](#-autor)
-18. [Agradecimentos](#-agradecimentos)
-19. [Estatísticas do Projeto](#-estatísticas-do-projeto)
-20. [Suporte](#-suporte)
+14. [Additional Resources](#-additional-resources)
+15. [Contributing](#-contributing)
+16. [License](#-license)
+17. [Author](#-author)
+18. [Acknowledgments](#-acknowledgments)
+19. [Project Statistics](#-project-statistics)
+20. [Support](#-support)
 
 ---
 
-## 🌟 Visão Geral
+## 🌟 Overview
 
-**Cai_OS** é um sistema operacional web interativo construído com Angular 21, inspirado no ambiente de desktop GNOME. O projeto simula uma experiência completa de sistema operacional diretamente no navegador, incluindo gerenciamento de janelas, aplicativos, terminal, sistema de arquivos virtual e integração com IA.
+**Cai_OS** is an interactive web operating system built with Angular 21, inspired by the GNOME desktop environment. The project simulates a complete operating system experience directly in the browser, including window management, applications, terminal, virtual file system, and AI integration.
 
-### Objetivo do Projeto
+### Project Goal
 
-O Cai_OS foi desenvolvido como um portfólio interativo que demonstra:
-- Domínio avançado de Angular e TypeScript
-- Arquitetura de software escalável
-- Design de interface inspirado em sistemas operacionais modernos
-- Integração com APIs externas (Google Gemini)
-- Gerenciamento de estado complexo
-- Experiência do usuário (UX/UI) profissional
+Cai_OS was developed as an interactive portfolio that demonstrates:
 
-### Características Principais
+- Advanced mastery of Angular and TypeScript
+- Scalable software architecture
+- Interface design inspired by modern operating systems
+- Integration with external APIs (Google Gemini)
+- Complex state management
+- Professional user experience (UX/UI)
 
-- **Interface de Desktop Moderna**: Inspirada no GNOME com dock, barra superior e grid de aplicativos
-- **Gerenciamento de Janelas**: Suporte a arrastar, redimensionar, maximizar, minimizar e snap
-- **Sistema de Arquivos Virtual**: Estrutura hierárquica de pastas e arquivos
-- **Terminal Interativo**: Comandos Unix-like para navegação e controle do sistema
-- **Aplicativos Integrados**: Navegador, visualizador de imagens, player de música, editor de documentos
-- **IA Integrada**: Assistente virtual "Hermes" usando Google Gemini
-- **Temas**: Suporte a modo claro e escuro
-- **Multilíngue**: Português e Inglês
-- **Sistema de Notificações**: Centro de notificações com histórico
-- **Efeitos Sonoros**: Sons do sistema para interações
+### Key Features
+
+- **Modern Desktop Interface**: GNOME-inspired with dock, top bar, and app grid
+- **Window Management**: Support for dragging, resizing, maximizing, minimizing, and snapping
+- **Virtual File System**: Hierarchical structure of folders and files
+- **Interactive Terminal**: Unix-like commands for navigation and system control
+- **Integrated Applications**: Browser, image viewer, music player, document editor
+- **Integrated AI**: Virtual assistant "Hermes" using Google Gemini
+- **Themes**: Support for light and dark modes
+- **Multilingual**: Portuguese and English
+- **Notification System**: Notification center with history
+- **Sound Effects**: System sounds for interactions
 
 ---
 
-## 🏗️ Arquitetura do Sistema
+## 🏗️ System Architecture
 
-### Visão Geral da Arquitetura
+### Architecture Overview
 
-O Cai_OS segue uma arquitetura modular baseada em componentes Angular, com separação clara entre:
+Cai_OS follows a modular architecture based on Angular components, with clear separation between:
 
 ```
 ┌─────────────────────────────────────────┐
-│           Camada de Apresentação        │
+│        Presentation Layer               │
 │  (Components, Templates, Styles)        │
 ├─────────────────────────────────────────┤
-│          Camada de Serviços             │
+│          Services Layer                 │
 │  (Business Logic, State Management)     │
 ├─────────────────────────────────────────┤
-│           Camada de Modelos             │
+│          Models Layer                   │
 │  (Data Models, Interfaces, Types)       │
 ├─────────────────────────────────────────┤
-│         Camada de Infraestrutura        │
+│       Infrastructure Layer              │
 │  (APIs, Storage, External Services)     │
 └─────────────────────────────────────────┘
 ```
 
-### Padrões de Projeto Utilizados
+### Design Patterns Used
 
-1. **Singleton**: Services com `providedIn: 'root'`
-2. **Observer**: RxJS Signals para gerenciamento de estado reativo
-3. **Strategy**: Sistema de comandos do terminal
-4. **Factory**: Criação dinâmica de componentes de aplicativos
-5. **Dependency Injection**: Injeção nativa do Angular
+1. **Singleton**: Services with `providedIn: 'root'`
+2. **Observer**: RxJS Signals for reactive state management
+3. **Strategy**: Terminal command system
+4. **Factory**: Dynamic creation of application components
+5. **Dependency Injection**: Angular native injection
 
-### Fluxo de Dados
+### Data Flow
 
 ```
 User Interaction
@@ -100,43 +101,43 @@ User Interaction
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Technologies Used
 
-### Estilização
+### Styling
 
-- **Tailwind CSS 4.1.18**: Framework CSS utilitário
-- **SCSS**: Pré-processador CSS
-- **PostCSS 8.5.6**: Processamento de CSS
-- **Font Awesome 7.1.0**: Biblioteca de ícones
+- **Tailwind CSS 4.1.18**: Utility-first CSS framework
+- **SCSS**: CSS preprocessor
+- **PostCSS 8.5.6**: CSS processing
+- **Font Awesome 7.1.0**: Icon library
 
-### Bibliotecas Externas
+### External Libraries
 
-- **@google/generative-ai 0.24.1**: Integração com Google Gemini
-- **ng2-pdf-viewer 10.4.0**: Visualização de PDFs
+- **@google/generative-ai 0.24.1**: Google Gemini integration
+- **ng2-pdf-viewer 10.4.0**: PDF viewing
 - **@vercel/analytics 1.6.1**: Analytics
-- **@vercel/speed-insights 1.3.1**: Métricas de performance
+- **@vercel/speed-insights 1.3.1**: Performance metrics
 
-### Ferramentas de Desenvolvimento
+### Development Tools
 
-- **Angular CLI 21.1.0**: CLI do Angular
-- **Vitest 4.0.8**: Framework de testes
-- **jsdom 27.1.0**: Ambiente DOM para testes
-- **Prettier**: Formatação de código
+- **Angular CLI 21.1.0**: Angular CLI
+- **Vitest 4.0.8**: Testing framework
+- **jsdom 27.1.0**: DOM environment for testing
+- **Prettier**: Code formatting
 
 ---
 
-## 📁 Estrutura do Projeto
+## 📁 Project Structure
 
 ```
 Portfolio-main/
 ├── src/
 │   ├── app/
-│   │   ├── core/                    # Núcleo do sistema
-│   │   │   ├── language/            # Internacionalização
+│   │   ├── core/                    # System core
+│   │   │   ├── language/            # Internationalization
 │   │   │   │   ├── en.ts
 │   │   │   │   ├── pt.ts
 │   │   │   │   └── i18n.types.ts
-│   │   │   ├── models/              # Modelos de dados
+│   │   │   ├── models/              # Data models
 │   │   │   │   ├── apps.ts
 │   │   │   │   ├── base.ts
 │   │   │   │   ├── dock.ts
@@ -146,9 +147,9 @@ Portfolio-main/
 │   │   │   │   ├── process.ts
 │   │   │   │   ├── setting.ts
 │   │   │   │   └── terminal.ts
-│   │   │   ├── pipes/               # Pipes customizados
+│   │   │   ├── pipes/               # Custom pipes
 │   │   │   │   └── markdown-pipe.ts
-│   │   │   └── services/            # Serviços do sistema
+│   │   │   └── services/            # System services
 │   │   │       ├── apps.ts
 │   │   │       ├── context-menu.ts
 │   │   │       ├── dock.ts
@@ -163,69 +164,71 @@ Portfolio-main/
 │   │   │       ├── terminal-comands.ts
 │   │   │       ├── theme.ts
 │   │   │       └── window.ts
-│   │   ├── features/                # Aplicativos do sistema
-│   │   │   ├── about-project/       # Sobre o projeto
-│   │   │   ├── browser/             # Navegador web
-│   │   │   ├── document-viewer/     # Visualizador de PDFs
-│   │   │   ├── files/               # Gerenciador de arquivos
+│   │   ├── features/                # System applications
+│   │   │   ├── about-project/       # About the project
+│   │   │   ├── browser/             # Web browser
+│   │   │   ├── document-viewer/     # PDF viewer
+│   │   │   ├── files/               # File manager
 │   │   │   │   └── components/
 │   │   │   │       ├── breadcrumbs/
 │   │   │   │       ├── grid/
 │   │   │   │       ├── list/
 │   │   │   │       └── sidebar/
-│   │   │   ├── hermes/              # Assistente IA
-│   │   │   ├── image-viewer/        # Visualizador de imagens
-│   │   │   ├── musics/              # Player de música
+│   │   │   ├── hermes/              # AI assistant
+│   │   │   ├── image-viewer/        # Image viewer
+│   │   │   ├── musics/              # Music player
 │   │   │   │   └── player/
-│   │   │   ├── settings/            # Configurações do sistema
-│   │   │   ├── system-monitor/      # Monitor do sistema
+│   │   │   ├── settings/            # System settings
+│   │   │   ├── system-monitor/      # System monitor
 │   │   │   └── terminal/            # Terminal
-│   │   ├── layout/                  # Componentes de layout
-│   │   │   ├── apps-grid/           # Grid de aplicativos
-│   │   │   ├── dock/                # Barra de tarefas
-│   │   │   ├── notification-center/ # Centro de notificações
-│   │   │   ├── top-bar/             # Barra superior
-│   │   │   └── window-switcher/     # Alternador de janelas
-│   │   ├── shared/                  # Componentes compartilhados
+│   │   ├── layout/                  # Layout components
+│   │   │   ├── apps-grid/           # Application grid
+│   │   │   ├── dock/                # Taskbar
+│   │   │   ├── notification-center/ # Notification center
+│   │   │   ├── top-bar/             # Top bar
+│   │   │   └── window-switcher/     # Window switcher
+│   │   ├── shared/                  # Shared components
 │   │   │   └── ui/
-│   │   │       ├── boot/            # Tela de boot
-│   │   │       ├── shutdown/        # Tela de desligamento
-│   │   │       └── window/          # Componente de janela
+│   │   │       ├── boot/            # Boot screen
+│   │   │       ├── shutdown/        # Shutdown screen
+│   │   │       └── window/          # Window component
 │   │   ├── app.config.ts
 │   │   ├── app.html
 │   │   ├── app.routes.ts
 │   │   ├── app.scss
 │   │   └── app.ts
-│   ├── environments/                # Configurações de ambiente
+│   ├── environments/                # Environment settings
 │   │   ├── environment.ts
 │   │   └── environment.development.ts
 │   ├── index.html
 │   ├── main.ts
 │   └── styles.scss
-├── public/                          # Assets públicos
-├── angular.json                     # Configuração do Angular
-├── package.json                     # Dependências
-├── tsconfig.json                    # Configuração TypeScript
+├── public/                          # Public assets
+├── angular.json                     # Angular configuration
+├── package.json                     # Dependencies
+├── tsconfig.json                    # TypeScript configuration
 └── README.md
 ```
 
 ---
 
-## 🧩 Componentes Principais
+## 🧩 Main Components
 
 ### 1. App Component (Root)
 
-**Arquivo**: `src/app/app.ts`
+**File**: `src/app/app.ts`
 
-Componente raiz da aplicação que gerencia o estado global do sistema.
+Root component of the application that manages the global system state.
 
-**Responsabilidades**:
-- Inicialização do sistema
-- Gerenciamento de sons de interação
-- Controle de boot e shutdown
-- Coordenação entre serviços principais
+**Responsibilities**:
 
-**Código Principal**:
+- System initialization
+- Management of interaction sounds
+- Boot and shutdown control
+- Coordination between main services
+
+**Main Code**:
+
 ```typescript
 @Component({
   selector: 'app-root',
@@ -239,7 +242,6 @@ export class App {
   lang = inject(LanguageService);
   notifications = inject(NotificationService);
   tipsService = inject(SystemTips);
-
   systemReady = signal(false);
   shutingDown = signal(false);
 }
@@ -247,95 +249,103 @@ export class App {
 
 ### 2. Window Component
 
-**Arquivo**: `src/app/shared/ui/window/window.ts`
+**File**: `src/app/shared/ui/window/window.ts`
 
-Componente que representa uma janela de aplicativo com funcionalidades completas de gerenciamento.
+Component that represents an application window with full management features.
 
-**Funcionalidades**:
-- Arrastar (drag)
-- Redimensionar (resize)
-- Maximizar/Restaurar
-- Minimizar
-- Snap automático nas bordas
-- Animações de transição
-- Foco e z-index dinâmico
+**Features**:
 
-**Principais Métodos**:
-- `startDrag()`: Inicia o arrasto da janela
-- `startResize()`: Inicia o redimensionamento
-- `maximize()`: Maximiza a janela
-- `minimize()`: Minimiza a janela
-- `close()`: Fecha a janela
+- Drag
+- Resize
+- Maximize/Restore
+- Minimize
+- Auto-snap to edges
+- Transition animations
+- Dynamic focus and z-index
+
+**Main Methods**:
+
+- `startDrag()`: Starts window dragging
+- `startResize()`: Starts resizing
+- `maximize()`: Maximizes the window
+- `minimize()`: Minimizes the window
+- `close()`: Closes the window
 
 ### 3. Dock Component
 
-**Arquivo**: `src/app/layout/dock/dock.ts`
+**File**: `src/app/layout/dock/dock.ts`
 
-Barra de tarefas inferior que exibe aplicativos fixados e em execução.
+Bottom taskbar that displays pinned and running applications.
 
-**Funcionalidades**:
-- Exibição de apps fixados
-- Indicadores de apps em execução
-- Menu de contexto (clique direito)
-- Drag and drop para adicionar apps
-- Efeito de hover animado
-- Auto-hide opcional
+**Features**:
+
+- Display of pinned apps
+- Running app indicators
+- Context menu (right-click)
+- Drag and drop to add apps
+- Animated hover effect
+- Optional auto-hide
 
 ### 4. TopBar Component
 
-**Arquivo**: `src/app/layout/top-bar/top-bar.ts`
+**File**: `src/app/layout/top-bar/top-bar.ts`
 
-Barra superior do sistema com relógio, menu de aplicativos e botão de energia.
+System top bar with clock, app menu, and power button.
 
-**Funcionalidades**:
-- Relógio em tempo real
-- Acesso ao grid de aplicativos
-- Centro de notificações
-- Menu de energia (desligar/reiniciar)
-- Exibição de título da janela ativa
+**Features**:
+
+- Real-time clock
+- Access to app grid
+- Notification center
+- Power menu (shutdown/restart)
+- Active window title display
 
 ### 5. Apps Grid Component
 
-**Arquivo**: `src/app/layout/apps-grid/apps-grid.ts`
+**File**: `src/app/layout/apps-grid/apps-grid.ts`
 
-Grid de aplicativos com pesquisa e categorização.
+Application grid with search and categorization.
 
-**Funcionalidades**:
-- Exibição de todos os apps instalados
-- Busca por nome
-- Arrastar para a dock
-- Abertura rápida de apps
+**Features**:
+
+- Display of all installed apps
+- Search by name
+- Drag to dock
+- Quick app opening
 
 ### 6. Window Switcher Component
 
-**Arquivo**: `src/app/layout/window-switcher/window-switcher.ts`
+**File**: `src/app/layout/window-switcher/window-switcher.ts`
 
-Alternador de janelas ativado por `Ctrl+Q`.
+Window switcher activated by `Ctrl+Q`.
 
-**Funcionalidades**:
-- Listagem de janelas abertas
-- Navegação por teclado
-- Preview visual das janelas
-- Foco rápido
+**Features**:
+
+- List of open windows
+- Keyboard navigation
+- Visual window preview
+- Quick focus
 
 ---
 
-## ⚙️ Serviços
+## ⚙️ Services
 
 ### 1. ProcessManager Service
 
-**Arquivo**: `src/app/core/services/process-manager.ts`
+**File**: `src/app/core/services/process-manager.ts`
 
-Gerencia todos os processos (aplicativos) em execução.
+Manages all running processes (applications).
 
-**Responsabilidades**:
-- Criar novos processos
-- Fechar processos
-- Gerenciar foco (z-index)
-- Minimizar/Maximizar janelas
-- Manter lista de processos ativos
+**Responsibilities**:
 
-**Principais Métodos**:
+- Create new processes
+- Close processes
+- Manage focus (z-index)
+- Minimize/Maximize windows
+- Maintain list of active processes
+
+**Main Methods**:
+
 ```typescript
 start(app: AppDefinition, args?: any[]): void
 kill(processId: string): void
@@ -346,11 +356,12 @@ toggleMaximize(processId: string): void
 
 ### 2. FileSystem Service
 
-**Arquivo**: `src/app/core/services/file-system.ts`
+**File**: `src/app/core/services/file-system.ts`
 
-Sistema de arquivos virtual hierárquico.
+Hierarchical virtual file system.
 
-**Estrutura**:
+**Structure**:
+
 ```typescript
 interface FileNode {
   name: string;
@@ -363,59 +374,65 @@ interface FileNode {
 }
 ```
 
-**Principais Métodos**:
-- `getNodeByPath()`: Busca arquivo/pasta por caminho
-- `listDirectory()`: Lista conteúdo de diretório
-- `createFile()`: Cria novo arquivo
-- `deleteNode()`: Remove arquivo/pasta
-- `moveNode()`: Move arquivo/pasta
+**Main Methods**:
+
+- `getNodeByPath()`: Search file/folder by path
+- `listDirectory()`: List directory contents
+- `createFile()`: Create new file
+- `deleteNode()`: Remove file/folder
+- `moveNode()`: Move file/folder
 
 ### 3. Settings Service
 
-**Arquivo**: `src/app/core/services/settings.ts`
+**File**: `src/app/core/services/settings.ts`
 
-Gerencia as configurações do sistema.
+Manages system settings.
 
-**Configurações Disponíveis**:
-- Tema (claro/escuro)
-- Papel de parede
-- Tamanho dos ícones da dock
-- Auto-hide da dock
-- Sons do sistema
-- Dicas do sistema
-- Idioma
+**Available Settings**:
 
-**Persistência**: Usa `localStorage` para salvar preferências.
+- Theme (light/dark)
+- Wallpaper
+- Dock icon size
+- Auto-hide dock
+- System sounds
+- System tips
+- Language
+
+**Persistence**: Uses `localStorage` to save preferences.
 
 ### 4. LanguageService
 
-**Arquivo**: `src/app/core/services/language.ts`
+**File**: `src/app/core/services/language.ts`
 
-Sistema de internacionalização (i18n).
+Internationalization system (i18n).
 
-**Idiomas Suportados**:
-- Português (pt)
-- Inglês (en)
+**Supported Languages**:
 
-**Uso**:
+- Portuguese (pt)
+- English (en)
+
+**Usage**:
+
 ```typescript
-lang.t().apps.files // Retorna tradução
-lang.setLanguage('pt') // Altera idioma
+lang.t().apps.files; // Returns translation
+lang.setLanguage('pt'); // Changes language
 ```
 
 ### 5. NotificationService
 
-**Arquivo**: `src/app/core/services/notification.ts`
+**File**: `src/app/core/services/notification.ts`
 
-Gerencia notificações do sistema.
+Manages system notifications.
 
-**Tipos de Notificação**:
+**Notification Types**:
+
 - Info
 - Success
 - Warning
 - Error
 
-**Principais Métodos**:
+**Main Methods**:
+
 ```typescript
 show(title: string, message: string, type: NotificationType): void
 clear(id: string): void
@@ -424,27 +441,30 @@ clearAll(): void
 
 ### 6. Sound Service
 
-**Arquivo**: `src/app/core/services/sound.ts`
+**File**: `src/app/core/services/sound.ts`
 
-Reproduz efeitos sonoros do sistema.
+Plays system sound effects.
 
-**Sons Disponíveis**:
-- `mouse_down`: Clique do mouse
-- `mouse_up`: Soltar o mouse
-- `notification`: Som de notificação
-- `error`: Som de erro
+**Available Sounds**:
+
+- `mouse_down`: Mouse click
+- `mouse_up`: Mouse release
+- `notification`: Notification sound
+- `error`: Error sound
 
 ### 7. Theme Service
 
-**Arquivo**: `src/app/core/services/theme.ts`
+**File**: `src/app/core/services/theme.ts`
 
-Gerencia o tema visual do sistema.
+Manages the visual theme of the system.
 
-**Temas**:
-- `light`: Tema claro
-- `dark`: Tema escuro
+**Themes**:
 
-**Método Principal**:
+- `light`: Light theme
+- `dark`: Dark theme
+
+**Main Method**:
+
 ```typescript
 setTheme(theme: 'light' | 'dark'): void
 toggleTheme(): void
@@ -452,57 +472,61 @@ toggleTheme(): void
 
 ### 8. Gemini Service
 
-**Arquivo**: `src/app/core/services/gemini.ts`
+**File**: `src/app/core/services/gemini.ts`
 
-Integração com Google Gemini AI.
+Google Gemini AI integration.
 
-**Funcionalidades**:
-- Geração de texto
-- Análise de imagens
-- Rotação de API keys
-- Tratamento de quota
+**Features**:
 
-**Método Principal**:
+- Text generation
+- Image analysis
+- API key rotation
+- Quota handling
+
+**Main Method**:
+
 ```typescript
 async generateResponse(
-  prompt: string, 
+  prompt: string,
   fileData?: { mimeType: string; b64: string }
 ): Promise<string>
 ```
 
 ### 9. TerminalCommands Service
 
-**Arquivo**: `src/app/core/services/terminal-comands.ts`
+**File**: `src/app/core/services/terminal-comands.ts`
 
-Implementa comandos Unix-like para o terminal.
+Implements Unix-like commands for the terminal.
 
-**Comandos Disponíveis**:
-- `ls`: Lista arquivos
-- `cd`: Navega entre diretórios
-- `open`: Abre arquivos
-- `date`: Exibe data/hora
-- `theme`: Alterna tema
-- `clear`: Limpa terminal
-- `help`: Exibe ajuda
-- `neofetch`: Info do sistema
-- `whoami`: Info do desenvolvedor
+**Available Commands**:
+
+- `ls`: List files
+- `cd`: Navigate between directories
+- `open`: Open files
+- `date`: Display date/time
+- `theme`: Toggle theme
+- `clear`: Clear terminal
+- `help`: Display help
+- `neofetch`: System info
+- `whoami`: Developer info
 
 ### 10. SystemTips Service
 
-**Arquivo**: `src/app/core/services/system-tips.ts`
+**File**: `src/app/core/services/system-tips.ts`
 
-Exibe dicas do sistema periodicamente.
+Displays system tips periodically.
 
-**Dicas Incluídas**:
-- Atalho Alt+Tab
-- Uso do terminal
-- Modo fullscreen
-- Alternância de tema
-- Navegação no explorer
+**Included Tips**:
+
+- Alt+Tab shortcut
+- Terminal usage
+- Fullscreen mode
+- Theme toggle
+- Explorer navigation
 
 ---
 
-## 📊 Modelos de Dados
+## 📊 Data Models
 
 ### 1. Process Model
 
@@ -527,7 +551,7 @@ interface AppDefinition {
   icon: string;
   color: string;
   component: Type<any>;
-  handle?: string[]; // Extensões de arquivo que o app pode abrir
+  handle?: string[]; // File extensions the app can open
 }
 ```
 
@@ -575,48 +599,49 @@ interface SystemSettings {
 
 ---
 
-## 🚀 Funcionalidades do Sistema
+## 🚀 System Features
 
-### 1. Gerenciamento de Janelas
+### 1. Window Management
 
-#### Snap (Encaixe Automático)
+#### Snap (Auto-Docking)
 
-O sistema oferece encaixe automático de janelas nas bordas e cantos da tela:
+The system offers automatic window snapping to screen edges and corners:
 
-- **Borda Esquerda**: 50% da tela à esquerda
-- **Borda Direita**: 50% da tela à direita
-- **Canto Superior Esquerdo**: 25% (1/4 superior esquerdo)
-- **Canto Superior Direito**: 25% (1/4 superior direito)
-- **Canto Inferior Esquerdo**: 25% (1/4 inferior esquerdo)
-- **Canto Inferior Direito**: 25% (1/4 inferior direito)
+- **Left Edge**: 50% of screen on the left
+- **Right Edge**: 50% of screen on the right
+- **Top Left Corner**: 25% (1/4 top left)
+- **Top Right Corner**: 25% (1/4 top right)
+- **Bottom Left Corner**: 25% (1/4 bottom left)
+- **Bottom Right Corner**: 25% (1/4 bottom right)
 
-**Implementação**: Ao arrastar uma janela próximo às bordas (15px), um "ghost" visual mostra a área de encaixe.
+**Implementation**: When dragging a window near edges (15px), a visual "ghost" shows the snap area.
 
-#### Redimensionamento
+#### Resizing
 
-As janelas podem ser redimensionadas em 8 direções:
-- Norte (N)
-- Sul (S)
-- Leste (E)
-- Oeste (W)
-- Nordeste (NE)
-- Noroeste (NW)
-- Sudeste (SE)
-- Sudoeste (SW)
+Windows can be resized in 8 directions:
 
-**Limites**: Largura mínima de 320px e altura mínima de 240px.
+- North (N)
+- South (S)
+- East (E)
+- West (W)
+- Northeast (NE)
+- Northwest (NW)
+- Southeast (SE)
+- Southwest (SW)
 
-#### Maximizar/Restaurar
+**Limits**: Minimum width of 320px and minimum height of 240px.
 
-Duplo clique na barra de título maximiza/restaura a janela.
+#### Maximize/Restore
 
-#### Minimizar
+Double-click on the title bar to maximize/restore the window.
 
-Minimiza a janela para a dock, mantendo o processo ativo.
+#### Minimize
 
-### 2. Sistema de Arquivos Virtual
+Minimizes the window to the dock, keeping the process active.
 
-Estrutura hierárquica completa com pastas e arquivos:
+### 2. Virtual File System
+
+Complete hierarchical structure with folders and files:
 
 ```
 /home/
@@ -635,302 +660,322 @@ Estrutura hierárquica completa com pastas e arquivos:
       └── cert2.pdf
 ```
 
-**Operações Suportadas**:
-- Navegação (cd)
-- Listagem (ls)
-- Abertura de arquivos (open)
-- Busca
+**Supported Operations**:
 
-### 3. Terminal Interativo
+- Navigation (cd)
+- Listing (ls)
+- File opening (open)
+- Search
 
-Terminal funcional com comandos Unix-like.
+### 3. Interactive Terminal
 
-**Recursos**:
-- Histórico de comandos (↑/↓)
+Functional terminal with Unix-like commands.
+
+**Features**:
+
+- Command history (↑/↓)
 - Autocomplete
-- Colorização de output
-- Path atual
+- Output colorization
+- Current path
 
-**Exemplos de Uso**:
+**Usage Examples**:
+
 ```bash
 $ ls
 documents  photos  music  certificates
-
 $ cd documents
 /home/documents
-
 $ open curriculum.pdf
 Opening curriculum.pdf...
-
 $ theme
 Theme changed to dark
 ```
 
-### 4. Centro de Notificações
+### 4. Notification Center
 
-Sistema centralizado de notificações com:
-- Timestamp relativo (agora, há 5min, etc)
-- Marcação de lidas
-- Limpeza individual ou em massa
-- Tipos visuais (info, success, warning, error)
+Centralized notification system with:
+
+- Relative timestamp (now, 5min ago, etc)
+- Read marking
+- Individual or bulk clearing
+- Visual types (info, success, warning, error)
 
 ### 5. App Switcher (Ctrl+Q)
 
-Navegação rápida entre janelas abertas:
-- Ativado por `Ctrl+Q`
-- Preview visual de cada janela
-- Navegação por teclado (Tab)
-- Foco instantâneo
+Quick navigation between open windows:
 
-### 6. Menu de Contexto
+- Activated by `Ctrl+Q`
+- Visual preview of each window
+- Keyboard navigation (Tab)
+- Instant focus
 
-Clique direito em ícones da dock:
-- Abrir aplicativo
-- Nova instância
-- Fechar aplicativo
-- Remover da dock
+### 6. Context Menu
+
+Right-click on dock icons:
+
+- Open application
+- New instance
+- Close application
+- Remove from dock
 
 ### 7. Drag and Drop
 
-Arrastar aplicativos do grid para a dock para fixá-los.
+Drag applications from the grid to the dock to pin them.
 
 ---
 
-## 📱 Aplicativos
+## 📱 Applications
 
-### 1. Files (Gerenciador de Arquivos)
+### 1. Files (File Manager)
 
-**Funcionalidades**:
-- Navegação por pastas
-- Visualização em grade ou lista
+**Features**:
+
+- Folder navigation
+- Grid or list view
 - Breadcrumbs
-- Sidebar com locais favoritos
-- Busca em tempo real
-- Abertura de arquivos com apps associados
-- Informações de tamanho
+- Sidebar with favorite locations
+- Real-time search
+- File opening with associated apps
+- Size information
 
-**Componentes**:
-- `FilesComponent`: Componente principal
-- `BreadcrumbsComponent`: Navegação de caminho
-- `SidebarComponent`: Sidebar de locais
-- `GridComponent`: Visualização em grade
-- `ListComponent`: Visualização em lista
+**Components**:
 
-### 2. Firefox (Navegador Web)
+- `FilesComponent`: Main component
+- `BreadcrumbsComponent`: Path navigation
+- `SidebarComponent`: Location sidebar
+- `GridComponent`: Grid view
+- `ListComponent`: List view
 
-**Funcionalidades**:
-- Navegação por URL
-- Iframe para sites externos
-- Tratamento de erros (CORS)
-- Botões voltar/atualizar
-- Indicador de carregamento
+### 2. Firefox (Web Browser)
 
-**Limitações**: Alguns sites bloqueiam iframe por política CORS.
+**Features**:
+
+- URL navigation
+- Iframe for external sites
+- Error handling (CORS)
+- Back/refresh buttons
+- Loading indicator
+
+**Limitations**: Some sites block iframe due to CORS policy.
 
 ### 3. Terminal
 
-**Funcionalidades**:
-- Comandos Unix-like
-- Histórico de comandos
-- Path dinâmico
-- Integração com FileSystem
-- Abertura de arquivos
-- Mudança de tema
-- Info do sistema
+**Features**:
 
-### 4. Photos (Visualizador de Imagens)
+- Unix-like commands
+- Command history
+- Dynamic path
+- FileSystem integration
+- File opening
+- Theme change
+- System info
 
-**Funcionalidades**:
-- Galeria de imagens
-- Visualização em tela cheia
-- Navegação entre imagens (anterior/próxima)
+### 4. Photos (Image Viewer)
+
+**Features**:
+
+- Image gallery
+- Full-screen viewing
+- Image navigation (previous/next)
 - Zoom
-- Suporte a JPG, PNG, GIF, WebP
+- Support for JPG, PNG, GIF, WebP
 
-### 5. Documents (Visualizador de PDFs)
+### 5. Documents (PDF Viewer)
 
-**Funcionalidades**:
-- Renderização de PDFs
-- Navegação entre páginas
+**Features**:
+
+- PDF rendering
+- Page navigation
 - Zoom
 - Download
-- Lista de documentos disponíveis
+- List of available documents
 
-**Biblioteca**: Usa `ng2-pdf-viewer`.
+**Library**: Uses `ng2-pdf-viewer`.
 
-### 6. Musics (Player de Música)
+### 6. Musics (Music Player)
 
-**Funcionalidades**:
-- Biblioteca de músicas
-- Player com controles
+**Features**:
+
+- Music library
+- Player with controls
 - Progress bar
 - Volume
 - Play/Pause
-- Anterior/Próxima
-- Metadados (se disponíveis)
+- Previous/Next
+- Metadata (if available)
 
-**Formatos Suportados**: MP3, WAV, OGG.
+**Supported Formats**: MP3, WAV, OGG.
 
-### 7. Settings (Configurações)
+### 7. Settings
 
-**Seções**:
+**Sections**:
 
-#### Aparência
-- Esquema de cores (claro/escuro)
-- Papel de parede
+#### Appearance
+
+- Color scheme (light/dark)
+- Wallpaper
 
 #### Desktop
-- Ocultar dock automaticamente
-- Tamanho dos ícones
 
-#### Som
-- Sons do sistema (on/off)
+- Auto-hide dock
+- Icon size
 
-#### Sistema
-- Dicas do sistema (on/off)
+#### Sound
 
-#### Idioma
-- Português/Inglês
+- System sounds (on/off)
 
-#### Sobre
-- Nome do sistema
-- Versão
-- Informações de hardware
+#### System
+
+- System tips (on/off)
+
+#### Language
+
+- Portuguese/English
+
+#### About
+
+- System name
+- Version
+- Hardware information
 - Engine
 
-### 8. System Monitor (Monitor do Sistema)
+### 8. System Monitor
 
-**Funcionalidades**:
-- Lista de processos ativos
-- Ações (fechar processo)
-- Informações de rede
-- Latência
-- Tipo de conexão
+**Features**:
 
-**Nota**: Dados de CPU/RAM são simulados por limitações do navegador.
+- List of active processes
+- Actions (close process)
+- Network information
+- Latency
+- Connection type
 
-### 9. Hermes (Assistente IA)
+**Note**: CPU/RAM data is simulated due to browser limitations.
 
-**Funcionalidades**:
-- Chat com IA (Google Gemini)
-- Análise de imagens
-- Respostas contextualizadas
-- Suporte multilíngue
-- Interface de chat moderna
+### 9. Hermes (AI Assistant)
 
-**Configuração**: Requer API key do Google Gemini em `environment.ts`.
+**Features**:
 
-### 10. About Project (Sobre o Projeto)
+- Chat with AI (Google Gemini)
+- Image analysis
+- Contextualized responses
+- Multilingual support
+- Modern chat interface
 
-**Conteúdo**:
-- Visão do desenvolvedor
-- Funcionalidades do sistema
-- Descrição dos aplicativos
-- Motivação do projeto
-- Tecnologias utilizadas
+**Configuration**: Requires Google Gemini API key in `environment.ts`.
+
+### 10. About Project
+
+**Content**:
+
+- Developer's vision
+- System features
+- Application descriptions
+- Project motivation
+- Technologies used
 
 ---
 
-## 🔧 Instalação e Configuração
+## 🔧 Installation and Configuration
 
-### Pré-requisitos
+### Prerequisites
 
-- Node.js 18+ e npm 11+
+- Node.js 18+ and npm 11+
 - Angular CLI 21+
 
-### Instalação
+### Installation
 
 ```bash
-# Clonar o repositório
+# Clone the repository
 git clone <repository-url>
 cd Portfolio-main
 
-# Instalar dependências
+# Install dependencies
 npm install
 
-# Iniciar servidor de desenvolvimento
+# Start development server
 npm start
 ```
 
-### Configuração de Ambiente
+### Environment Configuration
 
-Edite `src/environments/environment.ts`:
+Edit `src/environments/environment.ts`:
 
 ```typescript
 export const environment = {
   production: false,
   geminiApiKeys: [
-    'SUA_API_KEY_AQUI',
-    'SUA_API_KEY_BACKUP' // Opcional
-  ]
+    'YOUR_API_KEY_HERE',
+    'YOUR_BACKUP_API_KEY', // Optional
+  ],
 };
 ```
 
-**Obter API Key do Gemini**:
-1. Acesse [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Crie uma nova API key
-3. Cole no arquivo de environment
+**Get Gemini API Key**:
 
-### Ambiente de Produção
+1. Access [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Paste into environment file
 
-Edite `src/environments/environment.ts` para produção:
+### Production Environment
+
+Edit `src/environments/environment.ts` for production:
 
 ```typescript
 export const environment = {
   production: true,
-  geminiApiKeys: ['API_KEY_PRODUCAO']
+  geminiApiKeys: ['PRODUCTION_API_KEY'],
 };
 ```
 
 ---
 
-## 📜 Comandos Disponíveis
+## 📜 Available Commands
 
 ### NPM Scripts
 
 ```bash
-# Iniciar servidor de desenvolvimento
+# Start development server
 npm start
-# ou
+# or
 npm run start
 
-# Build de produção
+# Production build
 npm run build
 
-# Build com watch
+# Build with watch
 npm run watch
 
-# Executar testes
+# Run tests
 npm test
 
-# Gerar componente
-ng generate component nome-componente
+# Generate component
+ng generate component component-name
 
-# Gerar serviço
-ng generate service nome-servico
+# Generate service
+ng generate service service-name
 ```
 
-### Comandos do Terminal (dentro do app)
+### Terminal Commands (inside the app)
 
-| Comando    | Descrição                    | Exemplo               |
-|------------|------------------------------|-----------------------|
-| `help`     | Exibe lista de comandos      | `help`                |
-| `ls`       | Lista arquivos do diretório  | `ls`                  |
-| `cd`       | Navega entre diretórios      | `cd documents`        |
-| `open`     | Abre um arquivo              | `open curriculum.pdf` |
-| `date`     | Exibe data/hora atual        | `date`                |
-| `theme`    | Alterna tema claro/escuro    | `theme`               |
-| `clear`    | Limpa tela do terminal       | `clear`               |
-| `neofetch` | Info do sistema              | `neofetch`            |
-| `whoami`   | Info do desenvolvedor        | `whoami`              |
+| Command    | Description                  | Example               |
+| ---------- | ---------------------------- | --------------------- |
+| `help`     | Display command list         | `help`                |
+| `ls`       | List directory files         | `ls`                  |
+| `cd`       | Navigate between directories | `cd documents`        |
+| `open`     | Open a file                  | `open curriculum.pdf` |
+| `date`     | Display current date/time    | `date`                |
+| `theme`    | Toggle light/dark theme      | `theme`               |
+| `clear`    | Clear terminal screen        | `clear`               |
+| `neofetch` | System info                  | `neofetch`            |
+| `whoami`   | Developer info               | `whoami`              |
 
 ---
 
-## 🎨 Personalização
+## 🎨 Customization
 
-### Mudando Cores do Tema
+### Changing Theme Colors
 
-Edite `src/styles.scss`:
+Edit `src/styles.scss`:
 
 ```scss
 :root {
@@ -939,63 +984,64 @@ Edite `src/styles.scss`:
   --background: #ffffff;
   --text-color: #000000;
 }
-
 .dark {
   --background: #1e1e1e;
   --text-color: #ffffff;
 }
 ```
 
-### Mudando Papel de Parede
+### Changing Wallpaper
 
-Adicione imagens em `public/wallpapers/` e configure em Settings.
+Add images to `public/wallpapers/` and configure in Settings.
 
-### Mudando Sons
+### Changing Sounds
 
-Adicione arquivos de áudio em `public/sounds/` e configure no `SoundService`.
+Add audio files to `public/sounds/` and configure in `SoundService`.
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Problema: Aplicativo não abre
+### Problem: Application doesn't open
 
-**Solução**: Verifique se o app está registrado em `apps.ts` e se o componente está importado corretamente.
+**Solution**: Check if the app is registered in `apps.ts` and if the component is imported correctly.
 
-### Problema: Tema não muda
+### Problem: Theme doesn't change
 
-**Solução**: Limpe o localStorage do navegador:
+**Solution**: Clear browser localStorage:
+
 ```javascript
-localStorage.clear()
+localStorage.clear();
 ```
 
-### Problema: Hermes não responde
+### Problem: Hermes doesn't respond
 
-**Solução**:
-1. Verifique se a API key do Gemini está configurada
-2. Verifique quota da API no Google Cloud Console
-3. Veja erros no console do navegador
+**Solution**:
 
-### Problema: Arquivos não aparecem
+1. Check if Gemini API key is configured
+2. Check API quota in Google Cloud Console
+3. See errors in browser console
 
-**Solução**: O FileSystem é inicializado no `file-system.service.ts`. Verifique se há erros no console.
+### Problem: Files don't appear
 
-### Problema: Terminal não executa comandos
+**Solution**: FileSystem is initialized in `file-system.service.ts`. Check for console errors.
 
-**Solução**: Verifique se o comando existe em `terminal-comands.ts` e se a sintaxe está correta.
+### Problem: Terminal doesn't execute commands
+
+**Solution**: Check if the command exists in `terminal-comands.ts` and if syntax is correct.
 
 ---
 
-## 📚 Recursos Adicionais
+## 📚 Additional Resources
 
-### Documentação
+### Documentation
 
 - [Angular](https://angular.dev)
 - [Tailwind CSS](https://tailwindcss.com)
 - [TypeScript](https://www.typescriptlang.org)
 - [Google Gemini](https://ai.google.dev)
 
-### Inspiração de Design
+### Design Inspiration
 
 - [GNOME Desktop](https://www.gnome.org)
 - [Elementary OS](https://elementary.io)
@@ -1003,71 +1049,71 @@ localStorage.clear()
 
 ---
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-### Como Contribuir
+### How to Contribute
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature `git checkout -b feature/AmazingFeature`
+3. Commit your changes `git commit -m 'Add some AmazingFeature'`
+4. Push to the branch `git push origin feature/AmazingFeature`
+5. Open a Pull Request
 
 ### Guidelines
 
-- Siga o estilo de código existente
-- Adicione testes para novas funcionalidades
-- Atualize a documentação
-- Use commits descritivos
+- Follow existing code style
+- Add tests for new features
+- Update documentation
+- Use descriptive commits
 
 ---
 
-## 📄 Licença
+## 📄 License
 
-Este projeto é um portfólio pessoal. Todos os direitos reservados.
+This project is a personal portfolio. All rights reserved.
 
 ---
 
-## 👤 Autor
+## 👤 Author
 
-**Desenvolvedor**: Caio Souza Silva  
-**Contato**: caiosouzasilva13650@gmail.com  
+**Developer**: Caio Souza Silva  
+**Contact**: caiosouzasilva13650@gmail.com  
 **Portfolio**: [caiossiva.com](https://caiossiva.com)  
 **GitHub**: [github.com/CaioSSilva](https://github.com/CaioSSilva/)
 
 ---
 
-## 🙏 Agradecimentos
+## 🙏 Acknowledgments
 
 - Angular Team
 - GNOME Design Team
-- Comunidade Open Source
+- Open Source Community
 - Google Gemini Team
 - Font Awesome
 - Tailwind CSS Team
 
 ---
 
-## 📊 Estatísticas do Projeto
+## 📊 Project Statistics
 
-- **Linhas de Código**: ~15.000+
-- **Componentes**: 25+
-- **Serviços**: 15+
-- **Aplicativos**: 10
-- **Idiomas**: 2
+- **Lines of Code**: ~15,000+
+- **Components**: 25+
+- **Services**: 15+
+- **Applications**: 10
+- **Languages**: 2
 - **Performance Score**: 90+
 
 ---
 
-## 📞 Suporte
+## 📞 Support
 
-Para dúvidas, sugestões ou reportar bugs:
+For questions, suggestions, or to report bugs:
 
-- **Issues**: Abra uma issue no GitHub
-- **Discussões**: Use a aba Discussions no GitHub
+- **Issues**: Open an issue on GitHub
+- **Discussions**: Use the Discussions tab on GitHub
 
 ---
 
-**Desenvolvido com ❤️ usando Angular 21**
+**Developed with ❤️ using Angular 21**
 
-**Última Atualização**: Janeiro 2025
+**Last Update**: January 2025
