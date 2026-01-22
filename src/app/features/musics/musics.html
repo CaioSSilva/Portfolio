@@ -14,20 +14,50 @@
       @for (track of musicLibrary(); track track.url) {
         <button
           (click)="player.play(track, musicLibrary())"
-          [class.bg-gnome-blue]="player.currentTrack()?.url === track.url"
-          [class.text-white]="player.currentTrack()?.url === track.url"
-          class="w-full flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors text-left group hover:bg-white/5"
+          class="w-full flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors text-left group"
+          [ngClass]="{
+            'bg-gnome-blue text-white': player.currentTrack()?.url === track.url,
+            'hover:bg-gnome-text/[0.05]': player.currentTrack()?.url !== track.url,
+          }"
         >
-          <div class="w-8 h-8 rounded-lg bg-black/20 flex items-center justify-center shrink-0">
+          <div
+            class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+            [style.backgroundColor]="
+              player.currentTrack()?.url === track.url
+                ? 'rgba(255,255,255,0.2)'
+                : 'var(--color-gnome-border)'
+            "
+          >
             <i
-              class="fas"
+              class="fas text-sm"
               [class.fa-play]="player.currentTrack()?.url !== track.url"
               [class.fa-volume-high]="player.currentTrack()?.url === track.url"
+              [style.color]="
+                player.currentTrack()?.url === track.url ? 'white' : 'var(--color-gnome-text)'
+              "
             ></i>
           </div>
+
           <div class="flex-1 truncate">
-            <p class="text-xs font-medium truncate">{{ track.name }}</p>
-            <p class="text-[10px] opacity-60">{{ lang.t().audioPlayer.appSubtitle }}</p>
+            <p
+              class="text-xs font-medium truncate"
+              [style.color]="
+                player.currentTrack()?.url === track.url ? 'white' : 'var(--color-gnome-text)'
+              "
+            >
+              {{ track.name }}
+            </p>
+
+            <p
+              class="text-[10px]"
+              [style.color]="
+                player.currentTrack()?.url === track.url
+                  ? 'rgba(255,255,255,0.7)'
+                  : 'var(--color-gnome-text-secondary)'
+              "
+            >
+              {{ lang.t().audioPlayer.appSubtitle }}
+            </p>
           </div>
         </button>
       }
