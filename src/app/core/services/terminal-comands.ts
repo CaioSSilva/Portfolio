@@ -69,7 +69,6 @@ export class TerminalComands {
   private findParentId(currentId: string): string {
     if (['home', 'root'].includes(currentId)) return 'root';
 
-    // Usamos a nova lógica do FileSystem para encontrar o pai de forma mais eficiente
     const tree = this.fs.tree();
     if (!tree) return 'root';
 

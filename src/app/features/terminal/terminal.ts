@@ -155,7 +155,6 @@ export class Terminal extends Base {
 
   getTranslatedName(id: string): string {
     const trans = this.lang.t().files as Record<string, string>;
-    // Substituído getFolderName pela lógica direta via getNode
     return trans[id.toLowerCase()] || this.fs.getNode(id)?.name || id;
   }
 }

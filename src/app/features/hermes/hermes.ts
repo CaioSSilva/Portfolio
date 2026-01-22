@@ -28,7 +28,6 @@ export class Hermes extends Base {
   selectedFile = signal<{ mimeType: string; b64: string } | null>(null);
   previewUrl = signal<string | null>(null);
 
-  // Botão habilita se houver texto OU se houver um arquivo carregado
   isButtonDisabled = computed(
     () => (this.userInput().trim().length === 0 && !this.selectedFile()) || this.isLoading(),
   );
@@ -75,7 +74,6 @@ export class Hermes extends Base {
       },
     ]);
 
-    // 2. Reseta estados de input
     this.userInput.set('');
     this.clearAttachment();
     this.isLoading.set(true);
