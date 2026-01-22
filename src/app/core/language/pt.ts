@@ -67,6 +67,7 @@ export const pt = {
       'Podemos descobrir muito sobre uma pessoa observando como ela interage com seu computador.',
     features: 'Funcionalidades do sistema',
     applications: 'Aplicativos',
+    downloads: 'Downloads',
     documentation: 'Documentação',
     docDescription:
       'Quer saber como as coisas funcionam por baixo do debaixo do capô? Leia a documentação!',
