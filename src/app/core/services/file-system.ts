@@ -185,4 +185,12 @@ export class FileSystem {
       (node) => node.type === 'file' && targetExts.has(this.getFileExtension(node.name)),
     );
   }
+
+  downloadFile(path: string, name: string) {
+    if (!path || !name) return;
+    const a = document.createElement('a');
+    a.href = path;
+    a.download = name;
+    a.click();
+  }
 }

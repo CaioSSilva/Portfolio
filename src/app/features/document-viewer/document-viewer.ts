@@ -17,7 +17,7 @@ import { FileItem, DOC_EXTENSIONS } from '../../core/models/file';
 export class DocumentViewer extends Base {
   lang = inject(LanguageService);
   private appsService = inject(Apps);
-  private fs = inject(FileSystem);
+  public fs = inject(FileSystem);
 
   fileType = signal<'pdf' | 'text' | 'unknown'>('unknown');
   fileName = signal('');
@@ -138,15 +138,6 @@ export class DocumentViewer extends Base {
 
   getIconColor() {
     return this.fileType() === 'pdf' ? '#ef4444' : '#3b82f6';
-  }
-
-  downloadFile() {
-    const path = this.safePath();
-    if (!path) return;
-    const a = document.createElement('a');
-    a.href = path;
-    a.download = this.fileName();
-    a.click();
   }
 
   goToFiles() {

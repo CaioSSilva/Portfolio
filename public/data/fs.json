@@ -452,6 +452,15 @@
                 "url": "/data/root/home/documents/Cai_OS - Documentação.md"
               },
               {
+                "id": "docs",
+                "name": "Cai_OS - Documentation.md",
+                "type": "file",
+                "icon": "fas fa-file-alt",
+                "color": "#4cc14c",
+                "size": 3,
+                "url": "/data/root/home/documents/Cai_OS - Documentation.md"
+              },
+              {
                 "id": "Curr1",
                 "name": "Curriculo.pdf",
                 "type": "file",

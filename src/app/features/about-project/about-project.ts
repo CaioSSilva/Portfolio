@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Base } from '../../core/models/base';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
+import { FileSystem } from '../../core/services/file-system';
 
 @Component({
   selector: 'app-about-project',
@@ -13,6 +14,7 @@ import { LanguageService } from '../../core/services/language';
 export class AboutProject extends Base {
   apps = inject(Apps);
   lang = inject(LanguageService);
+  fs = inject(FileSystem);
 
   aboutApps() {
     const installed = this.apps.myApps();
@@ -41,4 +43,6 @@ export class AboutProject extends Base {
   handleOpenApp(app: any) {
     this.apps.openApp(app);
   }
+
+  downloadDocs() {}
 }

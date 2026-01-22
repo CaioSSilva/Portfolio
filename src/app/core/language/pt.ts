@@ -11,6 +11,7 @@ export const pt = {
     newInstance: 'Nova instância',
     closeApp: 'Fechar aplicativo',
     removeFromDock: 'Remover da dock',
+    or: 'Ou',
   },
 
   window: {
@@ -66,6 +67,10 @@ export const pt = {
       'Podemos descobrir muito sobre uma pessoa observando como ela interage com seu computador.',
     features: 'Funcionalidades do sistema',
     applications: 'Aplicativos',
+    documentation: 'Documentação',
+    docDescription:
+      'Quer saber como as coisas funcionam por baixo do debaixo do capô? Leia a documentação!',
+    codeDescription: 'Quer analizar o código fonte? Baixe o .zip',
     featureList: {
       snaps: {
         tag: 'Workspace',

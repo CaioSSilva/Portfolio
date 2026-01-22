@@ -42,6 +42,64 @@
 
   <div class="w-full max-w-6xl mx-auto py-8">
     <h1 class="font-bold text-3xl text-center pb-12 tracking-tight">
+      {{ lang.t().aboutProj.documentation }}
+    </h1>
+    <div class="flex gap-20 justify-evenly">
+      <div class="flex flex-col justify-center items-center gap-8">
+        <p class="text-gnome-text-secondary text-center max-w-2xl leading-relaxed text-sm">
+          {{ lang.t().aboutProj.docDescription }}
+        </p>
+
+        <p class="text-center p-2 font-bold">{{ lang.t().common.or }}</p>
+
+        <p class="text-gnome-text-secondary text-center max-w-2xl leading-relaxed text-sm">
+          {{ lang.t().aboutProj.codeDescription }}
+        </p>
+      </div>
+      <div>
+        <div
+          (click)="
+            fs.downloadFile(
+              `/data/root/home/documents/Cai_OS - ${lang.t().aboutProj.documentation}.md`,
+              `Cai_OS - ${lang.t().aboutProj.documentation}.md`
+            )
+          "
+          class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+        >
+          <div
+            class="w-12 h-12 text-white rounded-2xl flex bg-gnome-blue items-center justify-center shrink-0 shadow-sm"
+          >
+            <i class="fas fa-book"></i>
+          </div>
+          <h4 class="font-bold text-sm text-gnome-text">
+            Cai_OS - {{ lang.t().aboutProj.documentation }}.md
+          </h4>
+        </div>
+
+        <p class="text-center p-2 font-bold">{{ lang.t().common.or }}</p>
+
+        <div
+          (click)="
+            fs.downloadFile(
+              'https://github.com/CaioSSilva/Portfolio/archive/refs/heads/main.zip',
+              `Portfolio-main.zip`
+            )
+          "
+          class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+        >
+          <div
+            class="w-12 h-12 text-white rounded-2xl flex bg-purple-500 items-center justify-center shrink-0 shadow-sm"
+          >
+            <i class="fas fa-file-zipper"></i>
+          </div>
+          <h4 class="font-bold text-sm text-gnome-text">Portfolio-main.zip</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full max-w-6xl mx-auto py-8">
+    <h1 class="font-bold text-3xl text-center pb-12 tracking-tight">
       {{ lang.t().aboutProj.features }}
     </h1>
 

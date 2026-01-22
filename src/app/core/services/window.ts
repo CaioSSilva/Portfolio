@@ -22,8 +22,8 @@ export class WindowService {
   readonly isVisible = signal(false);
   readonly snapGhost = signal<{ x: number; y: number; w: number; h: number } | null>(null);
 
-  private rect = { x: 0, y: 0, w: 900, h: 600 };
-  private savedState = { x: 0, y: 0, w: 900, h: 600 };
+  private rect = { x: 0, y: 0, w: 1000, h: 700 };
+  private savedState = { x: 0, y: 0, w: 1000, h: 700 };
   private collisions = { bottom: false };
   private mouseOffset = { x: 0, y: 0 };
   private isInitializing = true;

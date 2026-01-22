@@ -11,6 +11,7 @@ export const en = {
     newInstance: 'New instance',
     closeApp: 'Close application',
     removeFromDock: 'Remove from dock',
+    or: 'Or',
   },
 
   window: {
@@ -66,6 +67,9 @@ export const en = {
       'We can discover a lot about a person by observing how they interact with their computer.',
     features: 'System features',
     applications: 'Applications',
+    documentation: 'Documentation',
+    docDescription: 'Want to know how the things work under the hood? Read the documentation!',
+    codeDescription: 'Want to analyze the source code? Download the .zip file.',
     featureList: {
       snaps: {
         tag: 'Workspace',
