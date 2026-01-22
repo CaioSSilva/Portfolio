@@ -69,8 +69,7 @@ export const pt = {
     applications: 'Aplicativos',
     downloads: 'Downloads',
     documentation: 'Documentação',
-    docDescription:
-      'Quer saber como as coisas funcionam por baixo do debaixo do capô? Leia a documentação!',
+    docDescription: 'Quer saber como as coisas funcionam por baixo do capô? Leia a documentação!',
     codeDescription: 'Quer analizar o código fonte? Baixe o .zip',
     featureList: {
       snaps: {
