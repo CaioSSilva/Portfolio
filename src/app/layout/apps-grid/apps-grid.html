@@ -30,7 +30,7 @@
             draggable="true"
             (dragstart)="ondragStart($event, app)"
             (contextmenu)="appsService.onRightClickApp($event, app.id)"
-            (click)="appsService.openApp(app)"
+            (click)="appsService.openApp(app); $event.stopPropagation()"
             class="group relative flex cursor-pointer flex-col items-center gap-3 outline-none transition-all"
           >
             <div
