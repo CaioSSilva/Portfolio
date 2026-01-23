@@ -1,0 +1,25 @@
+<div
+  class="absolute grid grid-flow-col gap-2 p-4 grid-rows-[repeat(auto-fill,minmax(110px,1fr))]"
+  style="top: 32px; height: calc(100vh - 32px)"
+>
+  @for (item of desktop.onDesktopApps(); track item.id) {
+    <button
+      (dblclick)="item.action()"
+      (contextmenu)="appsService.onRightClickApp($event, item.id)"
+      class="group cursor-pointer flex h-28 w-24 cursor-default flex-col items-center justify-center rounded-lg p-2 outline-none transition-all duration-150 hover:bg-gnome-text/[0.1] focus:bg-gnome-blue/30 focus:ring-1 focus:ring-gnome-blue/50"
+    >
+      <div
+        class="mb-1 flex h-14 w-14 items-center justify-center rounded-2xl text-2xl text-white shadow-sm transition-transform group-active:scale-90"
+        [style.background-color]="item.color"
+      >
+        <i [class]="item.icon"></i>
+      </div>
+
+      <span
+        class="text-gnome-text w-full line-clamp-2 text-center text-[12px] leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+      >
+        {{ item.name }}
+      </span>
+    </button>
+  }
+</div>

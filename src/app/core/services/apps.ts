@@ -5,13 +5,13 @@ import { LanguageService } from './language';
 import { ProcessManager } from './process-manager';
 import { debounceTime, map } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ContextMenu } from './context-menu';
+import { ContextMenuService } from './context-menu';
 
 @Injectable({ providedIn: 'root' })
 export class Apps {
   private readonly processManager = inject(ProcessManager);
   private readonly lang = inject(LanguageService);
-  private readonly contextMenu = inject(ContextMenu);
+  private readonly contextMenu = inject(ContextMenuService);
 
   readonly isAppsGridOpen = signal(false);
   readonly searchQuery = signal('');
@@ -43,25 +43,32 @@ export class Apps {
   }
 
   toggleGrid() {
+    this.contextMenu.close();
     this.isAppsGridOpen.update((v) => !v);
     if (!this.isAppsGridOpen()) this.resetSearch();
   }
 
   openApp(app: AppDefinition) {
+    this.contextMenu.close();
     this.isAppsGridOpen.set(false);
     this.resetSearch();
     this.processManager.open(app, app.data);
   }
 
-  onRightClick(event: MouseEvent, appId: string) {
+  onRightClickApp(event: MouseEvent, appId: string) {
     event.preventDefault();
     event.stopPropagation();
 
-    const menuWidth = 180;
+    const menuWidth = 245;
+    const menuHeight = 160;
     const x =
       event.clientX + menuWidth > window.innerWidth ? event.clientX - menuWidth : event.clientX;
 
-    this.contextMenu.open(x, event.clientY, appId);
+    this.contextMenu.openApp(
+      x,
+      event.clientY < menuHeight ? event.clientY + menuHeight / 2 : event.clientY,
+      appId,
+    );
   }
 
   private resetSearch() {

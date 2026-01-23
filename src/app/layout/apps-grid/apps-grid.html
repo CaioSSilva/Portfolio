@@ -5,7 +5,6 @@
   >
     <div
       class="w-full max-w-5xl flex flex-col items-center gap-10 p-6 animate-in zoom-in-95 duration-300"
-      (click)="$event.stopPropagation()"
     >
       <div class="relative w-full max-w-lg group">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -30,7 +29,7 @@
           <button
             draggable="true"
             (dragstart)="ondragStart($event, app)"
-            (contextmenu)="appsService.onRightClick($event, app.id)"
+            (contextmenu)="appsService.onRightClickApp($event, app.id)"
             (click)="appsService.openApp(app)"
             class="group relative flex cursor-pointer flex-col items-center gap-3 outline-none transition-all"
           >
@@ -66,47 +65,6 @@
         </div>
       }
     </div>
-
-    @if (contextMenu.isOpen()) {
-      <div
-        class="fixed z-[20000] min-w-[180px] bg-gnome-bg/95 backdrop-blur-md border border-gnome-border rounded-xl p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
-        [style.left.px]="contextMenu.position().x"
-        [style.top.px]="contextMenu.position().y"
-        [style.transform]="'translateY(-100%)'"
-      >
-        <button
-          (click)="dock.openActiveApp()"
-          class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
-        >
-          <i class="fas fa-plus"></i>
-          {{
-            process.hasActiveProcessesById(contextMenu.activeAppId()!)
-              ? lang.t().common.newInstance
-              : lang.t().common.openApp
-          }}
-        </button>
-
-        @if (contextMenu.activeAppId()) {
-          <button
-            (click)="dock.unPinActiveApp()"
-            class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
-          >
-            <i class="fas fa-thumbtack-slash"></i>
-            {{ lang.t().common.removeFromDock }}
-          </button>
-        }
-        @if (
-          contextMenu.activeAppId() && process.hasActiveProcessesById(contextMenu.activeAppId()!)
-        ) {
-          <button
-            (click)="dock.closeActiveApp()"
-            class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
-          >
-            <i class="fas fa-x"></i>
-            {{ lang.t().common.closeApp }}
-          </button>
-        }
-      </div>
-    }
+    <app-context-menu></app-context-menu>
   </div>
 }

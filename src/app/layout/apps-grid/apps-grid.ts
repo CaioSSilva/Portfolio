@@ -1,21 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
-import { ProcessManager } from '../../core/services/process-manager';
-import { ContextMenu } from '../../core/services/context-menu';
-import { DockService } from '../../core/services/dock';
-
+import { ContextMenu } from '../../shared/ui/context-menu/context-menu';
+import { ContextMenuService } from '../../core/services/context-menu';
 @Component({
   selector: 'app-apps-grid',
-  imports: [],
+  imports: [ContextMenu],
   templateUrl: './apps-grid.html',
   styleUrl: './apps-grid.scss',
 })
 export class AppsGrid {
   appsService = inject(Apps);
-  dock = inject(DockService);
-  process = inject(ProcessManager);
-  contextMenu = inject(ContextMenu);
+  contextMenu = inject(ContextMenuService);
   lang = inject(LanguageService);
 
   onSearch(event: Event) {

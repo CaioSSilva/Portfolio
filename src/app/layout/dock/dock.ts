@@ -1,23 +1,24 @@
-import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { DockService } from '../../core/services/dock';
 import { CommonModule } from '@angular/common';
 import { Apps } from '../../core/services/apps';
 import { ProcessManager } from '../../core/services/process-manager';
 import { Settings } from '../../core/services/settings';
 import { LanguageService } from '../../core/services/language';
-import { ContextMenu } from '../../core/services/context-menu';
+import { ContextMenuService } from '../../core/services/context-menu';
+import { ContextMenu } from '../../shared/ui/context-menu/context-menu';
 
 @Component({
   selector: 'app-dock',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ContextMenu],
   templateUrl: './dock.html',
   styleUrl: './dock.scss',
 })
 export class Dock implements OnInit {
   dock = inject(DockService);
   apps = inject(Apps);
-  contextMenu = inject(ContextMenu);
+  contextMenu = inject(ContextMenuService);
   processManager = inject(ProcessManager);
   lang = inject(LanguageService);
   settings = inject(Settings);
@@ -69,11 +70,5 @@ export class Dock implements OnInit {
     }
 
     this.itemNewPinPos.set(null);
-  }
-
-  @HostListener('document:click')
-  @HostListener('document:contextmenu')
-  onWindowClick() {
-    this.contextMenu.close();
   }
 }

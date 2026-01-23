@@ -2,13 +2,13 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { ProcessManager } from './process-manager';
 import { DockItem, AppDefinition } from '../models/dock';
 import { Apps } from './apps';
-import { ContextMenu } from './context-menu';
+import { ContextMenuService } from './context-menu';
 
 @Injectable({ providedIn: 'root' })
 export class DockService {
   private readonly processManager = inject(ProcessManager);
   private readonly appsService = inject(Apps);
-  private readonly contextMenu = inject(ContextMenu);
+  private readonly contextMenu = inject(ContextMenuService);
 
   readonly pinnedAppIds = signal<string[]>(['firefox', 'files', 'terminal']);
 
@@ -130,5 +130,9 @@ export class DockService {
       this.unpinApp(appId);
       this.contextMenu.close();
     }
+  }
+
+  hasPinnedAppWithId(id: string) {
+    return this.pinnedAppIds().find((i) => i === id);
   }
 }

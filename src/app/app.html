@@ -11,6 +11,7 @@
     <app-top-bar (onShutdown)="shutingDown.set($event)"></app-top-bar>
 
     <div class="flex-1 relative desktop-area">
+      <app-desktop-icons></app-desktop-icons>
       @for (process of processManager.processes(); track process.id) {
         <app-window [process]="process"></app-window>
       }

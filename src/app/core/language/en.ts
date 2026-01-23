@@ -11,6 +11,9 @@ export const en = {
     newInstance: 'New instance',
     closeApp: 'Close application',
     removeFromDock: 'Remove from dock',
+    removeFromDesktop: 'Remove from desktop',
+    addToDock: 'Add to dock',
+    addToDesktop: 'Add to desktop',
     or: 'Or',
   },
 

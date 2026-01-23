@@ -1,0 +1,72 @@
+@if (contextMenu.isOpen() && contextMenu.activeAppId()) {
+  <div
+    (document:click)="contextMenu.close()"
+    class="fixed z-[20000] min-w-[245px] bg-gnome-bg/95 backdrop-blur-md border border-gnome-border rounded-xl p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
+    [style.left.px]="contextMenu.position().x"
+    [style.top.px]="contextMenu.position().y"
+    [style.transform]="'translateY(-100%)'"
+  >
+    <button
+      (click)="dock.openActiveApp()"
+      class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+    >
+      <i class="fas fa-plus"></i>
+      {{
+        process.hasActiveProcessesById(contextMenu.activeAppId()!)
+          ? lang.t().common.newInstance
+          : lang.t().common.openApp
+      }}
+    </button>
+    <button
+      (click)="
+        dock.hasPinnedAppWithId(contextMenu.activeAppId()!)
+          ? dock.unPinActiveApp()
+          : dock.pinApp(contextMenu.activeAppId()!)
+      "
+      class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+    >
+      <i
+        [class]="
+          !dock.hasPinnedAppWithId(contextMenu.activeAppId()!)
+            ? 'fas fa-thumbtack'
+            : 'fas fa-thumbtack-slash'
+        "
+      ></i>
+      {{
+        dock.hasPinnedAppWithId(contextMenu.activeAppId()!)
+          ? lang.t().common.removeFromDock
+          : lang.t().common.addToDock
+      }}
+    </button>
+    <button
+      (click)="
+        desktop.hasPinnedAppWithId(contextMenu.activeAppId()!)
+          ? desktop.unPinActiveApp()
+          : desktop.pinApp(contextMenu.activeAppId()!)
+      "
+      class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+    >
+      <i
+        [class]="
+          !desktop.hasPinnedAppWithId(contextMenu.activeAppId()!)
+            ? 'fas fa-house-chimney-window'
+            : 'fas fa-house-circle-xmark'
+        "
+      ></i>
+      {{
+        desktop.hasPinnedAppWithId(contextMenu.activeAppId()!)
+          ? lang.t().common.removeFromDesktop
+          : lang.t().common.addToDesktop
+      }}
+    </button>
+    @if (process.hasActiveProcessesById(contextMenu.activeAppId()!)) {
+      <button
+        (click)="dock.closeActiveApp()"
+        class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+      >
+        <i class="fas fa-x"></i>
+        {{ lang.t().common.closeApp }}
+      </button>
+    }
+  </div>
+}

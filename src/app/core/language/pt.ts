@@ -11,6 +11,9 @@ export const pt = {
     newInstance: 'Nova instância',
     closeApp: 'Fechar aplicativo',
     removeFromDock: 'Remover da dock',
+    addToDock: 'Adicionar a dock',
+    removeFromDesktop: 'Remover da área de trabalho',
+    addToDesktop: 'Adicionar à área de trabalho',
     or: 'Ou',
   },
 

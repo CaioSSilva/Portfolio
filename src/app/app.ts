@@ -12,11 +12,12 @@ import { Boot } from './shared/ui/boot/boot';
 import { Shutdown } from './shared/ui/shutdown/shutdown';
 import { LanguageService } from './core/services/language';
 import { SystemTips } from './core/services/system-tips';
+import { DesktopIcons } from './features/desktop-icons/desktop-icons';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
-  imports: [AppsGrid, Dock, WindowSwitcher, Window, TopBar, Boot, Shutdown],
+  imports: [AppsGrid, Dock, WindowSwitcher, Window, TopBar, Boot, Shutdown, DesktopIcons],
 })
 export class App {
   processManager = inject(ProcessManager);
