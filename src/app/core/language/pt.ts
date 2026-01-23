@@ -100,6 +100,13 @@ export const pt = {
         description:
           'Ações rápidas ao seu alcance. Acesse controles essenciais de aplicativos, como fixar na barra de tarefas, abrir novas instâncias ou encerrar processos diretamente através de uma interface de clique direito otimizada para agilidade.',
       },
+
+      desktopIcons: {
+        tag: 'Eficiência',
+        title: 'Ícones da Área de Trabalho',
+        description:
+          'Transforme sua área de trabalho em um centro de comando. Interaja com aplicativos por meio de uma interface sensível ao contexto, permitindo gerenciar processos ativos, fixar atalhos e executar ações do sistema sem sair do desktop.',
+      },
       dockDrag: {
         tag: 'Interface',
         title: 'Arrastar e soltar',

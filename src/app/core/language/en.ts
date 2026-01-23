@@ -100,6 +100,13 @@ export const en = {
         description:
           'Quick actions at your fingertips. Access essential application controls like pinning to dock, opening new instances, or closing processes directly through a streamlined right-click interface designed for speed.',
       },
+
+      desktopIcons: {
+        tag: 'Efficiency',
+        title: 'Desktop Icons',
+        description:
+          'Transform your workspace into a command center. Interact with applications through a context-aware interface, allowing you to manage active processes, toggle dock shortcuts, and trigger system actions without leaving your desktop.',
+      },
       dockDrag: {
         tag: 'Interface',
         title: 'Drag and drop',
