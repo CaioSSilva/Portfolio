@@ -1,22 +1,21 @@
 @if (windowService.snapGhost(); as ghost) {
   <div
-    class="fixed z-[8999] bg-gnome-bg/20 backdrop-blur-md rounded-lg border-2 border-white/40 transition-all duration-100 pointer-events-none"
+    class="fixed z-[99999] bg-gnome-bg/20 backdrop-blur-md rounded-lg border-2 border-white/40 transition-all duration-100 pointer-events-none"
     [style.top.px]="ghost.y"
     [style.left.px]="ghost.x"
     [style.width.px]="ghost.w"
     [style.height.px]="ghost.h"
   ></div>
 }
+
 <div
   #windowFrame
   class="will-change-transform"
   [ngClass]="{
-    'fixed top-0 left-0 z-[9999] !w-screen': windowService.isMaximized(),
+    'fixed top-0 left-0 z-[9999]': windowService.isMaximized(),
     absolute: !windowService.isMaximized(),
     'pointer-events-none': process().isMinimized || !windowService.isVisible(),
   }"
-  [style.height]="windowService.isMaximized() ? 'calc(100vh - ' + TOP_BAR_HEIGHT + 'px)' : 'auto'"
-  [style.marginTop.px]="windowService.isMaximized() ? TOP_BAR_HEIGHT : 0"
   [style.z-index]="process().zIndex"
 >
   <div
@@ -24,7 +23,8 @@
     (mousedown)="windowService.focus()"
     [ngClass]="{
       'rounded-xl': !windowService.isMaximized() && !windowService.isSnapped(),
-      'opacity-0 scale-[0.05]': process().isMinimized || !windowService.isVisible(),
+      'rounded-none': windowService.isMaximized() || windowService.isSnapped(),
+      'opacity-0 scale-[0.95]': process().isMinimized || !windowService.isVisible(),
       'opacity-100 scale-100': !process().isMinimized && windowService.isVisible(),
     }"
   >
@@ -64,6 +64,7 @@
         </button>
       </div>
     </div>
+
     <div class="flex-1 bg-gnome-bg relative overflow-hidden text-gnome-text">
       @if (windowService.isDragging() || windowService.isResizing()) {
         <div class="absolute inset-0 z-50 bg-transparent"></div>
@@ -75,6 +76,7 @@
       </div>
     </div>
   </div>
+
   @if (!windowService.isMaximized() && !windowService.isSnapped()) {
     <div
       (mousedown)="windowService.startResize($event)"
