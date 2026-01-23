@@ -151,6 +151,7 @@ Portfolio-main/
 │   │   │   └── services/            # Serviços do sistema
 │   │   │       ├── apps.ts
 │   │   │       ├── context-menu.ts
+│   │   │       ├── desktop-icons.ts
 │   │   │       ├── dock.ts
 │   │   │       ├── file-system.ts
 │   │   │       ├── gemini.ts
@@ -190,6 +191,7 @@ Portfolio-main/
 │   │   │   └── ui/
 │   │   │       ├── boot/            # Tela de boot
 │   │   │       ├── shutdown/        # Tela de desligamento
+│   │   │       ├── context-menu/    # Menu de contexto
 │   │   │       └── window/          # Componente de janela
 │   │   ├── app.config.ts
 │   │   ├── app.html
@@ -317,6 +319,25 @@ Alternador de janelas ativado por `Ctrl+Q`.
 - Navegação por teclado
 - Preview visual das janelas
 - Foco rápido
+
+### 7. ContextMenu Component
+
+**Arquivo**: `src/app/shared/ui/context-menu/context-menu.ts`
+
+Menu de contexto visual que aparece ao clicar com botão direito.
+
+**Funcionalidades**:
+- Abrir aplicativo
+- Nova instância
+- Fechar aplicativo
+- Fixar/Remover da dock
+- Fixar/Remover da área de trabalho
+- Posicionamento dinâmico baseado no cursor
+
+**Integração**:
+- Funciona com ícones da Dock
+- Funciona com ícones da área de trabalho
+- Integrado com ContextMenuService
 
 ---
 
@@ -500,6 +521,30 @@ Exibe dicas do sistema periodicamente.
 - Alternância de tema
 - Navegação no explorer
 
+### 11. DesktopIcons Service
+
+**Arquivo**: `src/app/core/services/desktop-icons.ts`
+
+Gerencia ícones fixados na área de trabalho (desktop).
+
+**Responsabilidades**:
+- Fixar aplicativos na área de trabalho
+- Remover aplicativos fixados
+- Gerenciar lista de ícones do desktop
+- Integração com menu de contexto
+
+**Principais Métodos**:
+```typescript
+pinApp(id: string): void
+unPinActiveApp(): void
+hasPinnedAppWithId(id: string): pinnedDesktopItem | undefined
+```
+
+**Signal**:
+```typescript
+onDesktopApps: Signal<pinnedDesktopItem[]>
+```
+
 ---
 
 ## 📊 Modelos de Dados
@@ -572,6 +617,20 @@ interface SystemSettings {
   language: 'pt' | 'en';
 }
 ```
+
+### 6. DesktopItem Model
+
+```typescript
+interface pinnedDesktopItem {
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+  action: () => any;
+}
+```
+
+**Uso**: Representa um ícone de aplicativo fixado na área de trabalho.
 
 ---
 

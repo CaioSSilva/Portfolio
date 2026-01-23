@@ -147,6 +147,7 @@ Portfolio-main/
 │   │   │   └── services/            # System services
 │   │   │       ├── apps.ts
 │   │   │       ├── context-menu.ts
+│   │   │       ├── desktop-icons.ts
 │   │   │       ├── dock.ts
 │   │   │       ├── file-system.ts
 │   │   │       ├── gemini.ts
@@ -186,6 +187,7 @@ Portfolio-main/
 │   │   │   └── ui/
 │   │   │       ├── boot/            # Boot screen
 │   │   │       ├── shutdown/        # Shutdown screen
+│   │   │       ├── context-menu/    # Context menu
 │   │   │       └── window/          # Window component
 │   │   ├── app.config.ts
 │   │   ├── app.html
