@@ -149,6 +149,27 @@
                 }
               </div>
             </div>
+            <div class="p-4 flex items-center justify-between">
+              <div>
+                <div class="font-medium">{{ lang.t().settings.desktop.desktopItemsSize }}</div>
+                <div class="text-sm text-gnome-text-secondary">
+                  {{ lang.t().settings.desktop.desktopItemsSizeDesc }}
+                </div>
+              </div>
+              <div class="flex bg-gnome-bg border border-gnome-border rounded-lg p-1 gap-1">
+                @for (size of [40, 50, 60, 70]; track size) {
+                  <button
+                    (click)="settings.setDesktopSize(size)"
+                    [class.bg-gnome-blue]="settings.desktopSize() === size"
+                    [class.text-white]="settings.desktopSize() === size"
+                    [class.hover:bg-gnome-blue/10]="settings.desktopSize() !== size"
+                    class="px-3 py-1 rounded text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    {{ size }}px
+                  </button>
+                }
+              </div>
+            </div>
           </div>
         </div>
       }

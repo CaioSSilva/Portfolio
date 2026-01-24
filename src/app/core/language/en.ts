@@ -169,8 +169,10 @@ export const en = {
       title: 'Desktop',
       autoHideDock: 'Auto-hide Dock',
       autoHideDockDesc: 'Hide the dock when windows are over it',
-      iconSize: 'Icon Size',
+      iconSize: 'Dock Icon Size',
       iconSizeDesc: 'Adjust the dock and elements size',
+      desktopItemsSize: 'Desktop items size',
+      desktopItemsSizeDesc: 'Adjust the size of items on desktop',
     },
 
     sound: {

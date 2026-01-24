@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { DesktopIconsService } from '../../core/services/desktop-icons';
 import { Apps } from '../../core/services/apps';
+import { Settings } from '../../core/services/settings';
 
 @Component({
   selector: 'app-desktop-icons',
@@ -11,4 +12,5 @@ import { Apps } from '../../core/services/apps';
 export class DesktopIcons {
   desktop = inject(DesktopIconsService);
   appsService = inject(Apps);
+  settings = inject(Settings);
 }

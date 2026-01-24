@@ -3,6 +3,7 @@ import { Injectable, signal, effect } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class Settings {
   readonly dockSize = signal<number>(this.load('dockSize', 48));
+  readonly desktopSize = signal<number>(this.load('desktopSize', 40));
   readonly wallpaper = signal<string>(this.load('wallpaper', '/wallpapers/default.webp'));
   readonly systemMuted = signal<boolean>(this.load('soundMuted', false));
   readonly autoHideDock = signal<boolean>(this.load('autoHideDock', true));
@@ -11,6 +12,7 @@ export class Settings {
   constructor() {
     effect(() => {
       this.save('dockSize', this.dockSize());
+      this.save('desktopSize', this.desktopSize());
       this.save('wallpaper', this.wallpaper());
       this.save('autoHideDock', this.autoHideDock());
       this.save('soundMuted', this.systemMuted());
@@ -24,6 +26,10 @@ export class Settings {
 
   setDockSize(size: number) {
     this.dockSize.set(size);
+  }
+
+  setDesktopSize(size: number) {
+    this.desktopSize.set(size);
   }
 
   toggleAutoHideDock() {

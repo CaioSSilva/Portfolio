@@ -6,16 +6,19 @@
     <button
       (dblclick)="item.action()"
       (contextmenu)="appsService.onRightClickApp($event, item.id)"
-      class="group cursor-pointer flex h-28 w-24 cursor-default flex-col items-center justify-center rounded-lg p-2 outline-none transition-all duration-150 hover:bg-gnome-text/[0.1] focus:bg-gnome-blue/30 focus:ring-1 focus:ring-gnome-blue/50"
+      class="group h-fit cursor-pointer p-4 flex cursor-default flex-col items-center justify-center rounded-lg p-2 outline-none transition-all duration-150 hover:bg-gnome-text/[0.1] focus:bg-gnome-blue/30 focus:ring-1 focus:ring-gnome-blue/50"
     >
       <div
-        class="mb-1 flex h-14 w-14 items-center justify-center rounded-2xl text-2xl text-white shadow-sm transition-transform group-active:scale-90"
+        class="mb-1 flex items-center justify-center rounded-2xl text-2xl text-white shadow-sm transition-transform group-active:scale-90"
         [style.background-color]="item.color"
+        [style.height]="settings.desktopSize() + 'px'"
+        [style.width]="settings.desktopSize() + 'px'"
       >
-        <i [class]="item.icon"></i>
+        <i [class]="item.icon" [style.font-size]="settings.desktopSize() / 2 + 'px'"></i>
       </div>
 
       <span
+        [style.font-size]="settings.desktopSize() * 0.3 + 'px'"
         class="text-gnome-text w-full line-clamp-2 text-center text-[12px] leading-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
       >
         {{ item.name }}

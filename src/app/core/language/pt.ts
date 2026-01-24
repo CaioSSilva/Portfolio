@@ -169,8 +169,10 @@ export const pt = {
       title: 'Desktop',
       autoHideDock: 'Ocultar Dock automaticamente',
       autoHideDockDesc: 'Esconde a dock quando janelas estiverem sobre ela',
-      iconSize: 'Tamanho dos ícones',
+      iconSize: 'Tamanho dos ícones da dock',
       iconSizeDesc: 'Ajusta a dimensão da dock e seus elementos',
+      desktopItemsSize: 'Tamanho dos ícones da área de trabalho',
+      desktopItemsSizeDesc: 'Ajusta o tamanho dos ítens na área de trabalho',
     },
 
     sound: {
