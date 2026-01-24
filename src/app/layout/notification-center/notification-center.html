@@ -57,7 +57,7 @@
       @for (n of notifService.history(); track n.id) {
         <div
           [style.cursor]="n.action ? 'pointer' : 'default'"
-          class="cursor-pointer bg-gnome-surface/40 hover:bg-gnome-surface/80 p-4 rounded-2xl flex gap-4 transition-all group items-center border border-gnome-border/10 shrink-0"
+          class="cursor-pointer bg-gnome-surface/40 hover:bg-gnome-surface/[n.action? 80 : 100] p-4 rounded-2xl flex gap-4 transition-all group items-center border border-gnome-border/10 shrink-0"
         >
           <div
             class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
