@@ -1,6 +1,7 @@
 import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { Process } from '../models/process';
 import { ProcessManager } from './process-manager';
+import { Settings } from './settings';
 
 export const TOP_BAR_HEIGHT = 32;
 const MIN_W = 320;
@@ -17,6 +18,7 @@ interface Rect {
 @Injectable()
 export class WindowService {
   private readonly processManager = inject(ProcessManager);
+  private readonly settings = inject(Settings);
   private readonly ngZone = inject(NgZone);
 
   private windowEl!: HTMLElement;
@@ -63,8 +65,9 @@ export class WindowService {
           const parentRect = parent.getBoundingClientRect();
           this.rect.x = e.clientX - parentRect.left - this.mouseOffset.x;
           this.rect.y = Math.max(TOP_BAR_HEIGHT, e.clientY - parentRect.top - this.mouseOffset.y);
-          this.updateTransform();
           this.updateSnapGhost(e.clientX, e.clientY);
+          this.checkBottomOverlap();
+          this.updateTransform();
           this.rafId = null;
         });
       };
@@ -115,7 +118,6 @@ export class WindowService {
           this.rect.h = Math.max(MIN_H, startRect.h + (e.clientY - startY));
           this.windowEl.style.width = `${this.rect.w}px`;
           this.windowEl.style.height = `${this.rect.h}px`;
-          this.checkBottomOverlap();
           this.rafId = null;
         });
       };
@@ -254,7 +256,6 @@ export class WindowService {
       this.windowEl.style.width = `${this.rect.w}px`;
       this.windowEl.style.height = `${this.rect.h}px`;
     }
-    this.checkBottomOverlap();
   }
 
   private updateTransform(): void {
@@ -263,7 +264,8 @@ export class WindowService {
 
   private checkBottomOverlap(): void {
     const bottomEdge = this.rect.y + this.rect.h;
-    const isOverBottom = this.isMaximized() || bottomEdge > window.innerHeight;
+    const tressholder = this.settings.dockSize();
+    const isOverBottom = this.isMaximized() || bottomEdge > window.innerHeight - (tressholder + 32);
 
     if (this.bottomOverlap !== isOverBottom) {
       this.bottomOverlap = isOverBottom;
