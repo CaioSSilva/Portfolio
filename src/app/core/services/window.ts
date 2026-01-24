@@ -2,13 +2,12 @@ import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { Process } from '../models/process';
 import { ProcessManager } from './process-manager';
 import { Settings } from './settings';
-import { Dock } from '../../layout/dock/dock';
 import { DockService } from './dock';
 
 export const TOP_BAR_HEIGHT = 32;
 const MIN_W = 320;
 const MIN_H = 240;
-const SNAP_EDGE = 15;
+const SNAP_EDGE = 32;
 
 interface Rect {
   x: number;
@@ -231,7 +230,7 @@ export class WindowService {
     const halfH = availableH / 2;
     const midY = TOP_BAR_HEIGHT + halfH;
 
-    if (mouseY < SNAP_EDGE && mouseX > SNAP_EDGE && mouseX < vw - SNAP_EDGE) {
+    if (mouseY < TOP_BAR_HEIGHT + SNAP_EDGE && mouseX > SNAP_EDGE && mouseX < vw - SNAP_EDGE) {
       return { x: 0, y: TOP_BAR_HEIGHT, w: vw, h: availableH };
     }
 
