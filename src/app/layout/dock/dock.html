@@ -1,10 +1,13 @@
-<div class="fixed bottom-0 left-0 right-0 h-2 z-[8998]" (mouseenter)="forceShow.set(true)"></div>
+<div
+  class="fixed bottom-0 left-0 right-0 h-2 z-[8998]"
+  (mouseenter)="dock.forceShow.set(true)"
+></div>
 
 <div
-  (mouseleave)="forceShow.set(false)"
-  [class.translate-y-0]="forceShow()"
+  (mouseleave)="dock.forceShow.set(false)"
+  [class.translate-y-0]="dock.forceShow()"
   [class.translate-y-[150%]]="
-    settings.autoHideDock() && processManager.isDockHidden() && !forceShow()
+    settings.autoHideDock() && processManager.isDockHidden() && !dock.forceShow()
   "
   class="fixed bottom-4 left-1/2 -translate-x-1/2 px-2 py-2 flex items-end gap-2 z-[9000] bg-gnome-bg/80 border border-gnome-border/10 rounded-[24px] shadow-2xl will-change-transform transition-all duration-300 ease-in-out"
 >

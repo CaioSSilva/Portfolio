@@ -23,6 +23,8 @@ export class DockService {
     return Array.from(itemsMap.values());
   });
 
+  readonly forceShow = signal(false);
+
   private initializePinnedItems(apps: any): Map<string, DockItem> {
     const map = new Map<string, DockItem>();
     this.pinnedAppIds().forEach((id) => {

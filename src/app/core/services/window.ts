@@ -2,6 +2,8 @@ import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { Process } from '../models/process';
 import { ProcessManager } from './process-manager';
 import { Settings } from './settings';
+import { Dock } from '../../layout/dock/dock';
+import { DockService } from './dock';
 
 export const TOP_BAR_HEIGHT = 32;
 const MIN_W = 320;
@@ -20,6 +22,7 @@ export class WindowService {
   private readonly processManager = inject(ProcessManager);
   private readonly settings = inject(Settings);
   private readonly ngZone = inject(NgZone);
+  private readonly dock = inject(DockService);
 
   private windowEl!: HTMLElement;
   private process!: Process;
@@ -67,6 +70,7 @@ export class WindowService {
           this.rect.y = Math.max(TOP_BAR_HEIGHT, e.clientY - parentRect.top - this.mouseOffset.y);
           this.updateSnapGhost(e.clientX, e.clientY);
           this.checkBottomOverlap();
+          this.dock.forceShow.set(false);
           this.updateTransform();
           this.rafId = null;
         });
@@ -159,6 +163,7 @@ export class WindowService {
       this.isSnapped.set(false);
     }
     this.applyStyles();
+    this.checkBottomOverlap();
   }
 
   close(): void {
@@ -215,6 +220,7 @@ export class WindowService {
 
     this.snapGhost.set(null);
     this.lastSnapGhost = null;
+    this.checkBottomOverlap();
   }
 
   private calculateSnap(mouseX: number, mouseY: number): Rect | null {

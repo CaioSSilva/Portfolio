@@ -22,7 +22,6 @@ export class Dock implements OnInit {
   processManager = inject(ProcessManager);
   lang = inject(LanguageService);
   settings = inject(Settings);
-  forceShow = signal(false);
 
   itemNewPinPos = signal<number | null>(null);
 
