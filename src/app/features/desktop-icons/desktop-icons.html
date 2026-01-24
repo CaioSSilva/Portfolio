@@ -4,7 +4,7 @@
 >
   @for (item of desktop.onDesktopApps(); track item.id) {
     <button
-      (dblclick)="item.action()"
+      (click)="item.action()"
       (contextmenu)="appsService.onRightClickApp($event, item.id)"
       class="group h-fit cursor-pointer p-4 flex cursor-default flex-col items-center justify-center rounded-lg p-2 outline-none transition-all duration-150 hover:bg-gnome-text/[0.1] focus:bg-gnome-blue/30 focus:ring-1 focus:ring-gnome-blue/50"
     >
