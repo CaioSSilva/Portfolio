@@ -149,6 +149,8 @@ Portfolio-main/
 │   │   │   ├── pipes/               # Pipes customizados
 │   │   │   │   └── markdown-pipe.ts
 │   │   │   └── services/            # Serviços do sistema
+│   │   │       ├── app-launcher.ts
+│   │   │       ├── app-registry.ts
 │   │   │       ├── apps.ts
 │   │   │       ├── context-menu.ts
 │   │   │       ├── desktop-icons.ts
@@ -521,29 +523,33 @@ Exibe dicas do sistema periodicamente.
 - Alternância de tema
 - Navegação no explorer
 
-### 11. DesktopIcons Service
+#### 11. DesktopIcons Service
 
 **Arquivo**: `src/app/core/services/desktop-icons.ts`
 
-Gerencia ícones fixados na área de trabalho (desktop).
+Gerencia os ícones fixados diretamente na área de trabalho.
 
-**Responsabilidades**:
-- Fixar aplicativos na área de trabalho
-- Remover aplicativos fixados
-- Gerenciar lista de ícones do desktop
-- Integração com menu de contexto
+**Responsabilidades**: Fixar/remover apps do desktop e gerenciar a lista reativa de atalhos.
+**Principais Métodos**: `pinApp()`, `unPinActiveApp()`.
 
-**Principais Métodos**:
-```typescript
-pinApp(id: string): void
-unPinActiveApp(): void
-hasPinnedAppWithId(id: string): pinnedDesktopItem | undefined
-```
+#### 12. AppLauncher Service
 
-**Signal**:
-```typescript
-onDesktopApps: Signal<pinnedDesktopItem[]>
-```
+**Arquivo**: `src/app/core/services/app-launcher.ts`
+
+Orquestrador responsável por disparar a abertura de aplicativos e gerenciar o estado da interface.
+
+**Responsabilidades**: Fechar menus de contexto e disparar processos via `ProcessManager`.
+**Principais Métodos**: `launch()`, `launchAndCloseContext()`.
+
+#### 13. AppRegistry Service
+
+**Arquivo**: `src/app/core/services/app-registry.ts`
+
+Central de registro e busca de todos os aplicativos instalados no sistema.
+
+**Responsabilidades**: Gerenciar a lista reativa de apps, busca por nome/ID e associar extensões de arquivos.
+
+**Principais Métodos**: `getAppById()`, `findHandlerForExtension()`, `searchApps()`.
 
 ---
 

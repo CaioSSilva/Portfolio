@@ -133,6 +133,8 @@ Portfolio-main/
 │   │   │   │   ├── pt.ts
 │   │   │   │   └── i18n.types.ts
 │   │   │   ├── models/              # Data models
+│   │   │   │   ├── app-launcher.ts
+│   │   │   │   ├── app-registry.ts
 │   │   │   │   ├── apps.ts
 │   │   │   │   ├── base.ts
 │   │   │   │   ├── dock.ts
@@ -496,6 +498,36 @@ Displays system tips periodically.
 - Fullscreen mode
 - Theme toggle
 - Explorer navigation
+
+#### 11. DesktopIcons Service
+
+**File**: `src/app/core/services/desktop-icons.ts`
+
+Manages icons pinned directly to the desktop area.
+
+**Responsibilities**: Pin/unpin apps from the desktop and manage the reactive list of shortcuts.
+
+**Main Methods**: `pinApp()`, `unPinActiveApp()`.
+
+#### 12. AppLauncher Service
+
+**File**: `src/app/core/services/app-launcher.ts`
+
+Orchestrator responsible for triggering application launches and managing UI state.
+
+**Responsibilities**: Close context menus and trigger processes via `ProcessManager`.
+
+**Main Methods**: `launch()`, `launchAndCloseContext()`.
+
+#### 13. AppRegistry Service
+
+**File**: `src/app/core/services/app-registry.ts`
+
+Central registry and search hub for all applications installed in the system.
+
+**Responsibilities**: Manage the reactive list of apps, search by name/ID, and associate file extensions.
+
+**Main Methods**: `getAppById()`, `findHandlerForExtension()`, `searchApps()`.
 
 ---
 
