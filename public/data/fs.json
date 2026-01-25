@@ -270,6 +270,15 @@
                 "color": "#e44c2b",
                 "size": 543578,
                 "url": "/data/root/home/certificates/Variáveis e Tipos - Santander Bootcamp.pdf"
+              },
+              {
+                "id": "cert29",
+                "name": "Oracle Cloud Infrastructure 2025 Foundations Associate.pdf",
+                "type": "file",
+                "icon": "fas fa-file-pdf",
+                "color": "#e44c2b",
+                "size": 543578,
+                "url": "/data/root/home/certificates/Oracle Cloud Infrastructure 2025 Foundations Associate.pdf"
               }
             ]
           },
