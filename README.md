@@ -1,4 +1,4 @@
-# Complete Documentation - Cai_OS
+# Documentation - Cai_OS
 
 ## 📋 Table of Contents
 
