@@ -1,26 +1,22 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { getInstalledApps } from '../models/apps';
 import { AppDefinition } from '../models/dock';
-import { LanguageService } from './language';
-import { ProcessManager } from './process-manager';
 import { debounceTime, map } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ContextMenuService } from './context-menu';
+import { AppRegistry } from './app-registry';
+import { AppLauncher } from './app-launcher';
 
 @Injectable({ providedIn: 'root' })
 export class Apps {
-  private readonly processManager = inject(ProcessManager);
-  private readonly lang = inject(LanguageService);
   private readonly contextMenu = inject(ContextMenuService);
+  private readonly appRegistry = inject(AppRegistry);
+  private readonly appLauncher = inject(AppLauncher);
 
   readonly isAppsGridOpen = signal(false);
   readonly searchQuery = signal('');
 
-  readonly myApps = computed(() => getInstalledApps(this.lang));
-
-  readonly allApps = computed(() =>
-    Object.values(this.myApps()).filter((app): app is AppDefinition => !!app?.id),
-  );
+  readonly appsRegistry = this.appRegistry.registry();
+  readonly appsDefinition = this.appRegistry.definitions();
 
   private readonly debouncedSearch$ = toObservable(this.searchQuery).pipe(
     debounceTime(200),
@@ -31,16 +27,8 @@ export class Apps {
 
   readonly appSearchResult = computed(() => {
     const query = this.debouncedQuery();
-    const apps = this.allApps();
-
-    return query ? this.filterApps(apps, query) : apps;
+    return this.appRegistry.searchApps(query);
   });
-
-  private filterApps(apps: AppDefinition[], query: string): AppDefinition[] {
-    return apps.filter(
-      (app) => app.title.toLowerCase().includes(query) || app.id.toLowerCase().includes(query),
-    );
-  }
 
   toggleGrid() {
     this.contextMenu.close();
@@ -49,10 +37,9 @@ export class Apps {
   }
 
   openApp(app: AppDefinition) {
-    this.contextMenu.close();
     this.isAppsGridOpen.set(false);
     this.resetSearch();
-    this.processManager.open(app, app.data);
+    this.appLauncher.launch(app, app.data);
   }
 
   onRightClickApp(event: MouseEvent, appId: string) {

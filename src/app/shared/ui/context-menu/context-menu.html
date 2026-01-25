@@ -41,7 +41,7 @@
     <button
       (click)="
         desktop.hasPinnedAppWithId(contextMenu.activeAppId()!)
-          ? desktop.unPinActiveApp()
+          ? desktop.unpinApp(contextMenu.activeAppId()!)
           : desktop.pinApp(contextMenu.activeAppId()!)
       "
       class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"

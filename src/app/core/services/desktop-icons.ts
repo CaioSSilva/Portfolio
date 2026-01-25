@@ -1,35 +1,43 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { pinnedDesktopItem } from '../models/desktop';
-import { Apps } from './apps';
-import { ContextMenuService } from './context-menu';
+import { AppRegistry } from './app-registry';
+import { AppLauncher } from './app-launcher';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DesktopIconsService {
-  onDesktopApps = signal<pinnedDesktopItem[]>([]);
-  context = inject(ContextMenuService);
-  apps = inject(Apps);
+  private readonly appRegistry = inject(AppRegistry);
+  private readonly appLauncher = inject(AppLauncher);
+
+  readonly onDesktopApps = signal<pinnedDesktopItem[]>([]);
 
   hasPinnedAppWithId(id: string) {
     return this.onDesktopApps().find((i) => i.id === id);
   }
 
   pinApp(id: string) {
+    const app = this.appRegistry.getAppById(id);
+    if (!app) return;
+
     this.onDesktopApps.update((apps) => [
       ...apps,
       {
         id: id,
-        name: this.apps.myApps()[id]!.title,
-        color: this.apps.myApps()[id]!.color,
-        icon: this.apps.myApps()[id]!.icon,
-        action: () => this.apps.openApp(this.apps.myApps()[id]!),
+        name: app.title,
+        color: app.color,
+        icon: app.icon,
+        action: () => this.appLauncher.launch(app),
       },
     ]);
   }
 
-  unPinActiveApp() {
-    const remainingApps = this.onDesktopApps().filter((a) => a.id !== this.context.activeAppId());
-    this.onDesktopApps.set(remainingApps);
+  unpinApp(id: string) {
+    this.onDesktopApps.update((apps) => apps.filter((app) => app.id !== id));
+  }
+
+  openApp(id: string) {
+    const app = this.appRegistry.getAppById(id);
+    if (app) this.appLauncher.launch(app);
   }
 }

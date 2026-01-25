@@ -81,7 +81,7 @@ export class ImageViewer extends Base {
   }
 
   goToFiles() {
-    const filesApp = this.apps.myApps().files;
+    const filesApp = this.apps.appsRegistry.files;
     if (filesApp) this.apps.openApp(filesApp);
   }
 

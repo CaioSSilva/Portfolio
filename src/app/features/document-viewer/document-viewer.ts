@@ -141,7 +141,7 @@ export class DocumentViewer extends Base {
   }
 
   goToFiles() {
-    const filesApp = this.appsService.myApps().files;
+    const filesApp = this.appsService.appsRegistry.files;
     if (filesApp) this.appsService.openApp(filesApp);
   }
 }

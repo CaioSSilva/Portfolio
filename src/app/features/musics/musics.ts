@@ -85,7 +85,7 @@ export class Musics extends Base implements OnDestroy {
   }
 
   goToFiles() {
-    const app = this.apps.myApps().files;
+    const app = this.apps.appsRegistry.files;
     if (app) this.apps.openApp(app);
   }
 

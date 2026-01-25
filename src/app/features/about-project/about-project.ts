@@ -17,7 +17,7 @@ export class AboutProject extends Base {
   fs = inject(FileSystem);
 
   aboutApps() {
-    const installed = this.apps.myApps();
+    const installed = this.apps.appsRegistry;
     const aboutTexts = this.lang.t().aboutProj.apps;
 
     const displayOrder = [

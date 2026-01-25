@@ -1,17 +1,18 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { AppBase } from '../models/base';
 import { Process } from '../models/process';
-import { getInstalledApps } from '../models/apps';
 import { LanguageService } from './language';
 import { FileSystem } from './file-system';
 import { AUDIO_EXTENSIONS, FileItem } from '../models/file';
 import { NotificationService } from './notification';
+import { AppRegistry } from './app-registry';
 
 @Injectable({ providedIn: 'root' })
 export class ProcessManager {
   private readonly lang = inject(LanguageService);
   private readonly fs = inject(FileSystem);
   private readonly nots = inject(NotificationService);
+  private readonly appRegistry = inject(AppRegistry);
 
   readonly processes = signal<Process[]>([]);
 
@@ -51,7 +52,7 @@ export class ProcessManager {
     const handler = this.findHandlerForFile(node.name);
 
     if (handler) {
-      this.handleAudioSingleton(node.name);
+      this.handleAudioSingleton(node.name, handler.id);
       this.open(handler, { url: node.url, title: node.name });
     } else {
       this.showNoHandlerError();
@@ -60,16 +61,14 @@ export class ProcessManager {
 
   private findHandlerForFile(fileName: string) {
     const extension = this.fs.getFileExtension(fileName);
-    const registry = getInstalledApps(this.lang);
-    return Object.values(registry).find((app) => app?.handle?.includes(extension));
+    return this.appRegistry.findHandlerForExtension(extension);
   }
 
-  private handleAudioSingleton(fileName: string) {
+  private handleAudioSingleton(fileName: string, musicAppId: string) {
     const isAudio = AUDIO_EXTENSIONS.some((ext) => fileName.includes(ext));
     if (!isAudio) return;
 
-    const musicApp = getInstalledApps(this.lang).musics;
-    const existing = this.processes().find((p) => p.appId === musicApp.id);
+    const existing = this.processes().find((p) => p.appId === musicAppId);
     if (existing) this.close(existing.id);
   }
 

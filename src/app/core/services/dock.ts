@@ -1,19 +1,22 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ProcessManager } from './process-manager';
 import { DockItem, AppDefinition } from '../models/dock';
-import { Apps } from './apps';
 import { ContextMenuService } from './context-menu';
+import { AppRegistry } from './app-registry';
+import { AppLauncher } from './app-launcher';
 
 @Injectable({ providedIn: 'root' })
 export class DockService {
   private readonly processManager = inject(ProcessManager);
-  private readonly appsService = inject(Apps);
+  private readonly appRegistry = inject(AppRegistry);
+  private readonly appLauncher = inject(AppLauncher);
   private readonly contextMenu = inject(ContextMenuService);
 
   readonly pinnedAppIds = signal<string[]>(['firefox', 'files', 'terminal']);
+  readonly forceShow = signal(false);
 
   readonly dockItems = computed(() => {
-    const apps = this.appsService.myApps();
+    const apps = this.appRegistry.registry();
     const processes = this.processManager.processes();
     const activeId = this.processManager.activeProcessId();
 
@@ -22,8 +25,6 @@ export class DockService {
 
     return Array.from(itemsMap.values());
   });
-
-  readonly forceShow = signal(false);
 
   private initializePinnedItems(apps: any): Map<string, DockItem> {
     const map = new Map<string, DockItem>();
@@ -39,8 +40,10 @@ export class DockService {
     activeId: string | null,
   ) {
     processes.forEach((p) => {
-      let item =
-        map.get(p.appId) || this.createDockItem(this.appsService.myApps()[p.appId]!, false);
+      const appDef = this.appRegistry.getAppById(p.appId);
+      if (!appDef) return;
+
+      let item = map.get(p.appId) || this.createDockItem(appDef, false);
 
       item.isOpen = true;
       item.count++;
@@ -52,7 +55,10 @@ export class DockService {
   }
 
   handleAppClick(item: DockItem, event?: MouseEvent) {
-    if (!item.isOpen) return this.appsService.openApp(item);
+    if (!item.isOpen) {
+      this.appLauncher.launch(item);
+      return;
+    }
 
     const process = this.getProcessById(item.pids[item.pids.length - 1]);
     if (!process) return;
@@ -120,8 +126,8 @@ export class DockService {
     const appId = this.contextMenu.activeAppId();
     if (!appId) return;
 
-    const app = this.appsService.myApps()[appId];
-    if (app) this.appsService.openApp(app);
+    const app = this.appRegistry.getAppById(appId);
+    if (app) this.appLauncher.launch(app);
   }
 
   unPinActiveApp() {
