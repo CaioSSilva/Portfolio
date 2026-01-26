@@ -163,6 +163,8 @@ export const pt = {
       light: 'Claro',
       dark: 'Escuro',
       wallpaper: 'Papel de Parede',
+      static: 'Estáticos',
+      animated: 'Animados',
     },
 
     desktop: {

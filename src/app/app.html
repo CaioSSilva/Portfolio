@@ -4,21 +4,41 @@
   @if (shutingDown()) {
     <app-shutdown (shutdown)="shutingDown.set($event)"></app-shutdown>
   }
-  <div
-    class="h-full w-full flex flex-col relative overflow-hidden bg-cover bg-center"
-    [style.background-image]="'url(' + settingsService.wallpaper() + ')'"
-  >
-    <app-top-bar (onShutdown)="shutingDown.set($event)"></app-top-bar>
 
-    <div class="flex-1 relative desktop-area">
-      <app-desktop-icons></app-desktop-icons>
-      @for (process of processManager.processes(); track process.id) {
-        <app-window [process]="process"></app-window>
+  <div class="relative h-screen w-screen overflow-hidden bg-gnome-bg">
+    <div class="absolute inset-0 z-0">
+      @if (isAnimated()) {
+        <video
+          #bgVideo
+          autoplay
+          loop
+          muted
+          playsinline
+          [src]="settingsService.wallpaper()"
+          class="h-full w-full object-cover"
+        ></video>
+      } @else {
+        <div
+          class="h-full w-full bg-cover bg-center"
+          [style.background-image]="'url(' + settingsService.wallpaper() + ')'"
+        ></div>
       }
+    </div>
 
-      <app-apps-grid></app-apps-grid>
-      <app-dock></app-dock>
-      <app-window-switcher></app-window-switcher>
+    <div class="relative z-10 flex flex-col h-full w-full pointer-events-none">
+      <app-top-bar class="pointer-events-auto" (onShutdown)="shutingDown.set($event)"></app-top-bar>
+
+      <div class="flex-1 relative desktop-area pointer-events-auto">
+        <app-desktop-icons></app-desktop-icons>
+
+        @for (process of processManager.processes(); track process.id) {
+          <app-window [process]="process"></app-window>
+        }
+
+        <app-apps-grid></app-apps-grid>
+        <app-dock></app-dock>
+        <app-window-switcher></app-window-switcher>
+      </div>
     </div>
   </div>
 }

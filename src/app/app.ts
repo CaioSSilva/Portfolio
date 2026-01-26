@@ -1,4 +1,13 @@
-import { Component, HostListener, inject, signal, effect } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  inject,
+  signal,
+  effect,
+  computed,
+  viewChild,
+  ElementRef,
+} from '@angular/core';
 import { NotificationService } from './core/services/notification';
 import { ProcessManager } from './core/services/process-manager';
 import { Settings } from './core/services/settings';
@@ -16,6 +25,7 @@ import { DesktopIcons } from './features/desktop-icons/desktop-icons';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   templateUrl: './app.html',
   imports: [AppsGrid, Dock, WindowSwitcher, Window, TopBar, Boot, Shutdown, DesktopIcons],
 })
@@ -30,10 +40,25 @@ export class App {
   systemReady = signal(false);
   shutingDown = signal(false);
 
+  videoPlayer = viewChild<ElementRef<HTMLVideoElement>>('bgVideo');
+
+  isAnimated = computed(() => {
+    const wp = this.settingsService.wallpaper();
+    return wp && (wp.endsWith('.mp4') || wp.endsWith('.webm'));
+  });
+
   constructor() {
     effect(() => {
-      if (this.systemReady()) {
-        this.settingsService.tipsEnabled() && this.tipsService.startRandomTips();
+      if (this.systemReady() && this.settingsService.tipsEnabled()) {
+        this.tipsService.startRandomTips();
+      }
+
+      this.settingsService.wallpaper();
+      const videoEl = this.videoPlayer()?.nativeElement;
+
+      if (videoEl) {
+        videoEl.load();
+        videoEl.play().catch(() => {});
       }
     });
   }

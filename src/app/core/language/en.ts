@@ -163,6 +163,8 @@ export const en = {
       light: 'Light',
       dark: 'Dark',
       wallpaper: 'Wallpaper',
+      static: 'Static',
+      animated: 'Animated',
     },
 
     desktop: {

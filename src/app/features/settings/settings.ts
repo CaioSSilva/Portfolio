@@ -54,6 +54,13 @@ export class SettingsComponent extends Base {
     '/wallpapers/sunset.webp',
   ];
 
+  wallpapersAnimated = [
+    '/videos/wallpapers/landscape.mp4',
+    '/videos/wallpapers/superman.mp4',
+    '/videos/wallpapers/tokyo.mp4',
+    '/videos/wallpapers/su-future.mp4',
+  ];
+
   setSection(section: SettingSection) {
     this.activeSection.set(section);
   }
