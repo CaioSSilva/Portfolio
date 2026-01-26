@@ -1,0 +1,72 @@
+# robots.txt para Cai_OS
+# Portfolio de Caio Silva (caiossilva.com)
+# Sistema Operacional Web Interativo desenvolvido com Angular 21
+
+# Permitir todos os crawlers principais
+User-agent: *
+Allow: /
+
+# Bloquear páginas de autenticação
+Disallow: /auth/
+Disallow: /callback/
+
+# Bloquear dados e configurações
+Disallow: /data/
+Disallow: /assets/config/
+Disallow: /*.json$
+
+# Permitir acesso a assets importantes
+Allow: /wallpapers/
+Allow: /sounds/
+Allow: /videos/
+Allow: /favicon.png
+Allow: /og-preview.png
+Allow: /profile.png
+
+# Sitemap
+Sitemap: https://caiossilva.com/sitemap.xml
+
+# Regras específicas para Googlebot
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Regras para Googlebot Images
+User-agent: Googlebot-Image
+Allow: /wallpapers/
+Allow: /og-preview.png
+Allow: /profile.png
+Allow: /*.jpg
+Allow: /*.png
+Allow: /*.webp
+
+# Regras para Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Outros bots confiáveis
+User-agent: Slurp
+User-agent: DuckDuckBot
+User-agent: Baiduspider
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 2
+
+# Bloquear bots maliciosos e scrapers
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+User-agent: DotBot
+User-agent: BLEXBot
+User-agent: SEOkicks
+User-agent: PetalBot
+User-agent: rogerbot
+User-agent: MegaIndex
+Disallow: /
+
+# Limitar scrapers genéricos
+User-agent: *bot*
+User-agent: *spider*
+User-agent: *crawl*
+Crawl-delay: 10
