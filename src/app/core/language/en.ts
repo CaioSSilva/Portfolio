@@ -368,7 +368,7 @@ export const en = {
   errors: {
     systemError: 'System error',
     noFileHandler: 'The system doesnt hava an app capable to open that file!',
-    enableToLoadFs: 'Unable to load the file system!',
+    enableToLoadFs: 'Unable to load the file system! Reload the page.',
     seviceUnavailable: 'Service unavailable at this time!',
   },
 };

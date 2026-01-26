@@ -371,7 +371,7 @@ export const pt = {
   errors: {
     systemError: 'Erro de sistema',
     noFileHandler: 'O sistema não possui um aplicativo capaz de abrir este arquivo!',
-    enableToLoadFs: 'Erro ao carregar sistema de arquivos!',
+    enableToLoadFs: 'Erro ao carregar sistema de arquivos! Recarregue a pagina.',
     seviceUnavailable: 'Serviço indisponível no momento!',
   },
 };
