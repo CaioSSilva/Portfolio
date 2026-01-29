@@ -288,6 +288,9 @@ export const pt = {
     errorTitle: 'Erro na Imagem',
     errorDescription: 'Não foi possível carregar a imagem selecionada.',
     backToList: 'Voltar para a lista',
+    backButton: 'Voltar para galeria',
+    previousButton: 'Anterior (← Seta)',
+    nextButton: 'Próxima (→ Seta)',
   },
 
   shutdown: {

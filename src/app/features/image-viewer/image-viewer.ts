@@ -1,4 +1,4 @@
-import { Component, signal, HostListener, inject, effect, computed } from '@angular/core';
+import { Component, signal, HostListener, inject, effect, computed, viewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Base } from '../../core/models/base';
 import { Apps } from '../../core/services/apps';
@@ -27,6 +27,9 @@ export class ImageViewer extends Base {
   readonly position = signal({ x: 0, y: 0 });
   readonly isDragging = signal(false);
 
+
+  selImage = viewChild<ElementRef<HTMLImageElement>>('selImage');
+
   private startPan = { x: 0, y: 0 };
 
   safeUrl = computed(() => {
@@ -37,6 +40,23 @@ export class ImageViewer extends Base {
     }
     return null;
   });
+
+  isFirstImage = computed(() => {
+    return this.getCurrentImageIndex() === 0;
+  });
+
+  isLastImage = computed(() => {
+    const images = this.availableImages();
+    const currentIndex = this.getCurrentImageIndex();
+    return currentIndex === images.length - 1;
+  });
+
+  private getCurrentImageIndex(): number {
+    const images = this.availableImages();
+    const currentFile = this.selectedFile();
+    if (!currentFile || images.length === 0) return -1;
+    return images.findIndex((img) => img.url === currentFile.url);
+  }
 
   constructor() {
     super();
@@ -49,13 +69,35 @@ export class ImageViewer extends Base {
       this.hasError.set(false);
 
       if (!url) {
-        if (isFsReady) {
-          this.loadGallery();
-        } else {
-          this.fs.ensureLoaded();
-        }
+        this.ensureGalleryLoaded(isFsReady);
+      } else {
+        this.handleImageOpened(url, isFsReady);
       }
     });
+  }
+
+  private ensureGalleryLoaded(isFsReady: boolean): void {
+    if (isFsReady) {
+      this.loadGallery();
+    } else {
+      this.fs.ensureLoaded();
+    }
+  }
+
+  private handleImageOpened(url: string, isFsReady: boolean): void {
+    const images = this.availableImages();
+    
+    if (images.length === 0) {
+      this.ensureGalleryLoaded(isFsReady);
+      return;
+    }
+    
+    const matchingImage = images.find((img) => img.url === url);
+    if (matchingImage && matchingImage.id !== this.selectedFile()?.id) {
+      this.selectFile(matchingImage);
+    }
+    
+    this.isLoading.set(false);
   }
 
   private loadGallery() {
@@ -71,6 +113,24 @@ export class ImageViewer extends Base {
 
   selectFile(file: FileItem) {
     this.selectedFile.set(file);
+  }
+
+  handleChangeImage(delta: number) {
+    const images = this.availableImages();
+    const currentIndex = this.getCurrentImageIndex();
+    
+    if (currentIndex === -1) return;
+
+    let newIndex = currentIndex + delta;
+    if (newIndex < 0) newIndex = images.length - 1;
+    if (newIndex >= images.length) newIndex = 0;
+
+    const nextFile = images[newIndex];
+    this.selectFile(nextFile);
+    
+    if (this.safeUrl()) {
+      this.data.set(nextFile.url);
+    }
   }
 
   openSelectedImage() {
@@ -145,5 +205,18 @@ export class ImageViewer extends Base {
     event.preventDefault();
     const delta = event.deltaY > 0 ? -0.1 : 0.1;
     this.updateZoom(delta);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (!this.safeUrl()) return;
+    
+    if (event.key === 'ArrowLeft' && !this.isFirstImage()) {
+      event.preventDefault();
+      this.handleChangeImage(-1);
+    } else if (event.key === 'ArrowRight' && !this.isLastImage()) {
+      event.preventDefault();
+      this.handleChangeImage(1);
+    }
   }
 }

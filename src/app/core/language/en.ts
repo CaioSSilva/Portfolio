@@ -286,6 +286,9 @@ export const en = {
     errorTitle: 'Image Error',
     errorDescription: 'Could not load the selected image.',
     backToList: 'Back to list',
+    backButton: 'Back to Gallery',
+    previousButton: 'Previous (← Arrow Key)',
+    nextButton: 'Next (→ Arrow Key)',
   },
 
   shutdown: {

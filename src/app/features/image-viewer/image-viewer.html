@@ -80,6 +80,23 @@
         [class.cursor-grabbing]="isDragging()"
         (mousedown)="onMouseDown($event)"
       >
+        <button
+          (click)="data.set(null)"
+          class="absolute top-6 left-6 z-20 w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
+          [title]="lang.t().imageViewer.backButton"
+        >
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <button
+          (click)="handleChangeImage(-1)"
+          [disabled]="isFirstImage()"
+          [class.opacity-50]="isFirstImage()"
+          [class.cursor-not-allowed]="isFirstImage()"
+          class="absolute left-6 z-20 w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors disabled:hover:bg-transparent"
+          [title]="lang.t().imageViewer.previousButton"
+        >
+          <i class="fas fa-chevron-left"></i>
+        </button>
         <img
           [src]="safeUrl()!"
           (load)="isLoading.set(false)"
@@ -100,6 +117,16 @@
           [class.duration-300]="!isDragging()"
           [class.opacity-0]="isLoading()"
         />
+        <button
+          (click)="handleChangeImage(1)"
+          [disabled]="isLastImage()"
+          [class.opacity-50]="isLastImage()"
+          [class.cursor-not-allowed]="isLastImage()"
+          class="absolute right-6 z-20 w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors disabled:hover:bg-transparent"
+          [title]="lang.t().imageViewer.nextButton"
+        >
+          <i class="fas fa-chevron-right"></i>
+        </button>
 
         <div
           class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1.5 bg-gnome-header/90 backdrop-blur-md border border-gnome-border rounded-full shadow-2xl transition-opacity hover:opacity-100 opacity-60 z-20"
