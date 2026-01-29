@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, effect } from '@angular/core';
+import { Component, signal, computed, inject, effect, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Base } from '../../core/models/base';
@@ -25,42 +25,76 @@ export class DocumentViewer extends Base {
   zoom = signal(1.0);
   hasError = signal(false);
   isLoading = signal(true);
-
   availableDocs = signal<FileItem[]>([]);
   selectedFile = signal<FileItem | null>(null);
+  isViewingDocument = signal(false);
+
+  private isUpdatingFromNavigation = false;
 
   safePath = computed(() => {
-    const rawData = this.data();
-    const path = rawData?.url || rawData;
-    if (path && typeof path === 'string') {
-      const sanitized = path.replace(/\\/g, '/');
+    const selectedFile = this.selectedFile();
+    const isViewing = this.isViewingDocument();
+
+    if (selectedFile?.url && isViewing) {
+      const sanitized = selectedFile.url.replace(/\\/g, '/');
       return encodeURI(sanitized).replace(/#/g, '%23');
     }
     return null;
+  });
+
+  private currentDocIndex = computed(() => {
+    const docs = this.availableDocs();
+    const currentFile = this.selectedFile();
+    if (!currentFile || docs.length === 0) return -1;
+    return docs.findIndex((doc) => doc.id === currentFile.id);
+  });
+
+  isFirstDoc = computed(() => this.currentDocIndex() <= 0);
+
+  isLastDoc = computed(() => {
+    const docs = this.availableDocs();
+    const index = this.currentDocIndex();
+    if (docs.length === 0) return true;
+    return index >= docs.length - 1;
   });
 
   constructor() {
     super();
 
     effect(() => {
-      const path = this.safePath();
-      const isFsReady = this.fs.isLoaded();
+      this.fs.ensureLoaded();
+      if (this.fs.isLoaded()) {
+        this.loadLibrary();
+      }
+    });
 
-      this.resetState();
+    effect(() => {
+      if (this.isUpdatingFromNavigation) return;
 
-      if (!path) {
-        isFsReady ? this.loadLibrary() : this.fs.ensureLoaded();
+      const rawData = this.data();
+      const docs = this.availableDocs();
+
+      if (!rawData || docs.length === 0) {
+        this.isLoading.set(false);
         return;
       }
 
-      this.processFile(path);
-    });
-  }
+      const url = rawData?.url || rawData;
 
-  private resetState() {
-    this.isLoading.set(true);
-    this.hasError.set(false);
-    this.textContent.set('');
+      if (url && typeof url === 'string') {
+        const matchingDoc = docs.find((doc) => doc.url === url);
+
+        if (matchingDoc) {
+          if (matchingDoc.id !== this.selectedFile()?.id) {
+            this.selectedFile.set(matchingDoc);
+            this.processFile(matchingDoc);
+          }
+          this.isViewingDocument.set(true);
+        }
+      }
+
+      this.isLoading.set(false);
+    });
   }
 
   private loadLibrary() {
@@ -74,24 +108,29 @@ export class DocumentViewer extends Base {
     }
   }
 
-  private processFile(path: string) {
+  private processFile(file: FileItem) {
     try {
-      const decodedPath = decodeURIComponent(path);
-      const baseName = decodedPath.split('/').pop() || 'Document';
-      this.fileName.set(baseName);
+      this.resetState();
+      this.fileName.set(file.name);
 
-      const ext = baseName.split('.').pop()?.toLowerCase() || '';
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
 
       if (ext === 'pdf') {
         this.fileType.set('pdf');
-      } else {
+      } else if (file.url) {
         this.fileType.set('text');
-        this.loadTextFile(path);
+        this.loadTextFile(file.url);
       }
     } catch {
       this.hasError.set(true);
       this.isLoading.set(false);
     }
+  }
+
+  private resetState() {
+    this.isLoading.set(true);
+    this.hasError.set(false);
+    this.textContent.set('');
   }
 
   private async loadTextFile(path: string) {
@@ -111,11 +150,39 @@ export class DocumentViewer extends Base {
     this.selectedFile.set(file);
   }
 
+  handleChangeDocument(delta: number) {
+    const docs = this.availableDocs();
+    const currentIndex = this.currentDocIndex();
+
+    if (currentIndex === -1 || docs.length === 0) return;
+
+    const newIndex = (currentIndex + delta + docs.length) % docs.length;
+    const nextDoc = docs[newIndex];
+
+    this.isUpdatingFromNavigation = true;
+
+    this.selectedFile.set(nextDoc);
+    this.processFile(nextDoc);
+    this.data.set(nextDoc.url);
+
+    setTimeout(() => {
+      this.isUpdatingFromNavigation = false;
+    }, 0);
+  }
+
   openSelectedDocument() {
     const file = this.selectedFile();
     if (file?.url) {
-      this.data.set(file.url);
+      this.processFile(file);
+      this.isViewingDocument.set(true);
     }
+  }
+
+  closeDocumentView() {
+    this.isViewingDocument.set(false);
+    this.data.set(null);
+    this.zoom.set(1.0);
+    this.resetState();
   }
 
   onPdfLoadSuccess() {
@@ -143,5 +210,18 @@ export class DocumentViewer extends Base {
   goToFiles() {
     const filesApp = this.appsService.appsRegistry.files;
     if (filesApp) this.appsService.openApp(filesApp);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (!this.selectedFile() || !this.isViewingDocument()) return;
+
+    if (event.key === 'ArrowLeft' && !this.isFirstDoc()) {
+      event.preventDefault();
+      this.handleChangeDocument(-1);
+    } else if (event.key === 'ArrowRight' && !this.isLastDoc()) {
+      event.preventDefault();
+      this.handleChangeDocument(1);
+    }
   }
 }

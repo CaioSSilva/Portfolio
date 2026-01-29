@@ -2,11 +2,18 @@
   class="relative flex flex-col h-full w-full bg-gnome-bg overflow-hidden select-none"
   [attr.aria-label]="lang.t().apps.documents + ': ' + fileName()"
 >
-  @if (safePath() && !hasError()) {
+  @if (isViewingDocument() && safePath() && !hasError()) {
     <header
       class="h-12 bg-gnome-surface border-b border-gnome-border flex items-center justify-between px-4 shrink-0 z-20 shadow-sm"
     >
       <div class="flex items-center gap-3">
+        <button
+          (click)="closeDocumentView()"
+          class="w-8 h-8 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-bg transition-colors"
+          [title]="lang.t().imageViewer.backButton"
+        >
+          <i class="fas fa-arrow-left text-gnome-text"></i>
+        </button>
         <div
           class="w-8 h-8 rounded-lg flex items-center justify-center bg-gnome-bg border border-gnome-border"
         >
@@ -42,9 +49,31 @@
             </button>
           </div>
         }
+        <div class="flex items-center gap-2">
+          <button
+            (click)="handleChangeDocument(-1)"
+            [disabled]="isFirstDoc()"
+            [class.opacity-50]="isFirstDoc()"
+            [class.cursor-not-allowed]="isFirstDoc()"
+            class="w-8 h-8 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-bg text-gnome-text transition-colors disabled:hover:bg-transparent"
+            [title]="lang.t().imageViewer.previousButton"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button
+            (click)="handleChangeDocument(1)"
+            [disabled]="isLastDoc()"
+            [class.opacity-50]="isLastDoc()"
+            [class.cursor-not-allowed]="isLastDoc()"
+            class="w-8 h-8 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-bg text-gnome-text transition-colors disabled:hover:bg-transparent"
+            [title]="lang.t().imageViewer.nextButton"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
         <button
           (click)="fs.downloadFile(safePath()!, fileName())"
-          class="cursor-pointer cursor-pointer hover:bg-gnome-blue-dark bg-gnome-blue border border-gnome-border rounded-full p-0.5 shadow-sm text-sm px-5 py-1.5 active:scale-95 transition-all text-white flex items-center gap-2"
+          class="cursor-pointer hover:bg-gnome-blue-dark bg-gnome-blue border border-gnome-border rounded-full p-0.5 shadow-sm text-sm px-5 py-1.5 active:scale-95 transition-all text-white flex items-center gap-2"
         >
           <i class="fas fa-download text-[11px]"></i>
           <span class="text-[10px] font-bold uppercase tracking-tighter">{{
@@ -56,7 +85,7 @@
   }
 
   <main class="flex-1 overflow-auto bg-zinc-800/40 custom-scrollbar relative flex flex-col">
-    @if (isLoading() && (safePath() || !availableDocs().length)) {
+    @if (isLoading() && (isViewingDocument() || !availableDocs().length)) {
       <div
         class="absolute inset-0 flex items-center justify-center z-30 bg-gnome-bg/50 backdrop-blur-sm"
       >
@@ -65,7 +94,7 @@
         ></div>
       </div>
     }
-    @if (!safePath()) {
+    @if (!isViewingDocument() && !hasError()) {
       <div class="h-full flex flex-col animate-fade-in bg-gnome-bg">
         <div class="flex-1 overflow-y-auto p-8">
           <header class="mb-8">
@@ -137,14 +166,14 @@
           {{ lang.t().documents.errorDescription }}
         </p>
         <button
-          (click)="goToFiles()"
-          class="mt-4 cursor-pointer text-gnome-blue font-bold text-xs hover:underline"
+          (click)="closeDocumentView()"
+          class="text-gnome-blue cursor-pointer mt-6 text-xs font-bold hover:underline"
         >
-          {{ lang.t().common.openFiles }}
+          {{ lang.t().imageViewer.backToList }}
         </button>
       </div>
     }
-    @if (safePath() && !hasError()) {
+    @if (isViewingDocument() && safePath() && !hasError()) {
       <div class="flex-1 flex flex-col min-h-full p-6">
         @if (fileType() === 'pdf') {
           <pdf-viewer
@@ -162,9 +191,7 @@
           <div class="max-w-4xl mx-auto w-full">
             <pre
               class="bg-gnome-surface/30 border border-gnome-border/50 rounded-xl p-8 text-gnome-text font-mono text-sm leading-relaxed whitespace-pre-wrap select-text"
-            >
-          {{ textContent() }}
-        </pre
+              >{{ textContent() }}</pre
             >
           </div>
         }
