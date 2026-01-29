@@ -1,4 +1,13 @@
-import { Component, signal, HostListener, inject, effect, computed, viewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  signal,
+  HostListener,
+  inject,
+  effect,
+  computed,
+  viewChild,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Base } from '../../core/models/base';
 import { Apps } from '../../core/services/apps';
@@ -21,83 +30,80 @@ export class ImageViewer extends Base {
   readonly selectedFile = signal<FileItem | null>(null);
   readonly isLoading = signal(true);
   readonly hasError = signal(false);
+  readonly isViewingImage = signal(false);
 
   readonly zoom = signal(1);
   readonly rotation = signal(0);
   readonly position = signal({ x: 0, y: 0 });
   readonly isDragging = signal(false);
 
-
   selImage = viewChild<ElementRef<HTMLImageElement>>('selImage');
 
   private startPan = { x: 0, y: 0 };
+  private isUpdatingFromNavigation = false;
 
   safeUrl = computed(() => {
-    const rawData = this.data();
-    const url = rawData?.url || rawData;
-    if (url && typeof url === 'string') {
-      return encodeURI(url).replace(/#/g, '%23');
+    const selectedFile = this.selectedFile();
+    const isViewing = this.isViewingImage();
+
+    if (selectedFile?.url && isViewing) {
+      return encodeURI(selectedFile.url).replace(/#/g, '%23');
     }
     return null;
   });
 
-  isFirstImage = computed(() => {
-    return this.getCurrentImageIndex() === 0;
-  });
-
-  isLastImage = computed(() => {
-    const images = this.availableImages();
-    const currentIndex = this.getCurrentImageIndex();
-    return currentIndex === images.length - 1;
-  });
-
-  private getCurrentImageIndex(): number {
+  private currentImageIndex = computed(() => {
     const images = this.availableImages();
     const currentFile = this.selectedFile();
     if (!currentFile || images.length === 0) return -1;
-    return images.findIndex((img) => img.url === currentFile.url);
-  }
+    return images.findIndex((img) => img.id === currentFile.id);
+  });
+
+  isFirstImage = computed(() => this.currentImageIndex() <= 0);
+
+  isLastImage = computed(() => {
+    const images = this.availableImages();
+    const index = this.currentImageIndex();
+    if (images.length === 0) return true;
+    return index >= images.length - 1;
+  });
 
   constructor() {
     super();
 
     effect(() => {
-      const url = this.safeUrl();
-      const isFsReady = this.fs.isLoaded();
-
-      this.isLoading.set(true);
-      this.hasError.set(false);
-
-      if (!url) {
-        this.ensureGalleryLoaded(isFsReady);
-      } else {
-        this.handleImageOpened(url, isFsReady);
+      this.fs.ensureLoaded();
+      if (this.fs.isLoaded()) {
+        this.loadGallery();
       }
     });
-  }
 
-  private ensureGalleryLoaded(isFsReady: boolean): void {
-    if (isFsReady) {
-      this.loadGallery();
-    } else {
-      this.fs.ensureLoaded();
-    }
-  }
+    effect(() => {
+      if (this.isUpdatingFromNavigation) return;
 
-  private handleImageOpened(url: string, isFsReady: boolean): void {
-    const images = this.availableImages();
-    
-    if (images.length === 0) {
-      this.ensureGalleryLoaded(isFsReady);
-      return;
-    }
-    
-    const matchingImage = images.find((img) => img.url === url);
-    if (matchingImage && matchingImage.id !== this.selectedFile()?.id) {
-      this.selectFile(matchingImage);
-    }
-    
-    this.isLoading.set(false);
+      const rawData = this.data();
+      const images = this.availableImages();
+
+      if (!rawData || images.length === 0) {
+        this.isLoading.set(false);
+        return;
+      }
+
+      const url = rawData?.url || rawData;
+
+      if (url && typeof url === 'string') {
+        const matchingImage = images.find((img) => img.url === url);
+
+        if (matchingImage) {
+          if (matchingImage.id !== this.selectedFile()?.id) {
+            this.selectedFile.set(matchingImage);
+          }
+          this.isViewingImage.set(true);
+        }
+      }
+
+      this.isLoading.set(false);
+    });
   }
 
   private loadGallery() {
@@ -117,27 +123,34 @@ export class ImageViewer extends Base {
 
   handleChangeImage(delta: number) {
     const images = this.availableImages();
-    const currentIndex = this.getCurrentImageIndex();
-    
-    if (currentIndex === -1) return;
+    const currentIndex = this.currentImageIndex();
 
-    let newIndex = currentIndex + delta;
-    if (newIndex < 0) newIndex = images.length - 1;
-    if (newIndex >= images.length) newIndex = 0;
+    if (currentIndex === -1 || images.length === 0) return;
 
+    const newIndex = (currentIndex + delta + images.length) % images.length;
     const nextFile = images[newIndex];
-    this.selectFile(nextFile);
-    
-    if (this.safeUrl()) {
-      this.data.set(nextFile.url);
-    }
+
+    this.isUpdatingFromNavigation = true;
+
+    this.selectedFile.set(nextFile);
+    this.data.set(nextFile.url);
+
+    setTimeout(() => {
+      this.isUpdatingFromNavigation = false;
+    }, 0);
   }
 
   openSelectedImage() {
     const file = this.selectedFile();
     if (file?.url) {
-      this.data.set(file.url);
+      this.isViewingImage.set(true);
     }
+  }
+
+  closeImageView() {
+    this.isViewingImage.set(false);
+    this.data.set(null);
+    this.reset();
   }
 
   goToFiles() {
@@ -156,7 +169,7 @@ export class ImageViewer extends Base {
   private updateZoom(delta: number) {
     this.zoom.update((v) => {
       const next = Math.min(Math.max(v + delta, 0.5), 5);
-      if (next <= 1) this.resetPosition();
+      if (next <= 1) this.position.set({ x: 0, y: 0 });
       return next;
     });
   }
@@ -168,10 +181,6 @@ export class ImageViewer extends Base {
   reset() {
     this.zoom.set(1);
     this.rotation.set(0);
-    this.resetPosition();
-  }
-
-  private resetPosition() {
     this.position.set({ x: 0, y: 0 });
   }
 
@@ -201,16 +210,15 @@ export class ImageViewer extends Base {
 
   @HostListener('wheel', ['$event'])
   onWheel(event: WheelEvent) {
-    if (!this.safeUrl()) return;
+    if (!this.selectedFile() || !this.isViewingImage()) return;
     event.preventDefault();
-    const delta = event.deltaY > 0 ? -0.1 : 0.1;
-    this.updateZoom(delta);
+    this.updateZoom(event.deltaY > 0 ? -0.1 : 0.1);
   }
 
   @HostListener('document:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    if (!this.safeUrl()) return;
-    
+    if (!this.selectedFile() || !this.isViewingImage()) return;
+
     if (event.key === 'ArrowLeft' && !this.isFirstImage()) {
       event.preventDefault();
       this.handleChangeImage(-1);

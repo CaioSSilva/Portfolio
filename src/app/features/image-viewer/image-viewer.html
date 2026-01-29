@@ -1,6 +1,6 @@
 <div class="relative flex flex-col h-full w-full bg-gnome-bg overflow-hidden select-none">
   <main class="flex-1 overflow-auto custom-scrollbar relative flex flex-col">
-    @if (isLoading() && (safeUrl() || !availableImages().length)) {
+    @if (isLoading() && (isViewingImage() || !availableImages().length)) {
       <div
         class="absolute inset-0 flex items-center justify-center z-30 bg-gnome-bg/50 backdrop-blur-sm"
       >
@@ -9,7 +9,7 @@
         ></div>
       </div>
     }
-    @if (!safeUrl() && !hasError()) {
+    @if (!isViewingImage() && !hasError()) {
       <div class="h-full flex flex-col animate-fade-in bg-gnome-bg">
         <div class="flex-1 overflow-y-auto p-8">
           <header class="mb-8">
@@ -73,7 +73,7 @@
         </footer>
       </div>
     }
-    @if (safeUrl() && !hasError()) {
+    @if (isViewingImage() && !hasError()) {
       <div
         class="flex-1 flex items-center justify-center p-4 relative overflow-hidden"
         [class.cursor-grab]="zoom() > 1 && !isDragging()"
@@ -81,7 +81,7 @@
         (mousedown)="onMouseDown($event)"
       >
         <button
-          (click)="data.set(null)"
+          (click)="closeImageView()"
           class="absolute top-6 left-6 z-20 w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
           [title]="lang.t().imageViewer.backButton"
         >
@@ -169,7 +169,7 @@
           {{ lang.t().imageViewer.errorDescription }}
         </p>
         <button
-          (click)="data.set(null)"
+          (click)="closeImageView()"
           class="text-gnome-blue cursor-pointer mt-6 text-xs font-bold hover:underline"
         >
           {{ lang.t().imageViewer.backToList }}
