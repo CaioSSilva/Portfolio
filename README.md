@@ -356,7 +356,7 @@ kill(processId: string): void
 focus(processId: string): void
 minimize(processId: string): void
 toggleMaximize(processId: string): void
-```
+````
 
 ### 2. FileSystem Service
 
