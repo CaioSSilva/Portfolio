@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Base } from '../../core/models/base';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
@@ -15,6 +15,11 @@ export class AboutProject extends Base {
   apps = inject(Apps);
   lang = inject(LanguageService);
   fs = inject(FileSystem);
+
+  resumeName = computed(() => {
+    const lang = this.lang;
+    return lang.currentLang() === 'en' ? 'Resume' : 'Currículo';
+  });
 
   aboutApps() {
     const installed = this.apps.appsRegistry;
@@ -44,5 +49,8 @@ export class AboutProject extends Base {
     this.apps.openApp(app);
   }
 
-  downloadDocs() {}
+  downloadResume() {
+    const path = `${window.document.baseURI}data/root/home/documents/${this.resumeName()}.pdf`;
+    this.fs.downloadFile(path, `Caio Souza Silva - ${this.resumeName()}`);
+  }
 }

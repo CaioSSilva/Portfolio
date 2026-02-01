@@ -74,6 +74,7 @@ export const pt = {
     documentation: 'Documentação',
     docDescription: 'Quer saber como as coisas funcionam por baixo do capô? Leia a documentação!',
     codeDescription: 'Quer analizar o código fonte? Baixe o .zip',
+    resumeDescription: 'Quer saber sobre o criador? Leia aqui!',
     featureList: {
       snaps: {
         tag: 'Workspace',

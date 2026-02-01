@@ -184,7 +184,7 @@ export class TerminalComands {
       'user@caios',
       '----------',
       'OS: Cai_OS Web',
-      'Kernel: 1.0.0',
+      'Kernel: 1.1.0',
       'Shell: Terminal',
       'WM: VWE_UI',
     ];
@@ -193,6 +193,6 @@ export class TerminalComands {
   }
 
   private handleAbout(): CommandResult {
-    return { output: `Cai_OS v1.0.0\nKernel: Web Engine`, action: 'NONE' };
+    return { output: `Cai_OS v1.1.0\nKernel: Web Engine`, action: 'NONE' };
   }
 }
