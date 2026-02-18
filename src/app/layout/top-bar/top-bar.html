@@ -12,15 +12,18 @@
 >
   <div class="flex items-center"></div>
 
-  <div
-    (click)="notfService.togglePanel()"
-    class="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1 rounded-full hover:bg-gnome-text/20 transition-colors cursor-pointer text-[11px] font-bold"
-    [class.bg-gnome-text/10]="notfService.isPanelOpen()"
-  >
-    {{
-      now() | date: 'longDate' : '' : (languageService.currentLang() === 'pt' ? 'pt-BR' : 'en-US')
-    }}
-    <span class="opacity-50 ml-1 font-medium">{{ now() | date: 'HH:mm' }}</span>
+  <div class="flex gap-4">
+    <div
+      (click)="notfService.togglePanel()"
+      class="flex items-center gap-2 px-3 py-1 rounded-full hover:bg-gnome-text/20 transition-colors cursor-pointer text-[11px] font-bold"
+      [class.bg-gnome-text/10]="notfService.isPanelOpen()"
+    >
+      {{
+        now() | date: 'longDate' : '' : (languageService.currentLang() === 'pt' ? 'pt-BR' : 'en-US')
+      }}
+      <span class="opacity-50 ml-1 font-medium">{{ now() | date: 'HH:mm' }}</span>
+    </div>
+    <app-spotify-addon [isNotificationCenterOpen]="notfService.isPanelOpen()"></app-spotify-addon>
   </div>
 
   <div class="flex items-center gap-2">

@@ -7,5 +7,6 @@ export interface Notification {
   appId?: string;
   type?: 'info' | 'success' | 'warning' | 'error';
   timestamp: Date;
+  duration?: number;
   action?: () => void;
 }

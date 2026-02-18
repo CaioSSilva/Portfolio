@@ -6,13 +6,14 @@ import { NotificationCenter } from '../notification-center/notification-center';
 import { NotificationService } from '../../core/services/notification';
 import localePtBr from '@angular/common/locales/pt';
 import { LanguageService } from '../../core/services/language';
+import { SpotifyAddon } from "../../features/spotify-addon/spotify-addon";
 
 registerLocaleData(localePtBr, 'pt-BR');
 
 @Component({
   selector: 'app-top-bar',
   standalone: true,
-  imports: [DatePipe, NotificationCenter],
+  imports: [DatePipe, NotificationCenter, SpotifyAddon],
   templateUrl: './top-bar.html',
   styleUrl: './top-bar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

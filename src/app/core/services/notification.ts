@@ -14,13 +14,13 @@ export class NotificationService {
     this.isPanelOpen.update((open) => !open);
   }
 
-  show(notif: Omit<Notification, 'id' | 'timestamp'>, duration = 6000) {
+  show(notif: Omit<Notification, 'id' | 'timestamp'>) {
     const newNotif = this.createNotification(notif);
 
     this.pushToState(newNotif);
     this.sound.play('bell');
 
-    this.scheduleDismissal(newNotif.id, duration);
+    this.scheduleDismissal(newNotif.id, newNotif.duration || 6000);
   }
 
   private createNotification(notif: Omit<Notification, 'id' | 'timestamp'>): Notification {
@@ -33,7 +33,10 @@ export class NotificationService {
 
   private pushToState(notif: Notification) {
     this.activeNotifications.update((current) => [...current, notif]);
-    this.history.update((current) => [notif, ...current]);
+    setTimeout(() => {
+      this.activeNotifications.update((items) => items.filter((n) => n.id !== notif.id));
+      this.history.update((current) => [notif, ...current]);
+    }, notif.duration || 6000);
   }
 
   private scheduleDismissal(id: string, duration: number) {
