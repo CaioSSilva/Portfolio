@@ -22,9 +22,9 @@
     </div>
 
     <h1 class="text-3xl font-black italic tracking-tight mb-2">@CaioSSilva</h1>
-    <h3 class="text-xs uppercase tracking-[0.3em] text-gnome-blue font-bold mb-6">
+    <h2 class="text-xs uppercase tracking-[0.3em] text-gnome-blue font-bold mb-6">
       {{ lang.t().aboutProj.title }}
-    </h3>
+    </h2>
     <p class="text-gnome-text-secondary text-center max-w-2xl leading-relaxed text-sm mb-8">
       {{ lang.t().aboutProj.intro }}
     </p>
@@ -40,10 +40,46 @@
     </div>
   </div>
 
+  <h2 class="font-bold text-3xl text-center pt-12 tracking-tight">
+    {{ lang.t().aboutProj.applications }}
+  </h2>
+
+  <p class="font-bold text-xl text-center pb-12 pt-1 tracking-tight">Portfolio</p>
+
+  <div
+    class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in slide-in-from-bottom-4 duration-700 delay-300 pb-10"
+  >
+    @for (app of aboutApps(); track app.config.id) {
+      <div
+        (click)="handleOpenApp(app.config)"
+        class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+      >
+        <div
+          [style.background-color]="app.config.color"
+          class="w-12 h-12 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+        >
+          <i [class]="app.config.icon + ' text-xl'"></i>
+        </div>
+        <div class="text-left">
+          <h4 class="font-bold text-sm text-gnome-text">
+            {{ app.info.name }}
+          </h4>
+          <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
+            {{ app.info.desc }}
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <h2 class="font-bold text-xl text-center pt-6 tracking-tight">
+    {{ lang.t().aboutProj.aboutSO }}
+  </h2>
+
   <div class="w-full max-w-6xl mx-auto py-8">
-    <h1 class="font-bold text-3xl text-center pb-12 tracking-tight">
+    <h3 class="font-bold text-lg text-center pb-12 tracking-tight">
       {{ lang.t().aboutProj.downloads }}
-    </h1>
+    </h3>
     <div class="flex gap-10 justify-evenly">
       <div class="flex flex-col justify-center items-center gap-8.5">
         <p class="text-gnome-text-secondary text-center max-w-2xl leading-relaxed text-sm">
@@ -118,9 +154,9 @@
   </div>
 
   <div class="w-full max-w-6xl mx-auto py-8">
-    <h1 class="font-bold text-3xl text-center pb-12 tracking-tight">
+    <h3 class="font-bold text-lg text-center pb-12 tracking-tight">
       {{ lang.t().aboutProj.features }}
-    </h1>
+    </h3>
 
     <div class="flex flex-col gap-20">
       <section
@@ -139,10 +175,10 @@
           >
             {{ lang.t().aboutProj.featureList.snaps.tag }}
           </div>
-          <h3 class="text-2xl font-bold text-gnome-text">
+          <h4 class="text-base font-bold text-gnome-text">
             {{ lang.t().aboutProj.featureList.snaps.title }}
-          </h3>
-          <p class="text-gnome-text-secondary leading-relaxed">
+          </h4>
+          <p class="text-gnome-text-secondary leading-relaxed text-sm">
             {{ lang.t().aboutProj.featureList.snaps.description }}
           </p>
         </div>
@@ -164,10 +200,10 @@
           >
             {{ lang.t().aboutProj.featureList.appSwitcher.tag }}
           </div>
-          <h3 class="text-2xl font-bold text-gnome-text">
+          <h4 class="text-base font-bold text-gnome-text">
             {{ lang.t().aboutProj.featureList.appSwitcher.title }}
-          </h3>
-          <p class="text-gnome-text-secondary leading-relaxed">
+          </h4>
+          <p class="text-gnome-text-secondary leading-relaxed text-sm">
             {{ lang.t().aboutProj.featureList.appSwitcher.desc_part1 }}
 
             <kbd class="text-sm font-mono text-gnome-blue"> Ctrl + Q </kbd>
@@ -193,10 +229,10 @@
           >
             {{ lang.t().aboutProj.featureList.notifications.tag }}
           </div>
-          <h3 class="text-2xl font-bold text-gnome-text">
+          <h4 class="text-base font-bold text-gnome-text">
             {{ lang.t().aboutProj.featureList.notifications.title }}
-          </h3>
-          <p class="text-gnome-text-secondary leading-relaxed">
+          </h4>
+          <p class="text-gnome-text-secondary leading-relaxed text-sm">
             {{ lang.t().aboutProj.featureList.notifications.description }}
           </p>
         </div>
@@ -218,11 +254,11 @@
           >
             {{ lang.t().aboutProj.featureList.contextMenu.tag }}
           </div>
-          <h3 class="text-2xl font-bold text-gnome-text">
+          <h4 class="text-base font-bold text-gnome-text">
             {{ lang.t().aboutProj.featureList.contextMenu.title }}
-          </h3>
+          </h4>
 
-          <p class="text-gnome-text-secondary leading-relaxed">
+          <p class="text-gnome-text-secondary leading-relaxed text-sm">
             {{ lang.t().aboutProj.featureList.contextMenu.description }}
           </p>
         </div>
@@ -244,10 +280,10 @@
           >
             Interface
           </div>
-          <h3 class="text-2xl font-bold text-gnome-text">
+          <h4 class="text-base font-bold text-gnome-text">
             {{ lang.t().aboutProj.featureList.dockDrag.title }}
-          </h3>
-          <p class="text-gnome-text-secondary leading-relaxed">
+          </h4>
+          <p class="text-gnome-text-secondary leading-relaxed text-sm">
             {{ lang.t().aboutProj.featureList.dockDrag.description }}
           </p>
         </div>
@@ -269,46 +305,16 @@
           >
             {{ lang.t().aboutProj.featureList.desktopIcons.tag }}
           </div>
-          <h3 class="text-2xl font-bold text-gnome-text">
+          <h4 class="text-base font-bold text-gnome-text">
             {{ lang.t().aboutProj.featureList.desktopIcons.title }}
-          </h3>
+          </h4>
 
-          <p class="text-gnome-text-secondary leading-relaxed">
+          <p class="text-gnome-text-secondary leading-relaxed text-sm">
             {{ lang.t().aboutProj.featureList.desktopIcons.description }}
           </p>
         </div>
       </section>
     </div>
-  </div>
-
-  <h1 class="font-bold text-3xl text-center pb-12 tracking-tight">
-    {{ lang.t().aboutProj.applications }}
-  </h1>
-
-  <div
-    class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 animate-in slide-in-from-bottom-4 duration-700 delay-300 pb-10"
-  >
-    @for (app of aboutApps(); track app.config.id) {
-      <div
-        (click)="handleOpenApp(app.config)"
-        class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
-      >
-        <div
-          [style.background-color]="app.config.color"
-          class="w-12 h-12 text-white rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
-        >
-          <i [class]="app.config.icon + ' text-xl'"></i>
-        </div>
-        <div class="text-left">
-          <h4 class="font-bold text-sm text-gnome-text">
-            {{ app.info.name }}
-          </h4>
-          <p class="text-[11px] text-gnome-text-secondary leading-snug font-medium opacity-80">
-            {{ app.info.desc }}
-          </p>
-        </div>
-      </div>
-    }
   </div>
 
   <div
