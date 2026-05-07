@@ -8,12 +8,19 @@ const envFile = `export const environment = {
     geminiApiKey: '${process.env.geminiApiKey}',
 };
 `;
-const targetPath = path.join(__dirname, './src/environments/environment.development.ts');
-fs.writeFile(targetPath, envFile, (err) => {
-    if (err) {
-        console.error(err);
-        throw err;
-    } else {
-        console.log(successColor, `${checkSign} Successfully generated environment.development.ts`);
-    }
+const targets = [
+    path.join(__dirname, './src/environments/environment.ts'),
+    path.join(__dirname, './src/environments/environment.development.ts'),
+];
+
+targets.forEach((targetPath) => {
+    fs.writeFile(targetPath, envFile, (err) => {
+        if (err) {
+            console.error(err);
+            throw err;
+        } else {
+            const fileName = path.basename(targetPath);
+            console.log(successColor, `${checkSign} Successfully generated ${fileName}`);
+        }
+    });
 });
