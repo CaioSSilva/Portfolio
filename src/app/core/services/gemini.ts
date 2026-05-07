@@ -2,63 +2,39 @@ import { inject, Injectable } from '@angular/core';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { environment } from '../../../environments/environment';
 import { LanguageService } from './language';
+import { HERMES_DOCS } from './hermes-docs';
 
 @Injectable({ providedIn: 'root' })
 export class Gemini {
   private langService = inject(LanguageService);
-  private currentKeyIndex = 0;
 
   async generateResponse(
     prompt: string,
     history: string,
     fileData?: { mimeType: string; b64: string },
   ): Promise<string> {
-    const totalKeys = environment.geminiApiKeys.length;
+    const genAI = new GoogleGenerativeAI(environment.geminiApiKey);
+    const currentLang = this.langService.currentLang();
+    const docs = HERMES_DOCS[currentLang] ?? HERMES_DOCS['en'];
 
-    for (let i = 0; i < totalKeys; i++) {
-      const apiKey = environment.geminiApiKeys[this.currentKeyIndex];
+    const systemInstruction =
+      currentLang === 'pt'
+        ? `Você é Hermes, um assistente integrado ao CaiOS. Responda sempre em Português Brasileiro.\n\nDocumentação do sistema:\n${docs}\n\n${history}`
+        : `You are Hermes, an assistant integrated into CaiOS. Always respond in English.\n\nSystem documentation:\n${docs}\n\n${history}`;
 
-      try {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const currentLang = this.langService.currentLang();
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-3.1-flash-lite',
+      systemInstruction: systemInstruction,
+    });
 
-        const systemInstruction =
-          currentLang === 'pt'
-            ? `Você é Hermes, um assistente integrado ao CaiOS. Responda sempre em Português Brasileiro.${history}`
-            : `You are Hermes, an assistant integrated into CaiOS. Always respond in English.${history}`;
-
-        const model = genAI.getGenerativeModel({
-          model: 'gemini-2.5-flash',
-          systemInstruction: systemInstruction,
-        });
-
-        const parts: any[] = [prompt];
-        if (fileData) {
-          parts.push({
-            inlineData: { data: fileData.b64, mimeType: fileData.mimeType },
-          });
-        }
-
-        const result = await model.generateContent(parts);
-        return result.response.text();
-      } catch (error: any) {
-        const isRateLimit =
-          error?.status === 429 ||
-          error?.message?.includes('429') ||
-          error?.message?.includes('quota');
-
-        if (isRateLimit && i < totalKeys - 1) {
-          console.warn(`Quota excedida na chave ${this.currentKeyIndex}. Tentando próxima...`);
-          this.rotateKey();
-          continue;
-        }
-        throw error;
-      }
+    const parts: any[] = [prompt];
+    if (fileData) {
+      parts.push({
+        inlineData: { data: fileData.b64, mimeType: fileData.mimeType },
+      });
     }
-    throw new Error();
-  }
 
-  private rotateKey() {
-    this.currentKeyIndex = (this.currentKeyIndex + 1) % environment.geminiApiKeys.length;
+    const result = await model.generateContent(parts);
+    return result.response.text();
   }
 }
