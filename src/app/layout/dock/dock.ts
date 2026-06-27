@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DockService } from '../../core/services/dock';
 import { CommonModule } from '@angular/common';
 import { Apps } from '../../core/services/apps';
@@ -13,6 +13,7 @@ import { ContextMenu } from '../../shared/ui/context-menu/context-menu';
   standalone: true,
   imports: [CommonModule, ContextMenu],
   templateUrl: './dock.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dock.scss',
 })
 export class Dock implements OnInit {

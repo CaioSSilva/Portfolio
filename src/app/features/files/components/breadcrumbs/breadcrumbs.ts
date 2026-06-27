@@ -1,9 +1,10 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-files-breadcrumbs',
   imports: [],
   templateUrl: './breadcrumbs.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './breadcrumbs.scss',
 })
 export class FilesBreadcrumbs {

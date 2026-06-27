@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, effect, HostListener } from '@angular/core';
+import { Component, signal, computed, inject, effect, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Base } from '../../core/models/base';
@@ -12,6 +12,7 @@ import { FileItem, DOC_EXTENSIONS } from '../../core/models/file';
   standalone: true,
   imports: [PdfViewerModule, CommonModule],
   templateUrl: './document-viewer.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './document-viewer.scss',
 })
 export class DocumentViewer extends Base {

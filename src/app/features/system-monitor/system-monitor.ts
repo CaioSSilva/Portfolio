@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, DestroyRef } from '@angular/core';
+import { Component, computed, inject, signal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { Base } from '../../core/models/base';
 import { LanguageService } from '../../core/services/language';
 import { ProcessManager } from '../../core/services/process-manager';
@@ -8,6 +8,7 @@ import { ProcessManager } from '../../core/services/process-manager';
   standalone: true,
   imports: [],
   templateUrl: './system-monitor.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './system-monitor.scss',
 })
 export class SystemMonitor extends Base {

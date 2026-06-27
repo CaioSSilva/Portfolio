@@ -7,6 +7,7 @@ import {
   computed,
   viewChild,
   ElementRef,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Base } from '../../core/models/base';
@@ -19,6 +20,7 @@ import { FileItem, IMAGE_EXTENSIONS } from '../../core/models/file';
   selector: 'app-image-viewer',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './image-viewer.html',
 })
 export class ImageViewer extends Base {

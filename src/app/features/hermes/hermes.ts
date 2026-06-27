@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, viewChild, ElementRef, effect } from '@angular/core';
+import { Component, inject, signal, computed, viewChild, ElementRef, effect, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Gemini } from '../../core/services/gemini';
@@ -13,6 +13,7 @@ import { MarkdownPipe } from '../../core/pipes/markdown-pipe';
   standalone: true,
   imports: [FormsModule, CommonModule, MarkdownPipe],
   templateUrl: './hermes.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './hermes.scss',
 })
 export class Hermes extends Base {

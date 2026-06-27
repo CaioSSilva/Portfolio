@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
 import { ContextMenu } from '../../shared/ui/context-menu/context-menu';
@@ -7,6 +7,7 @@ import { ContextMenuService } from '../../core/services/context-menu';
   selector: 'app-apps-grid',
   imports: [ContextMenu],
   templateUrl: './apps-grid.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './apps-grid.scss',
 })
 export class AppsGrid {

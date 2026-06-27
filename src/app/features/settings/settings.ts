@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Theme } from '../../core/services/theme';
 import { SettingSection } from '../../core/models/setting';
 import { Settings } from '../../core/services/settings';
@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './settings.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './settings.scss',
 })
 export class SettingsComponent extends Base {

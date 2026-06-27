@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import { Component, OnDestroy, inject, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Base } from '../../core/models/base';
 import { AUDIO_EXTENSIONS, FileItem } from '../../core/models/file';
@@ -12,6 +12,7 @@ import { AudioPlayer } from './player/audio-player';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './musics.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './musics.scss',
 })
 export class Musics extends Base implements OnDestroy {

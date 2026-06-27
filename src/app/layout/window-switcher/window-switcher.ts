@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, signal, computed } from '@angular/core';
+import { Component, HostListener, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProcessManager } from '../../core/services/process-manager';
 
@@ -7,6 +7,7 @@ import { ProcessManager } from '../../core/services/process-manager';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './window-switcher.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './window-switcher.scss',
 })
 export class WindowSwitcher {

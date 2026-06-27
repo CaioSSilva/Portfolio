@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { FileItem, IMAGE_EXTENSIONS } from '../../../../core/models/file';
 import { LanguageService } from '../../../../core/services/language';
 
@@ -6,6 +6,7 @@ import { LanguageService } from '../../../../core/services/language';
   selector: 'app-files-grid',
   imports: [],
   templateUrl: './grid.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './grid.scss',
 })
 export class FilesGrid {

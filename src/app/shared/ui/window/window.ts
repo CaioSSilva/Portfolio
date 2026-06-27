@@ -6,6 +6,7 @@ import {
   afterNextRender,
   viewChild,
   HostListener,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Process } from '../../../core/models/process';
@@ -18,6 +19,7 @@ import { LanguageService } from '../../../core/services/language';
   imports: [CommonModule],
   providers: [WindowService],
   templateUrl: './window.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './window.scss',
 })
 export class Window {

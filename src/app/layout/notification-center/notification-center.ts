@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { NotificationService } from '../../core/services/notification';
 import { DatePipe, registerLocaleData } from '@angular/common';
 import localePtBr from '@angular/common/locales/pt';
@@ -10,6 +10,7 @@ registerLocaleData(localePtBr, 'pt-BR');
   selector: 'app-notification-center',
   imports: [DatePipe],
   templateUrl: './notification-center.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './notification-center.scss',
 })
 export class NotificationCenter {

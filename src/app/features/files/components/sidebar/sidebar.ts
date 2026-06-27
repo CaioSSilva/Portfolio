@@ -1,4 +1,4 @@
-import { Component, input, output, inject } from '@angular/core';
+import { Component, input, output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FileItem } from '../../../../core/models/file';
 import { NgTemplateOutlet } from '@angular/common';
 import { LanguageService } from '../../../../core/services/language';
@@ -7,6 +7,7 @@ import { LanguageService } from '../../../../core/services/language';
   selector: 'app-files-sidebar',
   imports: [NgTemplateOutlet],
   templateUrl: './sidebar.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './sidebar.scss',
 })
 export class FilesSidebar {

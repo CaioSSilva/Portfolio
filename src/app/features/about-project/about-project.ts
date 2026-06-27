@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Base } from '../../core/models/base';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
@@ -9,6 +9,7 @@ import { FileSystem } from '../../core/services/file-system';
   standalone: true,
   imports: [],
   templateUrl: './about-project.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './about-project.scss',
 })
 export class AboutProject extends Base {

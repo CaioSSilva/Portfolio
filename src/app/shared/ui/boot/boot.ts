@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, output, signal } from '@angular/core';
+import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Sound } from '../../../core/services/sound';
 import { LanguageService } from '../../../core/services/language';
 
 @Component({
   selector: 'app-boot',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './boot.html',
 })
 export class Boot implements OnInit {

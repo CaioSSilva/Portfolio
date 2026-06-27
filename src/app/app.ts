@@ -7,6 +7,7 @@ import {
   computed,
   viewChild,
   ElementRef,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { NotificationService } from './core/services/notification';
 import { ProcessManager } from './core/services/process-manager';
@@ -27,6 +28,7 @@ import { DesktopIcons } from './features/desktop-icons/desktop-icons';
   selector: 'app-root',
   standalone: true,
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [AppsGrid, Dock, WindowSwitcher, Window, TopBar, Boot, Shutdown, DesktopIcons],
 })
 export class App {

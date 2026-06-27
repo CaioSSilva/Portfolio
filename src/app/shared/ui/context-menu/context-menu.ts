@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { DockService } from '../../../core/services/dock';
 import { Apps } from '../../../core/services/apps';
 import { LanguageService } from '../../../core/services/language';
@@ -10,6 +10,7 @@ import { DesktopIconsService } from '../../../core/services/desktop-icons';
   selector: 'app-context-menu',
   imports: [],
   templateUrl: './context-menu.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './context-menu.scss',
 })
 export class ContextMenu {

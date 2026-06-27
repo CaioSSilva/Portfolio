@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild, ElementRef, computed } from '@angular/core';
+import { Component, inject, signal, viewChild, ElementRef, computed, ChangeDetectionStrategy } from '@angular/core';
 import { LanguageService } from '../../core/services/language';
 import { TerminalComands } from '../../core/services/terminal-comands';
 import { Base } from '../../core/models/base';
@@ -8,6 +8,7 @@ import { FileSystem } from '../../core/services/file-system';
 @Component({
   selector: 'app-terminal',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './terminal.html',
 })
 export class Terminal extends Base {

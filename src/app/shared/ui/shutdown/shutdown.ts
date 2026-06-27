@@ -1,10 +1,11 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, output, ChangeDetectionStrategy } from '@angular/core';
 import { LanguageService } from '../../../core/services/language';
 import { App } from '../../../app';
 
 @Component({
   selector: 'app-shutdown',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './shutdown.html',
 })
 export class Shutdown {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, linkedSignal, computed, HostListener } from '@angular/core';
+import { Component, inject, signal, linkedSignal, computed, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Base } from '../../core/models/base';
 import { FileItem } from '../../core/models/file';
@@ -15,6 +15,7 @@ import { ProcessManager } from '../../core/services/process-manager';
   selector: 'app-files',
   standalone: true,
   imports: [CommonModule, FormsModule, FilesSidebar, FilesBreadcrumbs, FilesGrid, FilesList],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './files.html',
 })
 export class Files extends Base {
