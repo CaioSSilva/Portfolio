@@ -6,12 +6,12 @@ import { HERMES_DOCS } from './hermes-docs';
 
 @Injectable({ providedIn: 'root' })
 export class Gemini {
-  private langService = inject(LanguageService);
+  private readonly langService = inject(LanguageService);
 
-  async generateResponse(
+  public async generateResponse(
     prompt: string,
     history: string,
-    fileData?: { mimeType: string; b64: string },
+    fileData?: { mimeType: string; b64: string }
   ): Promise<string> {
     const genAI = new GoogleGenerativeAI(environment.geminiApiKey);
     const currentLang = this.langService.currentLang();

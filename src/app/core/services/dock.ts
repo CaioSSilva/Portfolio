@@ -12,10 +12,10 @@ export class DockService {
   private readonly appLauncher = inject(AppLauncher);
   private readonly contextMenu = inject(ContextMenuService);
 
-  readonly pinnedAppIds = signal<string[]>(['firefox', 'files', 'terminal']);
-  readonly forceShow = signal(false);
+  public readonly pinnedAppIds = signal<string[]>(['firefox', 'files', 'terminal']);
+  public readonly forceShow = signal<boolean>(false);
 
-  readonly dockItems = computed(() => {
+  public readonly dockItems = computed(() => {
     const apps = this.appRegistry.registry();
     const processes = this.processManager.processes();
     const activeId = this.processManager.activeProcessId();
@@ -26,10 +26,11 @@ export class DockService {
     return Array.from(itemsMap.values());
   });
 
-  private initializePinnedItems(apps: any): Map<string, DockItem> {
+  private initializePinnedItems(apps: Record<string, AppDefinition | undefined>): Map<string, DockItem> {
     const map = new Map<string, DockItem>();
     this.pinnedAppIds().forEach((id) => {
-      if (apps[id]) map.set(id, this.createDockItem(apps[id], true));
+      const app = apps[id];
+      if (app) map.set(id, this.createDockItem(app, true));
     });
     return map;
   }
@@ -37,13 +38,13 @@ export class DockService {
   private mergeProcessesIntoItems(
     map: Map<string, DockItem>,
     processes: any[],
-    activeId: string | null,
-  ) {
+    activeId: string | null
+  ): void {
     processes.forEach((p) => {
       const appDef = this.appRegistry.getAppById(p.appId);
       if (!appDef) return;
 
-      let item = map.get(p.appId) || this.createDockItem(appDef, false);
+      const item = map.get(p.appId) || this.createDockItem(appDef, false);
 
       item.isOpen = true;
       item.count++;
@@ -54,7 +55,7 @@ export class DockService {
     });
   }
 
-  handleAppClick(item: DockItem, event?: MouseEvent) {
+  public handleAppClick(item: DockItem, event?: MouseEvent): void {
     if (!item.isOpen) {
       this.appLauncher.launch(item);
       return;
@@ -72,7 +73,7 @@ export class DockService {
     }
   }
 
-  private focusOrMinimize(process: any, item: DockItem) {
+  private focusOrMinimize(process: any, item: DockItem): void {
     const isCurrentlyActive = process.id === this.processManager.activeProcessId();
     if (isCurrentlyActive && item.count === 1) {
       this.processManager.toggleMinimize(process.id);
@@ -81,12 +82,12 @@ export class DockService {
     }
   }
 
-  private restoreProcess(process: any, source: any) {
+  private restoreProcess(process: any, source: { x: number; y: number }): void {
     if (process.data) process.data.source = source;
     this.processManager.toggleMinimize(process.id);
   }
 
-  pinApp(id: string, index?: number) {
+  public pinApp(id: string, index?: number): void {
     this.pinnedAppIds.update((ids) => {
       const filtered = ids.filter((appId) => appId !== id);
       if (index === undefined) return [...filtered, id];
@@ -97,11 +98,11 @@ export class DockService {
     });
   }
 
-  unpinApp(id: string) {
+  public unpinApp(id: string): void {
     this.pinnedAppIds.update((ids) => ids.filter((i) => i !== id));
   }
 
-  private calculateClickSource(event?: MouseEvent) {
+  private calculateClickSource(event?: MouseEvent): { x: number; y: number } {
     const target = (event?.target as HTMLElement)?.closest('button');
     if (!target) return { x: window.innerWidth / 2, y: window.innerHeight };
 
@@ -117,12 +118,12 @@ export class DockService {
     return this.processManager.processes().find((p) => p.id === pid);
   }
 
-  closeActiveApp() {
+  public closeActiveApp(): void {
     const id = this.contextMenu.activeAppId();
     if (id) this.processManager.closeAllInstancesById(id);
   }
 
-  openActiveApp() {
+  public openActiveApp(): void {
     const appId = this.contextMenu.activeAppId();
     if (!appId) return;
 
@@ -130,7 +131,7 @@ export class DockService {
     if (app) this.appLauncher.launch(app);
   }
 
-  unPinActiveApp() {
+  public unPinActiveApp(): void {
     const appId = this.contextMenu.activeAppId();
     const canUnpin = this.pinnedAppIds().length > 1;
 
@@ -140,7 +141,7 @@ export class DockService {
     }
   }
 
-  hasPinnedAppWithId(id: string) {
-    return this.pinnedAppIds().find((i) => i === id);
+  public hasPinnedAppWithId(id: string): boolean {
+    return this.pinnedAppIds().includes(id);
   }
 }

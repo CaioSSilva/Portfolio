@@ -14,24 +14,23 @@ export class ProcessManager {
   private readonly nots = inject(NotificationService);
   private readonly appRegistry = inject(AppRegistry);
 
-  readonly processes = signal<Process[]>([]);
-
-  private readonly topOverlapCounter = signal(0);
-  private readonly bottomOverlapCounter = signal(0);
+  public readonly processes = signal<Process[]>([]);
+  private readonly topOverlapCounter = signal<number>(0);
+  private readonly bottomOverlapCounter = signal<number>(0);
   private globalZIndex = 100;
 
-  readonly isTopBarHidden = computed(() => this.topOverlapCounter() > 0);
-  readonly isDockHidden = computed(() => this.bottomOverlapCounter() > 0);
-  readonly hasActiveProcesses = computed(() => this.processes().length > 0);
+  public readonly isTopBarHidden = computed(() => this.topOverlapCounter() > 0);
+  public readonly isDockHidden = computed(() => this.bottomOverlapCounter() > 0);
+  public readonly hasActiveProcesses = computed(() => this.processes().length > 0);
 
-  readonly activeProcessId = computed(() => {
+  public readonly activeProcessId = computed(() => {
     const visible = this.processes()
       .filter((p) => !p.isMinimized)
       .sort((a, b) => b.zIndex - a.zIndex);
     return visible[0]?.id || null;
   });
 
-  open(app: AppBase, data?: any) {
+  public open(app: AppBase, data?: unknown): void {
     const id = crypto.randomUUID();
     const newProcess: Process = {
       ...app,
@@ -46,7 +45,7 @@ export class ProcessManager {
     this.processes.update((current) => [...current, newProcess]);
   }
 
-  openFile(node: FileItem) {
+  public openFile(node: FileItem): void {
     if (!node.url) return;
 
     const handler = this.findHandlerForFile(node.name);
@@ -64,7 +63,7 @@ export class ProcessManager {
     return this.appRegistry.findHandlerForExtension(extension);
   }
 
-  private handleAudioSingleton(fileName: string, musicAppId: string) {
+  private handleAudioSingleton(fileName: string, musicAppId: string): void {
     const isAudio = AUDIO_EXTENSIONS.some((ext) => fileName.includes(ext));
     if (!isAudio) return;
 
@@ -72,15 +71,15 @@ export class ProcessManager {
     if (existing) this.close(existing.id);
   }
 
-  close(processId: string) {
+  public close(processId: string): void {
     this.processes.update((current) => current.filter((p) => p.id !== processId));
   }
 
-  closeAllInstancesById(appId: string) {
+  public closeAllInstancesById(appId: string): void {
     this.processes.update((current) => current.filter((p) => p.appId !== appId));
   }
 
-  focus(processId: string) {
+  public focus(processId: string): void {
     this.processes.update((current) => {
       const p = current.find((item) => item.id === processId);
       if (p && p.zIndex === this.globalZIndex && !p.isMinimized) return current;
@@ -88,12 +87,12 @@ export class ProcessManager {
       return current.map((item) =>
         item.id === processId
           ? { ...item, zIndex: this.getNextZIndex(), isMinimized: false }
-          : item,
+          : item
       );
     });
   }
 
-  toggleMinimize(processId: string) {
+  public toggleMinimize(processId: string): void {
     this.processes.update((current) =>
       current.map((p) => {
         if (p.id !== processId) return p;
@@ -103,15 +102,15 @@ export class ProcessManager {
           isMinimized: willMinimize,
           zIndex: willMinimize ? p.zIndex : this.getNextZIndex(),
         };
-      }),
+      })
     );
   }
 
-  updateTopOverlap(isOverlapping: boolean) {
+  public updateTopOverlap(isOverlapping: boolean): void {
     this.topOverlapCounter.update((v) => (isOverlapping ? v + 1 : Math.max(0, v - 1)));
   }
 
-  updateBottomOverlap(isOverlapping: boolean) {
+  public updateBottomOverlap(isOverlapping: boolean): void {
     this.bottomOverlapCounter.update((v) => (isOverlapping ? v + 1 : Math.max(0, v - 1)));
   }
 
@@ -119,7 +118,7 @@ export class ProcessManager {
     return ++this.globalZIndex;
   }
 
-  private showNoHandlerError() {
+  private showNoHandlerError(): void {
     this.nots.show({
       title: this.lang.t().errors.systemError,
       message: this.lang.t().errors.noFileHandler,
@@ -127,7 +126,7 @@ export class ProcessManager {
     });
   }
 
-  hasActiveProcessesById = (appId: string): boolean => {
+  public hasActiveProcessesById(appId: string): boolean {
     return this.processes().some((p) => p.appId === appId);
-  };
+  }
 }

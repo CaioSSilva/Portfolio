@@ -9,7 +9,7 @@ const MIN_W = 320;
 const MIN_H = 240;
 const SNAP_EDGE = 32;
 
-interface Rect {
+export interface Rect {
   x: number;
   y: number;
   w: number;
@@ -26,12 +26,12 @@ export class WindowService {
   private windowEl!: HTMLElement;
   private process!: Process;
 
-  readonly isMaximized = signal(false);
-  readonly isSnapped = signal(false);
-  readonly isDragging = signal(false);
-  readonly isResizing = signal(false);
-  readonly isVisible = signal(false);
-  readonly snapGhost = signal<Rect | null>(null);
+  public readonly isMaximized = signal<boolean>(false);
+  public readonly isSnapped = signal<boolean>(false);
+  public readonly isDragging = signal<boolean>(false);
+  public readonly isResizing = signal<boolean>(false);
+  public readonly isVisible = signal<boolean>(false);
+  public readonly snapGhost = signal<Rect | null>(null);
 
   private rect: Rect = { x: 0, y: 0, w: 1000, h: 700 };
   private normalRect: Rect = { x: 0, y: 0, w: 1000, h: 700 };
@@ -41,7 +41,7 @@ export class WindowService {
   private lastSnapGhost: string | null = null;
   private bottomOverlap = false;
 
-  init(element: HTMLElement, process: Process): void {
+  public init(element: HTMLElement, process: Process): void {
     this.windowEl = element;
     this.process = process;
     this.centerWindow();
@@ -50,7 +50,7 @@ export class WindowService {
     requestAnimationFrame(() => this.isVisible.set(true));
   }
 
-  startDrag(event: MouseEvent): void {
+  public startDrag(event: MouseEvent): void {
     if (event.button !== 0 || this.isResizing()) return;
 
     this.processManager.focus(this.process.id);
@@ -102,7 +102,7 @@ export class WindowService {
     }
   }
 
-  startResize(event: MouseEvent): void {
+  public startResize(event: MouseEvent): void {
     if (this.isMaximized() || event.button !== 0) return;
 
     event.preventDefault();
@@ -143,7 +143,7 @@ export class WindowService {
     });
   }
 
-  toggleMaximize(): void {
+  public toggleMaximize(): void {
     if (this.isMaximized()) {
       this.rect = { ...this.normalRect };
 
@@ -165,7 +165,7 @@ export class WindowService {
     this.checkBottomOverlap();
   }
 
-  close(): void {
+  public close(): void {
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
@@ -174,12 +174,12 @@ export class WindowService {
     this.processManager.close(this.process.id);
   }
 
-  minimize(): void {
+  public minimize(): void {
     this.processManager.updateBottomOverlap(false);
     this.processManager.toggleMinimize(this.process.id);
   }
 
-  focus(): void {
+  public focus(): void {
     this.processManager.focus(this.process.id);
   }
 

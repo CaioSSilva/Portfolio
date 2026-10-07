@@ -2,25 +2,24 @@ import { Injectable, signal, effect } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class Theme {
-  readonly isDarkMode = signal<boolean>(this.getInitialTheme());
+  public readonly isDarkMode = signal<boolean>(this.getInitialTheme());
 
   constructor() {
     effect(() => {
       this.applyTheme(this.isDarkMode());
     });
-
     this.listenToSystemChanges();
   }
 
-  toggle() {
+  public toggle(): void {
     this.isDarkMode.update((dark) => !dark);
   }
 
-  setDark(value: boolean) {
+  public setDark(value: boolean): void {
     this.isDarkMode.set(value);
   }
 
-  private applyTheme(isDark: boolean) {
+  private applyTheme(isDark: boolean): void {
     document.documentElement.classList.toggle('dark', isDark);
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
   }
@@ -30,7 +29,7 @@ export class Theme {
     return saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
-  private listenToSystemChanges() {
+  private listenToSystemChanges(): void {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
       if (!localStorage.getItem('theme')) {
         this.isDarkMode.set(event.matches);

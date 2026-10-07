@@ -8,12 +8,12 @@ export class AppLauncher {
   private readonly processManager = inject(ProcessManager);
   private readonly contextMenu = inject(ContextMenuService);
 
-  launch(app: AppDefinition, data?: any) {
+  public launch(app: AppDefinition, data?: unknown): void {
     this.contextMenu.close();
     this.processManager.open(app, data);
   }
 
-  launchAndCloseContext(app: AppDefinition) {
+  public launchAndCloseContext(app: AppDefinition): void {
     this.launch(app, app.data);
   }
 }
