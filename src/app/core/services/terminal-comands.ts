@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { LanguageService } from './language';
 import { Theme } from './theme';
 import { FileSystem } from './file-system';
+import { FileItem } from '../models/file';
 import { CommandHandler, CommandResult } from '../models/terminal';
 import { ProcessManager } from './process-manager';
 
@@ -72,7 +73,7 @@ export class TerminalComands {
     const tree = this.fs.tree();
     if (!tree) return 'root';
 
-    const findParentRecursive = (node: any, target: string): string | null => {
+    const findParentRecursive = (node: FileItem, target: string): string | null => {
       for (const child of node.children || []) {
         if (child.id === target) return node.id;
         const found = findParentRecursive(child, target);

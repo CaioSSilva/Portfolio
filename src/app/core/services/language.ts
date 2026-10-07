@@ -7,16 +7,31 @@ export class LanguageService {
   readonly t = computed(() => TRANSLATIONS[this.currentLang()]);
 
   private getInitialLanguage(): Language {
-    const saved = localStorage.getItem('lang') as Language;
-    if (saved) return saved;
+    try {
+      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('lang') : null;
+      if (saved === 'pt' || saved === 'en') return saved;
 
-    const browserLang = navigator.language.split('-')[0];
-    return browserLang === 'pt' || browserLang === 'en' ? (browserLang as Language) : 'pt';
+      if (typeof navigator !== 'undefined' && navigator.language) {
+        const browserLang = navigator.language.split('-')[0];
+        if (browserLang === 'pt' || browserLang === 'en') {
+          return browserLang;
+        }
+      }
+    } catch (error) {
+      console.warn('[LanguageService] Error getting initial language:', error);
+    }
+    return 'pt';
   }
 
   setLanguage(lang: Language) {
     this.currentLang.set(lang);
-    localStorage.setItem('lang', lang);
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('lang', lang);
+      }
+    } catch (error) {
+      console.warn('[LanguageService] Error storing language preference:', error);
+    }
   }
 
   toggle() {

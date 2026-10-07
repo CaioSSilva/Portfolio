@@ -1,7 +1,7 @@
-import { AppBase } from './base';
+import { AppBase, ProcessData } from './base';
 
 export interface AppDefinition extends AppBase {
-  data?: any;
+  data?: ProcessData;
   handle?: string[];
 }
 

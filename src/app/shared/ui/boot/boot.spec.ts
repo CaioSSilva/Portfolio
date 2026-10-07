@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { Boot } from './boot';
+import { LanguageService } from '../../../core/services/language';
+import { Sound } from '../../../core/services/sound';
 
 describe('Boot', () => {
   let component: Boot;
@@ -9,6 +10,10 @@ describe('Boot', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Boot],
+      providers: [
+        LanguageService,
+        { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Boot);

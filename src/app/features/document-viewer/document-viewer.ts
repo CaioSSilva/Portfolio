@@ -20,7 +20,7 @@ export class DocumentViewer extends Base {
   private appsService = inject(Apps);
   public fs = inject(FileSystem);
 
-  fileType = signal<'pdf' | 'text' | 'unknown'>('unknown');
+  fileType = signal<'pdf' | 'text' | 'unsupported'>('unsupported');
   fileName = signal('');
   textContent = signal('');
   zoom = signal(1.0);
@@ -80,7 +80,7 @@ export class DocumentViewer extends Base {
         return;
       }
 
-      const url = rawData?.url || rawData;
+      const url = typeof rawData === 'string' ? rawData : rawData.url;
 
       if (url && typeof url === 'string') {
         const matchingDoc = docs.find((doc) => doc.url === url);
@@ -98,18 +98,19 @@ export class DocumentViewer extends Base {
     });
   }
 
-  private loadLibrary() {
+  private loadLibrary(): void {
     try {
       const docs = this.fs.getFilesByExtensions(['pdf', ...DOC_EXTENSIONS]);
       this.availableDocs.set(docs);
-    } catch {
+    } catch (error) {
+      console.error('[DocumentViewer] Failed to load documents from filesystem:', error);
       this.hasError.set(true);
     } finally {
       this.isLoading.set(false);
     }
   }
 
-  private processFile(file: FileItem) {
+  private processFile(file: FileItem): void {
     try {
       this.resetState();
       this.fileName.set(file.name);
@@ -121,27 +122,33 @@ export class DocumentViewer extends Base {
       } else if (file.url) {
         this.fileType.set('text');
         this.loadTextFile(file.url);
+      } else {
+        this.fileType.set('unsupported');
       }
-    } catch {
+    } catch (error) {
+      console.error('[DocumentViewer] Failed to process document:', error);
       this.hasError.set(true);
       this.isLoading.set(false);
     }
   }
 
-  private resetState() {
+  private resetState(): void {
     this.isLoading.set(true);
     this.hasError.set(false);
     this.textContent.set('');
   }
 
-  private async loadTextFile(path: string) {
+  private async loadTextFile(path: string): Promise<void> {
     try {
       const response = await fetch(path);
-      if (!response.ok) throw new Error();
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
       const text = await response.text();
       this.textContent.set(text);
       this.isLoading.set(false);
-    } catch {
+    } catch (error) {
+      console.error(`[DocumentViewer] Failed to load text file from ${path}:`, error);
       this.hasError.set(true);
       this.isLoading.set(false);
     }
@@ -164,7 +171,7 @@ export class DocumentViewer extends Base {
 
     this.selectedFile.set(nextDoc);
     this.processFile(nextDoc);
-    this.data.set(nextDoc.url);
+    this.data.set(nextDoc.url ?? null);
 
     setTimeout(() => {
       this.isUpdatingFromNavigation = false;
@@ -209,7 +216,7 @@ export class DocumentViewer extends Base {
   }
 
   goToFiles() {
-    const filesApp = this.appsService.appsRegistry.files;
+    const filesApp = this.appsService.appsRegistry().files;
     if (filesApp) this.appsService.openApp(filesApp);
   }
 

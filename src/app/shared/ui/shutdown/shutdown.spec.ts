@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { Shutdown } from './shutdown';
+import { LanguageService } from '../../../core/services/language';
 
 describe('Shutdown', () => {
   let component: Shutdown;
@@ -9,6 +9,7 @@ describe('Shutdown', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Shutdown],
+      providers: [LanguageService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Shutdown);

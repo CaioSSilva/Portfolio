@@ -63,7 +63,8 @@ export class AudioPlayer {
 
     try {
       await this.audio.play();
-    } catch {
+    } catch (error) {
+      console.warn('[AudioPlayer] Playback was interrupted or blocked:', error);
       this.isPlaying.set(false);
       this.isLoading.set(false);
     }
@@ -71,7 +72,13 @@ export class AudioPlayer {
 
   togglePlay() {
     if (!this.audio.src) return;
-    this.isPlaying() ? this.audio.pause() : this.audio.play().catch(() => {});
+    if (this.isPlaying()) {
+      this.audio.pause();
+    } else {
+      this.audio.play().catch((error) => {
+        console.warn('[AudioPlayer] togglePlay failed:', error);
+      });
+    }
   }
 
   stop() {

@@ -1,4 +1,4 @@
-import { AppBase } from './base';
+import { AppBase, ProcessData } from './base';
 
 export interface Process extends AppBase {
   id: string;
@@ -6,5 +6,5 @@ export interface Process extends AppBase {
   isMinimized: boolean;
   isMaximized: boolean;
   zIndex: number;
-  data?: any;
+  data?: ProcessData;
 }

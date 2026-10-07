@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { ProcessManager } from './process-manager';
 import { DockItem, AppDefinition } from '../models/dock';
+import { Process } from '../models/process';
 import { ContextMenuService } from './context-menu';
 import { AppRegistry } from './app-registry';
 import { AppLauncher } from './app-launcher';
@@ -37,7 +38,7 @@ export class DockService {
 
   private mergeProcessesIntoItems(
     map: Map<string, DockItem>,
-    processes: any[],
+    processes: Process[],
     activeId: string | null
   ): void {
     processes.forEach((p) => {
@@ -73,7 +74,7 @@ export class DockService {
     }
   }
 
-  private focusOrMinimize(process: any, item: DockItem): void {
+  private focusOrMinimize(process: Process, item: DockItem): void {
     const isCurrentlyActive = process.id === this.processManager.activeProcessId();
     if (isCurrentlyActive && item.count === 1) {
       this.processManager.toggleMinimize(process.id);
@@ -82,8 +83,10 @@ export class DockService {
     }
   }
 
-  private restoreProcess(process: any, source: { x: number; y: number }): void {
-    if (process.data) process.data.source = source;
+  private restoreProcess(process: Process, source: { x: number; y: number }): void {
+    if (process.data) {
+      process.data = { ...process.data, source };
+    }
     this.processManager.toggleMinimize(process.id);
   }
 

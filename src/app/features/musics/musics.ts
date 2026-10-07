@@ -48,10 +48,12 @@ export class Musics extends Base implements OnDestroy {
       let track = this.musicLibrary().find((m) => m.url === url);
       if (!track) {
         track = {
-          name: decodeURIComponent(url.split('/').pop() || 'Unknown'),
-          url,
           id: `ext-${Date.now()}`,
-        } as FileItem;
+          name: decodeURIComponent(url.split('/').pop() || 'Unknown'),
+          type: 'file',
+          icon: 'fas fa-music',
+          url,
+        };
         this.musicLibrary.update((prev) => [...prev, track!]);
       }
 
@@ -59,8 +61,8 @@ export class Musics extends Base implements OnDestroy {
     });
   }
 
-  async loadLibrary() {
-    const files = await this.fs.getFilesByExtensions(AUDIO_EXTENSIONS);
+  loadLibrary() {
+    const files = this.fs.getFilesByExtensions(AUDIO_EXTENSIONS);
     this.musicLibrary.set(files);
 
     if (files.length > 0) {
@@ -86,7 +88,7 @@ export class Musics extends Base implements OnDestroy {
   }
 
   goToFiles() {
-    const app = this.apps.appsRegistry.files;
+    const app = this.apps.appsRegistry().files;
     if (app) this.apps.openApp(app);
   }
 

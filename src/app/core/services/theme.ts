@@ -25,15 +25,28 @@ export class Theme {
   }
 
   private getInitialTheme(): boolean {
-    const saved = localStorage.getItem('theme');
-    return saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    try {
+      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
+      if (saved) return saved === 'dark';
+      if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+    } catch (error) {
+      console.warn('[Theme] Could not read theme preference:', error);
+    }
+    return false;
   }
 
   private listenToSystemChanges(): void {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
-      if (!localStorage.getItem('theme')) {
-        this.isDarkMode.set(event.matches);
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', (event) => {
+          if (typeof localStorage !== 'undefined' && !localStorage.getItem('theme')) {
+            this.isDarkMode.set(event.matches);
+          }
+        });
       }
-    });
+    }
   }
 }

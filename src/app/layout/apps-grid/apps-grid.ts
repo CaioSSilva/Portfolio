@@ -1,8 +1,10 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { AppDefinition } from '../../core/models/dock';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
 import { ContextMenu } from '../../shared/ui/context-menu/context-menu';
 import { ContextMenuService } from '../../core/services/context-menu';
+
 @Component({
   selector: 'app-apps-grid',
   imports: [ContextMenu],
@@ -15,13 +17,15 @@ export class AppsGrid {
   contextMenu = inject(ContextMenuService);
   lang = inject(LanguageService);
 
-  onSearch(event: Event) {
+  onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.appsService.searchQuery.set(input.value);
   }
 
-  ondragStart(event: DragEvent, data: any) {
+  ondragStart(event: DragEvent, data: AppDefinition): void {
     event.dataTransfer?.setData('appId', data.id);
-    event.dataTransfer!.effectAllowed = 'link';
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'link';
+    }
   }
 }

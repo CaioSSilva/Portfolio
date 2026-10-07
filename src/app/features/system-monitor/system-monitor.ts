@@ -1,7 +1,21 @@
-import { Component, computed, inject, signal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, signal, WritableSignal, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
 import { Base } from '../../core/models/base';
 import { LanguageService } from '../../core/services/language';
 import { ProcessManager } from '../../core/services/process-manager';
+
+interface NetworkConnectionInfo {
+  downlink: number;
+  rtt: number;
+  effectiveType: string;
+  addEventListener: (type: string, listener: () => void) => void;
+  removeEventListener: (type: string, listener: () => void) => void;
+}
+
+interface NavigatorWithNetwork extends Navigator {
+  connection?: NetworkConnectionInfo;
+  mozConnection?: NetworkConnectionInfo;
+  webkitConnection?: NetworkConnectionInfo;
+}
 
 @Component({
   selector: 'app-system-monitor',
@@ -57,8 +71,8 @@ export class SystemMonitor extends Base {
     this.destroyRef.onDestroy(() => clearInterval(interval));
   }
 
-  private updateHistory(historySignal: any, newValue: any) {
-    historySignal.update((h: any[]) => {
+  private updateHistory(historySignal: WritableSignal<number[]>, newValue: number | string) {
+    historySignal.update((h: number[]) => {
       const newHistory = [...h, Number(newValue)];
       if (newHistory.length > this.historyLimit) newHistory.shift();
       return newHistory;
@@ -66,8 +80,8 @@ export class SystemMonitor extends Base {
   }
 
   private initNetworkMonitoring() {
-    const nav = navigator as any;
-    const conn = nav.connection || nav.mozConnection || nav.webkitConnection;
+    const nav = typeof navigator !== 'undefined' ? (navigator as NavigatorWithNetwork) : undefined;
+    const conn = nav?.connection || nav?.mozConnection || nav?.webkitConnection;
 
     if (conn) {
       const updateStats = () => {
@@ -109,7 +123,8 @@ export class SystemMonitor extends Base {
         this.rtt.set(latency);
         this.downlink.set(simulatedDownlink.toFixed(2));
         this.updateHistory(this.downHistory, simulatedDownlink);
-      } catch {
+      } catch (error) {
+        console.debug('[SystemMonitor] Network probe failed:', error);
         this.downlink.set('0');
         this.updateHistory(this.downHistory, 0);
       }

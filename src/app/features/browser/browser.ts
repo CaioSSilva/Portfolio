@@ -25,7 +25,8 @@ export class Browser extends Base {
   constructor() {
     super();
     effect(() => {
-      const url = this.data()?.url;
+      const raw = this.data();
+      const url = typeof raw === 'string' ? raw : raw?.url;
       if (url) this.updateInternalState(url, true);
     });
   }

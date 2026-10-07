@@ -9,14 +9,17 @@ export class SystemTips {
   private readonly settings = inject(Settings);
   private readonly lang = inject(LanguageService);
 
-  private timeoutId?: any;
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   startRandomTips() {
     this.scheduleNextTip(15000, true);
   }
 
   stopTips() {
-    if (this.timeoutId) clearTimeout(this.timeoutId);
+    if (this.timeoutId !== null) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
   }
 
   private scheduleNextTip(delay: number, isFirst: boolean) {
@@ -47,12 +50,11 @@ export class SystemTips {
     });
   }
 
-  private getRandomTipMessage(descriptions: any): string | null {
-    const keys = Object.keys(descriptions);
-    if (keys.length === 0) return null;
+  private getRandomTipMessage(descriptions: Record<string, string>): string | null {
+    const values = Object.values(descriptions);
+    if (values.length === 0) return null;
 
-    const randomKey = keys[Math.floor(Math.random() * keys.length)];
-    return descriptions[randomKey];
+    return values[Math.floor(Math.random() * values.length)] ?? null;
   }
 
   private calculateNextDelay(isFirst: boolean): number {

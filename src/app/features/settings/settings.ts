@@ -67,8 +67,8 @@ export class SettingsComponent extends Base {
   }
 
   readonly systemInfo = {
-    cpu: navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency}` : '—',
-    ram: (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory} GB` : '—',
-    resolution: `${window.screen.width} × ${window.screen.height}`,
+    cpu: typeof navigator !== 'undefined' && navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency}` : '—',
+    ram: typeof navigator !== 'undefined' && 'deviceMemory' in navigator ? `${(navigator as Navigator & { deviceMemory?: number }).deviceMemory} GB` : '—',
+    resolution: typeof window !== 'undefined' && window.screen ? `${window.screen.width} × ${window.screen.height}` : '—',
   };
 }

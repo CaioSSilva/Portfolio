@@ -1,5 +1,6 @@
 import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Base } from '../../core/models/base';
+import { AppDefinition } from '../../core/models/dock';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
 import { FileSystem } from '../../core/services/file-system';
@@ -23,10 +24,10 @@ export class AboutProject extends Base {
   });
 
   aboutApps() {
-    const installed = this.apps.appsRegistry;
+    const installed = this.apps.appsRegistry();
     const aboutTexts = this.lang.t().aboutProj.apps;
 
-    const displayOrder = [
+    const displayOrder: Array<{ id: keyof typeof installed; textKey: keyof typeof aboutTexts }> = [
       { id: 'files', textKey: 'files' },
       { id: 'photos', textKey: 'photos' },
       { id: 'musics', textKey: 'music' },
@@ -39,14 +40,15 @@ export class AboutProject extends Base {
     ];
 
     return displayOrder
-      .map((item) => ({
-        config: (installed as any)[item.id],
-        info: (aboutTexts as any)[item.textKey],
-      }))
-      .filter((app) => app.config);
+      .map((item) => {
+        const config = installed[item.id];
+        const info = aboutTexts[item.textKey];
+        return { config, info };
+      })
+      .filter((app): app is { config: NonNullable<typeof app.config>; info: NonNullable<typeof app.info> } => Boolean(app.config));
   }
 
-  handleOpenApp(app: any) {
+  handleOpenApp(app: AppDefinition): void {
     this.apps.openApp(app);
   }
 

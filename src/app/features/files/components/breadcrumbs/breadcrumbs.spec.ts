@@ -1,12 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FilesBreadcrumbs } from './breadcrumbs';
-describe('Breadcrumbs', () => {
+import { LanguageService } from '../../../../core/services/language';
+
+describe('FilesBreadcrumbs', () => {
   let component: FilesBreadcrumbs;
   let fixture: ComponentFixture<FilesBreadcrumbs>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FilesBreadcrumbs],
+      providers: [LanguageService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FilesBreadcrumbs);

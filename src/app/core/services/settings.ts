@@ -53,7 +53,9 @@ export class Settings {
     return value as T;
   }
 
-  private save(key: string, value: any) {
-    localStorage.setItem(key, value.toString());
+  private save(key: string, value: string | number | boolean) {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(key, value.toString());
+    }
   }
 }

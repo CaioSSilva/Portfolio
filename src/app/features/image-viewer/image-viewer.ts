@@ -91,7 +91,7 @@ export class ImageViewer extends Base {
         return;
       }
 
-      const url = rawData?.url || rawData;
+      const url = typeof rawData === 'string' ? rawData : rawData.url;
 
       if (url && typeof url === 'string') {
         const matchingImage = images.find((img) => img.url === url);
@@ -108,11 +108,12 @@ export class ImageViewer extends Base {
     });
   }
 
-  private loadGallery() {
+  private loadGallery(): void {
     try {
       const images = this.fs.getFilesByExtensions(IMAGE_EXTENSIONS);
       this.availableImages.set(images);
-    } catch {
+    } catch (error) {
+      console.error('[ImageViewer] Failed to load images from file system:', error);
       this.hasError.set(true);
     } finally {
       this.isLoading.set(false);
@@ -135,7 +136,7 @@ export class ImageViewer extends Base {
     this.isUpdatingFromNavigation = true;
 
     this.selectedFile.set(nextFile);
-    this.data.set(nextFile.url);
+    this.data.set(nextFile.url ?? null);
 
     setTimeout(() => {
       this.isUpdatingFromNavigation = false;
@@ -156,7 +157,7 @@ export class ImageViewer extends Base {
   }
 
   goToFiles() {
-    const filesApp = this.apps.appsRegistry.files;
+    const filesApp = this.apps.appsRegistry().files;
     if (filesApp) this.apps.openApp(filesApp);
   }
 

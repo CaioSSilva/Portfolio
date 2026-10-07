@@ -15,8 +15,8 @@ export class Apps {
   readonly isAppsGridOpen = signal(false);
   readonly searchQuery = signal('');
 
-  readonly appsRegistry = this.appRegistry.registry();
-  readonly appsDefinition = this.appRegistry.definitions();
+  readonly appsRegistry = computed(() => this.appRegistry.registry());
+  readonly appsDefinition = computed(() => this.appRegistry.definitions());
 
   private readonly debouncedSearch$ = toObservable(this.searchQuery).pipe(
     debounceTime(200),

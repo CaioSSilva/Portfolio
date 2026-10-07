@@ -28,7 +28,8 @@ export class Dock implements OnInit {
 
   ngOnInit(): void {
     setTimeout(() => {
-      this.apps.openApp(this.apps.appsRegistry.about);
+      const aboutApp = this.apps.appsRegistry().about;
+      if (aboutApp) this.apps.openApp(aboutApp);
     }, 1000);
   }
 

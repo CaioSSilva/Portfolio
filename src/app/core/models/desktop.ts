@@ -3,5 +3,5 @@ export interface pinnedDesktopItem {
   name: string;
   color: string;
   icon: string;
-  action: () => any;
+  action: () => void;
 }

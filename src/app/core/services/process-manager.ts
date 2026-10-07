@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { AppBase } from '../models/base';
+import { AppBase, ProcessData } from '../models/base';
 import { Process } from '../models/process';
 import { LanguageService } from './language';
 import { FileSystem } from './file-system';
@@ -30,7 +30,7 @@ export class ProcessManager {
     return visible[0]?.id || null;
   });
 
-  public open(app: AppBase, data?: unknown): void {
+  public open(app: AppBase, data?: ProcessData): void {
     const id = crypto.randomUUID();
     const newProcess: Process = {
       ...app,
