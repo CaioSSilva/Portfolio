@@ -27,7 +27,7 @@
 
 ## 🌟 Visão Geral
 
-**Cai_OS** é um sistema operacional web interativo construído com Angular 21, inspirado no ambiente de desktop GNOME. O projeto simula uma experiência completa de sistema operacional diretamente no navegador, incluindo gerenciamento de janelas, aplicativos, terminal, sistema de arquivos virtual e integração com IA.
+**Cai_OS** é um sistema operacional web interativo construído com Angular 22, inspirado no ambiente de desktop GNOME. O projeto simula uma experiência completa de sistema operacional diretamente no navegador, incluindo gerenciamento de janelas, aplicativos, terminal, sistema de arquivos virtual e integração com IA.
 
 ### Objetivo do Projeto
 
@@ -118,9 +118,10 @@ User Interaction
 
 ### Ferramentas de Desenvolvimento
 
-- **Angular CLI 21.1.0**: CLI do Angular
-- **Vitest 4.0.8**: Framework de testes
-- **jsdom 27.1.0**: Ambiente DOM para testes
+- **Angular CLI 22.0.4**: CLI do Angular
+- **TypeScript 6.0.3**: Superset tipado de JavaScript
+- **Vitest 4.0.18**: Framework de testes
+- **jsdom 28.0.0**: Ambiente DOM para testes
 - **Prettier**: Formatação de código
 
 ---
@@ -509,6 +510,7 @@ Implementa comandos Unix-like para o terminal.
 - `help`: Exibe ajuda
 - `neofetch`: Info do sistema
 - `whoami`: Info do desenvolvedor
+- `about`: Versão do sistema
 
 ### 10. SystemTips Service
 
@@ -988,6 +990,7 @@ ng generate service nome-servico
 | `clear`    | Limpa tela do terminal       | `clear`               |
 | `neofetch` | Info do sistema              | `neofetch`            |
 | `whoami`   | Info do desenvolvedor        | `whoami`              |
+| `about`    | Exibe versão do sistema      | `about`               |
 
 ---
 
@@ -1120,6 +1123,8 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 - **Serviços**: 15+
 - **Aplicativos**: 10
 - **Idiomas**: 2
+- **Arquivos de Teste**: 44
+- **Testes**: 391 (100% passando)
 - **Performance Score**: 90+
 
 ---
@@ -1133,6 +1138,6 @@ Para dúvidas, sugestões ou reportar bugs:
 
 ---
 
-**Desenvolvido com ❤️ usando Angular 21**
+**Desenvolvido com ❤️ usando Angular 22**
 
-**Última Atualização**: Janeiro 2025
+**Última Atualização**: Outubro 2026

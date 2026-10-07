@@ -26,7 +26,7 @@
 
 ## 🌟 Overview
 
-**Cai_OS** is an interactive web operating system built with Angular 21, inspired by the GNOME desktop environment. The project simulates a complete operating system experience directly in the browser, including window management, applications, terminal, virtual file system, and AI integration.
+**Cai_OS** is an interactive web operating system built with Angular 22, inspired by the GNOME desktop environment. The project simulates a complete operating system experience directly in the browser, including window management, applications, terminal, virtual file system, and AI integration.
 
 ### Project Goal
 
@@ -114,9 +114,10 @@ User Interaction
 - **@vercel/speed-insights 1.3.1**: Performance metrics
 
 ### Development Tools
-- **Angular CLI 21.1.0**: Angular CLI
-- **Vitest 4.0.8**: Testing framework
-- **jsdom 27.1.0**: DOM environment for testing
+- **Angular CLI 22.0.4**: Angular CLI
+- **TypeScript 6.0.3**: Type-safe superset of JavaScript
+- **Vitest 4.0.18**: Testing framework
+- **jsdom 28.0.0**: DOM environment for testing
 - **Prettier**: Code formatting
 
 ---
@@ -485,6 +486,7 @@ Implements Unix-like commands for the terminal.
 - `help`: Display help
 - `neofetch`: System info
 - `whoami`: Developer info
+- `about`: System version info
 
 ### 10. SystemTips Service
 
@@ -923,6 +925,7 @@ ng generate service service-name
 | `clear`    | Clear terminal screen        | `clear`               |
 | `neofetch` | System info                  | `neofetch`            |
 | `whoami`   | Developer info               | `whoami`              |
+| `about`    | Display system version       | `about`               |
 
 ---
 
@@ -1041,6 +1044,8 @@ This project is a personal portfolio. All rights reserved.
 - **Services**: 15+
 - **Applications**: 10
 - **Languages**: 2
+- **Test Files**: 44
+- **Tests**: 391 (100% passing)
 - **Performance Score**: 90+
 
 ---
@@ -1053,6 +1058,6 @@ For questions, suggestions, or to report bugs:
 
 ---
 
-**Developed with ❤️ using Angular 21**
+**Developed with ❤️ using Angular 22**
 
-**Last Update**: January 2025
+**Last Update**: October 2026

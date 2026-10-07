@@ -1,6 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { App } from './app';
 import { NotificationService } from './core/services/notification';
 import { ProcessManager } from './core/services/process-manager';
@@ -8,41 +6,143 @@ import { Settings } from './core/services/settings';
 import { Sound } from './core/services/sound';
 import { LanguageService } from './core/services/language';
 import { SystemTips } from './core/services/system-tips';
-import { DesktopIconsService } from './core/services/desktop-icons';
-import { FileSystem } from './core/services/file-system';
-import { AppRegistry } from './core/services/app-registry';
+import { Apps } from './core/services/apps';
 import { AppLauncher } from './core/services/app-launcher';
-import { ContextMenuService } from './core/services/context-menu';
+import { AppRegistry } from './core/services/app-registry';
 import { DockService } from './core/services/dock';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ContextMenuService } from './core/services/context-menu';
+import { DesktopIconsService } from './core/services/desktop-icons';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 
 describe('App', () => {
+  let soundMock: { play: ReturnType<typeof vi.fn> };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let settingsMock: any;
+  let tipsMock: { startRandomTips: ReturnType<typeof vi.fn> };
+
+  function setup() {
+    return TestBed.createComponent(App);
+  }
+
   beforeEach(async () => {
+    soundMock = { play: vi.fn().mockResolvedValue(undefined) };
+    settingsMock = {
+      wallpaper: signal(''),
+      tipsEnabled: signal(false),
+      dockSize: signal(48),
+      desktopSize: signal(40),
+      systemMuted: signal(false),
+      autoHideDock: signal(true),
+    };
+    tipsMock = { startRandomTips: vi.fn() };
+
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
         NotificationService,
-        ProcessManager,
-        Settings,
         LanguageService,
-        SystemTips,
-        DesktopIconsService,
-        FileSystem,
         AppRegistry,
-        AppLauncher,
-        ContextMenuService,
-        DockService,
-        { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
+        { provide: ProcessManager, useValue: {
+          processes: signal([]),
+          isTopBarHidden: signal(false),
+          isDockHidden: signal(false),
+          hasActiveProcesses: signal(false),
+          open: vi.fn(), focus: vi.fn(), close: vi.fn(), openFile: vi.fn()
+        } },
+        { provide: Settings, useValue: settingsMock },
+        { provide: Sound, useValue: soundMock },
+        { provide: SystemTips, useValue: tipsMock },
+        { provide: Apps, useValue: { isAppsGridOpen: signal(false), appsRegistry: signal({}), appsDefinition: signal([]), appSearchResult: signal([]), searchQuery: signal(''), openApp: vi.fn(), toggleGrid: vi.fn() } },
+        { provide: AppLauncher, useValue: { launch: vi.fn() } },
+        { provide: DockService, useValue: {
+          pinnedApps: signal([]),
+          forceShow: signal(false),
+          dockItems: signal([]),
+          pinnedAppIds: signal([]),
+          pinApp: vi.fn(),
+          handleAppClick: vi.fn(),
+        } },
+        { provide: ContextMenuService, useValue: { isOpen: signal(false), position: signal({ x: 0, y: 0 }), activeAppId: signal(null), activeItem: signal(null), close: vi.fn(), openApp: vi.fn() } },
+        { provide: DesktopIconsService, useValue: { onDesktopApps: signal([]) } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
+    const fixture = setup();
+    expect(fixture.componentInstance).toBeTruthy();
+  });
+
+  it('systemReady defaults to false', () => {
+    const fixture = setup();
+    expect(fixture.componentInstance.systemReady()).toBe(false);
+  });
+
+  it('shutingDown defaults to false', () => {
+    const fixture = setup();
+    expect(fixture.componentInstance.shutingDown()).toBe(false);
+  });
+
+  it('isAnimated returns false for non-video wallpaper', () => {
+    settingsMock.wallpaper.set('mountains.jpg');
+    const fixture = setup();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.isAnimated()).toBe(false);
+  });
+
+  it('isAnimated returns true for .mp4 wallpaper', () => {
+    settingsMock.wallpaper.set('animated.mp4');
+    const fixture = setup();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.isAnimated()).toBe(true);
+  });
+
+  it('isAnimated returns true for .webm wallpaper', () => {
+    settingsMock.wallpaper.set('animated.webm');
+    const fixture = setup();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.isAnimated()).toBe(true);
+  });
+
+  it('onClick plays mouse_down sound when system is ready', () => {
+    const fixture = setup();
     const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    app.systemReady.set(true);
+    app.onClick();
+    expect(soundMock.play).toHaveBeenCalledWith('mouse_down');
+  });
+
+  it('onClick does nothing when system not ready', () => {
+    const fixture = setup();
+    const app = fixture.componentInstance;
+    app.systemReady.set(false);
+    app.onClick();
+    expect(soundMock.play).not.toHaveBeenCalled();
+  });
+
+  it('onMouseUp plays mouse_up sound when system is ready', () => {
+    const fixture = setup();
+    const app = fixture.componentInstance;
+    app.systemReady.set(true);
+    app.onMouseUp();
+    expect(soundMock.play).toHaveBeenCalledWith('mouse_up');
+  });
+
+  it('onMouseUp does nothing when system not ready', () => {
+    const fixture = setup();
+    const app = fixture.componentInstance;
+    app.systemReady.set(false);
+    app.onMouseUp();
+    expect(soundMock.play).not.toHaveBeenCalled();
+  });
+
+  it('startRandomTips called when systemReady and tipsEnabled', () => {
+    const fixture = setup();
+    const app = fixture.componentInstance;
+    settingsMock.tipsEnabled.set(true);
+    app.systemReady.set(true);
+    fixture.detectChanges();
+    expect(tipsMock.startRandomTips).toHaveBeenCalled();
   });
 });

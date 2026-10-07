@@ -13,8 +13,13 @@ import { Sound } from '../../core/services/sound';
 describe('AboutProject', () => {
   let component: AboutProject;
   let fixture: ComponentFixture<AboutProject>;
+  let appLauncherSpy: { launch: ReturnType<typeof vi.fn> };
+  let downloadSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
+    appLauncherSpy = { launch: vi.fn() };
+    downloadSpy = vi.fn();
+
     await TestBed.configureTestingModule({
       imports: [AboutProject],
       providers: [
@@ -24,7 +29,7 @@ describe('AboutProject', () => {
         LanguageService,
         FileSystem,
         AppRegistry,
-        AppLauncher,
+        { provide: AppLauncher, useValue: appLauncherSpy },
         ContextMenuService,
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
@@ -39,9 +44,37 @@ describe('AboutProject', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should list about apps', () => {
+  it('should list about apps with at least files and terminal', () => {
     const list = component.aboutApps();
     expect(list.length).toBeGreaterThan(0);
     expect(list.some((item) => item.config.id === 'files')).toBe(true);
+    expect(list.some((item) => item.config.id === 'terminal')).toBe(true);
+  });
+
+  it('should handleOpenApp launch the app', () => {
+    const app = component.apps.appsDefinition()[0];
+    component.handleOpenApp(app);
+    expect(appLauncherSpy.launch).toHaveBeenCalledWith(app, app.data);
+  });
+
+  it('should resumeName be Currículo for pt language', () => {
+    component.lang.setLanguage('pt');
+    expect(component.resumeName()).toBe('Currículo');
+  });
+
+  it('should resumeName be Resume for en language', () => {
+    component.lang.setLanguage('en');
+    expect(component.resumeName()).toBe('Resume');
+  });
+
+  it('should downloadResume call fs.downloadFile with correct path and name', () => {
+    const fsSpy = vi.spyOn(component.fs, 'downloadFile').mockImplementation(
+      (_path: string, _name: string) => {}
+    );
+    component.lang.setLanguage('en');
+    component.downloadResume();
+    expect(fsSpy).toHaveBeenCalled();
+    const [, name] = fsSpy.mock.calls[0];
+    expect(name).toContain('Resume');
   });
 });

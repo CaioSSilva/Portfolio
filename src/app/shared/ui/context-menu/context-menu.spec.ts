@@ -1,47 +1,79 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ContextMenu } from './context-menu';
 import { ContextMenuService } from '../../../core/services/context-menu';
 import { LanguageService } from '../../../core/services/language';
 import { DockService } from '../../../core/services/dock';
 import { DesktopIconsService } from '../../../core/services/desktop-icons';
 import { ProcessManager } from '../../../core/services/process-manager';
-import { AppRegistry } from '../../../core/services/app-registry';
-import { AppLauncher } from '../../../core/services/app-launcher';
-import { FileSystem } from '../../../core/services/file-system';
-import { NotificationService } from '../../../core/services/notification';
-import { Sound } from '../../../core/services/sound';
+import { Apps } from '../../../core/services/apps';
+import { signal } from '@angular/core';
 
 describe('ContextMenu', () => {
   let component: ContextMenu;
   let fixture: ComponentFixture<ContextMenu>;
 
+  const contextMenuMock = {
+    open: vi.fn(), close: vi.fn(),
+    isOpen: signal(false),
+    position: signal({ x: 0, y: 0 }),
+    activeAppId: signal<string | null>(null),
+    activeItem: signal<string | null>(null),
+    openApp: vi.fn(),
+  };
+  const dockMock = { pinnedApps: signal([]), pinApp: vi.fn(), unpinApp: vi.fn() };
+  const desktopMock = { onDesktopApps: signal([]), addApp: vi.fn(), removeApp: vi.fn() };
+  const processMock = { processes: signal([]), focus: vi.fn(), close: vi.fn() };
+  const appsMock = {
+    openApp: vi.fn(),
+    isAppsGridOpen: signal(false),
+    appsRegistry: signal({}),
+    appsDefinition: signal([]),
+    appSearchResult: signal([]),
+    filteredApps: signal([]),
+    toggleGrid: vi.fn(),
+    onRightClickApp: vi.fn(),
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ContextMenu],
       providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        ContextMenuService,
+        { provide: ContextMenuService, useValue: contextMenuMock },
+        { provide: DockService, useValue: dockMock },
+        { provide: DesktopIconsService, useValue: desktopMock },
+        { provide: ProcessManager, useValue: processMock },
+        { provide: Apps, useValue: appsMock },
         LanguageService,
-        DockService,
-        DesktopIconsService,
-        ProcessManager,
-        AppRegistry,
-        AppLauncher,
-        FileSystem,
-        NotificationService,
-        { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ContextMenu);
     component = fixture.componentInstance;
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('exposes contextMenu service', () => {
+    expect(component.contextMenu).toBe(contextMenuMock);
+  });
+
+  it('exposes dock service', () => {
+    expect(component.dock).toBe(dockMock);
+  });
+
+  it('exposes desktop service', () => {
+    expect(component.desktop).toBe(desktopMock);
+  });
+
+  it('exposes process manager', () => {
+    expect(component.process).toBe(processMock);
+  });
+
+  it('exposes apps service', () => {
+    expect(component.appsService).toBe(appsMock);
   });
 });
