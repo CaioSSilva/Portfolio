@@ -43,6 +43,30 @@ describe('FileSystem', () => {
             },
           ],
         },
+        {
+          id: 'pictures',
+          name: 'pictures',
+          type: 'folder',
+          icon: 'folder',
+          children: [
+            {
+              id: 'img1',
+              name: 'photo1.jpg',
+              type: 'file',
+              icon: 'image',
+              size: 512,
+              url: '/data/photo1.jpg',
+            },
+            {
+              id: 'img2',
+              name: 'photo2.png',
+              type: 'file',
+              icon: 'image',
+              size: 512,
+              url: '/data/photo2.png',
+            },
+          ],
+        },
       ],
     },
   };
@@ -84,7 +108,7 @@ describe('FileSystem', () => {
     expect(service.isLoaded()).toBe(true);
     expect(service.getNode('home')).toBeDefined();
     expect(service.getChildren('home').length).toBe(2);
-    expect(service.totalFiles()).toBe(2);
+    expect(service.totalFiles()).toBe(4);
   });
 
   it('should set isLoading=true then false during load', async () => {
@@ -194,5 +218,41 @@ describe('FileSystem', () => {
     // should bail out early, so no 'a' should appear from them
     expect(createdElements).not.toContain('a');
     vi.restoreAllMocks();
+  });
+
+  describe('getSiblingsByUrl', () => {
+    it('should return only siblings with matching extensions from same folder', async () => {
+      await loadFs();
+
+      const siblings = service.getSiblingsByUrl('/data/photo1.jpg', ['jpg', 'png']);
+      expect(siblings.length).toBe(2);
+      expect(siblings.map((f) => f.id)).toEqual(expect.arrayContaining(['img1', 'img2']));
+    });
+
+    it('should not include files from other folders', async () => {
+      await loadFs();
+
+      const siblings = service.getSiblingsByUrl('/data/photo1.jpg', ['jpg', 'png']);
+      expect(siblings.map((f) => f.id)).not.toContain('doc1');
+      expect(siblings.map((f) => f.id)).not.toContain('song1');
+    });
+
+    it('should filter siblings by extension', async () => {
+      await loadFs();
+
+      // home folder has doc1 (pdf) and song1 (mp3) — only pdf should match
+      const siblings = service.getSiblingsByUrl('/data/document.pdf', ['pdf']);
+      expect(siblings.length).toBe(1);
+      expect(siblings[0].id).toBe('doc1');
+    });
+
+    it('should fall back to getFilesByExtensions when url has no match', async () => {
+      await loadFs();
+
+      const siblings = service.getSiblingsByUrl('/data/nonexistent.jpg', ['jpg', 'png']);
+      // fallback returns all images across the whole FS
+      expect(siblings.length).toBe(2);
+      expect(siblings.map((f) => f.id)).toEqual(expect.arrayContaining(['img1', 'img2']));
+    });
   });
 });

@@ -191,4 +191,13 @@ describe('ProcessManager', () => {
     // old one closed, new one opened
     expect(service.processes().length).toBe(1);
   });
+
+  it('should assign incremental cascadeIndex to each opened process', () => {
+    service.open(mockApp);
+    service.open(mockApp);
+    service.open(mockApp);
+
+    const indices = service.processes().map((p) => p.cascadeIndex);
+    expect(indices).toEqual([0, 1, 2]);
+  });
 });

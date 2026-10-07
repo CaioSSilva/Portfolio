@@ -10,6 +10,7 @@ import { AppRegistry } from '../../core/services/app-registry';
 import { AppLauncher } from '../../core/services/app-launcher';
 import { ContextMenuService } from '../../core/services/context-menu';
 import { FileItem } from '../../core/models/file';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 const makeImage = (id: string, url: string): FileItem => ({
   id, name: `${id}.jpg`, type: 'file', icon: 'image', url,
@@ -193,5 +194,79 @@ describe('ImageViewer', () => {
 
   it('should handleChangeImage do nothing when list is empty', () => {
     expect(() => component.handleChangeImage(1)).not.toThrow();
+  });
+});
+
+describe('ImageViewer — gallery loading', () => {
+  let component: ImageViewer;
+  let fixture: ComponentFixture<ImageViewer>;
+  let fsSpy: {
+    isLoaded: ReturnType<typeof vi.fn>;
+    ensureLoaded: ReturnType<typeof vi.fn>;
+    getFilesByExtensions: ReturnType<typeof vi.fn>;
+    getSiblingsByUrl: ReturnType<typeof vi.fn>;
+  };
+
+  const allImages: FileItem[] = [
+    makeImage('img1', '/a/photo1.jpg'),
+    makeImage('img2', '/a/photo2.jpg'),
+    makeImage('img3', '/b/other.jpg'),
+  ];
+  const folderImages: FileItem[] = [allImages[0], allImages[1]];
+
+  beforeEach(async () => {
+    fsSpy = {
+      isLoaded: vi.fn().mockReturnValue(true),
+      ensureLoaded: vi.fn().mockResolvedValue(undefined),
+      getFilesByExtensions: vi.fn().mockReturnValue(allImages),
+      getSiblingsByUrl: vi.fn().mockReturnValue(folderImages),
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [ImageViewer],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        LanguageService,
+        Apps,
+        AppRegistry,
+        AppLauncher,
+        ContextMenuService,
+        { provide: FileSystem, useValue: fsSpy },
+        { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    })
+      .overrideComponent(ImageViewer, { set: { schemas: [NO_ERRORS_SCHEMA] } })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(ImageViewer);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should load all images via getFilesByExtensions when opened without data', () => {
+    expect(fsSpy.getFilesByExtensions).toHaveBeenCalled();
+    expect(component.availableImages().length).toBe(3);
+  });
+
+  it('should load siblings via getSiblingsByUrl when opened with a file url', async () => {
+    fsSpy.getSiblingsByUrl.mockReturnValue(folderImages);
+
+    component.data.set('/a/photo1.jpg');
+    await fixture.whenStable();
+
+    expect(fsSpy.getSiblingsByUrl).toHaveBeenCalledWith('/a/photo1.jpg', expect.any(Array));
+    expect(component.availableImages().length).toBe(2);
+    expect(component.isViewingImage()).toBe(true);
+    expect(component.selectedFile()?.id).toBe('img1');
+  });
+
+  it('should not include files from other folders after opening via url', async () => {
+    component.data.set('/a/photo1.jpg');
+    await fixture.whenStable();
+
+    const ids = component.availableImages().map((f) => f.id);
+    expect(ids).not.toContain('img3');
   });
 });

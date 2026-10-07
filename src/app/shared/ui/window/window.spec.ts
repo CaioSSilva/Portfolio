@@ -19,6 +19,7 @@ const mockProcess: Process = {
   isMinimized: false,
   isMaximized: false,
   zIndex: 100,
+  cascadeIndex: 0,
 };
 
 function makeWindowServiceMock() {

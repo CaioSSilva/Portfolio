@@ -23,6 +23,7 @@ describe('DocumentViewer', () => {
     isLoaded: ReturnType<typeof vi.fn>;
     ensureLoaded: ReturnType<typeof vi.fn>;
     getFilesByExtensions: ReturnType<typeof vi.fn>;
+    getSiblingsByUrl: ReturnType<typeof vi.fn>;
     getChildren: ReturnType<typeof vi.fn>;
     tree: ReturnType<typeof vi.fn>;
     getNode: ReturnType<typeof vi.fn>;
@@ -48,6 +49,7 @@ describe('DocumentViewer', () => {
       isLoaded: vi.fn().mockReturnValue(true),
       ensureLoaded: vi.fn().mockResolvedValue(undefined),
       getFilesByExtensions: vi.fn().mockReturnValue(mockDocs),
+      getSiblingsByUrl: vi.fn().mockReturnValue(mockDocs),
       getChildren: vi.fn().mockReturnValue([]),
       tree: vi.fn().mockReturnValue(null),
       getNode: vi.fn().mockReturnValue(undefined),
@@ -205,5 +207,23 @@ describe('DocumentViewer', () => {
 
   it('should handleChangeDocument do nothing when no docs', () => {
     expect(() => component.handleChangeDocument(1)).not.toThrow();
+  });
+
+  it('should load all docs via getFilesByExtensions when opened without data', () => {
+    // data is null (no file passed) — loadAllDocs should have been called
+    expect(fsSpy.getFilesByExtensions).toHaveBeenCalled();
+    expect(component.availableDocs().length).toBe(2);
+  });
+
+  it('should load siblings via getSiblingsByUrl when opened with a file url', async () => {
+    const siblingDocs = [makeDoc('doc1', 'resume.pdf', '/resume.pdf')];
+    fsSpy.getSiblingsByUrl.mockReturnValue(siblingDocs);
+
+    component.data.set('/resume.pdf');
+    await fixture.whenStable();
+
+    expect(fsSpy.getSiblingsByUrl).toHaveBeenCalledWith('/resume.pdf', expect.any(Array));
+    expect(component.availableDocs().length).toBe(1);
+    expect(component.isViewingDocument()).toBe(true);
   });
 });

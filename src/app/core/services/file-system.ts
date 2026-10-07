@@ -186,6 +186,19 @@ export class FileSystem {
     );
   }
 
+  getSiblingsByUrl(url: string, extensions: string[]): FileItem[] {
+    const targetExts = new Set(extensions.map((ext) => ext.toLowerCase()));
+    const targetNode = Array.from(this.nodeMap.values()).find((n) => n.url === url);
+    if (!targetNode) return this.getFilesByExtensions(extensions);
+
+    const parent = this.findParent(targetNode.id);
+    const siblings = parent ? (parent.children ?? []) : [targetNode];
+
+    return siblings.filter(
+      (n) => n.type === 'file' && targetExts.has(this.getFileExtension(n.name)),
+    );
+  }
+
   downloadFile(path: string, name: string) {
     if (!path || !name) return;
     const a = document.createElement('a');

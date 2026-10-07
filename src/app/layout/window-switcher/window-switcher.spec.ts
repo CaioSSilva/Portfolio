@@ -10,7 +10,7 @@ import { Base } from '../../core/models/base';
 class MockApp extends Base {}
 
 function makeProcess(id: string, zIndex: number): Process {
-  return { id, appId: id, title: id, icon: '', color: '', component: MockApp, isMinimized: false, isMaximized: false, zIndex };
+  return { id, appId: id, title: id, icon: '', color: '', component: MockApp, isMinimized: false, isMaximized: false, zIndex, cascadeIndex: 0 };
 }
 
 describe('WindowSwitcher', () => {

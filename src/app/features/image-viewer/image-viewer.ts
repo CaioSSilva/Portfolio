@@ -75,43 +75,49 @@ export class ImageViewer extends Base {
 
     effect(() => {
       this.fs.ensureLoaded();
-      if (this.fs.isLoaded()) {
-        this.loadGallery();
-      }
-    });
-
-    effect(() => {
       if (this.isUpdatingFromNavigation) return;
 
+      if (!this.fs.isLoaded()) return;
+
       const rawData = this.data();
-      const images = this.availableImages();
 
-      if (!rawData || images.length === 0) {
-        this.isLoading.set(false);
-        return;
+      const url = !rawData
+        ? null
+        : typeof rawData === 'string'
+          ? rawData
+          : rawData.url ?? null;
+
+      if (url) {
+        this.loadGalleryForUrl(url);
+      } else {
+        this.loadAllImages();
       }
-
-      const url = typeof rawData === 'string' ? rawData : rawData.url;
-
-      if (url && typeof url === 'string') {
-        const matchingImage = images.find((img) => img.url === url);
-
-        if (matchingImage) {
-          if (matchingImage.id !== this.selectedFile()?.id) {
-            this.selectedFile.set(matchingImage);
-          }
-          this.isViewingImage.set(true);
-        }
-      }
-
-      this.isLoading.set(false);
     });
   }
 
-  private loadGallery(): void {
+  private loadAllImages(): void {
     try {
-      const images = this.fs.getFilesByExtensions(IMAGE_EXTENSIONS);
+      this.availableImages.set(this.fs.getFilesByExtensions(IMAGE_EXTENSIONS));
+    } catch (error) {
+      console.error('[ImageViewer] Failed to load images from file system:', error);
+      this.hasError.set(true);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  private loadGalleryForUrl(url: string): void {
+    try {
+      const images = this.fs.getSiblingsByUrl(url, IMAGE_EXTENSIONS);
       this.availableImages.set(images);
+
+      const matchingImage = images.find((img) => img.url === url);
+      if (matchingImage) {
+        if (matchingImage.id !== this.selectedFile()?.id) {
+          this.selectedFile.set(matchingImage);
+        }
+        this.isViewingImage.set(true);
+      }
     } catch (error) {
       console.error('[ImageViewer] Failed to load images from file system:', error);
       this.hasError.set(true);

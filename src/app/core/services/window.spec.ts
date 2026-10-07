@@ -16,6 +16,7 @@ function makeProcess(overrides: Partial<Process> = {}): Process {
     isMinimized: false,
     isMaximized: false,
     zIndex: 1,
+    cascadeIndex: 0,
     component: class MockComponent extends Base {} as never,
     ...overrides,
   };

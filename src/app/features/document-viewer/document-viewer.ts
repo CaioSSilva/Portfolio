@@ -64,44 +64,50 @@ export class DocumentViewer extends Base {
 
     effect(() => {
       this.fs.ensureLoaded();
-      if (this.fs.isLoaded()) {
-        this.loadLibrary();
-      }
-    });
-
-    effect(() => {
       if (this.isUpdatingFromNavigation) return;
 
+      if (!this.fs.isLoaded()) return;
+
       const rawData = this.data();
-      const docs = this.availableDocs();
 
-      if (!rawData || docs.length === 0) {
-        this.isLoading.set(false);
-        return;
+      const url = !rawData
+        ? null
+        : typeof rawData === 'string'
+          ? rawData
+          : rawData.url ?? null;
+
+      if (url) {
+        this.loadLibraryForUrl(url);
+      } else {
+        this.loadAllDocs();
       }
-
-      const url = typeof rawData === 'string' ? rawData : rawData.url;
-
-      if (url && typeof url === 'string') {
-        const matchingDoc = docs.find((doc) => doc.url === url);
-
-        if (matchingDoc) {
-          if (matchingDoc.id !== this.selectedFile()?.id) {
-            this.selectedFile.set(matchingDoc);
-            this.processFile(matchingDoc);
-          }
-          this.isViewingDocument.set(true);
-        }
-      }
-
-      this.isLoading.set(false);
     });
   }
 
-  private loadLibrary(): void {
+  private loadAllDocs(): void {
     try {
-      const docs = this.fs.getFilesByExtensions(['pdf', ...DOC_EXTENSIONS]);
+      this.availableDocs.set(this.fs.getFilesByExtensions(['pdf', ...DOC_EXTENSIONS]));
+    } catch (error) {
+      console.error('[DocumentViewer] Failed to load documents from filesystem:', error);
+      this.hasError.set(true);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  private loadLibraryForUrl(url: string): void {
+    try {
+      const docs = this.fs.getSiblingsByUrl(url, ['pdf', ...DOC_EXTENSIONS]);
       this.availableDocs.set(docs);
+
+      const matchingDoc = docs.find((doc) => doc.url === url);
+      if (matchingDoc) {
+        if (matchingDoc.id !== this.selectedFile()?.id) {
+          this.selectedFile.set(matchingDoc);
+          this.processFile(matchingDoc);
+        }
+        this.isViewingDocument.set(true);
+      }
     } catch (error) {
       console.error('[DocumentViewer] Failed to load documents from filesystem:', error);
       this.hasError.set(true);

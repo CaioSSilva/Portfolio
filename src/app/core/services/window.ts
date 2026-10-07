@@ -303,7 +303,14 @@ export class WindowService {
   }
 
   private centerWindow(): void {
-    this.rect.x = (window.innerWidth - this.rect.w) / 2;
-    this.rect.y = Math.max(TOP_BAR_HEIGHT, (window.innerHeight - this.rect.h) / 2);
+    const cascadeStep = 28;
+    const maxOffsetX = window.innerWidth - this.rect.w - cascadeStep;
+    const maxOffsetY = window.innerHeight - this.rect.h - cascadeStep;
+    const maxSteps = Math.max(1, Math.floor(Math.min(maxOffsetX, maxOffsetY - TOP_BAR_HEIGHT) / cascadeStep));
+
+    const step = (this.process.cascadeIndex % maxSteps) * cascadeStep;
+
+    this.rect.x = (window.innerWidth - this.rect.w) / 2 - (maxSteps * cascadeStep) / 2 + step;
+    this.rect.y = Math.max(TOP_BAR_HEIGHT, (window.innerHeight - this.rect.h) / 2 - (maxSteps * cascadeStep) / 2 + step);
   }
 }

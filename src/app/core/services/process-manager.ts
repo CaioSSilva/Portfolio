@@ -18,6 +18,7 @@ export class ProcessManager {
   private readonly topOverlapCounter = signal<number>(0);
   private readonly bottomOverlapCounter = signal<number>(0);
   private globalZIndex = 100;
+  private globalCascadeIndex = 0;
 
   public readonly isTopBarHidden = computed(() => this.topOverlapCounter() > 0);
   public readonly isDockHidden = computed(() => this.bottomOverlapCounter() > 0);
@@ -39,6 +40,7 @@ export class ProcessManager {
       isMaximized: false,
       isMinimized: false,
       zIndex: this.getNextZIndex(),
+      cascadeIndex: this.globalCascadeIndex++,
       data: data || { id },
     };
 

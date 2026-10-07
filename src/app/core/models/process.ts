@@ -6,5 +6,6 @@ export interface Process extends AppBase {
   isMinimized: boolean;
   isMaximized: boolean;
   zIndex: number;
+  cascadeIndex: number;
   data?: ProcessData;
 }
