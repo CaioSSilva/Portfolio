@@ -294,4 +294,84 @@ describe('DocumentViewer', () => {
       expect(component.zoom()).toBe(1.0);
     });
   });
+
+  describe('swipe navigation — horizontal scrollable guard', () => {
+    const makeSwipeEnd = (dx: number, target: EventTarget): TouchEvent =>
+      ({
+        touches: { length: 0 },
+        changedTouches: { 0: { clientX: 100 + dx, clientY: 50 } },
+      } as unknown as TouchEvent);
+
+    const makeSwipeStart = (target: EventTarget): TouchEvent =>
+      ({
+        touches: {
+          length: 1,
+          0: { clientX: 100, clientY: 50, target },
+        },
+      } as unknown as TouchEvent);
+
+    const makeScrollableEl = (scrollWidth: number, clientWidth: number): HTMLElement => {
+      const el = document.createElement('pre');
+      Object.defineProperty(el, 'scrollWidth', { value: scrollWidth });
+      Object.defineProperty(el, 'clientWidth', { value: clientWidth });
+      el.style.overflowX = 'auto';
+      return el;
+    };
+
+    beforeEach(() => {
+      screenSpy.isMobile.mockReturnValue(true);
+      component.availableDocs.set(mockDocs);
+      component.selectFile(mockDocs[0]);
+      component.isViewingDocument.set(true);
+      component.zoom.set(1.0);
+    });
+
+    it('should NOT navigate when swipe starts inside a horizontally scrollable element', () => {
+      const pre = makeScrollableEl(600, 300);
+      document.body.appendChild(pre);
+
+      component.onTouchStart(makeSwipeStart(pre));
+      component.onTouchEnd(makeSwipeEnd(-80, pre));
+
+      expect(component.selectedFile()?.id).toBe('doc1');
+      document.body.removeChild(pre);
+    });
+
+    it('should navigate when swipe starts inside a non-scrollable element', () => {
+      const div = document.createElement('div');
+      Object.defineProperty(div, 'scrollWidth', { value: 100 });
+      Object.defineProperty(div, 'clientWidth', { value: 100 });
+      document.body.appendChild(div);
+
+      component.onTouchStart(makeSwipeStart(div));
+      component.onTouchEnd(makeSwipeEnd(-80, div));
+
+      expect(component.selectedFile()?.id).toBe('doc2');
+      document.body.removeChild(div);
+    });
+
+    it('should navigate when swipe starts inside a scrollable element that does NOT overflow', () => {
+      const pre = makeScrollableEl(200, 300); // scrollWidth < clientWidth — não overflow
+      document.body.appendChild(pre);
+
+      component.onTouchStart(makeSwipeStart(pre));
+      component.onTouchEnd(makeSwipeEnd(-80, pre));
+
+      expect(component.selectedFile()?.id).toBe('doc2');
+      document.body.removeChild(pre);
+    });
+
+    it('should NOT navigate when swipe starts inside a CHILD of a scrollable element', () => {
+      const pre = makeScrollableEl(600, 300);
+      const code = document.createElement('code');
+      pre.appendChild(code);
+      document.body.appendChild(pre);
+
+      component.onTouchStart(makeSwipeStart(code));
+      component.onTouchEnd(makeSwipeEnd(-80, code));
+
+      expect(component.selectedFile()?.id).toBe('doc1');
+      document.body.removeChild(pre);
+    });
+  });
 });

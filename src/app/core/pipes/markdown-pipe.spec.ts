@@ -93,6 +93,43 @@ describe('MarkdownPipe', () => {
     expect(result).toContain('Google');
   });
 
+  it('should convert anchor links [text](#id) to <a href="#id">', () => {
+    const result = pipe.transform('[Overview](#overview)').toString();
+    expect(result).toContain('<a href="#overview"');
+    expect(result).toContain('Overview');
+  });
+
+  it('should convert relative links [text](path) to <a href="path">', () => {
+    const result = pipe.transform('[Docs](./docs/readme.md)').toString();
+    expect(result).toContain('<a href="./docs/readme.md"');
+  });
+
+  it('should not add target="_blank" to anchor links', () => {
+    const result = pipe.transform('[Section](#section)').toString();
+    expect(result).not.toContain('target="_blank"');
+  });
+
+  it('should convert ordered list to <ol><li>', () => {
+    const result = pipe.transform('1. first\n2. second\n3. third').toString();
+    expect(result).toContain('<ol>');
+    expect(result).toContain('<li>first</li>');
+    expect(result).toContain('<li>second</li>');
+    expect(result).toContain('<li>third</li>');
+    expect(result).toContain('</ol>');
+  });
+
+  it('should close ol and open ul when list types switch', () => {
+    const result = pipe.transform('1. one\n- bullet').toString();
+    expect(result).toContain('</ol>');
+    expect(result).toContain('<ul>');
+  });
+
+  it('should close ul and open ol when list types switch', () => {
+    const result = pipe.transform('- bullet\n1. one').toString();
+    expect(result).toContain('</ul>');
+    expect(result).toContain('<ol>');
+  });
+
   it('should convert newlines to <br>', () => {
     expect(pipe.transform('line1\nline2').toString()).toContain('<br>');
   });

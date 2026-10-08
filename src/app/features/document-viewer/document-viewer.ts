@@ -43,6 +43,7 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
   // touch state
   private touchStartX = 0;
   private touchStartY = 0;
+  private touchStartTarget: EventTarget | null = null;
   private pinchStartDistance = 0;
   private pinchLastStepDistance = 0;
   private pinchLastStepTime = 0;
@@ -271,6 +272,7 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     const touch = event.touches[0];
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
+    this.touchStartTarget = touch.target;
   }
 
   onTouchMove(event: TouchEvent) {
@@ -290,9 +292,23 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     }
   }
 
+  private isInsideHorizontalScrollable(target: EventTarget | null): boolean {
+    let el = target as HTMLElement | null;
+    while (el && el !== this.hostEl.nativeElement) {
+      const style = window.getComputedStyle(el);
+      const overflowX = style.overflowX;
+      if ((overflowX === 'auto' || overflowX === 'scroll') && el.scrollWidth > el.clientWidth) {
+        return true;
+      }
+      el = el.parentElement;
+    }
+    return false;
+  }
+
   onTouchEnd(event: TouchEvent) {
     if (!this.screen.isMobile() || !this.isViewingDocument()) return;
     if (event.touches.length > 0 || this.zoom() > 1) return;
+    if (this.isInsideHorizontalScrollable(this.touchStartTarget)) return;
 
     const touch = event.changedTouches[0];
     const dx = touch.clientX - this.touchStartX;

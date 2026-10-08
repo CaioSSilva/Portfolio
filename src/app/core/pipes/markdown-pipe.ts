@@ -45,25 +45,35 @@ export class MarkdownPipe implements PipeTransform {
     html = html.replace(/(?<!`)``?(?!`)([^`\n]+)``?(?!`)/g, '<code>$1</code>');
 
     html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
 
     const lines = html.split('\n');
     const out: string[] = [];
     let inList = false;
+    let inOl = false;
 
     for (const line of lines) {
-      const listMatch = line.match(/^[-*] (.+)/);
-      if (listMatch) {
+      const ulMatch = line.match(/^[-*] (.+)/);
+      const olMatch = line.match(/^\d+\. (.+)/);
+      if (ulMatch) {
+        if (inOl) { out.push('</ol>'); inOl = false; }
         if (!inList) { out.push('<ul>'); inList = true; }
-        out.push(`<li>${listMatch[1]}</li>`);
+        out.push(`<li>${ulMatch[1]}</li>`);
+      } else if (olMatch) {
+        if (inList) { out.push('</ul>'); inList = false; }
+        if (!inOl) { out.push('<ol>'); inOl = true; }
+        out.push(`<li>${olMatch[1]}</li>`);
       } else {
         if (inList) { out.push('</ul>'); inList = false; }
+        if (inOl) { out.push('</ol>'); inOl = false; }
         out.push(line);
       }
     }
     if (inList) out.push('</ul>');
+    if (inOl) out.push('</ol>');
     html = out.join('\n');
 
-    html = html.replace(/(?<!<\/(?:h[1-4]|li|blockquote|pre|ul|hr)>)\n(?!<(?:h[1-4]|li|blockquote|pre|ul|hr))/g, '<br>');
+    html = html.replace(/(?<!<\/(?:h[1-4]|li|blockquote|pre|ul|ol|hr)>)\n(?!<(?:h[1-4]|li|blockquote|pre|ul|ol|hr))/g, '<br>');
 
     html = html.replace(/(<br>\s*){2,}/g, '<br><br>');
 

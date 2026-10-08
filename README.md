@@ -1,9 +1,9 @@
-# Complete Documentation — Cai_OS 2.3.0
+# Complete Documentation — Cai_OS 2.3.1
 
 ## 📋 Table of Contents
 
 1. [Overview](#-overview)
-2. [What's New in 2.3.0](#-whats-new-in-230)
+2. [What's New in 2.0.0](#-whats-new-in-200--mobile-adaptation)
 3. [System Architecture](#️-system-architecture)
 4. [Technologies Used](#️-technologies-used)
 5. [Project Structure](#-project-structure)
@@ -58,178 +58,118 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 
 ---
 
-## 🆕 What's New in 2.3.0
+## 🆕 What's New in 2.0.0 — Mobile Adaptation
 
-### Music Player — Animated CD
+A versão 2.0.0 marcou a migração completa do Cai_OS para suporte mobile nativo. Até então, o sistema assumia sempre um ambiente desktop com mouse e teclado. Esta versão introduziu uma camada de navegação mobile completa, detecção de breakpoints reativa, gestos de toque em todos os apps e re-arquitetura do sistema de janelas para funcionar em tela cheia no mobile.
 
-| Feature | Description |
-|---|---|
-| **CD reacts to playback state** | The disc icon spins slowly while playing, spins fast forward while scrubbing forward, spins fast in reverse while scrubbing backward, and stops when paused |
-| **Consistent across all surfaces** | The same animation applies in the full player, the top bar widget, and the notification center mini-player |
+### ScreenService — Detecção de Breakpoints Reativa
 
-### Music Player — Smooth seek bar
+Novo serviço centralizado que expõe sinais Angular atualizados em `window.resize`:
 
-| Fix | Description |
-|---|---|
-| **No more flickering while dragging** | The progress bar now shows a local preview while dragging and only commits the position on release — the disc and time display update smoothly without jumping |
+```typescript
+readonly isMobile  = computed(() => this.width() < 768);
+readonly isTablet  = computed(() => this.width() >= 768 && this.width() < 1024);
+readonly isDesktop = computed(() => this.width() >= 1024);
+readonly isCompact = computed(() => this.width() < 1024);
+```
 
-### Notification Center — Mini-player polish
-
-| Fix | Description |
-|---|---|
-| **Rounded corners match the panel** | The mini-player card corners now align correctly with the notification panel's rounded border on both mobile and desktop |
-
-### Test Suite
-
-- **51 test files · 548 tests · 0 failures**
-
-### What's New in 2.2.1 (anterior)
-
-### Document Viewer — Markdown Support
-
-| Feature | Description |
-|---|---|
-| **`.md` rendering** | Markdown files are now rendered with full formatting via `MarkdownPipe` — same pipe used by Hermes |
-| **`.md` icon** | `fab fa-markdown` icon in purple (`#7c5cd8`) in both the file grid and the viewer header |
-| **`prose-gnome` styles** | `::ng-deep` scoped styles for headings, code blocks, inline code, lists, blockquotes, links and `<hr>` — aligned with the Hermes visual language but using the system blue palette |
-
-### Document Viewer — Swipe Navigation
-
-| Feature | Description |
-|---|---|
-| **Swipe left/right** | Horizontal swipe (> 40 px, dominant axis) navigates between documents on mobile |
-| **Blocked when zoomed** | Swipe is ignored when `zoom() > 1` to avoid accidental navigation during pinch zoom |
-| **Touch structure aligned** | `onTouchStart` / `onTouchMove` / `onTouchEnd` structure now matches the ImageViewer exactly — pinch (2 fingers) handled first, single touch second |
-
-### ProcessManager — Data update on re-open
-
-| Fix | Description |
-|---|---|
-| **File clicked while viewer open** | `ProcessManager.open` now updates `data` on the existing process before focusing it — the document viewer's `effect` reacts and loads the new file |
-
-### MarkdownPipe — Regex fixes
-
-| Fix | Description |
-|---|---|
-| **`*em*` false positives** | Negative lookahead/lookbehind `(?<!\*)\*(?!\*)` prevents single `*` from matching inside `**bold**` markers |
-| **`` `code` `` false positives** | Updated regex excludes `` ``` `` fences (already processed as placeholders) and prevents cross-line matches |
-
-### Settings — Desktop tab dock controls
-
-| Fix | Description |
-|---|---|
-| **`isTouchDevice` → `isMobile`** | Dock controls (auto-hide + icon size) now use `screen.isMobile()` — `isTouchDevice` was returning `true` on touch-enabled laptops/monitors, hiding the controls on desktop |
-
-### Test Suite
-
-- **50 test files · 541 tests · 0 failures**
-
-### What's New in 2.2.0 (previous)
-
-### Settings — Mobile & Layout Fixes
-
-| Fix | Description |
-|---|---|
-| **Dock hidden on mobile** | "Auto-hide dock" and dock icon size controls are now hidden on touch devices (`isTouchDevice`), not based on window width — so a desktop user with a small window still sees all dock controls |
-| **System info removed from System tab** | RAM, display resolution and system name were being shown in the System tab; they now only appear in the About tab |
-| **System tab toggle style** | Fixed `divide-y` / `pb-4` classes that were left over from when the section had multiple items; now matches the Sound tab pattern |
-| **Toggle button overflow** | Added `shrink-0` and `gap-4` to prevent long labels from compressing the toggle and making the white dot overflow the pill |
-
-### Reactive Effect Fixes
-
-| Fix | Description |
-|---|---|
-| **About app re-opening on language change** | `AppRegistry.registry` is a `computed` that depends on `LanguageService` — changing language caused the boot `effect` in `App` to re-run and open the About app again. Fixed with `untracked()` around the `appsRegistry` read |
-| **Musics — duplicate sidebar effect** | Removed a redundant `effect` that duplicated the `ResizeObserver` callback logic for closing the sidebar on narrow desktop windows |
-
-### Error Handling — Notifications Instead of Console
-
-| Before | After |
-|---|---|
-| `console.error` in `DocumentViewer` (4 sites) | `NotificationService.show()` with translated message |
-| `console.error` in `ImageViewer` (2 sites) | `NotificationService.show()` with translated message |
-| `console.error` in `HermesActionService.execute` | Duplicate removed — notification already shown |
-| `console.warn` in `HermesActionService.parseActions` | Silent `catch` (malformed model JSON — not user-facing) |
-| `console.warn` in `LanguageService` (2 sites) | Silent `catch` (localStorage unavailable) |
-| `console.warn` in `AudioPlayer` (2 sites) | Silent `catch` (autoplay policy — `hasError` signal handles UI) |
-| `console.warn` in `Theme` | Silent `catch` (localStorage unavailable) |
-| `console.warn` in `Sound` | Silent `catch` (AudioContext unavailable) |
-| `.catch(console.error)` in `Files` constructor | Removed — `FileSystem.ensureLoaded` already notifies internally |
-
-New i18n keys added: `failedToLoadFiles`, `failedToLoadDocument`, `failedToProcessDocument`, `failedToLoadImages` (PT + EN).
-
-### Test Suite
-
-- **50 test files · 541 tests · 0 failures**
-
-### What's New in 2.1.1 (previous)
-
-#### Mobile App Grid — Context Menu Fixes
-
-| Fix | Description |
-|---|---|
-| **Menu actions work** | Replaced `(document:touchstart)` listener with an inert overlay (`z-[19999]`) behind the menu — touch on a menu item no longer closes the menu before the action fires |
-| **App not opened on menu dismiss** | Grid uses `[class.pointer-events-none]` while menu is open; `onAppTouchStart` guards against touch-through |
-| **Click outside only closes menu** | Overlay intercepts `touchstart`/`click` with `stopPropagation` + `preventDefault`, so the backdrop never receives the event and the grid stays open |
-| **Menu centered on icon** | `openContextMenuAt` now receives the anchor `HTMLElement` and uses `getBoundingClientRect()` to center the menu on the icon; clamped to viewport with 8 px margin |
-| **No text wrapping** | Menu width bumped to `w-[260px]` to fit the longest translated string ("Remover da área de trabalho") |
-| **All actions close menu** | `closeActiveApp` and desktop pin/unpin now call `contextMenu.close()` |
-
-#### Hermes — Model Error Notification
-
-| Feature | Description |
-|---|---|
-| **404 detection** | `catch` block in `handleSendMessage` inspects the error message for `404`/`NOT_FOUND` |
-| **Specific notification** | Shows `errors.modelUnavailable` ("The selected model is not available…") with `fa-robot` icon and 10 s duration |
-| **Generic fallback** | Any other error still shows the generic `seviceUnavailable` notification |
-
-#### Version Constant
-
-| Change | Description |
-|---|---|
-| **`src/app/core/version.ts`** | Single `APP_VERSION` constant used by Boot screen, Settings about page, and Terminal (`neofetch` + `about` commands) |
-
-### What's New in 2.1.0 (previous)
-
-#### Hermes AI — Model Selection
-
-| Feature | Description |
-|---|---|
-| **Model picker** | Dropdown in the Hermes chat to select any available Gemini model |
-| **Dynamic listing** | Models fetched live from the Gemini REST API (`GET /v1beta/models`), filtered to `generateContent`-capable only |
-| **Persisted choice** | Selected model saved to `localStorage` via `Settings.geminiModel` (default: `gemini-2.0-flash`) |
-| **API key fallback** | If `geminiApiKey` fails, automatically retries with `geminiApiKey2`; throws (notifies user) only if both fail |
-
-#### Documents — Mobile UX
-
-| Feature | Description |
-|---|---|
-| **Responsive header** | Download button shows icon-only on narrow windows; filename truncates naturally |
-| **Floating zoom bar** | Pill-shaped control bar at the bottom (matches image-viewer style), visible when window width < 500 px |
-| **Pinch-to-zoom** | Two-finger pinch gesture on mobile (via `ScreenService.isMobile`) scales the PDF |
-| **Reset button** | While `isPinchZoomed`, the zoom % button becomes a compress icon to reset to 1× |
-| **Container-aware narrow** | `isNarrow` driven by `ResizeObserver` on the app window, not `window.innerWidth` |
-
-#### Performance
-
-| | v1.2.1 | v2.0.0 | v2.1.x |
-|---|---|---|---|
-| Initial bundle | 995 kB | **492 kB** | **492 kB** |
-| Lazy chunks | — | `document-viewer` 507 kB | `document-viewer` 507 kB |
-| Budget warning | ⚠ yes | **✓ none** | **✓ none** |
-
-#### Screen Breakpoints
-
-| Range | Mode |
+| Range | Modo |
 |---|---|
 | `< 768 px` | Mobile — `MobileNavBar` + `MobileOverview` |
-| `768–1023 px` | Tablet (compact) — mobile layout |
+| `768–1023 px` | Tablet (compacto) — layout mobile |
 | `≥ 1024 px` | Desktop — `Dock` + `WindowSwitcher` |
 
-#### Test Suite
+Todos os componentes passaram a depender de `ScreenService.isMobile()` em vez de `window.innerWidth` direto — garantindo reatividade total sem polling.
+
+### MobileNavBar — Barra de Navegação Inferior
+
+Nova barra fixa na base da tela, visível apenas no mobile (`< 768 px`), substituindo o `Dock` que permanece exclusivo do desktop:
+
+| Botão | Ação |
+|---|---|
+| Ícone quadrado | Abre/fecha a tela de Overview (apps recentes) |
+| Pílula central | Go Home — minimiza todos os processos e fecha os drawers |
+| Ícone de grade | Abre/fecha o App Drawer |
+
+### MobileOverview — Carrossel de Processos
+
+Tela completa de gestão de apps abertos, inspirada no recents do Android/iOS:
+
+- **Swipe up** num card → fecha o processo com animação de saída
+- **Tap** num card → foca o app e fecha o overview
+- **Swipe horizontal** → navega entre os cards
+- **Botão de fechar** individual por card
+- **Clear all** → fecha todos os processos de uma vez
+
+### MobileNavService — Estado Central de Navegação Mobile
+
+Novo serviço que centraliza toda a lógica de navegação mobile, evitando comunicação direta entre componentes:
+
+| Método | Descrição |
+|---|---|
+| `toggleOverview()` | Alterna a tela de overview |
+| `goHome()` | Minimiza todos os processos, fecha drawers |
+| `toggleAppDrawer()` | Alterna o App Drawer |
+| `openAppAndCloseDrawer(app)` | Abre um app e fecha o overview em sequência |
+
+### Sistema de Janelas — Adaptação Mobile
+
+O `WindowService` passou a reagir ao `ScreenService.isMobile()` via `effect()`:
+
+- **Ao entrar no mobile**: força maximização de todas as janelas abertas
+- **Ao voltar ao desktop**: restaura o `normalRect` salvo antes da maximização
+- **Title bar ocultada** no mobile (sem necessidade de arrastar/redimensionar)
+- **Drag e resize bloqueados** quando `isMobile() === true`
+
+```typescript
+// WindowService — efeito automático de adaptação
+effect(() => {
+  if (screen.isMobile()) {
+    this.maximize();
+  } else {
+    this.restore();
+  }
+});
+```
+
+### TopBar — Gesto de Pull para Notificações
+
+A barra superior ganhou suporte a toque no mobile:
+
+- **Desktop**: clique abre o centro de notificações
+- **Mobile**: swipe down (≥ 30 px) abre o centro de notificações com feedback visual de rubber-band durante o arrasto
+
+### AppsGrid — Toque Sem Delay
+
+O App Drawer foi otimizado para mobile:
+
+- Apps abrem via `touchend` — sem o delay de 300 ms do `click` em dispositivos touch
+- **Long-press (500 ms)** abre o menu de contexto do app
+- Menu de contexto centralizado no ícone usando `getBoundingClientRect()`, com clamp ao viewport
+
+### ProcessManager — Lazy Loading Async
+
+O `ProcessManager.spawn()` tornou-se `async` para suportar componentes lazy-loaded — necessário para separar o bundle do `DocumentViewer` (PDF viewer) do bundle principal:
+
+```typescript
+private async spawn(app, data?): Promise<void> {
+  const component = app.loadComponent
+    ? await app.loadComponent()
+    : app.component;
+  // cria e registra o processo
+}
+```
+
+| Bundle | Antes (v1.x) | Depois (v2.0.0) |
+|---|---|---|
+| Bundle inicial | 995 kB | **492 kB** |
+| Lazy chunk | — | `document-viewer` ~507 kB |
+| Budget warning | ⚠ sim | **✓ nenhum** |
+
+### Test Suite
 
 - **48 test files · 480+ tests · 0 failures**
-- Coverage includes: `Gemini.listModels`, `Gemini` key-fallback, `Settings.geminiModel`, `DocumentViewer` pinch/reset/isNarrow, `Hermes` model picker
+- Cobertura inclui: `ScreenService` breakpoints, `MobileNavService` estado, `WindowService` adaptação mobile/desktop, `ProcessManager` spawn assíncrono, gestos de toque no `DocumentViewer` e `ImageViewer`
 
 ---
 

@@ -1,4 +1,4 @@
-# Documentação Completa - Cai_OS 2.2.1
+# Documentação Completa - Cai_OS 2.3.1
 
 ## 📋 Sumário
 
@@ -1208,14 +1208,14 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 📊 Estatísticas do Projeto
 
-- **Versão**: 2.2.1
+- **Versão**: 2.3.1
 - **Linhas de Código**: ~18.000+
 - **Componentes**: 27+
 - **Serviços**: 17+
 - **Aplicativos**: 10
 - **Idiomas**: 2
-- **Arquivos de Teste**: 50
-- **Testes**: 541 (100% passando)
+- **Arquivos de Teste**: 51
+- **Testes**: 558 (100% passando)
 - **Performance Score**: 90+
 
 ---
@@ -1231,4 +1231,4 @@ Para dúvidas, sugestões ou reportar bugs:
 
 **Desenvolvido com ❤️ usando Angular 22**
 
-**Última Atualização**: Outubro 2026 · v2.2.1
+**Última Atualização**: Outubro 2026 · v2.3.1
