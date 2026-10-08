@@ -1,4 +1,4 @@
-# Documentação Completa - Cai_OS 2.3.1
+# Documentação Completa - Cai_OS 2.5.0
 
 ## 📋 Sumário
 
@@ -584,14 +584,21 @@ toggleAppDrawer(): void
 
 **Arquivo**: `src/app/core/services/system-tips.ts`
 
-Exibe dicas do sistema periodicamente.
+Exibe dicas contextuais do sistema periodicamente via o centro de notificações.
 
-**Dicas Incluídas**:
-- Atalho Alt+Tab
-- Uso do terminal
-- Modo fullscreen
-- Alternância de tema
-- Navegação no explorer
+As dicas são **específicas por plataforma**: o serviço lê `ScreenService.isMobile()` em tempo de execução e seleciona o pool `desktop` ou `mobile` das traduções i18n, garantindo que cada dica seja relevante ao dispositivo do usuário.
+
+Um `shownIndexes` rastreia quais dicas já foram exibidas. Quando todas as dicas do pool atual são mostradas, o conjunto é resetado para o ciclo recomeçar sem repetição imediata.
+
+**Pool de dicas desktop** (19 dicas): zonas de snap, Ctrl+`, menu de contexto, arrastar para a dock, comandos do Terminal (`neofetch`, `whoami`, `open`), controle por Hermes, ícones do desktop, redimensionar janela, múltiplas instâncias, notificações, Ajustes, alternância de visualização no Arquivos, Firefox.
+
+**Pool de dicas mobile** (11 dicas): swipe para overview, swipe para fechar, toque para retomar, grid de apps, comandos no Hermes, notificações, navegação no Arquivos, Ajustes, Terminal, letras sincronizadas.
+
+**Principais Métodos**:
+```typescript
+startRandomTips(): void       // primeira dica após 15 s, depois a cada 7–10 min
+stopTips(): void              // limpa o timer pendente
+```
 
 #### 13. DesktopIcons Service
 
@@ -1220,14 +1227,14 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 📊 Estatísticas do Projeto
 
-- **Versão**: 2.4.0
+- **Versão**: 2.5.0
 - **Linhas de Código**: ~19.000+
 - **Componentes**: 29+
 - **Serviços**: 19+
 - **Aplicativos**: 10
 - **Idiomas**: 2
 - **Arquivos de Teste**: 52
-- **Testes**: 607 (100% passando)
+- **Testes**: 614 (100% passando)
 - **Performance Score**: 90+
 
 ---
@@ -1243,4 +1250,4 @@ Para dúvidas, sugestões ou reportar bugs:
 
 **Desenvolvido com ❤️ usando Angular 22**
 
-**Última Atualização**: Janeiro 2027 · v2.4.0
+**Última Atualização**: Janeiro 2027 · v2.5.0

@@ -1,4 +1,4 @@
-# Complete Documentation - Cai_OS 2.3.1
+# Complete Documentation - Cai_OS 2.5.0
 
 ## 📋 Table of Contents
 1. [Overview](#-overview)
@@ -560,14 +560,21 @@ toggleAppDrawer(): void
 
 **File**: `src/app/core/services/system-tips.ts`
 
-Displays system tips periodically.
+Displays context-aware system tips periodically via the notification center.
 
-**Included Tips**:
-- Alt+Tab shortcut
-- Terminal usage
-- Fullscreen mode
-- Theme toggle
-- Explorer navigation
+Tips are **platform-specific**: the service reads `ScreenService.isMobile()` at runtime and selects from the `desktop` or `mobile` pool in the i18n translations, ensuring every tip is relevant to the user's current device.
+
+A `shownIndexes` set tracks which tips have been displayed. Once all tips in the current pool are shown, the set resets so the cycle starts again without immediate repetition.
+
+**Desktop tip pool** (19 tips): snap zones, Ctrl+`, context menu, dock drag-and-drop, Terminal commands (`neofetch`, `whoami`, `open`), Hermes system control, desktop icons, window resize, multi-instance, notifications, Settings, Files view toggle, Firefox.
+
+**Mobile tip pool** (11 tips): swipe-to-overview, swipe-to-close, tap-to-resume, All Apps grid, Hermes commands, notifications, Files navigation, Settings, Terminal, synced lyrics.
+
+**Main Methods**:
+```typescript
+startRandomTips(): void       // first tip after 15 s, then every 7–10 min
+stopTips(): void              // clears pending timer
+```
 
 #### 13. DesktopIcons Service
 
@@ -1140,14 +1147,14 @@ This project is a personal portfolio. All rights reserved.
 
 ## 📊 Project Statistics
 
-- **Version**: 2.4.0
+- **Version**: 2.5.0
 - **Lines of Code**: ~19,000+
 - **Components**: 29+
 - **Services**: 19+
 - **Applications**: 10
 - **Languages**: 2
 - **Test Files**: 52
-- **Tests**: 607 (100% passing)
+- **Tests**: 614 (100% passing)
 - **Performance Score**: 90+
 
 ---
@@ -1162,4 +1169,4 @@ For questions, suggestions, or to report bugs:
 
 **Developed with ❤️ using Angular 22**
 
-**Last Update**: January 2027 · v2.4.0
+**Last Update**: January 2027 · v2.5.0

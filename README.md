@@ -1,4 +1,4 @@
-# Complete Documentation — Cai_OS 2.3.1
+# Complete Documentation — Cai_OS 2.5.0
 
 ## 📋 Table of Contents
 
@@ -481,7 +481,7 @@ An `effect()` listens to `ScreenService.isMobile()` — switching to mobile forc
 | `LanguageService` | `services/language.ts` | i18n (pt / en) |
 | `GeminiService` | `services/gemini.ts` | Google Gemini API — streaming, key fallback, model listing |
 | `TerminalCommands` | `services/terminal-comands.ts` | Unix-like command processing |
-| `SystemTips` | `services/system-tips.ts` | Periodic tips via notifications |
+| `SystemTips` | `services/system-tips.ts` | Platform-aware periodic tips (desktop / mobile pools, no-repeat cycle) |
 | `DesktopIconsService` | `services/desktop-icons.ts` | Desktop shortcut management |
 | `ContextMenuService` | `services/context-menu.ts` | Context menu state and positioning |
 
@@ -779,9 +779,9 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 | Metric | Value |
 |---|---|
-| Version | **2.4.0** |
+| Version | **2.5.0** |
 | Test files | **52** |
-| Tests passing | **607 / 607** |
+| Tests passing | **614 / 614** |
 | Initial bundle | **492 kB** (−50% vs 1.x) |
 | Components | 29+ |
 | Services | 19 |
@@ -798,4 +798,4 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 ---
 
-**Developed with ❤️ using Angular 22 — Last Update: January 2027 · v2.4.0**
+**Developed with ❤️ using Angular 22 — Last Update: January 2027 · v2.5.0**
