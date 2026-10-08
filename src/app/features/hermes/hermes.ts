@@ -153,10 +153,12 @@ export class Hermes extends Base {
       }
     } catch (error) {
       this.messages.update((prev) => prev.filter((_, idx) => idx !== modelMessageIndex));
+      const is404 = error instanceof Error && (error.message.includes('404') || error.message.includes('NOT_FOUND'));
       this.not.show({
         title: this.lang.t().errors.systemError,
-        message: this.lang.t().errors.seviceUnavailable,
-        icon: 'fas fa-circle-exclamation',
+        message: is404 ? this.lang.t().errors.modelUnavailable : this.lang.t().errors.seviceUnavailable,
+        icon: is404 ? 'fas fa-robot' : 'fas fa-circle-exclamation',
+        duration: is404 ? 10000 : 6000,
       });
     } finally {
       this.isLoading.set(false);

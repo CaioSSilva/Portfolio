@@ -145,6 +145,7 @@ export class DockService {
   public closeActiveApp(): void {
     const id = this.contextMenu.activeAppId();
     if (id) this.processManager.closeAllInstancesById(id);
+    this.contextMenu.close();
   }
 
   public openActiveApp(): void {

@@ -5,6 +5,7 @@ import { FileSystem } from './file-system';
 import { FileItem } from '../models/file';
 import { CommandHandler, CommandResult } from '../models/terminal';
 import { ProcessManager } from './process-manager';
+import { APP_VERSION } from '../version';
 
 @Injectable({ providedIn: 'root' })
 export class TerminalComands {
@@ -185,7 +186,7 @@ export class TerminalComands {
       'user@caios',
       '----------',
       'OS: Cai_OS Web',
-      'Kernel: 2.0.0',
+      `Kernel: ${APP_VERSION}`,
       'Shell: Terminal',
       'WM: VWE_UI',
     ];
@@ -194,6 +195,6 @@ export class TerminalComands {
   }
 
   private handleAbout(): CommandResult {
-    return { output: `Cai_OS v2.0.1\nKernel: Web Engine`, action: 'NONE' };
+    return { output: `Cai_OS v${APP_VERSION}\nKernel: Web Engine`, action: 'NONE' };
   }
 }

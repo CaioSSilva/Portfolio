@@ -1,10 +1,12 @@
 @if (contextMenu.isOpen() && contextMenu.activeAppId()) {
   <div
-    (touchstart)="contextMenu.touchInsideMenu = true"
-    (touchend)="contextMenu.touchInsideMenu = true"
-    (document:click)="contextMenu.closeIfSettled()"
-    (document:touchstart)="contextMenu.closeIfSettled()"
-    class="fixed z-[20000] min-w-[245px] bg-gnome-bg/95 backdrop-blur-md border border-gnome-border rounded-xl p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
+    (click)="$event.stopPropagation(); contextMenu.close()"
+    (touchstart)="$event.stopPropagation(); $event.preventDefault(); contextMenu.close()"
+    class="fixed inset-0 z-[19999]"
+  ></div>
+  <div
+    (click)="$event.stopPropagation()"
+    class="fixed z-[20000] w-[260px] bg-gnome-bg/95 backdrop-blur-md border border-gnome-border rounded-xl p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
     [style.left.px]="contextMenu.position().x"
     [style.top.px]="contextMenu.position().y"
     [style.transform]="contextMenu.opensBelow() ? 'none' : 'translateY(-100%)'"
@@ -66,7 +68,8 @@
       (click)="
         desktop.hasPinnedAppWithId(contextMenu.activeAppId()!)
           ? desktop.unpinApp(contextMenu.activeAppId()!)
-          : desktop.pinApp(contextMenu.activeAppId()!)
+          : desktop.pinApp(contextMenu.activeAppId()!);
+        contextMenu.close()
       "
       class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
     >

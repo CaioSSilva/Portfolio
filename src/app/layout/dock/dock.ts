@@ -44,9 +44,10 @@ export class Dock {
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
 
+    const btn = event.currentTarget as HTMLElement;
     this.longPressTimer = setTimeout(() => {
       this.ngZone.run(() =>
-        this.apps.openContextMenuAt(touch.clientX, touch.clientY, appId),
+        this.apps.openContextMenuAt(btn, appId),
       );
     }, 500);
   }

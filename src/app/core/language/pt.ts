@@ -400,5 +400,6 @@ export const pt = {
     enableToLoadFs: 'Erro ao carregar sistema de arquivos! Recarregue a pagina.',
     seviceUnavailable: 'Serviço indisponível no momento!',
     actionExecutionFailed: 'Não foi possível executar a ação solicitada pelo Hermes.',
+    modelUnavailable: 'O modelo selecionado não está disponível. Troque o modelo nas configurações do Hermes.',
   },
 };

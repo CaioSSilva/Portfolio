@@ -51,18 +51,26 @@ export class Apps {
   onRightClickApp(event: MouseEvent, appId: string) {
     event.preventDefault();
     event.stopPropagation();
-    this.openContextMenuAt(event.clientX, event.clientY, appId);
+    this.openContextMenuAt(event.currentTarget as HTMLElement, appId);
   }
 
-  openContextMenuAt(clientX: number, clientY: number, appId: string) {
-    const menuWidth = 245;
-    const menuHeight = 180;
+  openContextMenuAt(anchor: HTMLElement, appId: string) {
+    const menuWidth = 260;
+    const menuHeight = 160;
     const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-    const x = Math.min(Math.max(clientX, 0), vw - menuWidth);
-    const opensBelow = clientY < menuHeight;
+    const rect = anchor.getBoundingClientRect();
+    const anchorCenterX = rect.left + rect.width / 2;
+    const anchorCenterY = rect.top + rect.height / 2;
 
-    this.contextMenu.openApp(x, clientY, appId, opensBelow);
+    const x = Math.min(Math.max(anchorCenterX - menuWidth / 2, 8), vw - menuWidth - 8);
+    const opensBelow = anchorCenterY < menuHeight + 8;
+    const y = opensBelow
+      ? Math.min(anchorCenterY + rect.height / 2 + 8, vh - menuHeight - 8)
+      : Math.max(anchorCenterY - rect.height / 2 - 8, menuHeight + 8);
+
+    this.contextMenu.openApp(x, y, appId, opensBelow);
   }
 
   private resetSearch() {

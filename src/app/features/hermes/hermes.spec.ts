@@ -13,6 +13,7 @@ describe('Hermes', () => {
   let geminiSpy: {
     generateResponse: ReturnType<typeof vi.fn>;
     generateResponseStream: ReturnType<typeof vi.fn>;
+    listModels: ReturnType<typeof vi.fn>;
   };
   let notificationSpy: { show: ReturnType<typeof vi.fn> };
   let actionServiceSpy: {

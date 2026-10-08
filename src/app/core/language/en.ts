@@ -397,5 +397,6 @@ export const en = {
     enableToLoadFs: 'Unable to load the file system! Reload the page.',
     seviceUnavailable: 'Service unavailable at this time!',
     actionExecutionFailed: 'Could not execute the action requested by Hermes.',
+    modelUnavailable: 'The selected model is not available. Please change the model in Hermes settings.',
   },
 };

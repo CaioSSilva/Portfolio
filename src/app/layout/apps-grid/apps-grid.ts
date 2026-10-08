@@ -23,8 +23,6 @@ export class AppsGrid {
   private touchStartX = 0;
   private touchStartY = 0;
   private touchStartTime = 0;
-  private lastTapTime = 0;
-  private lastMenuDismissTime = 0;
   private longPressTimer: ReturnType<typeof setTimeout> | null = null;
   private longPressApp: AppDefinition | null = null;
 
@@ -49,9 +47,10 @@ export class AppsGrid {
     this.touchStartTime = Date.now();
     this.longPressApp = app;
 
+    const btn = event.currentTarget as HTMLElement;
     this.longPressTimer = setTimeout(() => {
       this.ngZone.run(() =>
-        this.appsService.openContextMenuAt(touch.clientX, touch.clientY, app.id),
+        this.appsService.openContextMenuAt(btn, app.id),
       );
     }, 500);
   }
@@ -69,7 +68,6 @@ export class AppsGrid {
     const duration = Date.now() - this.touchStartTime;
 
     if (dx < 10 && dy < 10 && duration < 400) {
-      this.lastTapTime = Date.now();
       event.stopPropagation();
       event.preventDefault();
       this.ngZone.run(() => this.appsService.openApp(app));
@@ -85,15 +83,7 @@ export class AppsGrid {
     }
   }
 
-  onBackdropTouchStart(): void {
-    if (this.contextMenu.isOpen()) {
-      this.lastMenuDismissTime = Date.now();
-    }
-  }
-
   onBackdropClick(): void {
-    if (Date.now() - this.lastTapTime < 600) return;
-    if (Date.now() - this.lastMenuDismissTime < 600) return;
     if (this.contextMenu.isOpen()) {
       this.contextMenu.close();
       return;
@@ -103,9 +93,6 @@ export class AppsGrid {
 
   onAppClick(event: MouseEvent, app: AppDefinition): void {
     event.stopPropagation();
-    if (Date.now() - this.lastTapTime < 600) {
-      return;
-    }
     this.appsService.openApp(app);
   }
 }

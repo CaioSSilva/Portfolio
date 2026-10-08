@@ -5,6 +5,7 @@ import { Settings } from '../../core/services/settings';
 import { Base } from '../../core/models/base';
 import { LanguageService } from '../../core/services/language';
 import { CommonModule } from '@angular/common';
+import { APP_VERSION } from '../../core/version';
 
 @Component({
   selector: 'app-settings',
@@ -18,6 +19,7 @@ export class SettingsComponent extends Base implements OnDestroy {
   theme = inject(Theme);
   settings = inject(Settings);
   lang = inject(LanguageService);
+  readonly version = APP_VERSION;
   private ngZone = inject(NgZone);
   private hostEl = inject(ElementRef<HTMLElement>);
 

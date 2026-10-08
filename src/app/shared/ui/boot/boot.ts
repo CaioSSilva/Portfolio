@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Sound } from '../../../core/services/sound';
 import { LanguageService } from '../../../core/services/language';
+import { APP_VERSION } from '../../../core/version';
 
 @Component({
   selector: 'app-boot',
@@ -12,6 +13,7 @@ export class Boot implements OnInit {
   bootFinished = output<boolean>();
   translate = inject(LanguageService);
   sound = inject(Sound);
+  readonly version = APP_VERSION;
 
   isExiting = signal(false);
   progress = signal(0);

@@ -1,4 +1,4 @@
-# Documentação Completa - Cai_OS 2.1.0
+# Documentação Completa - Cai_OS 2.1.1
 
 ## 📋 Sumário
 
@@ -47,11 +47,12 @@ O Cai_OS foi desenvolvido como um portfólio interativo que demonstra:
 - **Sistema de Arquivos Virtual**: Estrutura hierárquica de pastas e arquivos
 - **Terminal Interativo**: Comandos Unix-like para navegação e controle do sistema
 - **Aplicativos Integrados**: Navegador, visualizador de imagens, player de música, editor de documentos
-- **IA Integrada**: Assistente virtual "Hermes" usando Google Gemini
+- **IA Integrada**: Assistente virtual "Hermes" usando Google Gemini com seleção de modelo e notificação de erro
 - **Temas**: Suporte a modo claro e escuro
 - **Multilíngue**: Português e Inglês
-- **Sistema de Notificações**: Centro de notificações com histórico
+- **Sistema de Notificações**: Centro de notificações com histórico e alerta de modelo indisponível
 - **Efeitos Sonoros**: Sons do sistema para interações
+- **Constante de versão**: Fonte única (`APP_VERSION`) usada na tela de Boot, Ajustes e Terminal
 
 ---
 
@@ -963,6 +964,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 - Suporte multilíngue
 - Seletor de modelo — lista todos os modelos Gemini disponíveis em tempo real
 - Ações no sistema (abrir apps, mudar tema, exibir notificações, etc.)
+- Notificação de modelo indisponível: quando a API retorna 404/NOT_FOUND, uma notificação específica orienta o usuário a trocar o modelo
 
 **Configuração**: Requer API key do Google Gemini (`geminiApiKey` + `geminiApiKey2` opcional) em `environment.ts`.
 
@@ -1201,7 +1203,7 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 📊 Estatísticas do Projeto
 
-- **Versão**: 2.1.0
+- **Versão**: 2.1.1
 - **Linhas de Código**: ~17.500+
 - **Componentes**: 27+
 - **Serviços**: 17+
@@ -1224,4 +1226,4 @@ Para dúvidas, sugestões ou reportar bugs:
 
 **Desenvolvido com ❤️ usando Angular 22**
 
-**Última Atualização**: Julho 2025
+**Última Atualização**: Outubro 2026 · v2.1.1

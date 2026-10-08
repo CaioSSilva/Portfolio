@@ -1,9 +1,9 @@
-# Complete Documentation — Cai_OS 2.1.0
+# Complete Documentation — Cai_OS 2.1.1
 
 ## 📋 Table of Contents
 
 1. [Overview](#-overview)
-2. [What's New in 2.1.0](#-whats-new-in-210)
+2. [What's New in 2.1.1](#-whats-new-in-211)
 3. [System Architecture](#️-system-architecture)
 4. [Technologies Used](#️-technologies-used)
 5. [Project Structure](#-project-structure)
@@ -58,18 +58,45 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 
 ---
 
-## 🆕 What's New in 2.1.0
+## 🆕 What's New in 2.1.1
 
-### Hermes AI — Model Selection
+### Mobile App Grid — Context Menu Fixes
+
+| Fix | Description |
+|---|---|
+| **Menu actions work** | Replaced `(document:touchstart)` listener with an inert overlay (`z-[19999]`) behind the menu — touch on a menu item no longer closes the menu before the action fires |
+| **App not opened on menu dismiss** | Grid uses `[class.pointer-events-none]` while menu is open; `onAppTouchStart` guards against touch-through |
+| **Click outside only closes menu** | Overlay intercepts `touchstart`/`click` with `stopPropagation` + `preventDefault`, so the backdrop never receives the event and the grid stays open |
+| **Menu centered on icon** | `openContextMenuAt` now receives the anchor `HTMLElement` and uses `getBoundingClientRect()` to center the menu on the icon; clamped to viewport with 8 px margin |
+| **No text wrapping** | Menu width bumped to `w-[260px]` to fit the longest translated string ("Remover da área de trabalho") |
+| **All actions close menu** | `closeActiveApp` and desktop pin/unpin now call `contextMenu.close()` |
+
+### Hermes — Model Error Notification
+
+| Feature | Description |
+|---|---|
+| **404 detection** | `catch` block in `handleSendMessage` inspects the error message for `404`/`NOT_FOUND` |
+| **Specific notification** | Shows `errors.modelUnavailable` ("The selected model is not available…") with `fa-robot` icon and 10 s duration |
+| **Generic fallback** | Any other error still shows the generic `seviceUnavailable` notification |
+
+### Version Constant
+
+| Change | Description |
+|---|---|
+| **`src/app/core/version.ts`** | Single `APP_VERSION` constant used by Boot screen, Settings about page, and Terminal (`neofetch` + `about` commands) |
+
+### What's New in 2.1.0 (previous)
+
+#### Hermes AI — Model Selection
 
 | Feature | Description |
 |---|---|
 | **Model picker** | Dropdown in the Hermes chat to select any available Gemini model |
 | **Dynamic listing** | Models fetched live from the Gemini REST API (`GET /v1beta/models`), filtered to `generateContent`-capable only |
-| **Persisted choice** | Selected model saved to `localStorage` via `Settings.geminiModel` (default: `gemini-2.0-flash-lite`) |
+| **Persisted choice** | Selected model saved to `localStorage` via `Settings.geminiModel` (default: `gemini-2.0-flash`) |
 | **API key fallback** | If `geminiApiKey` fails, automatically retries with `geminiApiKey2`; throws (notifies user) only if both fail |
 
-### Documents — Mobile UX
+#### Documents — Mobile UX
 
 | Feature | Description |
 |---|---|
@@ -79,15 +106,15 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 | **Reset button** | While `isPinchZoomed`, the zoom % button becomes a compress icon to reset to 1× |
 | **Container-aware narrow** | `isNarrow` driven by `ResizeObserver` on the app window, not `window.innerWidth` |
 
-### Performance
+#### Performance
 
-| | v1.2.1 | v2.0.0 | v2.1.0 |
+| | v1.2.1 | v2.0.0 | v2.1.x |
 |---|---|---|---|
 | Initial bundle | 995 kB | **492 kB** | **492 kB** |
 | Lazy chunks | — | `document-viewer` 507 kB | `document-viewer` 507 kB |
 | Budget warning | ⚠ yes | **✓ none** | **✓ none** |
 
-### Screen Breakpoints
+#### Screen Breakpoints
 
 | Range | Mode |
 |---|---|
@@ -95,10 +122,10 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 | `768–1023 px` | Tablet (compact) — mobile layout |
 | `≥ 1024 px` | Desktop — `Dock` + `WindowSwitcher` |
 
-### Test Suite
+#### Test Suite
 
 - **48 test files · 480+ tests · 0 failures**
-- New coverage: `Gemini.listModels`, `Gemini` key-fallback, `Settings.geminiModel`, `DocumentViewer` pinch/reset/isNarrow, `Hermes` model picker
+- Coverage includes: `Gemini.listModels`, `Gemini` key-fallback, `Settings.geminiModel`, `DocumentViewer` pinch/reset/isNarrow, `Hermes` model picker
 
 ---
 
@@ -694,7 +721,7 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 | Metric | Value |
 |---|---|
-| Version | **2.1.0** |
+| Version | **2.1.1** |
 | Test files | **48** |
 | Tests passing | **480+ / 480+** |
 | Initial bundle | **492 kB** (−50% vs 1.x) |
@@ -713,4 +740,4 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 ---
 
-**Developed with ❤️ using Angular 22 — Last Update: October 2026**
+**Developed with ❤️ using Angular 22 — Last Update: October 2026 · v2.1.1**
