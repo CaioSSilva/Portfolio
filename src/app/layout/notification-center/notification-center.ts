@@ -4,14 +4,13 @@ import { DatePipe, registerLocaleData } from '@angular/common';
 import localePtBr from '@angular/common/locales/pt';
 import { LanguageService } from '../../core/services/language';
 import { ScreenService } from '../../core/services/screen';
-import { AudioPlayer } from '../../features/musics/player/audio-player';
-import { Apps } from '../../core/services/apps';
+import { MusicWidget } from '../music-widget/music-widget';
 
 registerLocaleData(localePtBr, 'pt-BR');
 
 @Component({
   selector: 'app-notification-center',
-  imports: [DatePipe],
+  imports: [DatePipe, MusicWidget],
   templateUrl: './notification-center.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './notification-center.scss',
@@ -20,8 +19,6 @@ export class NotificationCenter {
   notifService = inject(NotificationService);
   lang = inject(LanguageService);
   screen = inject(ScreenService);
-  player = inject(AudioPlayer);
-  private apps = inject(Apps);
 
   now = new Date();
 
@@ -46,18 +43,4 @@ export class NotificationCenter {
     return `${days} ${days > 1 ? t.daysAgo : t.daysAgo.replace('s ', ' ')}`;
   }
 
-  openPlayer() {
-    const app = this.apps.appsDefinition().find((a) => a.id === 'musics');
-    if (app) {
-      this.apps.openApp(app);
-      this.notifService.closePanel();
-    }
-  }
-
-  formatTime(time: number): string {
-    if (isNaN(time) || !isFinite(time)) return '0:00';
-    const min = Math.floor(time / 60);
-    const sec = Math.floor(time % 60);
-    return `${min}:${sec.toString().padStart(2, '0')}`;
-  }
 }

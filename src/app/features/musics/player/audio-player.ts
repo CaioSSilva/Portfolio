@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { FileItem } from '../../../core/models/file';
+import { DiscSpinState } from '../../../core/models/music';
 
 @Injectable({ providedIn: 'root' })
 export class AudioPlayer {
@@ -16,6 +17,10 @@ export class AudioPlayer {
   readonly duration = signal(0);
   readonly volume = signal(1);
   readonly isMuted = signal(false);
+  readonly discSpinState = signal<DiscSpinState>('paused');
+
+  private _lastSeekTime = 0;
+  private _seekResetTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this.audio.crossOrigin = 'anonymous';
@@ -27,8 +32,14 @@ export class AudioPlayer {
 
     a.ontimeupdate = () => this.currentTime.set(a.currentTime);
     a.onloadedmetadata = () => this.duration.set(a.duration);
-    a.onplay = () => this.isPlaying.set(true);
-    a.onpause = () => this.isPlaying.set(false);
+    a.onplay = () => {
+      this.isPlaying.set(true);
+      if (!this._seekResetTimer) this.discSpinState.set('playing');
+    };
+    a.onpause = () => {
+      this.isPlaying.set(false);
+      if (!this._seekResetTimer) this.discSpinState.set('paused');
+    };
     a.onended = () => this.nextTrack();
 
     a.onloadstart = () => {
@@ -102,8 +113,24 @@ export class AudioPlayer {
     idx > 0 ? this.play(list[idx - 1]) : (this.audio.currentTime = 0);
   }
 
+  updateSeekDirection(time: number) {
+    if (!isNaN(time) && isFinite(time)) {
+      const direction: DiscSpinState = time >= this._lastSeekTime ? 'seeking-forward' : 'seeking-backward';
+      this._lastSeekTime = time;
+      this.discSpinState.set(direction);
+    }
+  }
+
   seek(time: number) {
     if (!isNaN(time) && isFinite(time)) {
+      this.updateSeekDirection(time);
+
+      if (this._seekResetTimer) clearTimeout(this._seekResetTimer);
+      this._seekResetTimer = setTimeout(() => {
+        this._seekResetTimer = null;
+        this.discSpinState.set(this.isPlaying() ? 'playing' : 'paused');
+      }, 600);
+
       this.audio.currentTime = time;
     }
   }

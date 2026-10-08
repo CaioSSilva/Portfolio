@@ -101,72 +101,7 @@
         <span>{{ now | date: 'HH:mm' }}</span>
       </div>
 
-      @if (player.currentTrack()) {
-        <div class="mx-4 border-t border-gnome-border/40"></div>
-        <div
-          (click)="openPlayer()"
-          class="mx-4 mb-0 mt-3 bg-gnome-surface/60 border border-gnome-border/40 rounded-2xl p-3.5 flex flex-col gap-2.5 cursor-pointer active:opacity-80 transition-opacity"
-        >
-          <div class="flex items-center gap-3 min-w-0 w-full">
-            <div class="w-9 h-9 rounded-xl bg-gnome-blue flex items-center justify-center shrink-0">
-              <i
-                class="fas fa-compact-disc text-white text-sm"
-                [class.animate-spin-slow]="player.isPlaying() && !player.isLoading()"
-              ></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold text-gnome-text truncate">{{ player.currentTrack()!.name }}</p>
-              <p class="text-[10px] text-gnome-text-secondary">{{ lang.t().audioPlayer.nowPlaying }}</p>
-            </div>
-            <i class="fas fa-chevron-right text-[10px] text-gnome-text-secondary opacity-50 shrink-0"></i>
-          </div>
-          <div class="flex items-center justify-center gap-5">
-            <button
-              (click)="player.prevTrack(); $event.stopPropagation()"
-              class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gnome-text/10 active:scale-90 transition-all cursor-pointer text-gnome-text opacity-70 hover:opacity-100"
-            >
-              <i class="fas fa-backward-step text-base"></i>
-            </button>
-            <button
-              (click)="player.togglePlay(); $event.stopPropagation()"
-              class="w-11 h-11 flex items-center justify-center bg-gnome-blue rounded-full shadow-lg hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-            >
-              @if (player.isLoading()) {
-                <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              } @else {
-                <i
-                  class="fas text-white text-base"
-                  [class.fa-play]="!player.isPlaying()"
-                  [class.fa-pause]="player.isPlaying()"
-                ></i>
-              }
-            </button>
-            <button
-              (click)="player.nextTrack(); $event.stopPropagation()"
-              class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gnome-text/10 active:scale-90 transition-all cursor-pointer text-gnome-text opacity-70 hover:opacity-100"
-            >
-              <i class="fas fa-forward-step text-base"></i>
-            </button>
-          </div>
-          <div class="flex items-center gap-2" (click)="$event.stopPropagation()">
-            <span class="text-[10px] font-mono text-gnome-text-secondary w-7 text-right shrink-0">
-              {{ formatTime(player.currentTime()) }}
-            </span>
-            <input
-              type="range"
-              [min]="0"
-              [max]="player.duration()"
-              [value]="player.currentTime()"
-              (input)="player.seek(+$any($event.target).value)"
-              [style.--slider-pct]="(player.duration() > 0 ? (player.currentTime() / player.duration()) * 100 : 0) + '%'"
-              class="gnome-slider flex-1 h-1.5 appearance-none cursor-pointer rounded-full"
-            />
-            <span class="text-[10px] font-mono text-gnome-text-secondary w-7 shrink-0">
-              {{ formatTime(player.duration()) }}
-            </span>
-          </div>
-        </div>
-      }
+      <app-music-widget />
     </div>
   } @else {
     <div
@@ -220,72 +155,7 @@
         }
       </div>
 
-      @if (player.currentTrack()) {
-        <div class="mx-3 border-t border-gnome-border/40"></div>
-        <div
-          (click)="openPlayer()"
-          class="mx-3 mb-3 mt-3 bg-gnome-surface/60 border border-gnome-border/40 rounded-2xl p-3 flex flex-col gap-2.5 cursor-pointer hover:opacity-90 active:opacity-70 transition-opacity"
-        >
-          <div class="flex items-center gap-3 min-w-0 w-full">
-            <div class="w-8 h-8 rounded-xl bg-gnome-blue flex items-center justify-center shrink-0">
-              <i
-                class="fas fa-compact-disc text-white text-sm"
-                [class.animate-spin-slow]="player.isPlaying() && !player.isLoading()"
-              ></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-xs font-bold text-gnome-text truncate">{{ player.currentTrack()!.name }}</p>
-              <p class="text-[10px] text-gnome-text-secondary">{{ lang.t().audioPlayer.nowPlaying }}</p>
-            </div>
-            <i class="fas fa-chevron-right text-[10px] text-gnome-text-secondary opacity-50 shrink-0"></i>
-          </div>
-          <div class="flex items-center justify-center gap-4">
-            <button
-              (click)="player.prevTrack(); $event.stopPropagation()"
-              class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gnome-text/10 active:scale-90 transition-all cursor-pointer text-gnome-text opacity-70 hover:opacity-100"
-            >
-              <i class="fas fa-backward-step text-sm"></i>
-            </button>
-            <button
-              (click)="player.togglePlay(); $event.stopPropagation()"
-              class="w-10 h-10 flex items-center justify-center bg-gnome-blue rounded-full shadow-md hover:opacity-90 active:scale-95 transition-all cursor-pointer"
-            >
-              @if (player.isLoading()) {
-                <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              } @else {
-                <i
-                  class="fas text-white text-sm"
-                  [class.fa-play]="!player.isPlaying()"
-                  [class.fa-pause]="player.isPlaying()"
-                ></i>
-              }
-            </button>
-            <button
-              (click)="player.nextTrack(); $event.stopPropagation()"
-              class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gnome-text/10 active:scale-90 transition-all cursor-pointer text-gnome-text opacity-70 hover:opacity-100"
-            >
-              <i class="fas fa-forward-step text-sm"></i>
-            </button>
-          </div>
-          <div class="flex items-center gap-2" (click)="$event.stopPropagation()">
-            <span class="text-[10px] font-mono text-gnome-text-secondary w-7 text-right shrink-0">
-              {{ formatTime(player.currentTime()) }}
-            </span>
-            <input
-              type="range"
-              [min]="0"
-              [max]="player.duration()"
-              [value]="player.currentTime()"
-              (input)="player.seek(+$any($event.target).value)"
-              [style.--slider-pct]="(player.duration() > 0 ? (player.currentTime() / player.duration()) * 100 : 0) + '%'"
-              class="gnome-slider flex-1 h-1.5 appearance-none cursor-pointer rounded-full"
-            />
-            <span class="text-[10px] font-mono text-gnome-text-secondary w-7 shrink-0">
-              {{ formatTime(player.duration()) }}
-            </span>
-          </div>
-        </div>
-      }
+      <app-music-widget />
     </div>
   }
 }

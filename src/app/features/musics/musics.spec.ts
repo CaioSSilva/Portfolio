@@ -115,10 +115,10 @@ describe('Musics', () => {
     expect(stopSpy).toHaveBeenCalled();
   });
 
-  it('should handleSeek delegate to player.seek()', () => {
+  it('onSeekEnd deve chamar player.seek()', () => {
     const seekSpy = vi.spyOn(audioPlayer, 'seek');
     const event = { target: { valueAsNumber: 42 } } as unknown as Event;
-    component.handleSeek(event);
+    component.onSeekEnd(event);
     expect(seekSpy).toHaveBeenCalledWith(42);
   });
 

@@ -70,20 +70,20 @@ describe('NowPlayingWidget', () => {
     expect(textSpan).not.toBeUndefined();
   });
 
-  it('adds paused class to bars when not playing', () => {
+  it('disc icon has widget-disc-paused class when not playing', () => {
     audioPlayer.currentTrack.set(mockTrack());
-    audioPlayer.isPlaying.set(false);
+    audioPlayer.discSpinState.set('paused');
     fixture.detectChanges();
-    const bars = fixture.nativeElement.querySelector('.bars');
-    expect(bars.classList).toContain('paused');
+    const disc = fixture.nativeElement.querySelector('i.fa-compact-disc');
+    expect(disc.classList).toContain('widget-disc-paused');
   });
 
-  it('does not add paused class to bars when playing', () => {
+  it('disc icon has widget-disc-playing class when playing', () => {
     audioPlayer.currentTrack.set(mockTrack());
-    audioPlayer.isPlaying.set(true);
+    audioPlayer.discSpinState.set('playing');
     fixture.detectChanges();
-    const bars = fixture.nativeElement.querySelector('.bars');
-    expect(bars.classList).not.toContain('paused');
+    const disc = fixture.nativeElement.querySelector('i.fa-compact-disc');
+    expect(disc.classList).toContain('widget-disc-playing');
   });
 
   it('openPlayer calls apps.openApp with the musics app', () => {

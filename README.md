@@ -1,9 +1,9 @@
-# Complete Documentation — Cai_OS 2.2.1
+# Complete Documentation — Cai_OS 2.3.0
 
 ## 📋 Table of Contents
 
 1. [Overview](#-overview)
-2. [What's New in 2.2.1](#-whats-new-in-221)
+2. [What's New in 2.3.0](#-whats-new-in-230)
 3. [System Architecture](#️-system-architecture)
 4. [Technologies Used](#️-technologies-used)
 5. [Project Structure](#-project-structure)
@@ -58,7 +58,32 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 
 ---
 
-## 🆕 What's New in 2.2.1
+## 🆕 What's New in 2.3.0
+
+### Music Player — Animated CD
+
+| Feature | Description |
+|---|---|
+| **CD reacts to playback state** | The disc icon spins slowly while playing, spins fast forward while scrubbing forward, spins fast in reverse while scrubbing backward, and stops when paused |
+| **Consistent across all surfaces** | The same animation applies in the full player, the top bar widget, and the notification center mini-player |
+
+### Music Player — Smooth seek bar
+
+| Fix | Description |
+|---|---|
+| **No more flickering while dragging** | The progress bar now shows a local preview while dragging and only commits the position on release — the disc and time display update smoothly without jumping |
+
+### Notification Center — Mini-player polish
+
+| Fix | Description |
+|---|---|
+| **Rounded corners match the panel** | The mini-player card corners now align correctly with the notification panel's rounded border on both mobile and desktop |
+
+### Test Suite
+
+- **51 test files · 548 tests · 0 failures**
+
+### What's New in 2.2.1 (anterior)
 
 ### Document Viewer — Markdown Support
 
@@ -800,11 +825,11 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 | Metric | Value |
 |---|---|
-| Version | **2.1.1** |
-| Test files | **48** |
-| Tests passing | **480+ / 480+** |
+| Version | **2.3.0** |
+| Test files | **51** |
+| Tests passing | **548 / 548** |
 | Initial bundle | **492 kB** (−50% vs 1.x) |
-| Components | 28+ |
+| Components | 29+ |
 | Services | 17 |
 | Applications | 10 |
 | Languages | 2 (pt / en) |
@@ -819,4 +844,4 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 ---
 
-**Developed with ❤️ using Angular 22 — Last Update: October 2026 · v2.1.1**
+**Developed with ❤️ using Angular 22 — Last Update: October 2026 · v2.3.0**

@@ -103,7 +103,9 @@
         >
           <i
             class="fas fa-compact-disc text-6xl @min-[680px]:text-8xl text-white drop-shadow-lg"
-            [class.animate-spin-slow]="player.isPlaying() && !player.isLoading()"
+            [class.disc-playing]="player.discSpinState() === 'playing' && !player.isLoading()"
+            [class.disc-seeking-forward]="player.discSpinState() === 'seeking-forward'"
+            [class.disc-seeking-backward]="player.discSpinState() === 'seeking-backward'"
           ></i>
           @if (player.isLoading()) {
             <div
@@ -126,13 +128,16 @@
               type="range"
               [min]="0"
               [max]="player.duration()"
-              [value]="player.currentTime()"
-              (input)="handleSeek($event)"
-              [style.--slider-pct]="(player.duration() > 0 ? (player.currentTime() / player.duration()) * 100 : 0) + '%'"
+              [value]="displayTime()"
+              (pointerdown)="onSeekStart($event)"
+              (input)="onSeekMove($event)"
+              (pointerup)="onSeekEnd($event)"
+              (pointercancel)="onSeekEnd($event)"
+              [style.--slider-pct]="(player.duration() > 0 ? (displayTime() / player.duration()) * 100 : 0) + '%'"
               class="gnome-slider w-full h-1.5 appearance-none cursor-pointer rounded-full"
             />
             <div class="flex justify-between text-[11px] font-mono opacity-60 mt-1.5">
-              <span>{{ formatTime(player.currentTime()) }}</span>
+              <span>{{ formatTime(displayTime()) }}</span>
               <span>{{ formatTime(player.duration()) }}</span>
             </div>
           </div>

@@ -10,21 +10,15 @@ import { signal } from '@angular/core';
 describe('NotificationCenter', () => {
   let component: NotificationCenter;
   let fixture: ComponentFixture<NotificationCenter>;
-  let appsService: { appsDefinition: ReturnType<typeof signal>; openApp: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    appsService = {
-      appsDefinition: signal([{ id: 'musics', name: 'Musics' }]),
-      openApp: vi.fn(),
-    };
-
     await TestBed.configureTestingModule({
       imports: [NotificationCenter],
       providers: [
         NotificationService,
         LanguageService,
         AudioPlayer,
-        { provide: Apps, useValue: appsService },
+        { provide: Apps, useValue: { appsDefinition: signal([]), openApp: vi.fn() } },
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
     }).compileComponents();
@@ -39,76 +33,40 @@ describe('NotificationCenter', () => {
     expect(component).toBeTruthy();
   });
 
-  it('formatTimestamp returns justNow for timestamps less than 1 minute ago', () => {
+  it('formatTimestamp retorna justNow para menos de 1 minuto atrás', () => {
     const now = new Date();
     const result = component.formatTimestamp(now);
     const t = component.lang.t().notifications.timmings;
     expect(result).toBe(t.justNow);
   });
 
-  it('formatTimestamp returns minutes for timestamps between 1-59 minutes ago', () => {
+  it('formatTimestamp retorna minutos para 1–59 minutos atrás', () => {
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const result = component.formatTimestamp(fiveMinutesAgo);
-    expect(result).toContain('5');
+    expect(component.formatTimestamp(fiveMinutesAgo)).toContain('5');
   });
 
-  it('formatTimestamp returns single minute form for exactly 1 minute ago', () => {
+  it('formatTimestamp retorna singular para exatamente 1 minuto atrás', () => {
     const oneMinuteAgo = new Date(Date.now() - 1 * 60 * 1000 - 100);
-    const result = component.formatTimestamp(oneMinuteAgo);
-    expect(result).toContain('1');
+    expect(component.formatTimestamp(oneMinuteAgo)).toContain('1');
   });
 
-  it('formatTimestamp returns hours for timestamps between 1-23 hours ago', () => {
+  it('formatTimestamp retorna horas para 1–23 horas atrás', () => {
     const twoHoursAgo = new Date(Date.now() - 2 * 3600 * 1000);
-    const result = component.formatTimestamp(twoHoursAgo);
-    expect(result).toContain('2');
+    expect(component.formatTimestamp(twoHoursAgo)).toContain('2');
   });
 
-  it('formatTimestamp returns single hour form for exactly 1 hour ago', () => {
+  it('formatTimestamp retorna singular para exatamente 1 hora atrás', () => {
     const oneHourAgo = new Date(Date.now() - 1 * 3600 * 1000 - 100);
-    const result = component.formatTimestamp(oneHourAgo);
-    expect(result).toContain('1');
+    expect(component.formatTimestamp(oneHourAgo)).toContain('1');
   });
 
-  it('formatTimestamp returns days for timestamps >= 24 hours ago', () => {
+  it('formatTimestamp retorna dias para 24h ou mais atrás', () => {
     const twoDaysAgo = new Date(Date.now() - 2 * 86400 * 1000);
-    const result = component.formatTimestamp(twoDaysAgo);
-    expect(result).toContain('2');
+    expect(component.formatTimestamp(twoDaysAgo)).toContain('2');
   });
 
-  it('formatTimestamp returns single day form for exactly 1 day ago', () => {
+  it('formatTimestamp retorna singular para exatamente 1 dia atrás', () => {
     const oneDayAgo = new Date(Date.now() - 1 * 86400 * 1000 - 100);
-    const result = component.formatTimestamp(oneDayAgo);
-    expect(result).toContain('1');
-  });
-
-  it('formatTime returns 0:00 for NaN', () => {
-    expect(component.formatTime(NaN)).toBe('0:00');
-  });
-
-  it('formatTime returns 0:00 for Infinity', () => {
-    expect(component.formatTime(Infinity)).toBe('0:00');
-  });
-
-  it('formatTime formats seconds correctly', () => {
-    expect(component.formatTime(65)).toBe('1:05');
-  });
-
-  it('formatTime zero-pads seconds below 10', () => {
-    expect(component.formatTime(9)).toBe('0:09');
-  });
-
-  it('openPlayer calls apps.openApp and closes the panel', () => {
-    const notifService = TestBed.inject(NotificationService);
-    notifService.openPanel();
-    component.openPlayer();
-    expect(appsService.openApp).toHaveBeenCalledWith({ id: 'musics', name: 'Musics' });
-    expect(notifService.isPanelOpen()).toBe(false);
-  });
-
-  it('openPlayer does nothing when musics app is not found', () => {
-    appsService.appsDefinition.set([]);
-    component.openPlayer();
-    expect(appsService.openApp).not.toHaveBeenCalled();
+    expect(component.formatTimestamp(oneDayAgo)).toContain('1');
   });
 });

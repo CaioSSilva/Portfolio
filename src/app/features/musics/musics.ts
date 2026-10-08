@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnDestroy, inject, signal, computed, effect, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Base } from '../../core/models/base';
+import { Base, ProcessData } from '../../core/models/base';
 import { AUDIO_EXTENSIONS, FileItem } from '../../core/models/file';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
@@ -33,20 +33,15 @@ export class Musics extends Base implements OnDestroy {
   readonly isLibraryLoaded = signal(false);
   readonly fileName = computed(() => this.player.currentTrack()?.name || '---');
 
+  readonly isSeeking = signal(false);
+  readonly seekPreview = signal(0);
+  readonly displayTime = computed(() =>
+    this.isSeeking() ? this.seekPreview() : this.player.currentTime()
+  );
+
   constructor() {
     super();
-
-    if (typeof ResizeObserver !== 'undefined') {
-      this.resizeObserver = new ResizeObserver((entries) => {
-        const w = entries[0]?.contentRect.width ?? 0;
-        const narrow = w > 0 && w < 680;
-        this.ngZone.run(() => {
-          this.isNarrow.set(narrow);
-          if (narrow && !this.screen.isMobile()) this.isSidebarOpen.set(false);
-        });
-      });
-      this.resizeObserver.observe(this.hostEl.nativeElement);
-    }
+    this.initResizeObserver();
 
     effect(() => {
       if (!this.fs.isLoaded()) {
@@ -59,25 +54,49 @@ export class Musics extends Base implements OnDestroy {
       }
 
       const external = this.data();
-      if (!external) return;
-
-      const url = (typeof external === 'string' ? external : external.url) ?? '';
-      if (!url) return;
-
-      let track = this.musicLibrary().find((m) => m.url === url);
-      if (!track) {
-        track = {
-          id: `ext-${Date.now()}`,
-          name: decodeURIComponent(url.split('/').pop() || 'Unknown'),
-          type: 'file',
-          icon: 'fas fa-music',
-          url,
-        };
-        this.musicLibrary.update((prev) => [...prev, track!]);
+      if (external) {
+        this.playExternalTrack(external);
       }
-
-      queueMicrotask(() => this.player.play(track!, this.musicLibrary()));
     });
+  }
+
+  private initResizeObserver(): void {
+    if (typeof ResizeObserver === 'undefined') return;
+
+    this.resizeObserver = new ResizeObserver((entries) => {
+      this.handleResize(entries);
+    });
+    this.resizeObserver.observe(this.hostEl.nativeElement);
+  }
+
+  private handleResize(entries: ResizeObserverEntry[]): void {
+    const w = entries[0]?.contentRect.width ?? 0;
+    const narrow = w > 0 && w < 680;
+    this.ngZone.run(() => {
+      this.isNarrow.set(narrow);
+      if (narrow && !this.screen.isMobile()) {
+        this.isSidebarOpen.set(false);
+      }
+    });
+  }
+
+  private playExternalTrack(external: ProcessData | string): void {
+    const url = (typeof external === 'string' ? external : external.url) ?? '';
+    if (!url) return;
+
+    let track = this.musicLibrary().find((m) => m.url === url);
+    if (!track) {
+      track = {
+        id: `ext-${Date.now()}`,
+        name: decodeURIComponent(url.split('/').pop() || 'Unknown'),
+        type: 'file',
+        icon: 'fas fa-music',
+        url,
+      };
+      this.musicLibrary.update((prev) => [...prev, track!]);
+    }
+
+    queueMicrotask(() => this.player.play(track!, this.musicLibrary()));
   }
 
   loadLibrary() {
@@ -101,8 +120,19 @@ export class Musics extends Base implements OnDestroy {
     this.player.setVolume(val);
   }
 
-  handleSeek(e: Event) {
-    const val = (e.target as HTMLInputElement).valueAsNumber ?? parseFloat((e.target as HTMLInputElement).value);
+  onSeekStart(e: Event) {
+    this.isSeeking.set(true);
+    this.seekPreview.set((e.target as HTMLInputElement).valueAsNumber);
+  }
+
+  onSeekMove(e: Event) {
+    this.seekPreview.set((e.target as HTMLInputElement).valueAsNumber);
+    this.player.updateSeekDirection(this.seekPreview());
+  }
+
+  onSeekEnd(e: Event) {
+    const val = (e.target as HTMLInputElement).valueAsNumber;
+    this.isSeeking.set(false);
     this.player.seek(val);
   }
 

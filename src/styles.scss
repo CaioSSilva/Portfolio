@@ -148,3 +148,26 @@ body {
     background: transparent;
   }
 }
+
+/* ── Disc spin animations (shared across player, widget, notification-center) ── */
+.disc-playing {
+  animation: disc-spin 8s linear infinite;
+}
+
+.disc-seeking-forward {
+  animation: disc-spin 0.6s linear infinite;
+}
+
+.disc-seeking-backward {
+  animation: disc-spin-reverse 0.6s linear infinite;
+}
+
+@keyframes disc-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes disc-spin-reverse {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
