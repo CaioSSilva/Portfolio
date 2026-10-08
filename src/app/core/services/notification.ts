@@ -14,6 +14,14 @@ export class NotificationService {
     this.isPanelOpen.update((open) => !open);
   }
 
+  openPanel() {
+    this.isPanelOpen.set(true);
+  }
+
+  closePanel() {
+    this.isPanelOpen.set(false);
+  }
+
   show(notif: Omit<Notification, 'id' | 'timestamp'>) {
     const newNotif = this.createNotification(notif);
 

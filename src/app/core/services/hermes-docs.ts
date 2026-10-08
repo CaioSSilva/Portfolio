@@ -20,7 +20,7 @@ Cai_OS é um sistema operacional web interativo construído com Angular 21, insp
 - **Janelas**: Arrastar, redimensionar (8 direções, mín. 320x240), maximizar (duplo clique), minimizar, snap nas bordas/cantos.
 - **Dock**: Barra de tarefas com apps fixados, indicadores de execução, menu de contexto e drag-and-drop.
 - **Top Bar**: Relógio, grid de apps, centro de notificações, menu de energia.
-- **App Switcher**: Ctrl+Q para alternar janelas.
+- **App Switcher**: Ctrl+\` (crase) para alternar janelas.
 - **Sistema de Arquivos Virtual**: Estrutura hierárquica em /home/ com documents, photos, music, certificates.
 - **Temas**: Claro e escuro.
 - **Idiomas**: Português e Inglês.
@@ -61,7 +61,7 @@ Cai_OS is an interactive web operating system built with Angular 21, inspired by
 - **Windows**: Drag, resize (8 directions, min 320x240), maximize (double-click), minimize, edge/corner snap.
 - **Dock**: Taskbar with pinned apps, running indicators, context menu and drag-and-drop.
 - **Top Bar**: Clock, app grid, notification center, power menu.
-- **App Switcher**: Ctrl+Q to switch windows.
+- **App Switcher**: Ctrl+\` (backtick) to switch windows.
 - **Virtual File System**: Hierarchical structure at /home/ with documents, photos, music, certificates.
 - **Themes**: Light and dark.
 - **Languages**: Portuguese and English.
@@ -78,6 +78,6 @@ Cai_OS is an interactive web operating system built with Angular 21, inspired by
 Angular 21, TypeScript, Tailwind CSS 4, SCSS, Google Gemini AI, Font Awesome 7, Vitest.
 
 ## Statistics
-~15,000+ lines of code, 25+ components, 15+ services, 10 applications.
+15,000+ lines of code, 28+ components, 17 services, 10 applications.
 `,
 };

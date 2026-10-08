@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, NgZone, signal } from '@angular/core';
 import { AppBase, ProcessData } from '../models/base';
 import { Process } from '../models/process';
 import { LanguageService } from './language';
@@ -13,6 +13,7 @@ export class ProcessManager {
   private readonly fs = inject(FileSystem);
   private readonly nots = inject(NotificationService);
   private readonly appRegistry = inject(AppRegistry);
+  private readonly ngZone = inject(NgZone);
 
   public readonly processes = signal<Process[]>([]);
   private readonly topOverlapCounter = signal<number>(0);
@@ -32,9 +33,26 @@ export class ProcessManager {
   });
 
   public open(app: AppBase, data?: ProcessData): void {
-    const id = crypto.randomUUID();
+    this.ngZone.run(() => {
+      const existing = this.processes().find((p) => p.appId === app.id);
+      if (existing) {
+        this.focus(existing.id);
+        return;
+      }
+      this.spawn(app, data);
+    });
+  }
+
+  public forceOpen(app: AppBase, data?: ProcessData): void {
+    this.ngZone.run(() => this.spawn(app, data));
+  }
+
+  private async spawn(app: AppBase & { loadComponent?: () => Promise<unknown> }, data?: ProcessData): Promise<void> {
+    const component = app.loadComponent ? ((await app.loadComponent()) as AppBase['component']) : app.component;
+    const id = this.generateId();
     const newProcess: Process = {
       ...app,
+      component,
       appId: app.id,
       id,
       isMaximized: false,
@@ -43,8 +61,7 @@ export class ProcessManager {
       cascadeIndex: this.globalCascadeIndex++,
       data: data || { id },
     };
-
-    this.processes.update((current) => [...current, newProcess]);
+    this.ngZone.run(() => this.processes.update((current) => [...current, newProcess]));
   }
 
   public openFile(node: FileItem): void {
@@ -114,6 +131,16 @@ export class ProcessManager {
 
   public updateBottomOverlap(isOverlapping: boolean): void {
     this.bottomOverlapCounter.update((v) => (isOverlapping ? v + 1 : Math.max(0, v - 1)));
+  }
+
+  private generateId(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    });
   }
 
   private getNextZIndex(): number {

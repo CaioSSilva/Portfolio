@@ -22,7 +22,7 @@ export class WindowSwitcher {
 
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent) {
-    if (event.ctrlKey && event.key.toLowerCase() === 'q') {
+    if (event.ctrlKey && event.code === 'Backquote') {
       event.preventDefault();
 
       if (!this.isVisible()) {
@@ -30,7 +30,9 @@ export class WindowSwitcher {
         this.isVisible.set(true);
         this.selectedIndex.set(this.processes().length > 1 ? 1 : 0);
       } else {
-        this.selectedIndex.update((idx) => (idx + 1) % this.processes().length);
+        const delta = event.shiftKey ? -1 : 1;
+        const len = this.processes().length;
+        this.selectedIndex.update((idx) => (idx + delta + len) % len);
       }
     }
 

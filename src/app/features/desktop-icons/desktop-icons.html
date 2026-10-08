@@ -1,5 +1,5 @@
 <div
-  class="absolute grid grid-flow-col gap-2 p-4 grid-rows-[repeat(auto-fill,minmax(110px,1fr))]"
+  class="absolute grid grid-flow-col gap-2 p-4 grid-rows-[repeat(auto-fill,minmax(110px,1fr))] z-[20]"
   style="top: 32px; height: calc(100vh - 32px)"
 >
   @for (item of desktop.onDesktopApps(); track item.id) {
@@ -26,3 +26,5 @@
     </button>
   }
 </div>
+
+<app-context-menu></app-context-menu>

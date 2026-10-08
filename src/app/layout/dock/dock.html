@@ -1,5 +1,5 @@
 <div
-  class="fixed bottom-0 left-0 right-0 h-2 z-[8998]"
+  class="fixed bottom-0 left-0 right-0 h-2 z-[9700]"
   (mouseenter)="dock.forceShow.set(true)"
 ></div>
 
@@ -9,14 +9,15 @@
   [class.translate-y-[150%]]="
     settings.autoHideDock() && processManager.isDockHidden() && !dock.forceShow()
   "
-  class="fixed bottom-4 left-1/2 -translate-x-1/2 px-2 py-2 flex items-end gap-2 z-[9000] bg-gnome-bg/80 border border-gnome-border/10 rounded-[24px] shadow-2xl will-change-transform transition-all duration-300 ease-in-out"
+  class="fixed bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 max-w-[96vw] px-2 py-1.5 sm:py-2 flex items-center sm:items-end gap-1.5 sm:gap-2 z-[9700] bg-gnome-bg/80 backdrop-blur-xl border border-gnome-border/20 rounded-[20px] sm:rounded-[24px] shadow-2xl will-change-transform transition-all duration-300 ease-in-out overflow-x-auto no-scrollbar"
 >
-  <div class="group relative flex justify-center items-center">
+  <div class="group relative flex justify-center items-center shrink-0">
     <button
       (click)="apps.toggleGrid()"
       [style.width.px]="settings.dockSize()"
       [style.height.px]="settings.dockSize()"
-      class="relative mr-[7px] cursor-pointer flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10"
+      class="relative cursor-pointer flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10 active:scale-95"
+      aria-label="Applications"
     >
       <i
         [style.font-size.px]="settings.dockSize() * 0.65"
@@ -33,27 +34,30 @@
     (dragleave)="itemNewPinPos.set(null)"
     (dragover)="onDragOver($event)"
     (drop)="onDrop($event)"
-    class="flex items-end"
+    class="flex items-center sm:items-end shrink-0"
   >
     @for (item of dock.dockItems(); track item.id; let i = $index) {
       @if (itemNewPinPos() === i) {
         <div
-          class="bg-gnome-blue/10 rounded-xl border-2 border-dashed border-gnome-blue/20 animate-pulse mx-1"
+          class="bg-gnome-blue/10 rounded-xl border-2 border-dashed border-gnome-blue/20 animate-pulse mx-1 shrink-0"
           [style.width.px]="settings.dockSize()"
           [style.height.px]="settings.dockSize()"
         ></div>
       }
 
       <button
-        (click)="dock.handleAppClick(item, $event)"
+        (click)="onItemClick(item, $event)"
         (contextmenu)="apps.onRightClickApp($event, item.id)"
+        (touchstart)="onItemTouchStart($event, item.id)"
+        (touchmove)="onItemTouchMove($event)"
+        (touchend)="onItemTouchEnd()"
         [style.width.px]="settings.dockSize()"
         [style.height.px]="settings.dockSize()"
-        class="dock-item group relative flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10 active:scale-95 cursor-pointer"
+        class="dock-item group relative flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10 active:scale-95 cursor-pointer shrink-0"
         [class.bg-gnome-text/10]="item.isActive"
       >
         <div
-          class="absolute -top-14 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-gnome-bg text-gnome-text text-[11px] font-bold rounded-lg border border-gnome-border shadow-xl pointer-events-none opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 whitespace-nowrap z-50"
+          class="absolute -top-14 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-gnome-bg text-gnome-text text-[11px] font-bold rounded-lg border border-gnome-border shadow-xl pointer-events-none opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 whitespace-nowrap z-50 hidden sm:block"
         >
           {{ getAppLabel(item.id, item.title) }}
           <div
@@ -102,7 +106,7 @@
 
     @if (itemNewPinPos() === dock.dockItems().length) {
       <div
-        class="bg-gnome-blue/10 rounded-xl border-2 border-dashed border-gnome-blue/20 animate-pulse mx-1"
+        class="bg-gnome-blue/10 rounded-xl border-2 border-dashed border-gnome-blue/20 animate-pulse mx-1 shrink-0"
         [style.width.px]="settings.dockSize()"
         [style.height.px]="settings.dockSize()"
       ></div>

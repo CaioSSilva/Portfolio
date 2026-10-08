@@ -7,8 +7,6 @@ import { Settings } from '../../core/services/settings';
 import { ContextMenuService } from '../../core/services/context-menu';
 import { LanguageService } from '../../core/services/language';
 import { signal } from '@angular/core';
-import { AppDefinition } from '../../core/models/dock';
-
 describe('Dock', () => {
   let component: Dock;
   let fixture: ComponentFixture<Dock>;
@@ -16,8 +14,6 @@ describe('Dock', () => {
   let dockMock: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let appsMock: any;
-
-  const aboutApp: AppDefinition = { id: 'about', title: 'About', icon: 'info', color: '#fff', component: null as any };
 
   beforeEach(async () => {
     dockMock = {
@@ -37,7 +33,7 @@ describe('Dock', () => {
     appsMock = {
       openApp: vi.fn(),
       isAppsGridOpen: signal(false),
-      appsRegistry: signal({ about: aboutApp }),
+      appsRegistry: signal({}),
       appsDefinition: signal([]),
       appSearchResult: signal([]),
       searchQuery: signal(''),
@@ -81,21 +77,10 @@ describe('Dock', () => {
 
     fixture = TestBed.createComponent(Dock);
     component = fixture.componentInstance;
-    fixture.detectChanges();
-    await fixture.whenStable();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('ngOnInit opens about app after 1s via setTimeout', async () => {
-    vi.useFakeTimers();
-    component.ngOnInit();
-    vi.advanceTimersByTime(1000);
-    await Promise.resolve();
-    expect(appsMock.openApp).toHaveBeenCalledWith(aboutApp);
-    vi.useRealTimers();
   });
 
   it('getAppLabel returns localized app name', () => {

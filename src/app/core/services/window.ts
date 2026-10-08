@@ -1,10 +1,12 @@
-import { Injectable, NgZone, inject, signal } from '@angular/core';
+import { Injectable, NgZone, inject, signal, effect } from '@angular/core';
 import { Process } from '../models/process';
 import { ProcessManager } from './process-manager';
 import { Settings } from './settings';
 import { DockService } from './dock';
+import { ScreenService } from './screen';
 
 export const TOP_BAR_HEIGHT = 32;
+export const MOBILE_NAV_BAR_HEIGHT = 48;
 const MIN_W = 320;
 const MIN_H = 240;
 const SNAP_EDGE = 32;
@@ -22,6 +24,7 @@ export class WindowService {
   private readonly settings = inject(Settings);
   private readonly ngZone = inject(NgZone);
   private readonly dock = inject(DockService);
+  public readonly screen = inject(ScreenService);
 
   private windowEl!: HTMLElement;
   private process!: Process;
@@ -41,17 +44,53 @@ export class WindowService {
   private lastSnapGhost: string | null = null;
   private bottomOverlap = false;
 
+  constructor() {
+    effect(() => {
+      const isMobile = this.screen.isMobile();
+      if (this.windowEl) {
+        if (isMobile) {
+          if (!this.isMaximized()) {
+            this.isMaximized.set(true);
+            this.isSnapped.set(false);
+            this.applyStyles();
+            this.checkBottomOverlap();
+          }
+        } else {
+          if (this.isMaximized() && !this.process?.isMaximized) {
+            this.isMaximized.set(false);
+            this.rect = { ...this.normalRect };
+            this.constrainAndPositionWindow();
+            this.applyStyles();
+            this.checkBottomOverlap();
+          } else if (!this.isMaximized()) {
+            this.constrainAndPositionWindow();
+            this.applyStyles();
+            this.checkBottomOverlap();
+          }
+        }
+      }
+    });
+  }
+
   public init(element: HTMLElement, process: Process): void {
     this.windowEl = element;
     this.process = process;
-    this.centerWindow();
-    this.normalRect = { ...this.rect };
-    this.applyStyles();
-    requestAnimationFrame(() => this.isVisible.set(true));
+
+    if (this.screen.isMobile()) {
+      this.isMaximized.set(true);
+      this.normalRect = { ...this.rect };
+      this.applyStyles();
+    } else {
+      this.centerWindow();
+      this.normalRect = { ...this.rect };
+      this.applyStyles();
+    }
+
+    this.isVisible.set(true);
   }
 
   public startDrag(event: MouseEvent): void {
-    if (event.button !== 0 || this.isResizing()) return;
+    if (this.screen.isMobile() || event.button !== 0 || this.isResizing()) return;
 
     this.processManager.focus(this.process.id);
     const parent = this.windowEl.offsetParent as HTMLElement;
@@ -103,7 +142,7 @@ export class WindowService {
   }
 
   public startResize(event: MouseEvent): void {
-    if (this.isMaximized() || event.button !== 0) return;
+    if (this.screen.isMobile() || this.isMaximized() || event.button !== 0) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -144,6 +183,8 @@ export class WindowService {
   }
 
   public toggleMaximize(): void {
+    if (this.screen.isMobile()) return;
+
     if (this.isMaximized()) {
       this.rect = { ...this.normalRect };
 
@@ -252,10 +293,14 @@ export class WindowService {
   }
 
   private applyStyles(): void {
-    if (this.isMaximized()) {
+    if (this.screen.isMobile()) {
       this.windowEl.style.transform = `translate3d(0, ${TOP_BAR_HEIGHT}px, 0)`;
       this.windowEl.style.width = '100vw';
-      this.windowEl.style.height = `calc(100vh - ${TOP_BAR_HEIGHT}px)`;
+      this.windowEl.style.height = `calc(100dvh - ${TOP_BAR_HEIGHT + MOBILE_NAV_BAR_HEIGHT}px)`;
+    } else if (this.isMaximized()) {
+      this.windowEl.style.transform = `translate3d(0, ${TOP_BAR_HEIGHT}px, 0)`;
+      this.windowEl.style.width = '100vw';
+      this.windowEl.style.height = `calc(100dvh - ${TOP_BAR_HEIGHT}px)`;
     } else {
       this.updateTransform();
       this.windowEl.style.width = `${this.rect.w}px`;
@@ -302,15 +347,44 @@ export class WindowService {
     }
   }
 
+  private constrainAndPositionWindow(): void {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    this.rect.w = Math.min(this.rect.w, Math.max(MIN_W, vw - 40));
+    this.rect.h = Math.min(this.rect.h, Math.max(MIN_H, vh - TOP_BAR_HEIGHT - 60));
+
+    const maxX = Math.max(0, vw - this.rect.w);
+    const maxY = Math.max(TOP_BAR_HEIGHT, vh - this.rect.h);
+
+    if (this.rect.x < 0 || this.rect.x > maxX || this.rect.y < TOP_BAR_HEIGHT || this.rect.y > maxY) {
+      this.centerWindow();
+    }
+  }
+
   private centerWindow(): void {
     const cascadeStep = 28;
-    const maxOffsetX = window.innerWidth - this.rect.w - cascadeStep;
-    const maxOffsetY = window.innerHeight - this.rect.h - cascadeStep;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    this.rect.w = Math.min(this.rect.w, Math.max(MIN_W, vw - 40));
+    this.rect.h = Math.min(this.rect.h, Math.max(MIN_H, vh - TOP_BAR_HEIGHT - 60));
+
+    const cascadeIndex = this.process?.cascadeIndex ?? 0;
+
+    if (this.processManager.processes().length <= 1) {
+      this.rect.x = Math.round((vw - this.rect.w) / 2);
+      this.rect.y = Math.max(TOP_BAR_HEIGHT, Math.round((vh - this.rect.h) / 2));
+      return;
+    }
+
+    const maxOffsetX = Math.max(0, vw - this.rect.w - cascadeStep);
+    const maxOffsetY = Math.max(0, vh - this.rect.h - cascadeStep);
     const maxSteps = Math.max(1, Math.floor(Math.min(maxOffsetX, maxOffsetY - TOP_BAR_HEIGHT) / cascadeStep));
 
-    const step = (this.process.cascadeIndex % maxSteps) * cascadeStep;
+    const step = (cascadeIndex % maxSteps) * cascadeStep;
 
-    this.rect.x = (window.innerWidth - this.rect.w) / 2 - (maxSteps * cascadeStep) / 2 + step;
-    this.rect.y = Math.max(TOP_BAR_HEIGHT, (window.innerHeight - this.rect.h) / 2 - (maxSteps * cascadeStep) / 2 + step);
+    this.rect.x = Math.max(0, (vw - this.rect.w) / 2 - (maxSteps * cascadeStep) / 2 + step);
+    this.rect.y = Math.max(TOP_BAR_HEIGHT, (vh - this.rect.h) / 2 - (maxSteps * cascadeStep) / 2 + step);
   }
 }

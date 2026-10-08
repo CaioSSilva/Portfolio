@@ -1,44 +1,45 @@
 <div
-  class="flex flex-col h-full w-full bg-gnome-bg text-gnome-text font-mono text-sm p-4 overflow-hidden transition-colors duration-300"
+  class="flex flex-col w-full bg-gnome-bg text-gnome-text font-mono text-xs @sm:text-sm p-3 @sm:p-4 overflow-hidden transition-colors duration-300"
+  style="height: 100%; height: 100dvh; max-height: 100%;"
   (click)="focusInput()"
 >
-  <div class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1" #scrollContainer>
-    <div class="text-gnome-blue font-bold mb-2">
+  <div class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1 min-h-0" #scrollContainer>
+    <div class="text-gnome-blue font-bold mb-1 @sm:mb-2 text-xs @sm:text-sm">
       {{ lang.t().terminal.welcome }}
     </div>
-    <div class="text-gnome-text-secondary mb-4 italic opacity-60">
+    <div class="text-gnome-text-secondary mb-3 @sm:mb-4 italic opacity-60 text-[11px] @sm:text-xs">
       {{ lang.t().terminal.helpMsg }}
     </div>
 
     @for (line of history(); track $index) {
-      <div class="terminal-line mb-3">
-        <div class="flex gap-2">
-          <span class="text-green-500 font-bold">user@caios:{{ line.path }}$</span>
-          <span class="text-gnome-text">{{ line.command }}</span>
+      <div class="terminal-line mb-2.5 @sm:mb-3">
+        <div class="flex flex-wrap gap-1 @sm:gap-2">
+          <span class="text-green-500 font-bold shrink-0">user@caios:{{ line.path }}$</span>
+          <span class="text-gnome-text break-all">{{ line.command }}</span>
         </div>
 
         @if (line.output) {
-          <div class="whitespace-pre-wrap pl-4 mt-1 border-l border-gnome-border/30">
+          <div class="whitespace-pre-wrap pl-2.5 @sm:pl-4 mt-1 border-l border-gnome-border/30 text-[11px] @sm:text-xs">
             @for (item of line.output.split('\n'); track $index) {
               @if (item.startsWith('[NEO]')) {
-                <div class="flex">
-                  <span class="text-gnome-blue font-bold">
+                <div class="flex flex-wrap gap-x-2">
+                  <span class="text-gnome-blue font-bold shrink-0">
                     {{ item.substring(5).split('|')[0] }}
                   </span>
-                  <span class="text-gnome-text ml-3">
+                  <span class="text-gnome-text">
                     {{ item.split('|')[1] }}
                   </span>
                 </div>
               } @else if (item.startsWith('[DIR]')) {
-                <div class="text-gnome-blue font-bold inline-block mr-4">
+                <div class="text-gnome-blue font-bold inline-block mr-3">
                   📁 {{ item.replace('[DIR]', '') }}
                 </div>
               } @else if (item.startsWith('[FILE]')) {
-                <div class="text-gnome-text inline-block mr-4">
+                <div class="text-gnome-text inline-block mr-3">
                   📄 {{ item.replace('[FILE]', '') }}
                 </div>
               } @else {
-                <div class="text-gnome-text-secondary/80">
+                <div class="text-gnome-text-secondary/80 break-words">
                   {{ item }}
                 </div>
               }
@@ -49,15 +50,18 @@
     }
   </div>
 
-  <div class="flex gap-2 items-center mt-2 shrink-0 border-t border-gnome-border pt-2">
-    <span class="text-green-500 font-bold shrink-0">{{ prompt() }}</span>
+  <div class="flex gap-2 items-center mt-2 shrink-0 border-t border-gnome-border pt-2 pb-safe">
+    <span class="text-green-500 font-bold shrink-0 text-xs @sm:text-sm">{{ prompt() }}</span>
     <input
       #termInput
       type="text"
-      class="flex-1 bg-transparent border-none outline-none text-gnome-text caret-gnome-blue font-mono"
+      inputmode="text"
+      enterkeyhint="send"
+      class="flex-1 bg-transparent border-none outline-none text-gnome-text caret-gnome-blue font-mono text-xs @sm:text-sm"
       [placeholder]="lang.t().terminal.placeholder"
       (keydown.enter)="handleCommand($event)"
       (keydown)="handleKeydown($event)"
+      (focus)="onInputFocus()"
       spellcheck="false"
       autocomplete="off"
     />

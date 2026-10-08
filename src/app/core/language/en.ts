@@ -344,7 +344,7 @@ export const en = {
   systemTips: {
     title: 'System Tip',
     descriptions: {
-      altTab: 'Use CNTRL + Q to quickly switch between open windows.',
+      altTab: 'Use Ctrl + ` (backtick) to quickly switch between open windows.',
       terminal: 'Open the Terminal to interact directly with the Cai_OS kernel.',
       fullscreen: 'Press F11 to toggle fullscreen mode for a better experience.',
       theme: 'You can toggle the system theme using the "theme" command in Terminal.',
@@ -368,6 +368,16 @@ export const en = {
     welcome: 'Welcome to Hermes!',
     desc: 'Type something to start!',
     ask: 'Ask something...',
+  },
+
+  mobileNav: {
+    recentApps: 'Recent Applications',
+    home: 'Home',
+    allApps: 'All Apps',
+    noOpenApps: 'No open apps',
+    swipeToClose: 'Swipe up to close',
+    tapToResume: 'Tap to resume',
+    swipeToBrowse: 'Swipe horizontally to browse',
   },
 
   errors: {

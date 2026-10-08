@@ -1,9 +1,9 @@
 <aside
-  [style.width.px]="width()"
-  class="flex flex-col shrink-0 border-r border-gnome-border bg-gnome-surface/50 p-2 gap-0.5 overflow-y-auto custom-scrollbar select-none h-full"
+  [style.width.px]="width() || null"
+  class="flex flex-col shrink-0 border-r border-gnome-border bg-gnome-surface/50 p-2 gap-0.5 overflow-y-auto overflow-x-hidden custom-scrollbar select-none h-full w-full"
 >
   <div
-    class="px-3 mb-1.5 text-[10px] font-bold text-gnome-text-secondary uppercase tracking-wider opacity-50 text-nowrap"
+    class="px-3 mb-1.5 text-[10px] font-bold text-gnome-text-secondary uppercase tracking-wider opacity-50 truncate"
   >
     {{ lang.t().files.locations }}
   </div>
@@ -13,9 +13,9 @@
 </aside>
 
 <ng-template #navTree let-item>
-  <div class="flex flex-col">
+  <div class="flex flex-col min-w-0">
     <div
-      class="flex items-center gap-0.5 px-2 py-1 rounded-md transition-colors text-[13px] font-medium"
+      class="flex items-center gap-0.5 px-2 py-1 rounded-md transition-colors text-[13px] font-medium min-w-0"
       [class.bg-gnome-blue]="isSelected(item)"
       [class.text-white]="isSelected(item)"
       [class.hover:bg-gnome-blue/10]="!isSelected(item)"
@@ -44,7 +44,7 @@
       </div>
     </div>
     @if (isExpanded(item.id) && item.children?.length) {
-      <div class="ml-3.5 border-l border-gnome-border/20 pl-1 mt-0.5 flex flex-col gap-0.5">
+      <div class="ml-3 border-l border-gnome-border/20 pl-1 mt-0.5 flex flex-col gap-0.5 min-w-0 overflow-hidden">
         @for (child of item.children; track child.id) {
           <ng-container *ngTemplateOutlet="navTree; context: { $implicit: child }"></ng-container>
         }

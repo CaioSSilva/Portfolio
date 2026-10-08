@@ -12,64 +12,70 @@
   #windowFrame
   class="will-change-transform"
   [ngClass]="{
-    'fixed top-0 left-0 z-[9999]': windowService.isMaximized(),
-    absolute: !windowService.isMaximized(),
+    'fixed top-0 left-0': windowService.isMaximized() || windowService.screen.isMobile(),
+    absolute: !windowService.isMaximized() && !windowService.screen.isMobile(),
     'pointer-events-none': process().isMinimized || !windowService.isVisible(),
+    'hidden invisible': process().isMinimized,
   }"
   [style.z-index]="process().zIndex"
 >
   <div
-    class="w-full h-full flex flex-col overflow-hidden shadow-2xl border border-gnome-border/40 bg-gnome-bg transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]"
+    class="w-full h-full flex flex-col overflow-hidden shadow-2xl bg-gnome-bg transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]"
     (mousedown)="windowService.focus()"
     [ngClass]="{
-      'rounded-xl': !windowService.isMaximized() && !windowService.isSnapped(),
-      'rounded-none': windowService.isMaximized() || windowService.isSnapped(),
+      'rounded-xl border border-gnome-border/40': !windowService.isMaximized() && !windowService.isSnapped() && !windowService.screen.isMobile(),
+      'rounded-none border-none': windowService.isMaximized() || windowService.isSnapped() || windowService.screen.isMobile(),
       'opacity-0 scale-[0.95]': process().isMinimized || !windowService.isVisible(),
       'opacity-100 scale-100': !process().isMinimized && windowService.isVisible(),
     }"
   >
-    <div
-      (mousedown)="windowService.startDrag($event)"
-      (dblclick)="windowService.toggleMaximize()"
-      class="h-12 bg-gnome-header flex items-center justify-between px-3 select-none border-b border-black/5 shrink-0"
-      [class.cursor-grab]="!windowService.isMaximized() && !windowService.isSnapped()"
-    >
+    @if (!windowService.screen.isMobile()) {
       <div
-        class="font-bold text-sm tracking-wide text-gnome-text opacity-90 pl-2 flex items-center gap-2 pointer-events-none"
+        (mousedown)="windowService.startDrag($event)"
+        (dblclick)="windowService.toggleMaximize()"
+        class="h-12 bg-gnome-header flex items-center justify-between px-3 select-none border-b border-black/5 shrink-0"
+        [class.cursor-grab]="!windowService.isMaximized() && !windowService.isSnapped()"
       >
-        <i [class]="process().icon" class="text-gnome-text-secondary"></i>
-        <span>{{ $any(lang.t()).apps[process().appId] || process().title }}</span>
-      </div>
-      <div class="flex items-center gap-2" (mousedown)="$event.stopPropagation()">
-        <button
-          (click)="windowService.minimize()"
-          class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-text/5 flex items-center justify-center transition-colors text-gnome-text-secondary"
+        <div
+          class="font-bold text-sm tracking-wide text-gnome-text opacity-90 pl-2 flex items-center gap-2 pointer-events-none truncate"
         >
-          <i class="fas fa-minus text-xs"></i>
-        </button>
-        <button
-          (click)="windowService.toggleMaximize()"
-          class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-text/5 flex items-center justify-center transition-colors text-gnome-text-secondary"
-        >
-          <i
-            [class]="windowService.isMaximized() ? 'far fa-clone' : 'far fa-square'"
-            class="text-xs"
-          ></i>
-        </button>
-        <button
-          (click)="windowService.close()"
-          class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-red hover:text-white flex items-center justify-center transition-colors text-gnome-text-secondary group"
-        >
-          <i class="fas fa-xmark text-xs group-hover:text-white mb-[1px]"></i>
-        </button>
-      </div>
-    </div>
+          <i [class]="process().icon" class="text-gnome-text-secondary"></i>
+          <span class="truncate">{{ $any(lang.t()).apps[process().appId] || process().title }}</span>
+        </div>
 
-    <div class="flex-1 bg-gnome-bg relative overflow-hidden text-gnome-text">
+        <div class="flex items-center gap-2" (mousedown)="$event.stopPropagation()">
+          <button
+            (click)="windowService.minimize()"
+            class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-text/5 flex items-center justify-center transition-colors text-gnome-text-secondary"
+            title="Minimize"
+          >
+            <i class="fas fa-minus text-xs"></i>
+          </button>
+          <button
+            (click)="windowService.toggleMaximize()"
+            class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-text/5 flex items-center justify-center transition-colors text-gnome-text-secondary"
+            title="Maximize"
+          >
+            <i
+              [class]="windowService.isMaximized() ? 'far fa-clone' : 'far fa-square'"
+              class="text-xs"
+            ></i>
+          </button>
+          <button
+            (click)="windowService.close()"
+            class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-red hover:text-white flex items-center justify-center transition-colors text-gnome-text-secondary group active:scale-95"
+            [attr.aria-label]="lang.t().window.close || 'Close'"
+          >
+            <i class="fas fa-xmark text-xs group-hover:text-white mb-[1px]"></i>
+          </button>
+        </div>
+      </div>
+    }
+    <div class="flex-1 bg-gnome-bg relative overflow-x-hidden overflow-y-auto text-gnome-text">
       @if (windowService.isDragging() || windowService.isResizing()) {
         <div class="absolute inset-0 z-50 bg-transparent"></div>
       }
-      <div class="h-full w-full overflow-auto p-1">
+      <div class="@container h-full w-full overflow-x-hidden overflow-y-auto p-0 @sm:p-1">
         <ng-container
           *ngComponentOutlet="process().component; inputs: { data: process().data }"
         ></ng-container>
@@ -77,7 +83,7 @@
     </div>
   </div>
 
-  @if (!windowService.isMaximized() && !windowService.isSnapped()) {
+  @if (!windowService.isMaximized() && !windowService.isSnapped() && !windowService.screen.isMobile()) {
     <div
       (mousedown)="windowService.startResize($event)"
       class="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 z-50 opacity-0 hover:opacity-100 transition-opacity"

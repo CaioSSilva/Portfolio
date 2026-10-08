@@ -36,26 +36,33 @@ export class Apps {
     if (!this.isAppsGridOpen()) this.resetSearch();
   }
 
-  openApp(app: AppDefinition) {
+  closeGrid() {
+    this.contextMenu.close();
     this.isAppsGridOpen.set(false);
     this.resetSearch();
+  }
+
+  openApp(app: AppDefinition) {
     this.appLauncher.launch(app, app.data);
+    this.isAppsGridOpen.set(false);
+    this.resetSearch();
   }
 
   onRightClickApp(event: MouseEvent, appId: string) {
     event.preventDefault();
     event.stopPropagation();
+    this.openContextMenuAt(event.clientX, event.clientY, appId);
+  }
 
+  openContextMenuAt(clientX: number, clientY: number, appId: string) {
     const menuWidth = 245;
-    const menuHeight = 160;
-    const x =
-      event.clientX + menuWidth > window.innerWidth ? event.clientX - menuWidth : event.clientX;
+    const menuHeight = 180;
+    const vw = window.innerWidth;
 
-    this.contextMenu.openApp(
-      x,
-      event.clientY < menuHeight ? event.clientY + menuHeight / 2 : event.clientY,
-      appId,
-    );
+    const x = Math.min(Math.max(clientX, 0), vw - menuWidth);
+    const opensBelow = clientY < menuHeight;
+
+    this.contextMenu.openApp(x, clientY, appId, opensBelow);
   }
 
   private resetSearch() {

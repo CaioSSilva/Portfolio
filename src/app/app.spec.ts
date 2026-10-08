@@ -19,6 +19,7 @@ describe('App', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let settingsMock: any;
   let tipsMock: { startRandomTips: ReturnType<typeof vi.fn> };
+  let appsMock: { isAppsGridOpen: ReturnType<typeof signal<boolean>>; appsRegistry: ReturnType<typeof signal<any>>; appsDefinition: ReturnType<typeof signal<any[]>>; appSearchResult: ReturnType<typeof signal<any[]>>; searchQuery: ReturnType<typeof signal<string>>; openApp: ReturnType<typeof vi.fn>; toggleGrid: ReturnType<typeof vi.fn> };
 
   function setup() {
     return TestBed.createComponent(App);
@@ -35,6 +36,15 @@ describe('App', () => {
       autoHideDock: signal(true),
     };
     tipsMock = { startRandomTips: vi.fn() };
+    appsMock = {
+      isAppsGridOpen: signal(false),
+      appsRegistry: signal({}),
+      appsDefinition: signal([]),
+      appSearchResult: signal([]),
+      searchQuery: signal(''),
+      openApp: vi.fn(),
+      toggleGrid: vi.fn(),
+    };
 
     await TestBed.configureTestingModule({
       imports: [App],
@@ -52,7 +62,7 @@ describe('App', () => {
         { provide: Settings, useValue: settingsMock },
         { provide: Sound, useValue: soundMock },
         { provide: SystemTips, useValue: tipsMock },
-        { provide: Apps, useValue: { isAppsGridOpen: signal(false), appsRegistry: signal({}), appsDefinition: signal([]), appSearchResult: signal([]), searchQuery: signal(''), openApp: vi.fn(), toggleGrid: vi.fn() } },
+        { provide: Apps, useValue: appsMock },
         { provide: AppLauncher, useValue: { launch: vi.fn() } },
         { provide: DockService, useValue: {
           pinnedApps: signal([]),
@@ -144,5 +154,43 @@ describe('App', () => {
     app.systemReady.set(true);
     fixture.detectChanges();
     expect(tipsMock.startRandomTips).toHaveBeenCalled();
+  });
+
+  it('startRandomTips NOT called when systemReady but tipsEnabled is false', () => {
+    const fixture = setup();
+    const app = fixture.componentInstance;
+    settingsMock.tipsEnabled.set(false);
+    app.systemReady.set(true);
+    fixture.detectChanges();
+    expect(tipsMock.startRandomTips).not.toHaveBeenCalled();
+  });
+
+  it('opens About app 1s after systemReady when about is in registry', () => {
+    vi.useFakeTimers();
+    const aboutApp = { id: 'about', title: 'About', icon: 'i', color: '#fff', component: null as any };
+    appsMock.appsRegistry.set({ about: aboutApp });
+
+    const fixture = setup();
+    fixture.detectChanges();
+
+    fixture.componentInstance.systemReady.set(true);
+    fixture.detectChanges();
+
+    vi.advanceTimersByTime(1000);
+    expect(appsMock.openApp).toHaveBeenCalledWith(aboutApp);
+    vi.useRealTimers();
+  });
+
+  it('does not open About app before systemReady fires', () => {
+    vi.useFakeTimers();
+    const aboutApp = { id: 'about', title: 'About', icon: 'i', color: '#fff', component: null as any };
+    appsMock.appsRegistry.set({ about: aboutApp });
+
+    const fixture = setup();
+    fixture.detectChanges();
+
+    vi.advanceTimersByTime(2000);
+    expect(appsMock.openApp).not.toHaveBeenCalled();
+    vi.useRealTimers();
   });
 });

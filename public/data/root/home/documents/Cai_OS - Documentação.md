@@ -42,6 +42,7 @@ O Cai_OS foi desenvolvido como um portfólio interativo que demonstra:
 ### Características Principais
 
 - **Interface de Desktop Moderna**: Inspirada no GNOME com dock, barra superior e grid de aplicativos
+- **Interface Mobile Responsiva**: Experiência mobile nativa com barra de navegação inferior e visão geral de apps
 - **Gerenciamento de Janelas**: Suporte a arrastar, redimensionar, maximizar, minimizar e snap
 - **Sistema de Arquivos Virtual**: Estrutura hierárquica de pastas e arquivos
 - **Terminal Interativo**: Comandos Unix-like para navegação e controle do sistema
@@ -159,8 +160,10 @@ Portfolio-main/
 │   │   │       ├── file-system.ts
 │   │   │       ├── gemini.ts
 │   │   │       ├── language.ts
+│   │   │       ├── mobile-nav.ts
 │   │   │       ├── notification.ts
 │   │   │       ├── process-manager.ts
+│   │   │       ├── screen.ts
 │   │   │       ├── settings.ts
 │   │   │       ├── sound.ts
 │   │   │       ├── system-tips.ts
@@ -187,6 +190,8 @@ Portfolio-main/
 │   │   ├── layout/                  # Componentes de layout
 │   │   │   ├── apps-grid/           # Grid de aplicativos
 │   │   │   ├── dock/                # Barra de tarefas
+│   │   │   ├── mobile-nav-bar/      # Barra de navegação inferior (mobile)
+│   │   │   ├── mobile-overview/     # Visão geral de janelas abertas (mobile)
 │   │   │   ├── notification-center/ # Centro de notificações
 │   │   │   ├── top-bar/             # Barra superior
 │   │   │   └── window-switcher/     # Alternador de janelas
@@ -315,7 +320,7 @@ Grid de aplicativos com pesquisa e categorização.
 
 **Arquivo**: `src/app/layout/window-switcher/window-switcher.ts`
 
-Alternador de janelas ativado por `Ctrl+Q`.
+Alternador de janelas ativado por `Ctrl+\``.
 
 **Funcionalidades**:
 - Listagem de janelas abertas
@@ -323,7 +328,32 @@ Alternador de janelas ativado por `Ctrl+Q`.
 - Preview visual das janelas
 - Foco rápido
 
-### 7. ContextMenu Component
+### 7. MobileNavBar Component
+
+**Arquivo**: `src/app/layout/mobile-nav-bar/mobile-nav-bar.ts`
+
+Barra de navegação inferior exibida exclusivamente em dispositivos móveis.
+
+**Funcionalidades**:
+- Botão Home (minimiza todas as janelas abertas)
+- Botão Overview (abre a visão geral de apps)
+- Botão App Drawer (abre o grid de aplicativos)
+- Badge indicador de processos em execução
+
+### 8. MobileOverview Component
+
+**Arquivo**: `src/app/layout/mobile-overview/mobile-overview.ts`
+
+Overlay que exibe todas as janelas de aplicativos abertas como cards para troca rápida no mobile.
+
+**Funcionalidades**:
+- Lista de cards ordenada por z-index
+- Toque para focar e fechar o overview
+- Gesto de deslizar para cima para fechar um processo (fecha o overview automaticamente quando o último processo é dispensado)
+- Botão "Fechar tudo"
+- Toque no backdrop para dispensar
+
+### 9. ContextMenu Component
 
 **Arquivo**: `src/app/shared/ui/context-menu/context-menu.ts`
 
@@ -512,7 +542,44 @@ Implementa comandos Unix-like para o terminal.
 - `whoami`: Info do desenvolvedor
 - `about`: Versão do sistema
 
-### 10. SystemTips Service
+### 10. ScreenService
+
+**Arquivo**: `src/app/core/services/screen.ts`
+
+Monitora o tamanho da viewport e o tipo de dispositivo de forma reativa.
+
+**Breakpoints**:
+- `isMobile`: largura < 768px
+- `isTablet`: 768px ≤ largura < 1024px
+- `isDesktop`: largura ≥ 1024px
+- `isCompact`: largura < 1024px
+- `isTouchDevice`: detectado por eventos de toque
+
+**Principais Signals**: `width`, `height`, `isTouchDevice`, `isMobile`, `isTablet`, `isDesktop`, `isCompact`.
+
+### 11. MobileNavService
+
+**Arquivo**: `src/app/core/services/mobile-nav.ts`
+
+Controla o estado de navegação mobile (overview e app drawer).
+
+**Responsabilidades**:
+- Toggle/abrir/fechar o painel de overview mobile
+- Ação "Ir para Home" (minimiza todos os processos)
+- Abrir app e fechar o drawer em um único passo
+- Toggle do app drawer
+
+**Principais Métodos**:
+```typescript
+toggleOverview(): void
+openOverview(): void
+closeOverview(): void
+goHome(): void
+openAppAndCloseDrawer(app: AppDefinition): void
+toggleAppDrawer(): void
+```
+
+### 12. SystemTips Service
 
 **Arquivo**: `src/app/core/services/system-tips.ts`
 
@@ -525,7 +592,7 @@ Exibe dicas do sistema periodicamente.
 - Alternância de tema
 - Navegação no explorer
 
-#### 11. DesktopIcons Service
+#### 13. DesktopIcons Service
 
 **Arquivo**: `src/app/core/services/desktop-icons.ts`
 
@@ -534,7 +601,7 @@ Gerencia os ícones fixados diretamente na área de trabalho.
 **Responsabilidades**: Fixar/remover apps do desktop e gerenciar a lista reativa de atalhos.
 **Principais Métodos**: `pinApp()`, `unPinActiveApp()`.
 
-#### 12. AppLauncher Service
+#### 14. AppLauncher Service
 
 **Arquivo**: `src/app/core/services/app-launcher.ts`
 
@@ -543,7 +610,7 @@ Orquestrador responsável por disparar a abertura de aplicativos e gerenciar o e
 **Responsabilidades**: Fechar menus de contexto e disparar processos via `ProcessManager`.
 **Principais Métodos**: `launch()`, `launchAndCloseContext()`.
 
-#### 13. AppRegistry Service
+#### 15. AppRegistry Service
 
 **Arquivo**: `src/app/core/services/app-registry.ts`
 
@@ -615,16 +682,16 @@ interface Notification {
 ### 5. Setting Model
 
 ```typescript
-interface SystemSettings {
-  theme: 'light' | 'dark';
-  wallpaper: string;
-  dockIconSize: number;
-  autoHideDock: boolean;
-  soundEnabled: boolean;
-  tipsEnabled: boolean;
-  language: 'pt' | 'en';
-}
+// Signals do serviço Settings
+dockSize: signal<number>           // Tamanho dos ícones da dock (px)
+desktopSize: signal<number>        // Tamanho dos ícones do desktop (px)
+systemMuted: signal<boolean>       // Sons do sistema silenciados
+autoHideDock: signal<boolean>      // Auto-hide da dock
+tipsEnabled: signal<boolean>       // Dicas do sistema on/off
+wallpaper: computed<string>        // Papel de parede ativo (desktop ou mobile)
 ```
+
+> **Nota**: O papel de parede agora é separado internamente em `desktopWallpaper` e `mobileWallpaper`. `setWallpaper()` escreve automaticamente no signal correto com base em `ScreenService.isMobile()`.
 
 ### 6. DesktopItem Model
 
@@ -741,10 +808,10 @@ Sistema centralizado de notificações com:
 - Limpeza individual ou em massa
 - Tipos visuais (info, success, warning, error)
 
-### 5. App Switcher (Ctrl+Q)
+### 5. App Switcher (Ctrl+`)
 
 Navegação rápida entre janelas abertas:
-- Ativado por `Ctrl+Q`
+- Ativado por `Ctrl+\``
 - Preview visual de cada janela
 - Navegação por teclado (Tab)
 - Foco instantâneo
@@ -760,6 +827,15 @@ Clique direito em ícones da dock:
 ### 7. Drag and Drop
 
 Arrastar aplicativos do grid para a dock para fixá-los.
+
+### 8. Navegação Mobile (feature/mobile)
+
+Em dispositivos com largura < 768px a interface desktop é substituída por uma experiência otimizada para mobile:
+- **MobileNavBar**: barra fixa inferior com botões Home, Overview e App Drawer
+- **MobileOverview**: grid de cards de janelas abertas em tela cheia; toque para focar, deslize para cima para fechar; fecha automaticamente quando o último processo é dispensado
+- **Papéis de Parede Adaptativos**: conjuntos separados em `public/wallpapers/desktop/` e `public/wallpapers/mobile/`
+- **Vídeos Adaptativos**: vídeos de papel de parede ao vivo em `public/videos/wallpapers/desktop/`; sem vídeos no mobile
+- **Gestos de Toque**: toque, deslize para cima e toque no backdrop implementados nativamente sem bibliotecas externas
 
 ---
 
@@ -844,7 +920,7 @@ Arrastar aplicativos do grid para a dock para fixá-los.
 
 #### Aparência
 - Esquema de cores (claro/escuro)
-- Papel de parede
+- Papel de parede (conjuntos separados para desktop e mobile)
 
 #### Desktop
 - Ocultar dock automaticamente
@@ -1016,7 +1092,11 @@ Edite `src/styles.scss`:
 
 ### Mudando Papel de Parede
 
-Adicione imagens em `public/wallpapers/` e configure em Settings.
+Os papéis de parede agora são separados por tipo de dispositivo:
+- **Desktop**: adicione imagens em `public/wallpapers/desktop/`
+- **Mobile**: adicione imagens em `public/wallpapers/mobile/`
+
+O serviço `Settings` escolhe automaticamente o conjunto correto via `ScreenService.isMobile()`.
 
 ### Mudando Sons
 
@@ -1118,13 +1198,13 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 📊 Estatísticas do Projeto
 
-- **Linhas de Código**: ~15.000+
-- **Componentes**: 25+
-- **Serviços**: 15+
+- **Linhas de Código**: ~17.000+
+- **Componentes**: 27+
+- **Serviços**: 17+
 - **Aplicativos**: 10
 - **Idiomas**: 2
-- **Arquivos de Teste**: 44
-- **Testes**: 401 (100% passando)
+- **Arquivos de Teste**: 48
+- **Testes**: 457 (100% passando)
 - **Performance Score**: 90+
 
 ---
@@ -1140,4 +1220,4 @@ Para dúvidas, sugestões ou reportar bugs:
 
 **Desenvolvido com ❤️ usando Angular 22**
 
-**Última Atualização**: Outubro 2026
+**Última Atualização**: Julho 2025

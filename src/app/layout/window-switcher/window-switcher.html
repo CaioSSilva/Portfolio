@@ -7,6 +7,7 @@
       class="flex gap-2 p-4 bg-gnome-bg/80 backdrop-blur-xl border border-gnome-border rounded-[28px] shadow-2xl animate-in"
       (click)="$event.stopPropagation()"
     >
+      <div class="flex gap-2">
       @for (proc of processes(); track proc.id; let i = $index) {
         <div
           (mouseenter)="selectedIndex.set(i)"
@@ -26,6 +27,7 @@
           </span>
         </div>
       }
+      </div>
     </div>
   </div>
 }

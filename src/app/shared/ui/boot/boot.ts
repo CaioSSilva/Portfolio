@@ -16,27 +16,9 @@ export class Boot implements OnInit {
   isExiting = signal(false);
   progress = signal(0);
   waitingClick = signal(false);
-  isMobile = signal(false);
 
   ngOnInit() {
-    this.detectDevice();
-  }
-
-  private detectDevice() {
-    const isSmallScreen = window.innerWidth < 1024;
-    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent,
-    );
-
-    if (isSmallScreen || isMobileUA) {
-      this.isMobile.set(true);
-    } else {
-      this.simulateLoading();
-    }
-  }
-
-  redirectToMobile() {
-    window.location.href = 'https://portfolio-old-psi.vercel.app/';
+    this.simulateLoading();
   }
 
   private simulateLoading() {
@@ -49,11 +31,11 @@ export class Boot implements OnInit {
       } else {
         this.progress.set(next);
       }
-    }, 400);
+    }, 300);
   }
 
   startSystem() {
-    if (!this.waitingClick() || this.isExiting() || this.isMobile()) return;
+    if (!this.waitingClick() || this.isExiting()) return;
 
     this.sound.play('startup');
     this.waitingClick.set(false);

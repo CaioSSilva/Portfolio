@@ -1,22 +1,22 @@
 <div
-  class="fixed top-12 left-1/2 -translate-x-1/2 z-[50000] flex flex-col gap-2 pointer-events-none"
+  class="fixed top-12 left-1/2 -translate-x-1/2 z-[50000] flex flex-col gap-2 pointer-events-none px-4 w-full max-w-sm"
 >
   @if (!notifService.isPanelOpen()) {
     @for (n of notifService.activeNotifications(); track n.id) {
       <div
         (click)="n.action?.()"
         [style.cursor]="n.action ? 'pointer' : 'default'"
-        class="flex items-center gap-4 p-3 min-w-[320px] bg-gnome-bg/90 backdrop-blur-md border border-gnome-border/30 rounded-2xl shadow-2xl animate-in slide-in-from-top-4"
+        class="flex items-center gap-3 p-3 w-full bg-gnome-bg/95 backdrop-blur-xl border border-gnome-border/40 rounded-2xl shadow-2xl animate-in slide-in-from-top-4 pointer-events-auto"
       >
         <div
-          class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+          class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
           [style.background-color]="n.color"
         >
-          <i [class]="n.icon" class="text-gnome-text text-lg"></i>
+          <i [class]="n.icon" class="text-white text-sm"></i>
         </div>
-        <div class="flex-1 text-[13px]">
-          <div class="font-bold text-gnome-text">{{ n.title }}</div>
-          <div class="text-gnome-text-secondary leading-tight">{{ n.message }}</div>
+        <div class="flex-1 text-[13px] min-w-0">
+          <div class="font-bold text-gnome-text truncate">{{ n.title }}</div>
+          <div class="text-gnome-text-secondary leading-tight text-xs truncate">{{ n.message }}</div>
         </div>
       </div>
     }
@@ -24,64 +24,140 @@
 </div>
 
 @if (notifService.isPanelOpen()) {
-  <div class="fixed inset-0 z-[8000]" (click)="notifService.isPanelOpen.set(false)"></div>
-
   <div
-    class="fixed top-10 left-1/2 -translate-x-1/2 w-[480px] max-h-[85vh] z-[8001] bg-gnome-bg/85 backdrop-blur-xl border border-gnome-border rounded-[28px] shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 fade-in duration-200"
-    (click)="$event.stopPropagation()"
-  >
-    <div
-      class="p-4 border-b border-gnome-border flex justify-between items-center bg-gnome-surface/50"
-    >
-      <span class="text-[11px] font-bold uppercase tracking-[0.1em] text-gnome-text-secondary">{{
-        lang.t().notifications.title
-      }}</span>
-      <button
-        (click)="notifService.clearHistory()"
-        class="text-[11px] cursor-pointer font-medium bg-gnome-surface hover:bg-gnome-border text-gnome-text px-4 py-1.5 rounded-full transition-all active:scale-95 border border-gnome-border/50"
-      >
-        {{ lang.t().notifications.clearAll }}
-      </button>
-    </div>
+    class="fixed inset-0 z-[9500]"
+    [class]="screen.isMobile() ? 'bg-black/60 backdrop-blur-md' : ''"
+    (click)="notifService.isPanelOpen.set(false)"
+  ></div>
 
+  @if (screen.isMobile()) {
     <div
-      class="flex-1 overflow-y-auto p-3 flex flex-col gap-2 custom-scrollbar bg-transparent"
-      style="max-height: 250px"
+      class="fixed inset-x-0 top-0 max-h-[85vh] z-[9501] bg-gnome-bg/95 backdrop-blur-3xl border-b border-gnome-border/80 rounded-b-[2.5rem] shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-top duration-300 select-none pb-4"
+      (click)="$event.stopPropagation()"
     >
-      @if (notifService.history().length === 0) {
-        <div class="flex flex-col items-center justify-center py-24 text-gnome-text-secondary/40">
-          <i class="fas fa-bell-slash text-5xl mb-4"></i>
-          <p class="text-sm font-medium">{{ lang.t().notifications.noNotifications }}</p>
+      <div class="pt-3 pb-2 px-6 flex flex-col items-center border-b border-gnome-border/40 bg-gnome-surface/40">
+        <div class="w-12 h-1.5 rounded-full bg-white/25 mb-3"></div>
+        <div class="w-full flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-gnome-text">
+              {{ lang.t().notifications.title }}
+            </span>
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-gnome-blue/20 text-gnome-blue font-bold">
+              {{ notifService.history().length }}
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            @if (notifService.history().length > 0) {
+              <button
+                (click)="notifService.clearHistory()"
+                class="text-xs font-semibold px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gnome-text transition-all cursor-pointer"
+              >
+                {{ lang.t().notifications.clearAll }}
+              </button>
+            }
+            <button
+              (click)="notifService.closePanel()"
+              class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-gnome-text active:scale-90 transition-all cursor-pointer"
+            >
+              <i class="fas fa-times text-xs"></i>
+            </button>
+          </div>
         </div>
-      }
-      @for (n of notifService.history(); track n.id) {
-        <div
-          [style.cursor]="n.action ? 'pointer' : 'default'"
-          class="cursor-pointer bg-gnome-surface/40 hover:bg-gnome-surface/[n.action? 80 : 100] p-4 rounded-2xl flex gap-4 transition-all group items-center border border-gnome-border/10 shrink-0"
-        >
+      </div>
+      <div class="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2.5 custom-scrollbar min-h-[160px] max-h-[58vh]">
+        @if (notifService.history().length === 0) {
+          <div class="flex flex-col items-center justify-center py-12 text-gnome-text-secondary/50">
+            <i class="far fa-bell-slash text-3xl mb-2.5 opacity-60"></i>
+            <p class="text-xs font-medium">{{ lang.t().notifications.noNotifications }}</p>
+          </div>
+        }
+        @for (n of notifService.history(); track n.id) {
           <div
-            class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-            [style.background-color]="n.color"
+            (click)="n.action?.(); notifService.closePanel()"
+            [style.cursor]="n.action ? 'pointer' : 'default'"
+            class="bg-gnome-surface/70 active:bg-gnome-surface p-3.5 rounded-2xl flex items-center gap-3.5 border border-gnome-border/40 shadow-xs"
           >
-            <i [class]="n.icon" class="text-gnome-text text-lg"></i>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex justify-between items-start mb-0.5">
-              <span class="text-[13px] font-bold text-gnome-text truncate">{{ n.title }}</span>
-              <span class="text-[10px] text-gnome-text-secondary font-medium">
-                {{ formatTimestamp(n.timestamp) }}
-              </span>
+            <div
+              class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+              [style.background-color]="n.color"
+            >
+              <i [class]="n.icon" class="text-white text-base"></i>
             </div>
-            <p class="text-[12px] text-gnome-text-secondary leading-snug">{{ n.message }}</p>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-baseline mb-0.5">
+                <span class="text-xs font-bold text-gnome-text truncate">{{ n.title }}</span>
+                <span class="text-[10px] text-gnome-text-secondary font-mono shrink-0 ml-2">
+                  {{ formatTimestamp(n.timestamp) }}
+                </span>
+              </div>
+              <p class="text-xs text-gnome-text-secondary leading-snug line-clamp-2">{{ n.message }}</p>
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
+      <div class="pt-2 px-6 flex items-center justify-between text-[11px] text-gnome-text-secondary opacity-70">
+        <span>{{ now | date: 'fullDate' : '' : (lang.currentLang() === 'pt' ? 'pt-BR' : 'en-US') }}</span>
+        <span>{{ now | date: 'HH:mm' }}</span>
+      </div>
     </div>
+  } @else {
+    <div
+      class="fixed top-10 left-1/2 -translate-x-1/2 w-[90vw] max-w-[420px] max-h-[80vh] z-[9501] bg-gnome-bg/90 backdrop-blur-2xl border border-gnome-border/60 rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 fade-in duration-200"
+      (click)="$event.stopPropagation()"
+    >
+      <div
+        class="p-3.5 sm:p-4 border-b border-gnome-border flex justify-between items-center bg-gnome-surface/50"
+      >
+        <span class="text-[11px] font-bold uppercase tracking-[0.1em] text-gnome-text-secondary">{{
+          lang.t().notifications.title
+        }}</span>
+        <button
+          (click)="notifService.clearHistory()"
+          class="text-[11px] cursor-pointer font-medium bg-gnome-surface hover:bg-gnome-border text-gnome-text px-3.5 py-1 rounded-full transition-all active:scale-95 border border-gnome-border/50"
+        >
+          {{ lang.t().notifications.clearAll }}
+        </button>
+      </div>
 
-    <div class="py-3 px-4 bg-gnome-surface/50 border-t border-gnome-border text-center">
-      <span class="text-[12px] font-bold text-gnome-text-secondary/80">
-        {{ now | date: 'fullDate' : '' : (lang.currentLang() === 'pt' ? 'pt-BR' : 'en-US') }}
-      </span>
+      <div
+        class="flex-1 overflow-y-auto p-3 flex flex-col gap-2.5 custom-scrollbar bg-transparent max-h-[300px]"
+      >
+        @if (notifService.history().length === 0) {
+          <div class="flex flex-col items-center justify-center py-16 sm:py-20 text-gnome-text-secondary/40">
+            <i class="fas fa-bell-slash text-4xl mb-3"></i>
+            <p class="text-xs sm:text-sm font-medium">{{ lang.t().notifications.noNotifications }}</p>
+          </div>
+        }
+        @for (n of notifService.history(); track n.id) {
+          <div
+            [style.cursor]="n.action ? 'pointer' : 'default'"
+            class="cursor-pointer bg-gnome-surface/60 hover:bg-gnome-surface p-3.5 rounded-2xl flex gap-3.5 transition-all group items-center border border-gnome-border/30 shrink-0"
+          >
+            <div
+              class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              [style.background-color]="n.color"
+            >
+              <i [class]="n.icon" class="text-white text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-start mb-0.5">
+                <span class="text-[12px] sm:text-[13px] font-bold text-gnome-text truncate">{{ n.title }}</span>
+                <span class="text-[10px] text-gnome-text-secondary font-medium shrink-0 ml-2">
+                  {{ formatTimestamp(n.timestamp) }}
+                </span>
+              </div>
+              <p class="text-[11px] sm:text-[12px] text-gnome-text-secondary leading-snug line-clamp-2">{{ n.message }}</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="py-2.5 px-4 bg-gnome-surface/50 border-t border-gnome-border text-center">
+        <span class="text-[11px] font-bold text-gnome-text-secondary/80">
+          {{ now | date: 'fullDate' : '' : (lang.currentLang() === 'pt' ? 'pt-BR' : 'en-US') }}
+        </span>
+      </div>
     </div>
-  </div>
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, NgZone, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DockService } from '../../core/services/dock';
 import { CommonModule } from '@angular/common';
 import { Apps } from '../../core/services/apps';
@@ -7,6 +7,7 @@ import { Settings } from '../../core/services/settings';
 import { LanguageService } from '../../core/services/language';
 import { ContextMenuService } from '../../core/services/context-menu';
 import { ContextMenu } from '../../shared/ui/context-menu/context-menu';
+import { DockItem } from '../../core/models/dock';
 
 @Component({
   selector: 'app-dock',
@@ -16,26 +17,62 @@ import { ContextMenu } from '../../shared/ui/context-menu/context-menu';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './dock.scss',
 })
-export class Dock implements OnInit {
+export class Dock {
   dock = inject(DockService);
   apps = inject(Apps);
   contextMenu = inject(ContextMenuService);
   processManager = inject(ProcessManager);
   lang = inject(LanguageService);
   settings = inject(Settings);
+  private ngZone = inject(NgZone);
 
   itemNewPinPos = signal<number | null>(null);
 
-  ngOnInit(): void {
-    setTimeout(() => {
-      const aboutApp = this.apps.appsRegistry().about;
-      if (aboutApp) this.apps.openApp(aboutApp);
-    }, 1000);
-  }
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private longPressTimer: ReturnType<typeof setTimeout> | null = null;
 
   getAppLabel(appId: string, defaultTitle: string): string {
     const langData = this.lang.t();
     return langData.apps[appId as keyof typeof langData.apps] || defaultTitle;
+  }
+
+  onItemTouchStart(event: TouchEvent, appId: string): void {
+    if (this.contextMenu.isOpen()) return;
+
+    const touch = event.touches[0];
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
+
+    this.longPressTimer = setTimeout(() => {
+      this.ngZone.run(() =>
+        this.apps.openContextMenuAt(touch.clientX, touch.clientY, appId),
+      );
+    }, 500);
+  }
+
+  onItemTouchMove(event: TouchEvent): void {
+    const dx = Math.abs(event.touches[0].clientX - this.touchStartX);
+    const dy = Math.abs(event.touches[0].clientY - this.touchStartY);
+    if ((dx > 10 || dy > 10) && this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
+    }
+  }
+
+  onItemTouchEnd(): void {
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
+    }
+  }
+
+  onItemClick(item: DockItem, event: MouseEvent): void {
+    if (this.contextMenu.isOpen()) {
+      this.contextMenu.close();
+      return;
+    }
+    this.dock.handleAppClick(item, event);
   }
 
   onDragOver(event: DragEvent) {

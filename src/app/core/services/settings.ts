@@ -1,19 +1,33 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, inject, signal, computed, effect } from '@angular/core';
+import { ScreenService } from './screen';
 
 @Injectable({ providedIn: 'root' })
 export class Settings {
+  private readonly screen = inject(ScreenService);
+
   readonly dockSize = signal<number>(this.load('dockSize', 48));
   readonly desktopSize = signal<number>(this.load('desktopSize', 40));
-  readonly wallpaper = signal<string>(this.load('wallpaper', '/wallpapers/default.webp'));
   readonly systemMuted = signal<boolean>(this.load('soundMuted', false));
   readonly autoHideDock = signal<boolean>(this.load('autoHideDock', true));
   readonly tipsEnabled = signal<boolean>(this.load('tipsEnabled', true));
+
+  private readonly desktopWallpaper = signal<string>(
+    this.load('wallpaper', '/wallpapers/desktop/default.webp')
+  );
+  private readonly mobileWallpaper = signal<string>(
+    this.load('mobileWallpaper', '/wallpapers/mobile/default.webp')
+  );
+
+  readonly wallpaper = computed(() =>
+    this.screen.isMobile() ? this.mobileWallpaper() : this.desktopWallpaper()
+  );
 
   constructor() {
     effect(() => {
       this.save('dockSize', this.dockSize());
       this.save('desktopSize', this.desktopSize());
-      this.save('wallpaper', this.wallpaper());
+      this.save('wallpaper', this.desktopWallpaper());
+      this.save('mobileWallpaper', this.mobileWallpaper());
       this.save('autoHideDock', this.autoHideDock());
       this.save('soundMuted', this.systemMuted());
       this.save('tipsEnabled', this.tipsEnabled());
@@ -21,7 +35,11 @@ export class Settings {
   }
 
   setWallpaper(path: string) {
-    this.wallpaper.set(path);
+    if (this.screen.isMobile()) {
+      this.mobileWallpaper.set(path);
+    } else {
+      this.desktopWallpaper.set(path);
+    }
   }
 
   setDockSize(size: number) {
