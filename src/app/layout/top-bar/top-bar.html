@@ -56,13 +56,15 @@
         <i class="far fa-clock text-[11px] opacity-70"></i>
         <span>{{ now() | date: 'HH:mm' }}</span>
       </div>
-    } @else if (!notfService.isPanelOpen()) {
+    } @else {
       <div class="relative">
         <app-now-playing-widget />
-        <div
-          (click)="notfService.openPanel()"
-          class="absolute inset-0 cursor-pointer"
-        ></div>
+        @if (!notfService.isPanelOpen()) {
+          <div
+            (click)="notfService.openPanel()"
+            class="absolute inset-0 cursor-pointer"
+          ></div>
+        }
       </div>
     }
   </div>

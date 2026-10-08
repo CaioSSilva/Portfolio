@@ -27,8 +27,8 @@ export class Gemini {
 
     const systemInstruction =
       currentLang === 'pt'
-        ? `Você é Hermes, um assistente integrado ao CaiOS. Responda sempre em Português Brasileiro.\n\nDocumentação do sistema:\n${docs}\n\n${history}`
-        : `You are Hermes, an assistant integrated into CaiOS. Always respond in English.\n\nSystem documentation:\n${docs}\n\n${history}`;
+        ? `Você é Hermes, um assistente integrado ao CaiOS. Responda sempre em Português Brasileiro usando formatação Markdown puro (sem HTML). Use ## para títulos, **negrito**, *itálico*, \`código\`, listas com - e blocos de código com \`\`\`.\n\nDocumentação do sistema:\n${docs}\n\n${history}`
+        : `You are Hermes, an assistant integrated into CaiOS. Always respond in English using pure Markdown formatting (no HTML). Use ## for headings, **bold**, *italic*, \`code\`, lists with - and code blocks with \`\`\`.\n\nSystem documentation:\n${docs}\n\n${history}`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-3.1-flash-lite',

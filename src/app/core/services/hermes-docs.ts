@@ -2,7 +2,7 @@ export const HERMES_DOCS: Record<string, string> = {
   pt: `
 # Cai_OS - Resumo do Sistema
 
-Cai_OS é um sistema operacional web interativo construído com Angular 21, inspirado no GNOME. É o portfólio de Caio Souza Silva.
+Cai_OS é um sistema operacional web interativo construído com Angular 22, inspirado no GNOME. É o portfólio de Caio Souza Silva.
 
 ## Aplicativos
 - **Files**: Gerenciador de arquivos com visualização em grade/lista, breadcrumbs, sidebar e busca. No modo grade, slider −/+ no rodapé controla o tamanho dos ícones.
@@ -35,16 +35,16 @@ Cai_OS é um sistema operacional web interativo construído com Angular 21, insp
 - **GitHub**: github.com/CaioSSilva
 
 ## Tecnologias
-Angular 21, TypeScript, Tailwind CSS 4, SCSS, Google Gemini AI, Font Awesome 7, Vitest.
+Angular 22, TypeScript, Tailwind CSS 4, SCSS, Google Gemini AI, Font Awesome 7, Vitest.
 
 ## Estatísticas
-~16.000+ linhas de código, 30+ componentes, 15+ serviços, 10 aplicativos, 487 testes automatizados.
+~16.000+ linhas de código, 30+ componentes, 15+ serviços, 10 aplicativos, 499 testes automatizados.
 `,
 
   en: `
 # Cai_OS - System Summary
 
-Cai_OS is an interactive web operating system built with Angular 21, inspired by GNOME. It is Caio Souza Silva's portfolio.
+Cai_OS is an interactive web operating system built with Angular 22, inspired by GNOME. It is Caio Souza Silva's portfolio.
 
 ## Applications
 - **Files**: File manager with grid/list view, breadcrumbs, sidebar and search. In grid mode, a −/+ slider in the footer controls icon size.
@@ -77,9 +77,9 @@ Cai_OS is an interactive web operating system built with Angular 21, inspired by
 - **GitHub**: github.com/CaioSSilva
 
 ## Technologies
-Angular 21, TypeScript, Tailwind CSS 4, SCSS, Google Gemini AI, Font Awesome 7, Vitest.
+Angular 22, TypeScript, Tailwind CSS 4, SCSS, Google Gemini AI, Font Awesome 7, Vitest.
 
 ## Statistics
-~16,000+ lines of code, 30+ components, 15+ services, 10 applications, 487 automated tests.
+~16,000+ lines of code, 30+ components, 15+ services, 10 applications, 499 automated tests.
 `,
 };
