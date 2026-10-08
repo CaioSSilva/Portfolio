@@ -6,6 +6,7 @@ const dotenv = require('dotenv').config({path: 'src/.env'}); ;
 
 const envFile = `export const environment = {
     geminiApiKey: '${process.env.geminiApiKey}',
+    geminiApiKey2: '${process.env.geminiApiKey2}',
 };
 `;
 const targets = [
