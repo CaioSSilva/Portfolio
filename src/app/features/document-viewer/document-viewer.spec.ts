@@ -290,7 +290,7 @@ describe('DocumentViewer', () => {
     it('should not react if only 1 touch point in onTouchStart', () => {
       screenSpy.isMobile.mockReturnValue(true);
       component.zoom.set(1.0);
-      component.onTouchStart({ touches: { length: 1 } } as unknown as TouchEvent);
+      component.onTouchStart({ touches: { 0: { clientX: 10, clientY: 20 }, length: 1 } } as unknown as TouchEvent);
       expect(component.zoom()).toBe(1.0);
     });
   });

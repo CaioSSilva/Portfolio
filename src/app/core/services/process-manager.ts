@@ -36,6 +36,11 @@ export class ProcessManager {
     this.ngZone.run(() => {
       const existing = this.processes().find((p) => p.appId === app.id);
       if (existing) {
+        if (data) {
+          this.processes.update((current) =>
+            current.map((p) => p.id === existing.id ? { ...p, data } : p)
+          );
+        }
         this.focus(existing.id);
         return;
       }

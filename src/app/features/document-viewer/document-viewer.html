@@ -183,6 +183,7 @@
         style="touch-action: pan-y;"
         (touchstart)="onTouchStart($event)"
         (touchmove)="onTouchMove($event)"
+        (touchend)="onTouchEnd($event)"
       >
         @if (fileType() === 'pdf') {
           <pdf-viewer

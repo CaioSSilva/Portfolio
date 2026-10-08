@@ -39,7 +39,9 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
 
   private resizeObserver: ResizeObserver | null = null;
 
-  // pinch state
+  // touch state
+  private touchStartX = 0;
+  private touchStartY = 0;
   private pinchStartDistance = 0;
   private pinchLastStepDistance = 0;
   private pinchLastStepTime = 0;
@@ -253,11 +255,18 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
   }
 
   onTouchStart(event: TouchEvent) {
-    if (!this.screen.isMobile() || event.touches.length !== 2) return;
-    const d = this.getPinchDistance(event.touches);
-    this.pinchStartDistance = d;
-    this.pinchLastStepDistance = d;
-    this.pinchLastStepTime = 0;
+    if (!this.screen.isMobile()) return;
+    if (event.touches.length === 2) {
+      const d = this.getPinchDistance(event.touches);
+      this.pinchStartDistance = d;
+      this.pinchLastStepDistance = d;
+      this.pinchLastStepTime = 0;
+      return;
+    }
+    if (event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
   }
 
   onTouchMove(event: TouchEvent) {
@@ -274,6 +283,23 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
       this.pinchLastStepDistance = distance;
       this.pinchLastStepTime = now;
       if (this.zoom() !== 1.0) this.isPinchZoomed.set(true);
+    }
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    if (!this.screen.isMobile() || !this.isViewingDocument()) return;
+    if (event.touches.length > 0 || this.zoom() > 1) return;
+
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - this.touchStartX;
+    const dy = touch.clientY - this.touchStartY;
+
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      if (dx < 0 && !this.isLastDoc()) {
+        this.handleChangeDocument(1);
+      } else if (dx > 0 && !this.isFirstDoc()) {
+        this.handleChangeDocument(-1);
+      }
     }
   }
 
