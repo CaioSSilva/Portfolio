@@ -76,9 +76,13 @@
     @if (isViewingImage() && !hasError()) {
       <div
         class="flex-1 flex items-center justify-center p-4 relative overflow-hidden"
+        style="touch-action: none;"
         [class.cursor-grab]="zoom() > 1 && !isDragging()"
         [class.cursor-grabbing]="isDragging()"
         (mousedown)="onMouseDown($event)"
+        (touchstart)="onTouchStart($event)"
+        (touchmove)="onTouchMove($event)"
+        (touchend)="onTouchEnd($event)"
       >
         <button
           (click)="closeImageView()"

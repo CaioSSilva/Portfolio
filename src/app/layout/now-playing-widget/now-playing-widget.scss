@@ -1,0 +1,26 @@
+.now-playing-widget {
+  .bars {
+    .bar {
+      display: block;
+      width: 2px;
+      border-radius: 1px;
+      background-color: var(--color-gnome-blue, #3584e4);
+      transform-origin: bottom;
+      animation: bar-bounce 0.8s ease-in-out infinite;
+
+      &:nth-child(1) { height: 6px; animation-delay: 0s; }
+      &:nth-child(2) { height: 10px; animation-delay: 0.15s; }
+      &:nth-child(3) { height: 7px; animation-delay: 0.3s; }
+    }
+
+    &.paused .bar {
+      animation-play-state: paused;
+      opacity: 0.5;
+    }
+  }
+}
+
+@keyframes bar-bounce {
+  0%, 100% { transform: scaleY(0.5); }
+  50%       { transform: scaleY(1); }
+}

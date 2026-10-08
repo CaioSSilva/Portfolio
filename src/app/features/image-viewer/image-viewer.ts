@@ -42,6 +42,11 @@ export class ImageViewer extends Base {
   selImage = viewChild<ElementRef<HTMLImageElement>>('selImage');
 
   private startPan = { x: 0, y: 0 };
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private pinchStartDistance = 0;
+  private pinchLastStepDistance = 0;
+  private pinchLastStepTime = 0;
   private isUpdatingFromNavigation = false;
 
   safeUrl = computed(() => {
@@ -215,6 +220,79 @@ export class ImageViewer extends Base {
   @HostListener('document:mouseup')
   onMouseUp() {
     this.isDragging.set(false);
+  }
+
+  private getPinchDistance(touches: TouchList): number {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  onTouchStart(event: TouchEvent) {
+    if (event.touches.length === 2) {
+      this.isDragging.set(false);
+      const d = this.getPinchDistance(event.touches);
+      this.pinchStartDistance = d;
+      this.pinchLastStepDistance = d;
+      this.pinchLastStepTime = 0;
+      return;
+    }
+    if (event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
+    if (this.zoom() > 1) {
+      this.isDragging.set(true);
+      this.startPan = {
+        x: touch.clientX - this.position().x,
+        y: touch.clientY - this.position().y,
+      };
+    }
+  }
+
+  onTouchMove(event: TouchEvent) {
+    if (event.touches.length === 2) {
+      event.preventDefault();
+      const now = Date.now();
+      if (now - this.pinchLastStepTime < 120) return;
+
+      const distance = this.getPinchDistance(event.touches);
+      const diff = distance - this.pinchLastStepDistance;
+
+      if (Math.abs(diff) > 18) {
+        this.updateZoom(diff > 0 ? 0.2 : -0.2);
+        this.pinchLastStepDistance = distance;
+        this.pinchLastStepTime = now;
+      }
+      return;
+    }
+    if (event.touches.length !== 1) return;
+    if (this.zoom() > 1 && this.isDragging()) {
+      event.preventDefault();
+      const touch = event.touches[0];
+      this.position.set({
+        x: touch.clientX - this.startPan.x,
+        y: touch.clientY - this.startPan.y,
+      });
+    }
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    this.isDragging.set(false);
+    if (event.touches.length > 0) return;
+    if (this.zoom() > 1) return;
+
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - this.touchStartX;
+    const dy = touch.clientY - this.touchStartY;
+
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      if (dx < 0 && !this.isLastImage()) {
+        this.handleChangeImage(1);
+      } else if (dx > 0 && !this.isFirstImage()) {
+        this.handleChangeImage(-1);
+      }
+    }
   }
 
   @HostListener('wheel', ['$event'])

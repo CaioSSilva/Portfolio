@@ -1,0 +1,18 @@
+@if (player.currentTrack()) {
+  <button
+    (click)="openPlayer()"
+    title="{{ lang.t().audioPlayer.nowPlaying }}"
+    class="now-playing-widget flex items-center gap-1.5 px-2 py-1 rounded-full cursor-pointer select-none
+           bg-gnome-text/8 hover:bg-gnome-text/15 border border-gnome-border/20
+           transition-colors duration-150 max-w-[180px] sm:max-w-[220px] overflow-hidden"
+  >
+    <span class="bars shrink-0 flex items-end gap-[2px] h-3" [class.paused]="!player.isPlaying()">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </span>
+    <span class="text-[10px] sm:text-[11px] font-semibold truncate leading-none text-gnome-text">
+      {{ player.currentTrack()!.name }}
+    </span>
+  </button>
+}

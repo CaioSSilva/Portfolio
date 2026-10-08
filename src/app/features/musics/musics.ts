@@ -6,6 +6,7 @@ import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
 import { FileSystem } from '../../core/services/file-system';
 import { AudioPlayer } from './player/audio-player';
+import { ScreenService } from '../../core/services/screen';
 
 @Component({
   selector: 'app-musics',
@@ -22,6 +23,7 @@ export class Musics extends Base implements OnDestroy {
   private fs = inject(FileSystem);
   private ngZone = inject(NgZone);
   private hostEl = inject(ElementRef<HTMLElement>);
+  private screen = inject(ScreenService);
 
   readonly isNarrow = signal(false);
   private resizeObserver: ResizeObserver | null = null;
@@ -40,14 +42,14 @@ export class Musics extends Base implements OnDestroy {
         const narrow = w > 0 && w < 680;
         this.ngZone.run(() => {
           this.isNarrow.set(narrow);
-          if (narrow) this.isSidebarOpen.set(false);
+          if (narrow && !this.screen.isMobile()) this.isSidebarOpen.set(false);
         });
       });
       this.resizeObserver.observe(this.hostEl.nativeElement);
     }
 
     effect(() => {
-      if (this.isNarrow()) {
+      if (this.isNarrow() && !this.screen.isMobile()) {
         this.isSidebarOpen.set(false);
       }
     });

@@ -110,3 +110,42 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Opera */
 }
+
+.gnome-slider {
+  background: linear-gradient(
+    to right,
+    var(--color-gnome-blue) var(--slider-pct, 0%),
+    var(--color-gnome-border) var(--slider-pct, 0%)
+  );
+  border-radius: 9999px;
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-gnome-blue);
+    cursor: pointer;
+    box-shadow: 0 0 0 2px var(--color-gnome-bg);
+  }
+
+  &::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-gnome-blue);
+    cursor: pointer;
+    box-shadow: 0 0 0 2px var(--color-gnome-bg);
+  }
+
+  &::-webkit-slider-runnable-track {
+    border-radius: 9999px;
+  }
+
+  &::-moz-range-track {
+    border-radius: 9999px;
+    background: transparent;
+  }
+}

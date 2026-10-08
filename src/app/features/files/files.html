@@ -187,7 +187,8 @@
               step="10"
               [value]="gridSize()"
               (input)="updateGridSize($event)"
-              class="w-20 @min-[680px]:w-24 h-1 bg-gnome-blue rounded-lg appearance-none cursor-pointer accent-gnome-blue outline-none"
+              [style.--slider-pct]="((gridSize() - 80) / (300 - 80) * 100) + '%'"
+              class="gnome-slider w-20 @min-[680px]:w-24 h-1 appearance-none cursor-pointer rounded-full"
             />
             <i class="fas fa-image text-sm text-gnome-text-secondary opacity-40"></i>
           </div>

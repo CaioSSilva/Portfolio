@@ -3,17 +3,28 @@ import { NotificationCenter } from './notification-center';
 import { NotificationService } from '../../core/services/notification';
 import { LanguageService } from '../../core/services/language';
 import { Sound } from '../../core/services/sound';
+import { AudioPlayer } from '../../features/musics/player/audio-player';
+import { Apps } from '../../core/services/apps';
+import { signal } from '@angular/core';
 
 describe('NotificationCenter', () => {
   let component: NotificationCenter;
   let fixture: ComponentFixture<NotificationCenter>;
+  let appsService: { appsDefinition: ReturnType<typeof signal>; openApp: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    appsService = {
+      appsDefinition: signal([{ id: 'musics', name: 'Musics' }]),
+      openApp: vi.fn(),
+    };
+
     await TestBed.configureTestingModule({
       imports: [NotificationCenter],
       providers: [
         NotificationService,
         LanguageService,
+        AudioPlayer,
+        { provide: Apps, useValue: appsService },
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
     }).compileComponents();
@@ -69,5 +80,35 @@ describe('NotificationCenter', () => {
     const oneDayAgo = new Date(Date.now() - 1 * 86400 * 1000 - 100);
     const result = component.formatTimestamp(oneDayAgo);
     expect(result).toContain('1');
+  });
+
+  it('formatTime returns 0:00 for NaN', () => {
+    expect(component.formatTime(NaN)).toBe('0:00');
+  });
+
+  it('formatTime returns 0:00 for Infinity', () => {
+    expect(component.formatTime(Infinity)).toBe('0:00');
+  });
+
+  it('formatTime formats seconds correctly', () => {
+    expect(component.formatTime(65)).toBe('1:05');
+  });
+
+  it('formatTime zero-pads seconds below 10', () => {
+    expect(component.formatTime(9)).toBe('0:09');
+  });
+
+  it('openPlayer calls apps.openApp and closes the panel', () => {
+    const notifService = TestBed.inject(NotificationService);
+    notifService.openPanel();
+    component.openPlayer();
+    expect(appsService.openApp).toHaveBeenCalledWith({ id: 'musics', name: 'Musics' });
+    expect(notifService.isPanelOpen()).toBe(false);
+  });
+
+  it('openPlayer does nothing when musics app is not found', () => {
+    appsService.appsDefinition.set([]);
+    component.openPlayer();
+    expect(appsService.openApp).not.toHaveBeenCalled();
   });
 });

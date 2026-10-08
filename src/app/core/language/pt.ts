@@ -365,6 +365,7 @@ export const pt = {
     backButton: 'Voltar para a biblioteca',
     library: 'Minha Biblioteca',
     unknownArtist: 'Artista Desconhecido',
+    nowPlaying: 'Tocando agora',
   },
 
   hermes: {

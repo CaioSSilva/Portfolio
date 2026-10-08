@@ -128,7 +128,8 @@
               [max]="player.duration()"
               [value]="player.currentTime()"
               (input)="handleSeek($event)"
-              class="gnome-slider w-full h-1.5 appearance-none cursor-pointer bg-gnome-border rounded-full"
+              [style.--slider-pct]="(player.duration() > 0 ? (player.currentTime() / player.duration()) * 100 : 0) + '%'"
+              class="gnome-slider w-full h-1.5 appearance-none cursor-pointer rounded-full"
             />
             <div class="flex justify-between text-[11px] font-mono opacity-60 mt-1.5">
               <span>{{ formatTime(player.currentTime()) }}</span>
@@ -176,7 +177,8 @@
               step="0.01"
               [value]="player.volume()"
               (input)="handleVolume($event)"
-              class="gnome-slider cursor-pointer flex-1 h-1 appearance-none bg-gnome-border rounded-full"
+              [style.--slider-pct]="(player.volume() * 100) + '%'"
+              class="gnome-slider cursor-pointer flex-1 h-1 appearance-none rounded-full"
             />
           </div>
         </div>

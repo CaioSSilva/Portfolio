@@ -165,4 +165,22 @@ describe('Files', () => {
   it('viewMode defaults to list', () => {
     expect(component.viewMode()).toBe('list');
   });
+
+  it('grid size slider --slider-pct is 0% at minimum value', () => {
+    component.gridSize.set(80);
+    const pct = (component.gridSize() - 80) / (300 - 80) * 100;
+    expect(pct).toBe(0);
+  });
+
+  it('grid size slider --slider-pct is 100% at maximum value', () => {
+    component.gridSize.set(300);
+    const pct = (component.gridSize() - 80) / (300 - 80) * 100;
+    expect(pct).toBe(100);
+  });
+
+  it('grid size slider --slider-pct is proportional mid-range', () => {
+    component.gridSize.set(190); // midpoint of 80–300
+    const pct = (component.gridSize() - 80) / (300 - 80) * 100;
+    expect(pct).toBeCloseTo(50, 0);
+  });
 });

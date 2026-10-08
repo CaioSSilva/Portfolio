@@ -362,6 +362,7 @@ export const en = {
     backButton: 'Back to library',
     library: 'My Library',
     unknownArtist: 'Unknown Artist',
+    nowPlaying: 'Now Playing',
   },
 
   hermes: {

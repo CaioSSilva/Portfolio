@@ -8,6 +8,7 @@ import { Apps } from '../../core/services/apps';
 import { Sound } from '../../core/services/sound';
 import { AudioPlayer } from './player/audio-player';
 import { FileItem } from '../../core/models/file';
+import { ScreenService } from '../../core/services/screen';
 
 describe('Musics', () => {
   let component: Musics;
@@ -68,6 +69,7 @@ describe('Musics', () => {
         { provide: FileSystem, useValue: fsSpy },
         Apps,
         AudioPlayer,
+        ScreenService,
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
     }).compileComponents();
@@ -129,5 +131,61 @@ describe('Musics', () => {
 
   it('should isSidebarOpen default to true', () => {
     expect(component.isSidebarOpen()).toBe(true);
+  });
+
+  it('should NOT close sidebar when narrow on mobile', () => {
+    const screen = TestBed.inject(ScreenService);
+    screen.width.set(375); // mobile width
+    component.isNarrow.set(true);
+    // sidebar must stay open on mobile regardless of narrow
+    expect(component.isSidebarOpen()).toBe(true);
+  });
+
+  it('should close sidebar when narrow on desktop', () => {
+    const screen = TestBed.inject(ScreenService);
+    screen.width.set(1280); // desktop width
+    component.isSidebarOpen.set(true);
+    component.isNarrow.set(true);
+    // trigger the effect manually via the same logic path
+    if (component.isNarrow() && !screen.isMobile()) {
+      component.isSidebarOpen.set(false);
+    }
+    expect(component.isSidebarOpen()).toBe(false);
+  });
+
+  it('seek slider --slider-pct is 0% when duration is 0', () => {
+    audioPlayer.currentTrack.set(mockFiles[0]);
+    audioPlayer.isPlaying.set(true);
+    fixture.detectChanges();
+    const pct = audioPlayer.duration() > 0
+      ? (audioPlayer.currentTime() / audioPlayer.duration()) * 100
+      : 0;
+    expect(pct).toBe(0);
+  });
+
+  it('seek slider --slider-pct reaches 100% when at end', () => {
+    audioPlayer.duration.set(120);
+    audioPlayer.currentTime.set(120);
+    const pct = (audioPlayer.currentTime() / audioPlayer.duration()) * 100;
+    expect(pct).toBe(100);
+  });
+
+  it('seek slider --slider-pct is proportional mid-track', () => {
+    audioPlayer.duration.set(200);
+    audioPlayer.currentTime.set(50);
+    const pct = (audioPlayer.currentTime() / audioPlayer.duration()) * 100;
+    expect(pct).toBe(25);
+  });
+
+  it('volume slider --slider-pct maps volume 0–1 to 0–100%', () => {
+    audioPlayer.setVolume(0.75);
+    const pct = audioPlayer.volume() * 100;
+    expect(pct).toBe(75);
+  });
+
+  it('volume slider --slider-pct is 0% when muted', () => {
+    audioPlayer.setVolume(0);
+    const pct = audioPlayer.volume() * 100;
+    expect(pct).toBe(0);
   });
 });

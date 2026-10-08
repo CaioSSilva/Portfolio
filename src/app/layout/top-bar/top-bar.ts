@@ -7,13 +7,14 @@ import { NotificationService } from '../../core/services/notification';
 import { ScreenService } from '../../core/services/screen';
 import localePtBr from '@angular/common/locales/pt';
 import { LanguageService } from '../../core/services/language';
+import { NowPlayingWidget } from '../now-playing-widget/now-playing-widget';
 
 registerLocaleData(localePtBr, 'pt-BR');
 
 @Component({
   selector: 'app-top-bar',
   standalone: true,
-  imports: [DatePipe, NotificationCenter],
+  imports: [DatePipe, NotificationCenter, NowPlayingWidget],
   templateUrl: './top-bar.html',
   styleUrl: './top-bar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
