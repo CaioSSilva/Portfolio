@@ -42,7 +42,6 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
 
   private resizeObserver: ResizeObserver | null = null;
 
-  // touch state
   private touchStartX = 0;
   private touchStartY = 0;
   private touchStartTarget: EventTarget | null = null;
@@ -356,7 +355,7 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
   private normalizeId(id: string): string {
     return id
       .toLowerCase()
-      .replace(/[^\w\u00C0-\u024F-]/g, '') // remove tudo exceto alfanumérico, letras acentuadas e hífens
+      .replace(/[^\w\u00C0-\u024F-]/g, '')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
   }

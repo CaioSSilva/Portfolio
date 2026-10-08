@@ -83,10 +83,10 @@ export class MarkdownPipe implements PipeTransform {
   private slugify(text: string): string {
     return text
       .toLowerCase()
-      .replace(/[^\w\u00C0-\u024F -]/g, '-') // não-alfanumérico (incl. emojis) → hífen
-      .replace(/ /g, '-')                     // espaços → hífen
-      .replace(/-+/g, '-')                    // colapsa hífens consecutivos
-      .replace(/-$/g, '');                    // remove hífen no final (não no início — emojis geram hífen inicial)
+      .replace(/[^\w\u00C0-\u024F -]/g, '-')
+      .replace(/ /g, '-')
+      .replace(/-+/g, '-')
+      .replace(/-$/g, '');
   }
 
   private escapeHtml(str: string): string {
