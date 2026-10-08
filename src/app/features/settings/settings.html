@@ -156,7 +156,7 @@
                         [class.border-gnome-blue]="settings.wallpaper() === wp"
                         [class.border-transparent]="settings.wallpaper() !== wp"
                       >
-                        <video [src]="wp" muted loop autoplay playsinline class="w-full h-full object-cover"></video>
+                        <video [src]="wp" muted loop autoplay playsinline preload="none" class="w-full h-full object-cover"></video>
                         @if (settings.wallpaper() === wp) {
                           <div class="absolute inset-0 bg-gnome-blue/20 flex items-center justify-center">
                             <i class="fas fa-check-circle text-white text-xl @min-[680px]:text-2xl drop-shadow-md"></i>
