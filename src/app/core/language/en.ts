@@ -366,6 +366,7 @@ export const en = {
     title: 'Music',
     noAudio: 'No music selected',
     selectDescription: 'Select a song from your library or use the File Manager.',
+    viewLibrary: 'View library',
     appSubtitle: 'User library',
     errorTitle: 'Error loading audio',
     errorDescription: 'The file might be corrupted or the format is not supported.',
@@ -373,6 +374,12 @@ export const en = {
     library: 'My Library',
     unknownArtist: 'Unknown Artist',
     nowPlaying: 'Now Playing',
+    menuLabel: 'Library',
+    lyricsLabel: 'Lyrics',
+    lyricsLoading: 'Looking for lyrics...',
+    lyricsNotFound: 'No lyrics found for this track.',
+    lyricsPlainOnly: 'Lyrics without timestamps',
+    lyricsDisclaimer: 'Lyrics provided by LRCLIB',
   },
 
   hermes: {

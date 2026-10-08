@@ -5,13 +5,23 @@
     class="mx-4 mb-0 md:mb-4 mt-0 bg-gnome-surface/60 border border-gnome-border/40 rounded-t-2xl rounded-b-[24px] md:rounded-b-lg p-3.5 flex flex-col gap-2.5 cursor-pointer active:opacity-80 transition-opacity"
   >
     <div class="flex items-center gap-3 min-w-0 w-full">
-      <div class="w-9 h-9 rounded-xl bg-gnome-blue flex items-center justify-center shrink-0">
-        <i
-          class="fas fa-compact-disc text-white text-sm"
-          [class.disc-playing]="player.discSpinState() === 'playing' && !player.isLoading()"
-          [class.disc-seeking-forward]="player.discSpinState() === 'seeking-forward'"
-          [class.disc-seeking-backward]="player.discSpinState() === 'seeking-backward'"
-        ></i>
+      <div class="w-9 h-9 rounded-xl bg-gnome-blue flex items-center justify-center shrink-0 overflow-hidden">
+        @if (player.currentTrack()?.thumb && !widgetThumbError()) {
+          <img
+            [src]="player.currentTrack()!.thumb"
+            (error)="widgetThumbError.set(true)"
+            class="w-full h-full object-cover"
+            alt=""
+          />
+        }
+        @if (!player.currentTrack()?.thumb || widgetThumbError()) {
+          <i
+            class="fas fa-compact-disc text-white text-sm"
+            [class.disc-playing]="player.discSpinState() === 'playing' && !player.isLoading()"
+            [class.disc-seeking-forward]="player.discSpinState() === 'seeking-forward'"
+            [class.disc-seeking-backward]="player.discSpinState() === 'seeking-backward'"
+          ></i>
+        }
       </div>
       <div class="flex-1 min-w-0">
         <p class="text-xs font-bold text-gnome-text truncate">{{ player.currentTrack()!.name }}</p>

@@ -599,7 +599,7 @@ Drag apps from the grid to the dock to pin them at a specific position.
 | About | `about` | — |
 | Photos | `photos` | jpg, jpeg, png, gif, webp, svg |
 | Documents | `documents` | pdf, txt, md *(lazy-loaded)* |
-| Musics | `musics` | mp3, wav, ogg |
+| Musics | `musics` | mp3, wav, ogg, m4a, flac |
 | System Monitor | `systemMonitor` | — |
 | Hermes (AI) | `hermes` | — |
 
@@ -611,6 +611,20 @@ On narrow windows (< 500 px, measured via `ResizeObserver` on the app container)
 - Floating zoom pill at the bottom (identical to the image-viewer toolbar)
 - Header shows only the download icon (no label text)
 - Pinch-to-zoom gesture enabled on mobile devices; pinch icon replaces the zoom % for a one-tap reset
+
+### Musics — Synchronized Lyrics & Album Art
+
+The Musics app fetches synchronized lyrics from [LRCLIB](https://lrclib.net) (free, no API key required):
+
+- **Lyrics overlay**: fullscreen, Spotify-style — active line highlighted, auto-scrolls, click to seek
+- **Plain fallback**: if no synced lyrics exist, plain text is shown
+- **Album thumbnails**: add covers to `public/data/root/home/musics/covers/<filename>.jpg`; the `fs.json` `thumb` field links them. Falls back to animated spinning disc if image is missing or fails to load
+- **Seek debounce**: 80 ms debounce on click-to-seek prevents audio rebuffer glitches
+
+| Service | File | Responsibility |
+|---|---|---|
+| `AudioPlayer` | `player/audio-player.ts` | Native `<audio>` via Angular Signals |
+| `LyricsService` | `player/lyrics.service.ts` | LRCLIB fetch · LRC parse · active-line binary search |
 
 ---
 
@@ -765,12 +779,12 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 | Metric | Value |
 |---|---|
-| Version | **2.3.0** |
-| Test files | **51** |
-| Tests passing | **548 / 548** |
+| Version | **2.4.0** |
+| Test files | **52** |
+| Tests passing | **607 / 607** |
 | Initial bundle | **492 kB** (−50% vs 1.x) |
 | Components | 29+ |
-| Services | 17 |
+| Services | 19 |
 | Applications | 10 |
 | Languages | 2 (pt / en) |
 | Platforms | Desktop + Mobile |
@@ -784,4 +798,4 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 ---
 
-**Developed with ❤️ using Angular 22 — Last Update: October 2026 · v2.3.0**
+**Developed with ❤️ using Angular 22 — Last Update: January 2027 · v2.4.0**

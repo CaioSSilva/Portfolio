@@ -8,6 +8,7 @@ export interface FileItem {
   modified?: string;
   children?: FileItem[];
   url?: string;
+  thumb?: string;
 }
 
 export const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'svg', 'webp', 'gif'];

@@ -118,4 +118,28 @@ describe('AudioPlayer', () => {
   it('should call togglePlay without throwing when no src', () => {
     expect(() => service.togglePlay()).not.toThrow();
   });
+
+  it('seek(immediate=true) should not throw', async () => {
+    const track = mockTrack('t1', '/audio/t1.mp3');
+    await service.play(track);
+    expect(() => service.seek(10, true)).not.toThrow();
+    expect(service.currentTime()).toBe(10);
+  });
+
+  it('seek(immediate=false) should update currentTime signal immediately', async () => {
+    const track = mockTrack('t1', '/audio/t1.mp3');
+    await service.play(track);
+    service.seek(25);
+    expect(service.currentTime()).toBe(25);
+  });
+
+  it('stopPlayback via stop() should reset duration and currentTime to 0', async () => {
+    const track = mockTrack('t1', '/audio/t1.mp3');
+    await service.play(track);
+    service['duration'].set(180);
+    service['currentTime'].set(60);
+    service.stop();
+    expect(service.duration()).toBe(0);
+    expect(service.currentTime()).toBe(0);
+  });
 });

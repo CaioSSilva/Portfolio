@@ -369,6 +369,7 @@ export const pt = {
     title: 'Músicas',
     noAudio: 'Nenhuma música selecionada',
     selectDescription: 'Selecione uma música da sua biblioteca ou use o Gerenciador de Arquivos.',
+    viewLibrary: 'Veja a biblioteca',
     appSubtitle: 'Biblioteca do usuário',
     errorTitle: 'Erro ao carregar áudio',
     errorDescription: 'O arquivo pode estar corrompido ou o formato não é suportado.',
@@ -376,6 +377,12 @@ export const pt = {
     library: 'Minha Biblioteca',
     unknownArtist: 'Artista Desconhecido',
     nowPlaying: 'Tocando agora',
+    menuLabel: 'Biblioteca',
+    lyricsLabel: 'Letra',
+    lyricsLoading: 'Buscando letra...',
+    lyricsNotFound: 'Nenhuma letra encontrada para esta faixa.',
+    lyricsPlainOnly: 'Letra sem timestamps',
+    lyricsDisclaimer: 'Letras fornecidas por LRCLIB',
   },
 
   hermes: {

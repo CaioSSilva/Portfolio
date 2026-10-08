@@ -3,3 +3,185 @@
   width: 100%;
   height: 100%;
 }
+
+@keyframes menu-hint-pulse {
+  0%, 100% {
+    background-color: var(--color-gnome-blue);
+    border-color: var(--color-gnome-blue);
+    color: white;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-gnome-blue) 60%, transparent);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--color-gnome-blue) 70%, white);
+    border-color: white;
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-gnome-blue) 0%, transparent);
+  }
+}
+
+.menu-hint {
+  animation: menu-hint-pulse 0.9s ease-in-out infinite;
+  border-color: var(--color-gnome-blue) !important;
+  color: white !important;
+}
+
+// ── Overlay fullscreen ──────────────────────────────────────────
+
+.lyrics-overlay {
+  background: var(--color-gnome-bg);
+  color: var(--color-gnome-text);
+
+  &__header {
+    border-bottom: 1px solid var(--color-gnome-border);
+  }
+
+  &__close {
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+    padding: 4px 8px;
+    border-radius: 6px;
+
+    &:hover { opacity: 1; }
+  }
+
+  &__scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 2rem 0;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  &__state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.4;
+    font-size: 0.875rem;
+    padding: 2rem 0;
+
+    &--fill {
+      position: absolute;
+      inset: 0;
+    }
+  }
+
+  &__disclaimer {
+    font-size: 0.625rem;
+    opacity: 0.25;
+    text-align: center;
+    padding: 1.5rem 0 2rem;
+    width: 100%;
+  }
+}
+
+// ── Lyrics lines ────────────────────────────────────────────────
+
+.lyrics-line {
+  width: 100%;
+  text-align: center;
+  padding: 0.35rem 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  font-weight: 500;
+  opacity: 0.28;
+  transform: scale(0.97);
+  transform-origin: center;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    font-size 0.3s ease,
+    color 0.3s ease,
+    font-weight 0.3s ease;
+
+  &--active {
+    opacity: 1;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-gnome-blue);
+    transform: scale(1);
+  }
+
+  &--plain {
+    opacity: 0.7;
+    font-size: 0.9rem;
+    font-weight: 400;
+    transform: scale(1);
+  }
+
+  &--clickable {
+    cursor: pointer;
+    &:hover { opacity: 0.6; }
+  }
+}
+
+// ── Inline card ─────────────────────────────────────────────────
+
+.lyrics-card {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--color-gnome-border);
+  background: var(--color-gnome-surface);
+  transition: border-color 0.2s ease, transform 0.15s ease;
+
+  &--clickable {
+    cursor: pointer;
+    &:hover {
+      border-color: color-mix(in srgb, var(--color-gnome-blue) 45%, transparent);
+    }
+    &:active { transform: scale(0.985); }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.35rem;
+  }
+
+  &__label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-gnome-blue);
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  &__expand {
+    font-size: 0.625rem;
+    color: var(--color-gnome-blue);
+    opacity: 0.35;
+  }
+
+  &__meta {
+    font-size: 0.75rem;
+    opacity: 0.35;
+    font-style: italic;
+    text-align: center;
+    width: 100%;
+    padding: 0.25rem 0;
+  }
+
+  &__active-line {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-gnome-blue);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}

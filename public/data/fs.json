@@ -503,7 +503,8 @@
                 "icon": "fas fa-music",
                 "color": "#0077b6",
                 "size": 8336332,
-                "url": "/data/root/home/musics/Ready or Not - Bridgit Mendler.mp3"
+                "url": "/data/root/home/musics/Ready or Not - Bridgit Mendler.mp3",
+                "thumb": "/data/root/home/musics/covers/Ready or Not - Bridgit Mendler.jpg"
               },
               {
                 "id": "mus2",
@@ -512,16 +513,18 @@
                 "icon": "fas fa-music",
                 "color": "#0077b6",
                 "size": 8905801,
-                "url": "/data/root/home/musics/I Can Do It With a Broken Heart - Taylor Swift.mp3"
+                "url": "/data/root/home/musics/I Can Do It With a Broken Heart - Taylor Swift.mp3",
+                "thumb": "/data/root/home/musics/covers/I Can Do It With a Broken Heart - Taylor Swift.jpg"
               },
               {
                 "id": "mus3",
-                "name": "Big Star - Kenny Chesney (ft. Taylor Swift).mp3",
+                "name": "Big Star - Kenny Chesney.mp3",
                 "type": "file",
                 "icon": "fas fa-music",
                 "color": "#0077b6",
                 "size": 12328887,
-                "url": "/data/root/home/musics/Big Star - Kenny Chesney (ft. Taylor Swift).mp3"
+                "url": "/data/root/home/musics/Big Star - Kenny Chesney.mp3",
+                "thumb": "/data/root/home/musics/covers/Big Star - Kenny Chesney.jpg"
               },
               {
                 "id": "mus4",
@@ -530,7 +533,8 @@
                 "icon": "fas fa-music",
                 "color": "#0077b6",
                 "size": 8221393,
-                "url": "/data/root/home/musics/Saúde - Rita Lee.mp3"
+                "url": "/data/root/home/musics/Saúde - Rita Lee.mp3",
+                "thumb": "/data/root/home/musics/covers/Saúde - Rita Lee.jpg"
               },
               {
                 "id": "mus5",
@@ -539,16 +543,18 @@
                 "icon": "fas fa-music",
                 "color": "#0077b6",
                 "size": 7681181,
-                "url": "/data/root/home/musics/Crazier - Taylor Swift.mp3"
+                "url": "/data/root/home/musics/Crazier - Taylor Swift.mp3",
+                "thumb": "/data/root/home/musics/covers/Crazier - Taylor Swift.jpg"
               },
               {
                 "id": "mus6",
-                "name": "Our Song (Speak Now World Tour) - Taylor Swift.mp3",
+                "name": "Our Song - Taylor Swift.mp3",
                 "type": "file",
                 "icon": "fas fa-music",
                 "color": "#0077b6",
                 "size": 11605817,
-                "url": "/data/root/home/musics/Our Song (Speak Now World Tour ) - Taylor Swift.mp3"
+                "url": "/data/root/home/musics/Our Song - Taylor Swift.mp3",
+                "thumb": "/data/root/home/musics/covers/Our Song - Taylor Swift.jpg"
               },
               {
                 "id": "mus7",
@@ -557,7 +563,8 @@
                 "icon": "fas fa-music",
                 "color": "#0077b6",
                 "size": 8688462,
-                "url": "/data/root/home/musics/Sangue latino - Ney Matogrosso.mp3"
+                "url": "/data/root/home/musics/Sangue latino - Ney Matogrosso.mp3",
+                "thumb": "/data/root/home/musics/covers/Sangue latino - Ney Matogrosso.jpg"
               },
               {
                 "id": "mus8",
@@ -566,16 +573,18 @@
                 "icon": "fas fa-music",
                 "color": "#0077b6",
                 "size": 7785670,
-                "url": "/data/root/home/musics/Taylor Swift - Mastermind.mp3"
+                "url": "/data/root/home/musics/Taylor Swift - Mastermind.mp3",
+                "thumb": "/data/root/home/musics/covers/Taylor Swift - Mastermind.jpg"
               },
               {
                 "id": "mus9",
-                "name": "The Alcott - The National ft. Taylor Swift.mp3",
+                "name": "The Alcott - The National.mp3",
                 "type": "file",
                 "icon": "fas fa-music",
                 "color": "#0077b6",
                 "size": 10718699,
-                "url": "/data/root/home/musics/The Alcott - The National (ft. Taylor Swift).mp3"
+                "url": "/data/root/home/musics/The Alcott - The National.mp3",
+                "thumb": "/data/root/home/musics/covers/The Alcott - The National.jpg"
               }
             ]
           }

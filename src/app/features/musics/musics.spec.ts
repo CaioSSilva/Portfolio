@@ -115,11 +115,11 @@ describe('Musics', () => {
     expect(stopSpy).toHaveBeenCalled();
   });
 
-  it('onSeekEnd deve chamar player.seek()', () => {
+  it('onSeekEnd deve chamar player.seek() com immediate=true', () => {
     const seekSpy = vi.spyOn(audioPlayer, 'seek');
     const event = { target: { valueAsNumber: 42 } } as unknown as Event;
     component.onSeekEnd(event);
-    expect(seekSpy).toHaveBeenCalledWith(42);
+    expect(seekSpy).toHaveBeenCalledWith(42, true);
   });
 
   it('should handleVolume delegate to player.setVolume()', () => {
@@ -185,5 +185,21 @@ describe('Musics', () => {
     audioPlayer.setVolume(0);
     const pct = audioPlayer.volume() * 100;
     expect(pct).toBe(0);
+  });
+
+  it('seekToLine should not call seek for time < 0', () => {
+    const seekSpy = vi.spyOn(audioPlayer, 'seek');
+    component.seekToLine(-1, 0);
+    expect(seekSpy).not.toHaveBeenCalled();
+  });
+
+  it('seekToLine should call player.seek with debounce (immediate=false)', () => {
+    const seekSpy = vi.spyOn(audioPlayer, 'seek');
+    component.seekToLine(30, 2);
+    expect(seekSpy).toHaveBeenCalledWith(30);
+  });
+
+  it('thumbError should start as false', () => {
+    expect(component.thumbError()).toBe(false);
   });
 });

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
 import { AudioPlayer } from '../../features/musics/player/audio-player';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
@@ -17,6 +17,14 @@ export class MusicWidget {
   private readonly apps = inject(Apps);
   private readonly notifService = inject(NotificationService);
 
+  readonly widgetThumbError = signal(false);
+
+  constructor() {
+    effect(() => {
+      this.player.currentTrack();
+      this.widgetThumbError.set(false);
+    });
+  }
   readonly isSeeking = signal(false);
   readonly seekPreview = signal(0);
   readonly displayTime = computed(() =>

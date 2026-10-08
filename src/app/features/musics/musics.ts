@@ -2,10 +2,10 @@ import { Component, ElementRef, OnDestroy, inject, signal, computed, effect, Cha
 import { CommonModule } from '@angular/common';
 import { Base, ProcessData } from '../../core/models/base';
 import { AUDIO_EXTENSIONS, FileItem } from '../../core/models/file';
-import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
 import { FileSystem } from '../../core/services/file-system';
 import { AudioPlayer } from './player/audio-player';
+import { LyricsService } from './player/lyrics.service';
 import { ScreenService } from '../../core/services/screen';
 
 @Component({
@@ -18,8 +18,8 @@ import { ScreenService } from '../../core/services/screen';
 })
 export class Musics extends Base implements OnDestroy {
   lang = inject(LanguageService);
-  apps = inject(Apps);
   player = inject(AudioPlayer);
+  lyrics = inject(LyricsService);
   private fs = inject(FileSystem);
   private ngZone = inject(NgZone);
   private hostEl = inject(ElementRef<HTMLElement>);
@@ -28,11 +28,15 @@ export class Musics extends Base implements OnDestroy {
   readonly isNarrow = signal(false);
   private resizeObserver: ResizeObserver | null = null;
 
-  readonly isSidebarOpen = signal(true);
+  readonly isSidebarOpen = signal(!this.screen.isMobile());
+  readonly showLyrics = signal(false);
+  private _userScrolling = false;
+  private _scrollResumeTimer: ReturnType<typeof setTimeout> | null = null;
   readonly musicLibrary = signal<FileItem[]>([]);
   readonly isLibraryLoaded = signal(false);
   readonly fileName = computed(() => this.player.currentTrack()?.name || '---');
 
+  readonly thumbError = signal(false);
   readonly isSeeking = signal(false);
   readonly seekPreview = signal(0);
   readonly displayTime = computed(() =>
@@ -58,6 +62,40 @@ export class Musics extends Base implements OnDestroy {
         this.playExternalTrack(external);
       }
     });
+
+    effect(() => {
+      this.player.currentTrack();
+      this.thumbError.set(false);
+    });
+
+    effect(() => {
+      const idx = this.lyrics.activeLine();
+      if (idx < 0 || !this.showLyrics() || this._userScrolling) return;
+      const el = document.getElementById(`lyric-line-${idx}`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  seekToLine(time: number, lineIndex: number): void {
+    if (time < 0) return;
+    this._userScrolling = true;
+    if (this._scrollResumeTimer) clearTimeout(this._scrollResumeTimer);
+    this._scrollResumeTimer = setTimeout(() => {
+      this._userScrolling = false;
+      this._scrollResumeTimer = null;
+    }, 1500);
+    this.player.seek(time);
+    const el = document.getElementById(`lyric-line-${lineIndex}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  onLyricsScroll(): void {
+    this._userScrolling = true;
+    if (this._scrollResumeTimer) clearTimeout(this._scrollResumeTimer);
+    this._scrollResumeTimer = setTimeout(() => {
+      this._userScrolling = false;
+      this._scrollResumeTimer = null;
+    }, 1500);
   }
 
   private initResizeObserver(): void {
@@ -110,11 +148,6 @@ export class Musics extends Base implements OnDestroy {
     this.isLibraryLoaded.set(true);
   }
 
-  goToFiles() {
-    const filesApp = this.apps.appsDefinition().find((a) => a.id === 'files');
-    if (filesApp) this.apps.openApp(filesApp);
-  }
-
   handleVolume(e: Event) {
     const val = (e.target as HTMLInputElement).valueAsNumber ?? parseFloat((e.target as HTMLInputElement).value);
     this.player.setVolume(val);
@@ -133,7 +166,7 @@ export class Musics extends Base implements OnDestroy {
   onSeekEnd(e: Event) {
     const val = (e.target as HTMLInputElement).valueAsNumber;
     this.isSeeking.set(false);
-    this.player.seek(val);
+    this.player.seek(val, true);
   }
 
   formatTime(time: number): string {
@@ -145,6 +178,7 @@ export class Musics extends Base implements OnDestroy {
 
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
+    if (this._scrollResumeTimer) clearTimeout(this._scrollResumeTimer);
     this.player.stop();
   }
 }

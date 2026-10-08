@@ -854,15 +854,27 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 6. Musics (Music Player)
 
 **Features**:
-- Music library
-- Player with controls
-- Progress bar
-- Volume
-- Play/Pause
-- Previous/Next
-- Metadata (if available)
+- Music library with collapsible sidebar
+- Player controls (Play/Pause, Previous/Next)
+- Seek bar with click and drag
+- Volume control and mute
+- **Synchronized lyrics** via [LRCLIB](https://lrclib.net) API
+  - Fullscreen overlay with auto-scroll on active line
+  - Click any line to jump to that position in the track
+  - Fallback to plain (unsynchronized) lyrics
+  - Attribution: "Lyrics provided by LRCLIB"
+- **Album thumbnails**: `thumb` field in `fs.json`; falls back to animated spinning disc when missing or invalid
+- **Music Widget** in the notification bar: thumbnail, controls, and inline progress bar
+- **Now Playing Widget** in the top bar: animated disc icon with track name
+- Seek debounce (80 ms) to avoid rebuffer glitches when jumping lyrics lines
 
-**Supported Formats**: MP3, WAV, OGG.
+**Services**:
+- `AudioPlayer` (`player/audio-player.ts`): controls native `<audio>` via Angular Signals
+- `LyricsService` (`player/lyrics.service.ts`): fetches LRCLIB, parses LRC, active line via binary search
+
+**Covers**: place images in `public/data/root/home/musics/covers/` with the same base name as the audio file (`.jpg`).
+
+**Supported Formats**: MP3, WAV, OGG, M4A, FLAC.
 
 ### 7. Settings
 
@@ -1128,14 +1140,14 @@ This project is a personal portfolio. All rights reserved.
 
 ## 📊 Project Statistics
 
-- **Version**: 2.3.1
-- **Lines of Code**: ~18,000+
-- **Components**: 27+
-- **Services**: 17+
+- **Version**: 2.4.0
+- **Lines of Code**: ~19,000+
+- **Components**: 29+
+- **Services**: 19+
 - **Applications**: 10
 - **Languages**: 2
-- **Test Files**: 51
-- **Tests**: 558 (100% passing)
+- **Test Files**: 52
+- **Tests**: 607 (100% passing)
 - **Performance Score**: 90+
 
 ---
@@ -1150,4 +1162,4 @@ For questions, suggestions, or to report bugs:
 
 **Developed with ❤️ using Angular 22**
 
-**Last Update**: October 2026 · v2.3.1
+**Last Update**: January 2027 · v2.4.0

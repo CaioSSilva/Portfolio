@@ -911,15 +911,27 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 6. Musics (Player de Música)
 
 **Funcionalidades**:
-- Biblioteca de músicas
-- Player com controles
-- Progress bar
-- Volume
-- Play/Pause
-- Anterior/Próxima
-- Metadados (se disponíveis)
+- Biblioteca de músicas com sidebar retrátil
+- Player com controles (Play/Pause, Anterior/Próxima)
+- Progress bar com seek por clique e arrastar
+- Controle de volume e mute
+- **Letras sincronizadas** via API [LRCLIB](https://lrclib.net)
+  - Overlay fullscreen com scroll automático na linha ativa
+  - Clique em qualquer linha para saltar para esse ponto da música
+  - Fallback para letras sem timestamps (modo plain)
+  - Atribuição: "Letras fornecidas por LRCLIB"
+- **Thumbnails de álbum**: campo `thumb` no `fs.json`; fallback para disco girante animado quando ausente ou inválido
+- **Music Widget** na barra de notificações: thumbnail, controles e progress bar inline
+- **Now Playing Widget** na top bar: disco animado com nome da faixa
+- Debounce de seek (80 ms) para evitar glitches de rebuffer ao pular linhas de letra
 
-**Formatos Suportados**: MP3, WAV, OGG.
+**Serviços**:
+- `AudioPlayer` (`player/audio-player.ts`): controle do `<audio>` nativo via Angular Signals
+- `LyricsService` (`player/lyrics.service.ts`): busca LRCLIB, parse LRC, linha ativa por busca binária
+
+**Covers**: coloque imagens em `public/data/root/home/musics/covers/` com o mesmo nome do arquivo de áudio (`.jpg`).
+
+**Formatos Suportados**: MP3, WAV, OGG, M4A, FLAC.
 
 ### 7. Settings (Configurações)
 
@@ -1208,14 +1220,14 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 📊 Estatísticas do Projeto
 
-- **Versão**: 2.3.1
-- **Linhas de Código**: ~18.000+
-- **Componentes**: 27+
-- **Serviços**: 17+
+- **Versão**: 2.4.0
+- **Linhas de Código**: ~19.000+
+- **Componentes**: 29+
+- **Serviços**: 19+
 - **Aplicativos**: 10
 - **Idiomas**: 2
-- **Arquivos de Teste**: 51
-- **Testes**: 558 (100% passando)
+- **Arquivos de Teste**: 52
+- **Testes**: 607 (100% passando)
 - **Performance Score**: 90+
 
 ---
@@ -1231,4 +1243,4 @@ Para dúvidas, sugestões ou reportar bugs:
 
 **Desenvolvido com ❤️ usando Angular 22**
 
-**Última Atualização**: Outubro 2026 · v2.3.1
+**Última Atualização**: Janeiro 2027 · v2.4.0

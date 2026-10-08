@@ -76,10 +76,47 @@
     <button
       (click)="isSidebarOpen.set(!isSidebarOpen())"
       class="absolute cursor-pointer transition-all duration-300 top-4 left-4 z-20 w-9 h-9 flex items-center justify-center bg-gnome-surface border border-gnome-border rounded-xl shadow-lg hover:bg-gnome-header active:scale-95"
-      title="Playlist"
+      [class.menu-hint]="!player.currentTrack() && !isSidebarOpen()"
+      [title]="lang.t().audioPlayer.menuLabel"
     >
       <i class="fas" [class.fa-indent]="!isSidebarOpen()" [class.fa-outdent]="isSidebarOpen()"></i>
     </button>
+
+    @if (showLyrics() && player.currentTrack()) {
+      <div class="lyrics-overlay absolute inset-0 z-30 flex flex-col overflow-hidden">
+        <div class="lyrics-overlay__header shrink-0 flex items-center justify-between px-5 py-3">
+          <span class="lyrics-card__label">
+            <i class="fas fa-quote-left"></i>{{ lang.t().audioPlayer.lyricsLabel }}
+          </span>
+          <button (click)="showLyrics.set(false)" class="lyrics-overlay__close cursor-pointer">
+            <i class="fas fa-chevron-down text-sm"></i>
+          </button>
+        </div>
+        <div #lyricsScroll class="lyrics-overlay__scroll" (scroll)="onLyricsScroll()">
+          @if (lyrics.isLoading()) {
+            <div class="lyrics-overlay__state lyrics-overlay__state--fill">
+              <span>{{ lang.t().audioPlayer.lyricsLoading }}</span>
+            </div>
+          } @else if (!lyrics.hasLyrics()) {
+            <div class="lyrics-overlay__state lyrics-overlay__state--fill">
+              <span>{{ lang.t().audioPlayer.lyricsNotFound }}</span>
+            </div>
+          } @else {
+            @for (line of lyrics.lines(); track line.time; let i = $index) {
+              <p
+                [id]="'lyric-line-' + i"
+                class="lyrics-line"
+                [class.lyrics-line--active]="i === lyrics.activeLine()"
+                [class.lyrics-line--plain]="lyrics.isPlainOnly()"
+                [class.lyrics-line--clickable]="line.time >= 0"
+                (click)="seekToLine(line.time, i)"
+              >{{ line.text || '·' }}</p>
+            }
+            <p class="lyrics-overlay__disclaimer">{{ lang.t().audioPlayer.lyricsDisclaimer }}</p>
+          }
+        </div>
+      </div>
+    }
 
     <main class="flex-1 flex flex-col items-center justify-center p-4 @min-[680px]:p-6">
       @if (!player.currentTrack()) {
@@ -90,23 +127,28 @@
             <i class="fas fa-music text-4xl @min-[680px]:text-5xl opacity-20"></i>
           </div>
           <h2 class="text-base @min-[680px]:text-lg font-bold">{{ lang.t().audioPlayer.noAudio }}</h2>
-          <button
-            (click)="goToFiles()"
-            class="mt-4 text-gnome-blue font-bold text-xs hover:underline cursor-pointer"
-          >
-            {{ lang.t().common.openFiles }}
-          </button>
+          <p class="mt-2 text-xs text-gnome-text-secondary opacity-70">{{ lang.t().audioPlayer.viewLibrary }}</p>
         </div>
       } @else if (!player.hasError()) {
         <div
           class="w-48 h-48 @min-[680px]:w-64 @min-[680px]:h-64 bg-gnome-blue rounded-3xl @min-[680px]:rounded-2xl shadow-2xl flex items-center justify-center mb-6 @min-[680px]:mb-8 relative overflow-hidden"
         >
-          <i
-            class="fas fa-compact-disc text-6xl @min-[680px]:text-8xl text-white drop-shadow-lg"
-            [class.disc-playing]="player.discSpinState() === 'playing' && !player.isLoading()"
-            [class.disc-seeking-forward]="player.discSpinState() === 'seeking-forward'"
-            [class.disc-seeking-backward]="player.discSpinState() === 'seeking-backward'"
-          ></i>
+          @if (player.currentTrack()?.thumb && !thumbError()) {
+            <img
+              [src]="player.currentTrack()!.thumb"
+              (error)="thumbError.set(true)"
+              class="absolute inset-0 w-full h-full object-cover"
+              alt=""
+            />
+          }
+          @if (!player.currentTrack()?.thumb || thumbError()) {
+            <i
+              class="fas fa-compact-disc text-6xl @min-[680px]:text-8xl text-white drop-shadow-lg"
+              [class.disc-playing]="player.discSpinState() === 'playing' && !player.isLoading()"
+              [class.disc-seeking-forward]="player.discSpinState() === 'seeking-forward'"
+              [class.disc-seeking-backward]="player.discSpinState() === 'seeking-backward'"
+            ></i>
+          }
           @if (player.isLoading()) {
             <div
               class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm"
@@ -186,6 +228,32 @@
               class="gnome-slider cursor-pointer flex-1 h-1 appearance-none rounded-full"
             />
           </div>
+
+          @if (player.currentTrack() && !showLyrics()) {
+            <div
+              class="lyrics-card"
+              [class.lyrics-card--clickable]="lyrics.hasLyrics()"
+              (click)="lyrics.hasLyrics() && showLyrics.set(true)"
+            >
+              <div class="lyrics-card__header">
+                <span class="lyrics-card__label">
+                  <i class="fas fa-quote-left"></i>{{ lang.t().audioPlayer.lyricsLabel }}
+                </span>
+                @if (lyrics.hasLyrics()) {
+                  <i class="fas fa-chevron-up lyrics-card__expand"></i>
+                }
+              </div>
+              @if (lyrics.isLoading()) {
+                <p class="lyrics-card__meta">{{ lang.t().audioPlayer.lyricsLoading }}</p>
+              } @else if (!lyrics.hasLyrics()) {
+                <p class="lyrics-card__meta">{{ lang.t().audioPlayer.lyricsNotFound }}</p>
+              } @else {
+                <p class="lyrics-card__active-line">
+                  {{ lyrics.lines()[lyrics.activeLine()]?.text || lyrics.lines()[0]?.text }}
+                </p>
+              }
+            </div>
+          }
         </div>
       } @else {
         <div class="text-center">

@@ -21,6 +21,8 @@ export class AudioPlayer {
 
   private _lastSeekTime = 0;
   private _seekResetTimer: ReturnType<typeof setTimeout> | null = null;
+  private _seekDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private _isSeeking = false;
 
   constructor() {
     this.audio.crossOrigin = 'anonymous';
@@ -30,7 +32,8 @@ export class AudioPlayer {
   private setupListeners() {
     const a = this.audio;
 
-    a.ontimeupdate = () => this.currentTime.set(a.currentTime);
+    a.ontimeupdate = () => { if (!this._isSeeking) this.currentTime.set(a.currentTime); };
+    a.onseeked = () => { this.currentTime.set(a.currentTime); this._isSeeking = false; };
     a.onloadedmetadata = () => this.duration.set(a.duration);
     a.onplay = () => {
       this.isPlaying.set(true);
@@ -95,10 +98,16 @@ export class AudioPlayer {
   }
 
   private stopPlayback() {
+    if (this._seekDebounceTimer) {
+      clearTimeout(this._seekDebounceTimer);
+      this._seekDebounceTimer = null;
+    }
     this.audio.pause();
     this.audio.src = '';
     this.isPlaying.set(false);
     this.isLoading.set(false);
+    this.duration.set(0);
+    this.currentTime.set(0);
   }
 
   nextTrack() {
@@ -121,8 +130,10 @@ export class AudioPlayer {
     }
   }
 
-  seek(time: number) {
+  seek(time: number, immediate = false) {
     if (!isNaN(time) && isFinite(time)) {
+      this._isSeeking = true;
+      this.currentTime.set(time);
       this.updateSeekDirection(time);
 
       if (this._seekResetTimer) clearTimeout(this._seekResetTimer);
@@ -131,7 +142,15 @@ export class AudioPlayer {
         this.discSpinState.set(this.isPlaying() ? 'playing' : 'paused');
       }, 600);
 
-      this.audio.currentTime = time;
+      if (this._seekDebounceTimer) clearTimeout(this._seekDebounceTimer);
+      if (immediate) {
+        this.audio.currentTime = time;
+      } else {
+        this._seekDebounceTimer = setTimeout(() => {
+          this._seekDebounceTimer = null;
+          this.audio.currentTime = time;
+        }, 80);
+      }
     }
   }
 
