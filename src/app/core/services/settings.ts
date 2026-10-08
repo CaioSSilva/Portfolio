@@ -10,7 +10,7 @@ export class Settings {
   readonly systemMuted = signal<boolean>(this.load('soundMuted', false));
   readonly autoHideDock = signal<boolean>(this.load('autoHideDock', true));
   readonly tipsEnabled = signal<boolean>(this.load('tipsEnabled', true));
-  readonly geminiModel = signal<string>(this.migrateModel(this.load('geminiModel', 'gemini-2.0-flash')));
+  readonly geminiModel = signal<string>(this.migrateModel(this.load('geminiModel', 'gemini-flash-lite-latest')));
 
   private readonly desktopWallpaper = signal<string>(
     this.load('wallpaper', '/wallpapers/desktop/default.webp')
@@ -70,8 +70,10 @@ export class Settings {
 
   private migrateModel(model: string): string {
     const deprecated: Record<string, string> = {
-      'gemini-2.5-flash': 'gemini-2.0-flash',
-      'gemini-2.0-flash-lite': 'gemini-2.0-flash',
+      'gemini-2.5-flash': 'gemini-flash-lite-latest',
+      'gemini-2.0-flash-lite': 'gemini-flash-lite-latest',
+      'gemini-2.0-flash-lite-latest': 'gemini-flash-lite-latest',
+      'gemini-2.0-flash': 'gemini-flash-lite-latest',
     };
     return deprecated[model] ?? model;
   }
