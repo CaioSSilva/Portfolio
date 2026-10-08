@@ -57,15 +57,15 @@
         <span>{{ now() | date: 'HH:mm' }}</span>
       </div>
     } @else {
-      <div class="relative">
-        <app-now-playing-widget />
-        @if (!notfService.isPanelOpen()) {
+      @if (!notfService.isPanelOpen()) {
+        <div class="relative">
+          <app-now-playing-widget />
           <div
             (click)="notfService.openPanel()"
             class="absolute inset-0 cursor-pointer"
           ></div>
-        }
-      </div>
+        </div>
+      }
     }
   </div>
 
