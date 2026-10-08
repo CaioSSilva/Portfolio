@@ -401,5 +401,9 @@ export const pt = {
     seviceUnavailable: 'Serviço indisponível no momento!',
     actionExecutionFailed: 'Não foi possível executar a ação solicitada pelo Hermes.',
     modelUnavailable: 'O modelo selecionado não está disponível. Troque o modelo nas configurações do Hermes.',
+    failedToLoadFiles: 'Falha ao carregar arquivos do sistema de arquivos.',
+    failedToLoadDocument: 'Falha ao carregar o documento.',
+    failedToProcessDocument: 'Falha ao processar o documento.',
+    failedToLoadImages: 'Falha ao carregar imagens do sistema de arquivos.',
   },
 };

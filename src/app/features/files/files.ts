@@ -87,7 +87,7 @@ export class Files extends Base implements OnDestroy {
 
   constructor() {
     super();
-    this.fs.ensureLoaded().catch(console.error);
+    this.fs.ensureLoaded();
 
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver((entries) => {

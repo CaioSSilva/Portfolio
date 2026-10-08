@@ -49,12 +49,6 @@ export class Musics extends Base implements OnDestroy {
     }
 
     effect(() => {
-      if (this.isNarrow() && !this.screen.isMobile()) {
-        this.isSidebarOpen.set(false);
-      }
-    });
-
-    effect(() => {
       if (!this.fs.isLoaded()) {
         this.fs.ensureLoaded();
         return;

@@ -41,8 +41,8 @@ export class HermesActionService {
         if (parsed && typeof parsed.type === 'string') {
           actions.push(parsed);
         }
-      } catch (err) {
-        console.warn('[HermesActionService] Failed to parse action JSON:', err);
+      } catch {
+        // malformed action JSON from model — skip silently
       }
       return '';
     }).trim();
@@ -120,7 +120,6 @@ export class HermesActionService {
       }
       handler(action.payload);
     } catch (error) {
-      console.error('[HermesActionService] Error executing action:', error);
       this.notifications.show({
         title: this.language.t().errors.systemError,
         message: this.language.t().errors.actionExecutionFailed,

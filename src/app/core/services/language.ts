@@ -17,8 +17,8 @@ export class LanguageService {
           return browserLang;
         }
       }
-    } catch (error) {
-      console.warn('[LanguageService] Error getting initial language:', error);
+    } catch {
+      // localStorage unavailable — fallback to default
     }
     return 'pt';
   }
@@ -29,8 +29,8 @@ export class LanguageService {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('lang', lang);
       }
-    } catch (error) {
-      console.warn('[LanguageService] Error storing language preference:', error);
+    } catch {
+      // localStorage unavailable — skip persistence
     }
   }
 

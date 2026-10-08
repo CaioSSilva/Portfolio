@@ -31,8 +31,8 @@ export class Theme {
       if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
         return window.matchMedia('(prefers-color-scheme: dark)').matches;
       }
-    } catch (error) {
-      console.warn('[Theme] Could not read theme preference:', error);
+    } catch {
+      // localStorage unavailable — use default theme
     }
     return false;
   }

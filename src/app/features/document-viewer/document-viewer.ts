@@ -6,6 +6,7 @@ import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
 import { FileSystem } from '../../core/services/file-system';
 import { ScreenService } from '../../core/services/screen';
+import { NotificationService } from '../../core/services/notification';
 import { FileItem, DOC_EXTENSIONS } from '../../core/models/file';
 
 @Component({
@@ -22,6 +23,7 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
   public fs = inject(FileSystem);
   private hostEl = inject(ElementRef<HTMLElement>);
   private screen = inject(ScreenService);
+  private nots = inject(NotificationService);
 
   fileType = signal<'pdf' | 'text' | 'unsupported'>('unsupported');
   fileName = signal('');
@@ -113,8 +115,8 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
   private loadAllDocs(): void {
     try {
       this.availableDocs.set(this.fs.getFilesByExtensions(['pdf', ...DOC_EXTENSIONS]));
-    } catch (error) {
-      console.error('[DocumentViewer] Failed to load documents from filesystem:', error);
+    } catch {
+      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToLoadFiles, icon: 'fas fa-folder-open' });
       this.hasError.set(true);
     } finally {
       this.isLoading.set(false);
@@ -134,8 +136,8 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
         }
         this.isViewingDocument.set(true);
       }
-    } catch (error) {
-      console.error('[DocumentViewer] Failed to load documents from filesystem:', error);
+    } catch {
+      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToLoadDocument, icon: 'fas fa-file-circle-exclamation' });
       this.hasError.set(true);
     } finally {
       this.isLoading.set(false);
@@ -157,8 +159,8 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
       } else {
         this.fileType.set('unsupported');
       }
-    } catch (error) {
-      console.error('[DocumentViewer] Failed to process document:', error);
+    } catch {
+      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToProcessDocument, icon: 'fas fa-file-circle-exclamation' });
       this.hasError.set(true);
       this.isLoading.set(false);
     }
@@ -179,8 +181,8 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
       const text = await response.text();
       this.textContent.set(text);
       this.isLoading.set(false);
-    } catch (error) {
-      console.error(`[DocumentViewer] Failed to load text file from ${path}:`, error);
+    } catch {
+      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToLoadDocument, icon: 'fas fa-file-circle-exclamation' });
       this.hasError.set(true);
       this.isLoading.set(false);
     }

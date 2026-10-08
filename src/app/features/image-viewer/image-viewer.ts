@@ -14,6 +14,7 @@ import { Base } from '../../core/models/base';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
 import { FileSystem } from '../../core/services/file-system';
+import { NotificationService } from '../../core/services/notification';
 import { FileItem, IMAGE_EXTENSIONS } from '../../core/models/file';
 
 @Component({
@@ -27,6 +28,7 @@ export class ImageViewer extends Base {
   lang = inject(LanguageService);
   apps = inject(Apps);
   private fs = inject(FileSystem);
+  private nots = inject(NotificationService);
 
   readonly availableImages = signal<FileItem[]>([]);
   readonly selectedFile = signal<FileItem | null>(null);
@@ -103,8 +105,8 @@ export class ImageViewer extends Base {
   private loadAllImages(): void {
     try {
       this.availableImages.set(this.fs.getFilesByExtensions(IMAGE_EXTENSIONS));
-    } catch (error) {
-      console.error('[ImageViewer] Failed to load images from file system:', error);
+    } catch {
+      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToLoadImages, icon: 'fas fa-image' });
       this.hasError.set(true);
     } finally {
       this.isLoading.set(false);
@@ -123,8 +125,8 @@ export class ImageViewer extends Base {
         }
         this.isViewingImage.set(true);
       }
-    } catch (error) {
-      console.error('[ImageViewer] Failed to load images from file system:', error);
+    } catch {
+      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToLoadImages, icon: 'fas fa-image' });
       this.hasError.set(true);
     } finally {
       this.isLoading.set(false);

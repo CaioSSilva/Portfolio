@@ -24,8 +24,8 @@ export class Sound {
 
       const buffer = await this.getAudioBuffer(soundName, ctx);
       this.createAndStartSource(buffer, ctx);
-    } catch (error) {
-      console.warn(`[Sound] Failed to play sound "${soundName}":`, error);
+    } catch {
+      // audio playback unavailable — skip
     }
   }
 

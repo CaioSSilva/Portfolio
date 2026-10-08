@@ -176,44 +176,46 @@
         <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">{{ lang.t().settings.desktop.title }}</h2>
         <div class="space-y-6">
           <div class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border">
-            <div class="p-4 flex items-center justify-between">
-              <div>
-                <div class="font-medium">{{ lang.t().settings.desktop.autoHideDock }}</div>
-                <div class="text-sm text-gnome-text-secondary">{{ lang.t().settings.desktop.autoHideDockDesc }}</div>
+            @if (!screen.isTouchDevice()) {
+              <div class="p-4 flex items-center justify-between">
+                <div>
+                  <div class="font-medium">{{ lang.t().settings.desktop.autoHideDock }}</div>
+                  <div class="text-sm text-gnome-text-secondary">{{ lang.t().settings.desktop.autoHideDockDesc }}</div>
+                </div>
+                <button
+                  (click)="settings.toggleAutoHideDock()"
+                  class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
+                  [class.bg-gnome-blue]="settings.autoHideDock()"
+                  [class.bg-zinc-400]="!settings.autoHideDock()"
+                >
+                  <div
+                    class="w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm"
+                    [class.translate-x-6]="settings.autoHideDock()"
+                    [class.translate-x-0]="!settings.autoHideDock()"
+                  ></div>
+                </button>
               </div>
-              <button
-                (click)="settings.toggleAutoHideDock()"
-                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
-                [class.bg-gnome-blue]="settings.autoHideDock()"
-                [class.bg-zinc-400]="!settings.autoHideDock()"
-              >
-                <div
-                  class="w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm"
-                  [class.translate-x-6]="settings.autoHideDock()"
-                  [class.translate-x-0]="!settings.autoHideDock()"
-                ></div>
-              </button>
-            </div>
 
-            <div class="p-4 flex items-center justify-between gap-4">
-              <div class="min-w-0">
-                <div class="font-medium">{{ lang.t().settings.desktop.iconSize }}</div>
-                <div class="text-sm text-gnome-text-secondary">{{ lang.t().settings.desktop.iconSizeDesc }}</div>
+              <div class="p-4 flex items-center justify-between gap-4">
+                <div class="min-w-0">
+                  <div class="font-medium">{{ lang.t().settings.desktop.iconSize }}</div>
+                  <div class="text-sm text-gnome-text-secondary">{{ lang.t().settings.desktop.iconSizeDesc }}</div>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                  <input
+                    type="range"
+                    min="28"
+                    max="64"
+                    step="2"
+                    [value]="settings.dockSize()"
+                    (input)="settings.setDockSize(+$any($event.target).value)"
+                    [style.--slider-pct]="((settings.dockSize() - 28) / (64 - 28) * 100) + '%'"
+                    class="gnome-slider w-28 h-1.5 appearance-none cursor-pointer rounded-full"
+                  />
+                  <span class="text-xs font-mono font-bold w-8 text-right">{{ settings.dockSize() }}px</span>
+                </div>
               </div>
-              <div class="flex items-center gap-3 shrink-0">
-                <input
-                  type="range"
-                  min="28"
-                  max="64"
-                  step="2"
-                  [value]="settings.dockSize()"
-                  (input)="settings.setDockSize(+$any($event.target).value)"
-                  [style.--slider-pct]="((settings.dockSize() - 28) / (64 - 28) * 100) + '%'"
-                  class="gnome-slider w-28 h-1.5 appearance-none cursor-pointer rounded-full"
-                />
-                <span class="text-xs font-mono font-bold w-8 text-right">{{ settings.dockSize() }}px</span>
-              </div>
-            </div>
+            }
 
             <div class="p-4 flex items-center justify-between gap-4">
               <div class="min-w-0">
@@ -294,15 +296,15 @@
 
       @if (activeSection() === 'system') {
         <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">{{ lang.t().settings.system.title }}</h2>
-        <div class="space-y-4 bg-gnome-surface p-4 @min-[680px]:p-6 rounded-2xl border border-gnome-border divide-y divide-gnome-border/50">
-          <div class="flex items-center justify-between pb-4">
+        <div class="space-y-6 bg-gnome-surface p-4 @min-[680px]:p-6 rounded-2xl border border-gnome-border">
+          <div class="flex items-center justify-between gap-4">
             <div>
               <div class="text-sm @min-[680px]:text-base font-semibold">{{ lang.t().settings.system.systemTips }}</div>
               <div class="text-xs text-gnome-text-secondary">{{ lang.t().settings.system.systemTipsDesc }}</div>
             </div>
             <button
               (click)="settings.toggleSystemTips()"
-              class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
+              class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer shrink-0"
               [class.bg-gnome-blue]="settings.tipsEnabled()"
               [class.bg-zinc-400]="!settings.tipsEnabled()"
             >
@@ -314,20 +316,6 @@
             </button>
           </div>
 
-          <div class="pt-4 divide-y divide-gnome-border/40 text-xs @min-[680px]:text-sm">
-            <div class="py-2.5 flex justify-between items-center">
-              <span class="text-gnome-text-secondary font-medium">{{ lang.t().settings.about.systemName }}</span>
-              <span class="font-semibold text-right">Cai_OS</span>
-            </div>
-            <div class="py-2.5 flex justify-between items-center">
-              <span class="text-gnome-text-secondary font-medium">{{ lang.t().settings.about.ram }}</span>
-              <span class="font-semibold">{{ systemInfo.ram }}</span>
-            </div>
-            <div class="py-2.5 flex justify-between items-center">
-              <span class="text-gnome-text-secondary font-medium">{{ lang.t().settings.about.display }}</span>
-              <span class="font-semibold">{{ systemInfo.resolution }}</span>
-            </div>
-          </div>
         </div>
       }
 

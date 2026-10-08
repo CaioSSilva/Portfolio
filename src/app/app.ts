@@ -5,6 +5,7 @@ import {
   signal,
   effect,
   computed,
+  untracked,
   viewChild,
   ElementRef,
   ChangeDetectionStrategy
@@ -74,7 +75,7 @@ export class App {
         this.tipsService.startRandomTips();
       }
 
-      const aboutApp = this.apps.appsRegistry().about;
+      const aboutApp = untracked(() => this.apps.appsRegistry().about);
       if (aboutApp) {
         setTimeout(() => this.apps.openApp(aboutApp), 1000);
       }

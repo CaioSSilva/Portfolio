@@ -1,9 +1,9 @@
-# Complete Documentation — Cai_OS 2.1.1
+# Complete Documentation — Cai_OS 2.2.0
 
 ## 📋 Table of Contents
 
 1. [Overview](#-overview)
-2. [What's New in 2.1.1](#-whats-new-in-211)
+2. [What's New in 2.2.0](#-whats-new-in-220)
 3. [System Architecture](#️-system-architecture)
 4. [Technologies Used](#️-technologies-used)
 5. [Project Structure](#-project-structure)
@@ -58,9 +58,47 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 
 ---
 
-## 🆕 What's New in 2.1.1
+## 🆕 What's New in 2.2.0
 
-### Mobile App Grid — Context Menu Fixes
+### Settings — Mobile & Layout Fixes
+
+| Fix | Description |
+|---|---|
+| **Dock hidden on mobile** | "Auto-hide dock" and dock icon size controls are now hidden on touch devices (`isTouchDevice`), not based on window width — so a desktop user with a small window still sees all dock controls |
+| **System info removed from System tab** | RAM, display resolution and system name were being shown in the System tab; they now only appear in the About tab |
+| **System tab toggle style** | Fixed `divide-y` / `pb-4` classes that were left over from when the section had multiple items; now matches the Sound tab pattern |
+| **Toggle button overflow** | Added `shrink-0` and `gap-4` to prevent long labels from compressing the toggle and making the white dot overflow the pill |
+
+### Reactive Effect Fixes
+
+| Fix | Description |
+|---|---|
+| **About app re-opening on language change** | `AppRegistry.registry` is a `computed` that depends on `LanguageService` — changing language caused the boot `effect` in `App` to re-run and open the About app again. Fixed with `untracked()` around the `appsRegistry` read |
+| **Musics — duplicate sidebar effect** | Removed a redundant `effect` that duplicated the `ResizeObserver` callback logic for closing the sidebar on narrow desktop windows |
+
+### Error Handling — Notifications Instead of Console
+
+| Before | After |
+|---|---|
+| `console.error` in `DocumentViewer` (4 sites) | `NotificationService.show()` with translated message |
+| `console.error` in `ImageViewer` (2 sites) | `NotificationService.show()` with translated message |
+| `console.error` in `HermesActionService.execute` | Duplicate removed — notification already shown |
+| `console.warn` in `HermesActionService.parseActions` | Silent `catch` (malformed model JSON — not user-facing) |
+| `console.warn` in `LanguageService` (2 sites) | Silent `catch` (localStorage unavailable) |
+| `console.warn` in `AudioPlayer` (2 sites) | Silent `catch` (autoplay policy — `hasError` signal handles UI) |
+| `console.warn` in `Theme` | Silent `catch` (localStorage unavailable) |
+| `console.warn` in `Sound` | Silent `catch` (AudioContext unavailable) |
+| `.catch(console.error)` in `Files` constructor | Removed — `FileSystem.ensureLoaded` already notifies internally |
+
+New i18n keys added: `failedToLoadFiles`, `failedToLoadDocument`, `failedToProcessDocument`, `failedToLoadImages` (PT + EN).
+
+### Test Suite
+
+- **50 test files · 541 tests · 0 failures**
+
+### What's New in 2.1.1 (previous)
+
+#### Mobile App Grid — Context Menu Fixes
 
 | Fix | Description |
 |---|---|
@@ -71,7 +109,7 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 | **No text wrapping** | Menu width bumped to `w-[260px]` to fit the longest translated string ("Remover da área de trabalho") |
 | **All actions close menu** | `closeActiveApp` and desktop pin/unpin now call `contextMenu.close()` |
 
-### Hermes — Model Error Notification
+#### Hermes — Model Error Notification
 
 | Feature | Description |
 |---|---|
@@ -79,7 +117,7 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 | **Specific notification** | Shows `errors.modelUnavailable` ("The selected model is not available…") with `fa-robot` icon and 10 s duration |
 | **Generic fallback** | Any other error still shows the generic `seviceUnavailable` notification |
 
-### Version Constant
+#### Version Constant
 
 | Change | Description |
 |---|---|
