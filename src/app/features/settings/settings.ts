@@ -92,7 +92,7 @@ export class SettingsComponent extends Base implements OnDestroy {
   ];
 
   systemInfo = {
-    os: 'Cai_OS 2.0.0 (Gnome-like Web Desktop)',
+    os: 'Cai_OS 2.0.1 (Gnome-like Web Desktop)',
     kernel: 'Linux 6.8.0-generic (WebAssembly Runtime)',
     arch: typeof navigator !== 'undefined' ? navigator.platform : 'x86_64',
     cpu: typeof navigator !== 'undefined' && navigator.hardwareConcurrency ? navigator.hardwareConcurrency : '—',

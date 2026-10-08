@@ -5,7 +5,7 @@ export const HERMES_DOCS: Record<string, string> = {
 Cai_OS é um sistema operacional web interativo construído com Angular 21, inspirado no GNOME. É o portfólio de Caio Souza Silva.
 
 ## Aplicativos
-- **Files**: Gerenciador de arquivos com visualização em grade/lista, breadcrumbs, sidebar e busca.
+- **Files**: Gerenciador de arquivos com visualização em grade/lista, breadcrumbs, sidebar e busca. No modo grade, slider −/+ no rodapé controla o tamanho dos ícones.
 - **Firefox**: Navegador web via iframe.
 - **Terminal**: Comandos Unix-like (ls, cd, open, date, theme, clear, help, neofetch, whoami).
 - **Photos**: Visualizador de imagens (JPG, PNG, GIF, WebP) com galeria, zoom e navegação.
@@ -19,7 +19,8 @@ Cai_OS é um sistema operacional web interativo construído com Angular 21, insp
 ## Funcionalidades do Sistema
 - **Janelas**: Arrastar, redimensionar (8 direções, mín. 320x240), maximizar (duplo clique), minimizar, snap nas bordas/cantos.
 - **Dock**: Barra de tarefas com apps fixados, indicadores de execução, menu de contexto e drag-and-drop.
-- **Top Bar**: Relógio, grid de apps, centro de notificações, menu de energia. Widget "Tocando agora" aparece na barra quando uma música está sendo reproduzida — no desktop fica à esquerda e abre o painel de notificações ao clicar; no mobile fica centralizado e abre o player. Ao abrir as notificações, o widget migra para dentro do painel com controles completos (prev/play/next, seek slider interativo).
+- **Top Bar**: Relógio, grid de apps, centro de notificações, menu de energia. Widget "Tocando agora" aparece na barra quando uma música está sendo reproduzida — no desktop fica à esquerda e abre o painel de notificações ao clicar; no mobile fica centralizado e abre o player. Ao abrir as notificações, o widget migra para dentro do painel com controles completos (prev/play/next, seek slider interativo com progresso azul).
+- **Grid de Apps**: Sobreposição de busca com campo pill, ícone de lupa e botão de limpar. Busca em tempo real por nome de aplicativo.
 - **App Switcher**: Ctrl+\` (crase) para alternar janelas.
 - **Sistema de Arquivos Virtual**: Estrutura hierárquica em /home/ com documents, photos, music, certificates.
 - **Temas**: Claro e escuro.
@@ -46,7 +47,7 @@ Angular 21, TypeScript, Tailwind CSS 4, SCSS, Google Gemini AI, Font Awesome 7, 
 Cai_OS is an interactive web operating system built with Angular 21, inspired by GNOME. It is Caio Souza Silva's portfolio.
 
 ## Applications
-- **Files**: File manager with grid/list view, breadcrumbs, sidebar and search.
+- **Files**: File manager with grid/list view, breadcrumbs, sidebar and search. In grid mode, a −/+ slider in the footer controls icon size.
 - **Firefox**: Web browser via iframe.
 - **Terminal**: Unix-like commands (ls, cd, open, date, theme, clear, help, neofetch, whoami).
 - **Photos**: Image viewer (JPG, PNG, GIF, WebP) with gallery, zoom and navigation.
@@ -60,7 +61,8 @@ Cai_OS is an interactive web operating system built with Angular 21, inspired by
 ## System Features
 - **Windows**: Drag, resize (8 directions, min 320x240), maximize (double-click), minimize, edge/corner snap.
 - **Dock**: Taskbar with pinned apps, running indicators, context menu and drag-and-drop.
-- **Top Bar**: Clock, app grid, notification center, power menu. A "Now Playing" widget appears while a song plays — on desktop it sits on the left and opens the notification panel on click; on mobile it is centred and opens the player. When the panel is open, the widget moves inside it with full controls (prev/play/next, interactive seek slider).
+- **Top Bar**: Clock, app grid, notification center, power menu. A "Now Playing" widget appears while a song plays — on desktop it sits on the left and opens the notification panel on click; on mobile it is centred and opens the player. When the panel is open, the widget moves inside it with full controls (prev/play/next, interactive seek slider with blue progress fill).
+- **App Grid**: Search overlay with pill-shaped field, magnifier icon and clear button. Real-time search by application name.
 - **App Switcher**: Ctrl+\` (backtick) to switch windows.
 - **Virtual File System**: Hierarchical structure at /home/ with documents, photos, music, certificates.
 - **Themes**: Light and dark.

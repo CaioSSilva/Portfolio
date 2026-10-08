@@ -43,7 +43,6 @@ describe('WindowService', () => {
     screenService.width.set(1280);
 
     el = document.createElement('div');
-    // Attach to body so getBoundingClientRect works in jsdom
     document.body.appendChild(el);
     proc = makeProcess();
   });
@@ -88,8 +87,8 @@ describe('WindowService', () => {
 
   it('should restore normal size on second toggleMaximize', () => {
     service.init(el, proc);
-    service.toggleMaximize(); // maximize
-    service.toggleMaximize(); // restore
+    service.toggleMaximize();
+    service.toggleMaximize();
     expect(el.style.width).toContain('px');
   });
 
@@ -115,7 +114,6 @@ describe('WindowService', () => {
     const event = new MouseEvent('mousedown', { button: 0, clientX: 200, clientY: 200 });
     service.startResize(event);
     expect(service.isResizing()).toBe(true);
-    // clean up listeners
     document.dispatchEvent(new MouseEvent('mouseup'));
   });
 

@@ -84,7 +84,7 @@ describe('SettingsComponent', () => {
 
   it('dock size slider --slider-pct is proportional mid-range', () => {
     const settings = TestBed.inject(Settings);
-    settings.setDockSize(46); // midpoint of 28–64
+    settings.setDockSize(46);
     const pct = (settings.dockSize() - 28) / (64 - 28) * 100;
     expect(pct).toBeCloseTo(50, 0);
   });

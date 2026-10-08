@@ -25,7 +25,6 @@ describe('Sound', () => {
 
   it('should attempt playback when not muted and AudioContext is unavailable (JSDOM)', async () => {
     settings.systemMuted.set(false);
-    // jsdom has no AudioContext — play() should silently swallow any error
     await expect(service.play('bell')).resolves.toBeUndefined();
   });
 
@@ -34,7 +33,6 @@ describe('Sound', () => {
 
     const decodeAudioData = vi.fn().mockRejectedValue(new Error('decode failed'));
 
-    // Must use `function` keyword so `new AudioContext()` works in Vitest
     const origAudioContext = (globalThis as Record<string, unknown>)['AudioContext'];
     (globalThis as Record<string, unknown>)['AudioContext'] = function AudioContextStub() {
       return { createBufferSource: vi.fn(), destination: {}, decodeAudioData };
@@ -45,10 +43,8 @@ describe('Sound', () => {
       arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
     });
 
-    // play() catches errors internally — must resolve, not reject
     await expect(service.play('error-sound')).resolves.toBeUndefined();
 
-    // Restore
     (globalThis as Record<string, unknown>)['AudioContext'] = origAudioContext;
     globalThis.fetch = origFetch;
   });

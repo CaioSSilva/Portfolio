@@ -50,7 +50,6 @@
   "
   class="fixed top-0 left-0 right-0 h-9 sm:h-8 bg-gnome-bg/85 backdrop-blur-xl text-gnome-text text-sm flex items-center justify-between px-3.5 sm:px-4 select-none z-[8999] shadow-sm font-medium transition-transform duration-200 ease-out border-b border-gnome-border/20 cursor-default touch-none"
 >
-  <!-- Left: clock (mobile) | now-playing shortcut to notification panel (desktop, panel closed) -->
   <div class="flex items-center gap-2">
     @if (screen.isMobile()) {
       <div class="flex items-center gap-1.5 px-1 py-1 text-xs font-bold select-none">
@@ -68,7 +67,6 @@
     }
   </div>
 
-  <!-- Center: date/clock (desktop) | now-playing widget (mobile) -->
   <div class="flex items-center gap-2">
     @if (!screen.isMobile()) {
       <div

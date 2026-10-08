@@ -161,7 +161,7 @@
       </div>
 
       <div
-        class="mb-6 flex flex-col bg-gnome-header dark:bg-gnome-surface/30 rounded-xl border border-gnome-border shadow-sm overflow-hidden"
+        class="@container mb-6 flex flex-col bg-gnome-header dark:bg-gnome-surface/30 rounded-xl border border-gnome-border shadow-sm overflow-hidden"
       >
         <div
           class="hidden @sm:grid grid-cols-12 gap-4 px-4 py-3 bg-gnome-header-dark dark:bg-gnome-header/60 text-[10px] font-black uppercase tracking-widest text-gnome-text opacity-80 border-b border-gnome-border"
@@ -189,7 +189,7 @@
               <div class="col-span-2 text-right font-mono text-xs text-gnome-blue font-black">{{ getProcessStats(p.id).cpu }}%</div>
               <div class="col-span-2 text-right font-mono text-xs text-gnome-text opacity-90">{{ getProcessStats(p.id).ram }}MB</div>
               <div class="col-span-2 flex justify-center">
-                <button (click)="killProcess(p.id)" class="opacity-0 cursor-pointer group-hover:opacity-100 p-2.5 rounded-full hover:bg-gnome-red/10 text-gnome-red transition-all active:scale-90">
+                <button (click)="killProcess(p.id)" class="opacity-0 cursor-pointer group-hover:opacity-100 p-2.5 rounded-full hover:bg-gnome-red/10 text-gnome-red transition-all active:scale-90 @max-sm:opacity-100">
                   <i class="fas fa-times-circle text-lg"></i>
                 </button>
               </div>
@@ -199,18 +199,16 @@
                 <i [class]="p.icon" class="text-sm text-gnome-text"></i>
               </div>
               <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-sm font-bold text-gnome-text truncate">{{ p.title }}</span>
-                  <button (click)="killProcess(p.id)" class="shrink-0 p-1.5 rounded-full hover:bg-gnome-red/10 active:bg-gnome-red/20 text-gnome-red touch-manipulation">
-                    <i class="fas fa-times-circle text-base"></i>
-                  </button>
-                </div>
+                <span class="text-sm font-bold text-gnome-text truncate block">{{ p.title }}</span>
                 <div class="flex gap-3 mt-0.5">
                   <span class="text-[10px] font-mono text-gnome-blue font-black">CPU {{ getProcessStats(p.id).cpu }}%</span>
                   <span class="text-[10px] font-mono text-gnome-text opacity-70">RAM {{ getProcessStats(p.id).ram }}MB</span>
                   <span class="text-[10px] opacity-40 font-mono text-gnome-text-secondary">PID {{ p.id.split('-')[0] }}</span>
                 </div>
               </div>
+              <button (click)="killProcess(p.id)" class="shrink-0 p-1.5 rounded-full hover:bg-gnome-red/10 active:bg-gnome-red/20 text-gnome-red touch-manipulation">
+                <i class="fas fa-times-circle text-base"></i>
+              </button>
             </div>
           }
         </div>

@@ -135,18 +135,16 @@ describe('Musics', () => {
 
   it('should NOT close sidebar when narrow on mobile', () => {
     const screen = TestBed.inject(ScreenService);
-    screen.width.set(375); // mobile width
+    screen.width.set(375);
     component.isNarrow.set(true);
-    // sidebar must stay open on mobile regardless of narrow
     expect(component.isSidebarOpen()).toBe(true);
   });
 
   it('should close sidebar when narrow on desktop', () => {
     const screen = TestBed.inject(ScreenService);
-    screen.width.set(1280); // desktop width
+    screen.width.set(1280);
     component.isSidebarOpen.set(true);
     component.isNarrow.set(true);
-    // trigger the effect manually via the same logic path
     if (component.isNarrow() && !screen.isMobile()) {
       component.isSidebarOpen.set(false);
     }

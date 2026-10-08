@@ -68,7 +68,6 @@ describe('AudioPlayer', () => {
     const t2 = mockTrack('t2', '/audio/t2.mp3');
     await service.play(t2, [t1, t2]);
     service.nextTrack();
-    // stays on t2
     expect(service.currentTrack()?.id).toBe('t2');
   });
 
@@ -108,7 +107,6 @@ describe('AudioPlayer', () => {
     const track = mockTrack('t1', '/audio/t1.mp3');
     await service.play(track);
     service.seek(30);
-    // jsdom HTMLAudioElement may not reflect currentTime precisely, but should not throw
     expect(() => service.seek(30)).not.toThrow();
   });
 

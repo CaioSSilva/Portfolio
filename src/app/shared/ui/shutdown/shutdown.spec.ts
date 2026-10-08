@@ -38,7 +38,6 @@ describe('Shutdown', () => {
   it('restart calls window.location.reload', () => {
     const reloadMock = vi.fn();
     const locationSave = window.location;
-    // jsdom doesn't allow spyOn on reload; replace the whole location object
     Object.defineProperty(window, 'location', {
       value: { ...window.location, reload: reloadMock },
       configurable: true,

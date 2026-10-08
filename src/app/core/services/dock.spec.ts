@@ -105,7 +105,6 @@ describe('DockService', () => {
     processManager.open({ ...mockApp, id: 'other-app', title: 'Other' });
 
     const pids = processManager.processes().map((p) => p.id);
-    // focus second process so first is not active
     processManager.focus(pids[1]);
 
     const dockItem: DockItem = {
@@ -157,11 +156,9 @@ describe('DockService', () => {
       pids,
     };
 
-    // First click: active is pids[0] → should focus pids[1]
     service.handleAppClick(dockItem);
     expect(processManager.activeProcessId()).toBe(pids[1]);
 
-    // Second click: active is pids[1] → should cycle back to pids[0]
     service.handleAppClick(dockItem);
     expect(processManager.activeProcessId()).toBe(pids[0]);
   });
@@ -172,7 +169,6 @@ describe('DockService', () => {
     processManager.open(app2);
 
     const pids = processManager.processes().map((p) => p.id);
-    // Focus an unrelated process so none of the two instances is active
     const other = { ...mockApp, id: 'other' };
     processManager.open(other);
     const otherPid = processManager.processes()[2].id;
@@ -187,7 +183,6 @@ describe('DockService', () => {
       pids,
     };
 
-    // No active instance → currentIndex = -1 → nextIndex = 0
     service.handleAppClick(dockItem);
     expect(processManager.activeProcessId()).toBe(pids[0]);
   });
@@ -258,7 +253,6 @@ describe('DockService', () => {
   });
 
   it('should not unpin when only one app is pinned', () => {
-    // leave only one pinned app
     service.pinnedAppIds.set(['firefox']);
     contextMenuSpy.activeAppId.mockReturnValue('firefox');
     service.unPinActiveApp();

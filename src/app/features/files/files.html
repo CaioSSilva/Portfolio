@@ -179,7 +179,7 @@
       <div class="flex items-center gap-3">
         @if (viewMode() === 'grid') {
           <div class="flex items-center gap-2">
-            <i class="fas fa-image text-[10px] text-gnome-text-secondary opacity-40"></i>
+            <i class="fas fa-minus text-[8px] text-gnome-text-secondary opacity-40"></i>
             <input
               type="range"
               min="80"
@@ -190,7 +190,7 @@
               [style.--slider-pct]="((gridSize() - 80) / (300 - 80) * 100) + '%'"
               class="gnome-slider w-20 @min-[680px]:w-24 h-1 appearance-none cursor-pointer rounded-full"
             />
-            <i class="fas fa-image text-sm text-gnome-text-secondary opacity-40"></i>
+            <i class="fas fa-plus text-[8px] text-gnome-text-secondary opacity-40"></i>
           </div>
         } @else {
           <div

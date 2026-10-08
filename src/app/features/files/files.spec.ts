@@ -134,10 +134,9 @@ describe('Files', () => {
     const event = new MouseEvent('mousedown', { clientX: 200 });
     const preventSpy = vi.spyOn(event, 'preventDefault');
     component.startResizing(event);
-    // confirm that sidebar responds to subsequent mousemove
     const move = new MouseEvent('mousemove', { clientX: 250 });
     component.onMouseMove(move);
-    expect(component.sidebarWidth()).toBe(290); // 240 + 50
+    expect(component.sidebarWidth()).toBe(290);
     expect(preventSpy).toHaveBeenCalled();
   });
 
@@ -151,7 +150,7 @@ describe('Files', () => {
     component.startResizing(new MouseEvent('mousedown', { clientX: 200 }));
     component.onMouseUp();
     component.onMouseMove(new MouseEvent('mousemove', { clientX: 400 }));
-    expect(component.sidebarWidth()).toBe(240); // unchanged after mouseup
+    expect(component.sidebarWidth()).toBe(240);
   });
 
   it('updateGridSize sets gridSize from event', () => {
@@ -179,7 +178,7 @@ describe('Files', () => {
   });
 
   it('grid size slider --slider-pct is proportional mid-range', () => {
-    component.gridSize.set(190); // midpoint of 80–300
+    component.gridSize.set(190);
     const pct = (component.gridSize() - 80) / (300 - 80) * 100;
     expect(pct).toBeCloseTo(50, 0);
   });

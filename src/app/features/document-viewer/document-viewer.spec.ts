@@ -210,7 +210,6 @@ describe('DocumentViewer', () => {
   });
 
   it('should load all docs via getFilesByExtensions when opened without data', () => {
-    // data is null (no file passed) — loadAllDocs should have been called
     expect(fsSpy.getFilesByExtensions).toHaveBeenCalled();
     expect(component.availableDocs().length).toBe(2);
   });

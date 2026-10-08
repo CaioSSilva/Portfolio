@@ -16,7 +16,6 @@ import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 
 describe('App', () => {
   let soundMock: { play: ReturnType<typeof vi.fn> };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let settingsMock: any;
   let tipsMock: { startRandomTips: ReturnType<typeof vi.fn> };
   let appsMock: { isAppsGridOpen: ReturnType<typeof signal<boolean>>; appsRegistry: ReturnType<typeof signal<any>>; appsDefinition: ReturnType<typeof signal<any[]>>; appSearchResult: ReturnType<typeof signal<any[]>>; searchQuery: ReturnType<typeof signal<string>>; openApp: ReturnType<typeof vi.fn>; toggleGrid: ReturnType<typeof vi.fn> };

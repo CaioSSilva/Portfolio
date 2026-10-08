@@ -105,9 +105,8 @@
         <div class="mx-4 border-t border-gnome-border/40"></div>
         <div
           (click)="openPlayer()"
-          class="mx-4 mb-4 mt-3 bg-gnome-surface/60 border border-gnome-border/40 rounded-2xl p-3.5 flex flex-col gap-2.5 cursor-pointer active:opacity-80 transition-opacity"
+          class="mx-4 mb-3 mt-3 bg-gnome-surface/60 border border-gnome-border/40 rounded-2xl p-3.5 flex flex-col gap-2.5 cursor-pointer active:opacity-80 transition-opacity"
         >
-          <!-- Track info -->
           <div class="flex items-center gap-3 min-w-0 w-full">
             <div class="w-9 h-9 rounded-xl bg-gnome-blue flex items-center justify-center shrink-0">
               <i
@@ -121,7 +120,6 @@
             </div>
             <i class="fas fa-chevron-right text-[10px] text-gnome-text-secondary opacity-50 shrink-0"></i>
           </div>
-          <!-- Controls -->
           <div class="flex items-center justify-center gap-5">
             <button
               (click)="player.prevTrack(); $event.stopPropagation()"
@@ -150,7 +148,6 @@
               <i class="fas fa-forward-step text-base"></i>
             </button>
           </div>
-          <!-- Seek slider -->
           <div class="flex items-center gap-2" (click)="$event.stopPropagation()">
             <span class="text-[10px] font-mono text-gnome-text-secondary w-7 text-right shrink-0">
               {{ formatTime(player.currentTime()) }}
@@ -229,7 +226,6 @@
           (click)="openPlayer()"
           class="mx-3 mb-3 mt-3 bg-gnome-surface/60 border border-gnome-border/40 rounded-2xl p-3 flex flex-col gap-2.5 cursor-pointer hover:opacity-90 active:opacity-70 transition-opacity"
         >
-          <!-- Track info -->
           <div class="flex items-center gap-3 min-w-0 w-full">
             <div class="w-8 h-8 rounded-xl bg-gnome-blue flex items-center justify-center shrink-0">
               <i
@@ -243,7 +239,6 @@
             </div>
             <i class="fas fa-chevron-right text-[10px] text-gnome-text-secondary opacity-50 shrink-0"></i>
           </div>
-          <!-- Controls -->
           <div class="flex items-center justify-center gap-4">
             <button
               (click)="player.prevTrack(); $event.stopPropagation()"
@@ -272,7 +267,6 @@
               <i class="fas fa-forward-step text-sm"></i>
             </button>
           </div>
-          <!-- Seek slider -->
           <div class="flex items-center gap-2" (click)="$event.stopPropagation()">
             <span class="text-[10px] font-mono text-gnome-text-secondary w-7 text-right shrink-0">
               {{ formatTime(player.currentTime()) }}

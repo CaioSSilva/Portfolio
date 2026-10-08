@@ -194,7 +194,6 @@ describe('FileSystem', () => {
   });
 
   it('should call downloadFile without throwing when path and name provided', () => {
-    // downloadFile creates an anchor and calls click — just ensure no throw
     const anchor = document.createElement('a');
     vi.spyOn(document, 'createElement').mockReturnValueOnce(anchor);
     vi.spyOn(anchor, 'click').mockImplementation(() => {});
@@ -214,8 +213,6 @@ describe('FileSystem', () => {
     service.downloadFile('', 'file.pdf');
     service.downloadFile('/file.pdf', '');
 
-    // only 'a' tags created by downloadFile itself would appear — but both calls
-    // should bail out early, so no 'a' should appear from them
     expect(createdElements).not.toContain('a');
     vi.restoreAllMocks();
   });
@@ -240,7 +237,6 @@ describe('FileSystem', () => {
     it('should filter siblings by extension', async () => {
       await loadFs();
 
-      // home folder has doc1 (pdf) and song1 (mp3) — only pdf should match
       const siblings = service.getSiblingsByUrl('/data/document.pdf', ['pdf']);
       expect(siblings.length).toBe(1);
       expect(siblings[0].id).toBe('doc1');
@@ -250,7 +246,6 @@ describe('FileSystem', () => {
       await loadFs();
 
       const siblings = service.getSiblingsByUrl('/data/nonexistent.jpg', ['jpg', 'png']);
-      // fallback returns all images across the whole FS
       expect(siblings.length).toBe(2);
       expect(siblings.map((f) => f.id)).toEqual(expect.arrayContaining(['img1', 'img2']));
     });

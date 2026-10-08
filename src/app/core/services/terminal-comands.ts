@@ -194,6 +194,6 @@ export class TerminalComands {
   }
 
   private handleAbout(): CommandResult {
-    return { output: `Cai_OS v2.0.0\nKernel: Web Engine`, action: 'NONE' };
+    return { output: `Cai_OS v2.0.1\nKernel: Web Engine`, action: 'NONE' };
   }
 }

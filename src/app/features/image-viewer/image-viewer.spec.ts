@@ -135,7 +135,6 @@ describe('ImageViewer', () => {
   it('should safeUrl be null when not viewing', () => {
     const img = makeImage('img1', '/img1.jpg');
     component.selectFile(img);
-    // not opened yet
     expect(component.safeUrl()).toBeNull();
   });
 
@@ -170,7 +169,6 @@ describe('ImageViewer', () => {
     component.isDragging.set(true);
     const moveEvent = { clientX: 50, clientY: 60 } as MouseEvent;
     component.onMouseMove(moveEvent);
-    // position should have been updated
     const pos = component.position();
     expect(typeof pos.x).toBe('number');
     expect(typeof pos.y).toBe('number');

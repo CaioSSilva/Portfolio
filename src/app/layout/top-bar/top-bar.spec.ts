@@ -68,18 +68,15 @@ describe('TopBar', () => {
     const notfService = TestBed.inject(NotificationService);
     component.screen.width.set(400);
 
-    // Simulate touchstart
     component.onTouchStart({
       touches: [{ clientY: 10 }] as unknown as TouchList,
     } as unknown as TouchEvent);
 
-    // Simulate touchmove
     component.onTouchMove({
       touches: [{ clientY: 60 }] as unknown as TouchList,
     } as unknown as TouchEvent);
     expect(component.pullOffset()).toBeGreaterThan(0);
 
-    // Simulate touchend with downward swipe
     component.onTouchEnd({
       changedTouches: [{ clientY: 60 }] as unknown as TouchList,
     } as unknown as TouchEvent);

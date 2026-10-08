@@ -102,13 +102,12 @@ body {
   background-color: var(--color-gnome-border);
 }
 
-/* Utilitário para esconder completamente barras de scroll */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 .no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
 }
 
 .gnome-slider {

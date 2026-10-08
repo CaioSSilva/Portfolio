@@ -188,7 +188,6 @@ describe('ProcessManager', () => {
 
     const node2: FileItem = { id: 'song2', name: 'song2.mp3', type: 'file', icon: 'file', url: '/song2.mp3' };
     service.openFile(node2);
-    // old one closed, new one opened
     expect(service.processes().length).toBe(1);
   });
 

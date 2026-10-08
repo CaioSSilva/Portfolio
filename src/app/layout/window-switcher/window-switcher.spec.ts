@@ -80,7 +80,7 @@ describe('WindowSwitcher', () => {
     processesSig.set([makeProcess('a', 1), makeProcess('b', 2), makeProcess('c', 3)]);
     fixture.detectChanges();
     component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
-    const afterOpen = component.selectedIndex(); // 1
+    const afterOpen = component.selectedIndex();
     component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true, shiftKey: true }));
     expect(component.selectedIndex()).toBe((afterOpen - 1 + 3) % 3);
   });

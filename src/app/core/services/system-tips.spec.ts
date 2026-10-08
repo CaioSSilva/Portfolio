@@ -45,7 +45,6 @@ describe('SystemTips', () => {
   it('should stop tips and clear the timeout', () => {
     service.startRandomTips();
     service.stopTips();
-    // Calling stopTips a second time should not throw
     expect(() => service.stopTips()).not.toThrow();
   });
 
@@ -74,8 +73,8 @@ describe('SystemTips', () => {
     settings.tipsEnabled.set(true);
 
     service.startRandomTips();
-    vi.advanceTimersByTime(15001);        // first tip
-    vi.advanceTimersByTime(5 * 60 * 1000); // second cycle (first is 5min delay)
+    vi.advanceTimersByTime(15001);
+    vi.advanceTimersByTime(5 * 60 * 1000);
 
     expect(notificationSpy.show).toHaveBeenCalledTimes(2);
   });
