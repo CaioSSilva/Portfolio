@@ -334,9 +334,31 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     if (!href?.startsWith('#')) return;
 
     event.preventDefault();
-    const id = href.slice(1);
-    const el = this.scrollContainer?.nativeElement.querySelector(`#${CSS.escape(id)}`);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const rawId = href.slice(1);
+    const container = this.scrollContainer?.nativeElement;
+    if (!container) return;
+
+    // Tenta match exato primeiro; se falhar, normaliza ambos e tenta de novo
+    let el = container.querySelector(`[id="${rawId}"]`) as HTMLElement | null;
+    if (!el) {
+      const normalizedTarget = this.normalizeId(rawId);
+      el = Array.from(container.querySelectorAll('[id]')).find(
+        (e) => this.normalizeId((e as HTMLElement).id) === normalizedTarget
+      ) as HTMLElement | null;
+    }
+    if (!el) return;
+
+    const containerTop = container.getBoundingClientRect().top;
+    const elTop = el.getBoundingClientRect().top;
+    container.scrollBy({ top: elTop - containerTop - 16, behavior: 'smooth' });
+  }
+
+  private normalizeId(id: string): string {
+    return id
+      .toLowerCase()
+      .replace(/[^\w\u00C0-\u024F-]/g, '') // remove tudo exceto alfanumérico, letras acentuadas e hífens
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 
   getFileIcon() {
