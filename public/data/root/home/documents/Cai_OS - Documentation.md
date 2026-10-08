@@ -1,4 +1,4 @@
-# Complete Documentation - Cai_OS 2.1.1
+# Complete Documentation - Cai_OS 2.2.1
 
 ## 📋 Table of Contents
 1. [Overview](#-overview)
@@ -834,18 +834,22 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 - Zoom
 - Support for JPG, PNG, GIF, WebP
 
-### 5. Documents (PDF Viewer)
+### 5. Documents (Document Viewer)
 
 **Features**:
 - PDF rendering (lazy-loaded via dynamic import)
+- Markdown (`.md`) rendering with full formatting — same engine as Hermes
 - Page navigation
 - Zoom (header controls on desktop; floating pill bar on narrow windows)
 - Pinch-to-zoom on mobile with reset button
+- Horizontal swipe to navigate between documents on mobile (blocked when zoom > 1)
 - Download
-- List of available documents
+- List of available documents (differentiated icon for `.md` files)
 - Container-aware responsive layout (`ResizeObserver`, breakpoint: 500 px)
 
-**Library**: Uses `ng2-pdf-viewer`.
+**Supported Formats**: PDF, TXT, MD and other text files.
+
+**Library**: Uses `ng2-pdf-viewer` for PDFs.
 
 ### 6. Musics (Music Player)
 
@@ -868,8 +872,9 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 - Wallpaper (separate sets for desktop and mobile)
 
 #### Desktop
-- Auto-hide dock
-- Icon size
+- Auto-hide dock *(desktop only — hidden on mobile)*
+- Dock icon size *(desktop only)*
+- Desktop icon size
 
 #### Sound
 - System sounds (on/off)
@@ -1123,14 +1128,14 @@ This project is a personal portfolio. All rights reserved.
 
 ## 📊 Project Statistics
 
-- **Version**: 2.1.1
-- **Lines of Code**: ~17,500+
+- **Version**: 2.2.1
+- **Lines of Code**: ~18,000+
 - **Components**: 27+
 - **Services**: 17+
 - **Applications**: 10
 - **Languages**: 2
-- **Test Files**: 48
-- **Tests**: 480+ (100% passing)
+- **Test Files**: 50
+- **Tests**: 541 (100% passing)
 - **Performance Score**: 90+
 
 ---
@@ -1145,4 +1150,4 @@ For questions, suggestions, or to report bugs:
 
 **Developed with ❤️ using Angular 22**
 
-**Last Update**: October 2026 · v2.1.1
+**Last Update**: October 2026 · v2.2.1

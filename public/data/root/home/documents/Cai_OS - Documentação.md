@@ -1,4 +1,4 @@
-# Documentação Completa - Cai_OS 2.1.1
+# Documentação Completa - Cai_OS 2.2.1
 
 ## 📋 Sumário
 
@@ -891,18 +891,22 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 - Zoom
 - Suporte a JPG, PNG, GIF, WebP
 
-### 5. Documents (Visualizador de PDFs)
+### 5. Documents (Visualizador de Documentos)
 
 **Funcionalidades**:
 - Renderização de PDFs (carregamento lazy via dynamic import)
+- Renderização de Markdown (`.md`) com formatação completa — mesma engine do Hermes
 - Navegação entre páginas
 - Zoom (controles no header no desktop; barra flutuante em janelas estreitas)
 - Pinch-to-zoom no mobile com botão de reset
+- Swipe horizontal para navegar entre documentos no mobile (bloqueado com zoom > 1)
 - Download
-- Lista de documentos disponíveis
+- Lista de documentos disponíveis (ícone diferenciado para `.md`)
 - Layout responsivo ao container (`ResizeObserver`, breakpoint: 500 px)
 
-**Biblioteca**: Usa `ng2-pdf-viewer`.
+**Formatos Suportados**: PDF, TXT, MD e outros arquivos de texto.
+
+**Biblioteca**: Usa `ng2-pdf-viewer` para PDFs.
 
 ### 6. Musics (Player de Música)
 
@@ -926,8 +930,9 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 - Papel de parede (conjuntos separados para desktop e mobile)
 
 #### Desktop
-- Ocultar dock automaticamente
-- Tamanho dos ícones
+- Ocultar dock automaticamente *(apenas desktop — oculto no mobile)*
+- Tamanho dos ícones do dock *(apenas desktop)*
+- Tamanho dos ícones da área de trabalho
 
 #### Som
 - Sons do sistema (on/off)
@@ -1203,14 +1208,14 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 📊 Estatísticas do Projeto
 
-- **Versão**: 2.1.1
-- **Linhas de Código**: ~17.500+
+- **Versão**: 2.2.1
+- **Linhas de Código**: ~18.000+
 - **Componentes**: 27+
 - **Serviços**: 17+
 - **Aplicativos**: 10
 - **Idiomas**: 2
-- **Arquivos de Teste**: 48
-- **Testes**: 480+ (100% passando)
+- **Arquivos de Teste**: 50
+- **Testes**: 541 (100% passando)
 - **Performance Score**: 90+
 
 ---
@@ -1226,4 +1231,4 @@ Para dúvidas, sugestões ou reportar bugs:
 
 **Desenvolvido com ❤️ usando Angular 22**
 
-**Última Atualização**: Outubro 2026 · v2.1.1
+**Última Atualização**: Outubro 2026 · v2.2.1

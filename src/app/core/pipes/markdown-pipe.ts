@@ -40,9 +40,9 @@ export class MarkdownPipe implements PipeTransform {
 
     html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
 
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+    html = html.replace(/(?<!`)``?(?!`)([^`\n]+)``?(?!`)/g, '<code>$1</code>');
 
     html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 

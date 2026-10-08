@@ -1,9 +1,9 @@
-# Complete Documentation — Cai_OS 2.2.0
+# Complete Documentation — Cai_OS 2.2.1
 
 ## 📋 Table of Contents
 
 1. [Overview](#-overview)
-2. [What's New in 2.2.0](#-whats-new-in-220)
+2. [What's New in 2.2.1](#-whats-new-in-221)
 3. [System Architecture](#️-system-architecture)
 4. [Technologies Used](#️-technologies-used)
 5. [Project Structure](#-project-structure)
@@ -58,7 +58,48 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 
 ---
 
-## 🆕 What's New in 2.2.0
+## 🆕 What's New in 2.2.1
+
+### Document Viewer — Markdown Support
+
+| Feature | Description |
+|---|---|
+| **`.md` rendering** | Markdown files are now rendered with full formatting via `MarkdownPipe` — same pipe used by Hermes |
+| **`.md` icon** | `fab fa-markdown` icon in purple (`#7c5cd8`) in both the file grid and the viewer header |
+| **`prose-gnome` styles** | `::ng-deep` scoped styles for headings, code blocks, inline code, lists, blockquotes, links and `<hr>` — aligned with the Hermes visual language but using the system blue palette |
+
+### Document Viewer — Swipe Navigation
+
+| Feature | Description |
+|---|---|
+| **Swipe left/right** | Horizontal swipe (> 40 px, dominant axis) navigates between documents on mobile |
+| **Blocked when zoomed** | Swipe is ignored when `zoom() > 1` to avoid accidental navigation during pinch zoom |
+| **Touch structure aligned** | `onTouchStart` / `onTouchMove` / `onTouchEnd` structure now matches the ImageViewer exactly — pinch (2 fingers) handled first, single touch second |
+
+### ProcessManager — Data update on re-open
+
+| Fix | Description |
+|---|---|
+| **File clicked while viewer open** | `ProcessManager.open` now updates `data` on the existing process before focusing it — the document viewer's `effect` reacts and loads the new file |
+
+### MarkdownPipe — Regex fixes
+
+| Fix | Description |
+|---|---|
+| **`*em*` false positives** | Negative lookahead/lookbehind `(?<!\*)\*(?!\*)` prevents single `*` from matching inside `**bold**` markers |
+| **`` `code` `` false positives** | Updated regex excludes `` ``` `` fences (already processed as placeholders) and prevents cross-line matches |
+
+### Settings — Desktop tab dock controls
+
+| Fix | Description |
+|---|---|
+| **`isTouchDevice` → `isMobile`** | Dock controls (auto-hide + icon size) now use `screen.isMobile()` — `isTouchDevice` was returning `true` on touch-enabled laptops/monitors, hiding the controls on desktop |
+
+### Test Suite
+
+- **50 test files · 541 tests · 0 failures**
+
+### What's New in 2.2.0 (previous)
 
 ### Settings — Mobile & Layout Fixes
 

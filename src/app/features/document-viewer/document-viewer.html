@@ -119,10 +119,11 @@
                   <div class="w-16 h-16 flex items-center justify-center mb-3">
                     <i
                       [class]="
-                        doc.name.endsWith('.pdf')
-                          ? 'fas fa-file-pdf text-gnome-red'
-                          : 'fas fa-file-alt text-gnome-blue'
+                        doc.name.endsWith('.pdf') ? 'fas fa-file-pdf text-gnome-red' :
+                        doc.name.endsWith('.md')  ? 'fab fa-markdown' :
+                        'fas fa-file-alt text-gnome-blue'
                       "
+                      [style.color]="doc.name.endsWith('.md') ? '#7c5cd8' : null"
                       class="text-4xl opacity-90 group-hover:scale-110 transition-transform"
                     ></i>
                   </div>
@@ -233,6 +234,11 @@
               </button>
             </div>
           }
+        } @else if (fileType() === 'markdown') {
+          <div
+            class="max-w-4xl mx-auto w-full prose-gnome select-text px-2 pb-8"
+            [innerHTML]="textContent() | markdown"
+          ></div>
         } @else if (fileType() === 'text') {
           <div class="max-w-4xl mx-auto w-full">
             <pre

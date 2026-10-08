@@ -7,15 +7,16 @@ import { Apps } from '../../core/services/apps';
 import { FileSystem } from '../../core/services/file-system';
 import { ScreenService } from '../../core/services/screen';
 import { NotificationService } from '../../core/services/notification';
+import { MarkdownPipe } from '../../core/pipes/markdown-pipe';
 import { FileItem, DOC_EXTENSIONS } from '../../core/models/file';
 
 @Component({
   selector: 'app-document-viewer',
   standalone: true,
-  imports: [PdfViewerModule, CommonModule],
   templateUrl: './document-viewer.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './document-viewer.scss',
+  imports: [PdfViewerModule, CommonModule, MarkdownPipe],
 })
 export class DocumentViewer extends Base implements OnInit, OnDestroy {
   lang = inject(LanguageService);
@@ -25,7 +26,7 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
   private screen = inject(ScreenService);
   private nots = inject(NotificationService);
 
-  fileType = signal<'pdf' | 'text' | 'unsupported'>('unsupported');
+  fileType = signal<'pdf' | 'text' | 'markdown' | 'unsupported'>('unsupported');
   fileName = signal('');
   textContent = signal('');
   zoom = signal(1.0);
@@ -155,6 +156,9 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
 
       if (ext === 'pdf') {
         this.fileType.set('pdf');
+      } else if (ext === 'md' && file.url) {
+        this.fileType.set('markdown');
+        this.loadTextFile(file.url);
       } else if (file.url) {
         this.fileType.set('text');
         this.loadTextFile(file.url);
@@ -304,11 +308,15 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
   }
 
   getFileIcon() {
-    return this.fileType() === 'pdf' ? 'fas fa-file-pdf' : 'fas fa-file-alt';
+    if (this.fileType() === 'pdf') return 'fas fa-file-pdf';
+    if (this.fileType() === 'markdown') return 'fab fa-markdown';
+    return 'fas fa-file-alt';
   }
 
   getIconColor() {
-    return this.fileType() === 'pdf' ? '#ef4444' : '#3b82f6';
+    if (this.fileType() === 'pdf') return '#ef4444';
+    if (this.fileType() === 'markdown') return '#7c5cd8';
+    return '#3b82f6';
   }
 
   goToFiles() {
