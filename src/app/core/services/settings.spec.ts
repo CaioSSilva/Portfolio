@@ -43,7 +43,7 @@ describe('Settings', () => {
   });
 
   it('should have default geminiModel', () => {
-    expect(service.geminiModel()).toBe('gemini-2.0-flash-lite');
+    expect(service.geminiModel()).toBe('gemini-2.0-flash');
   });
 
   it('should setGeminiModel update the signal', () => {

@@ -88,8 +88,9 @@ describe('Apps', () => {
     const event = {
       preventDefault: vi.fn(),
       stopPropagation: vi.fn(),
-      clientX: 100,
-      clientY: 300,
+      currentTarget: {
+        getBoundingClientRect: () => ({ left: 100, top: 300, width: 60, height: 60 }),
+      },
     } as unknown as MouseEvent;
 
     service.onRightClickApp(event, app.id);
@@ -101,8 +102,9 @@ describe('Apps', () => {
     const event = {
       preventDefault: vi.fn(),
       stopPropagation: vi.fn(),
-      clientX: window.innerWidth - 10,
-      clientY: 300,
+      currentTarget: {
+        getBoundingClientRect: () => ({ left: window.innerWidth - 10, top: 300, width: 60, height: 60 }),
+      },
     } as unknown as MouseEvent;
 
     service.onRightClickApp(event, app.id);
