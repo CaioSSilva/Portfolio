@@ -176,7 +176,7 @@
         <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">{{ lang.t().settings.desktop.title }}</h2>
         <div class="space-y-6">
           <div class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border">
-            @if (!screen.isTouchDevice()) {
+            @if (!screen.isMobile()) {
               <div class="p-4 flex items-center justify-between">
                 <div>
                   <div class="font-medium">{{ lang.t().settings.desktop.autoHideDock }}</div>
