@@ -88,7 +88,7 @@
     </header>
   }
 
-  <main class="flex-1 overflow-auto bg-zinc-800/40 custom-scrollbar relative flex flex-col">
+  <main #scrollContainer class="flex-1 overflow-auto bg-zinc-800/40 custom-scrollbar relative flex flex-col">
     @if (isLoading() && (isViewingDocument() || !availableDocs().length)) {
       <div
         class="absolute inset-0 flex items-center justify-center z-30 bg-gnome-bg/50 backdrop-blur-sm"
@@ -238,6 +238,7 @@
           <div
             class="max-w-4xl mx-auto w-full prose-gnome select-text px-2 pb-8"
             [innerHTML]="textContent() | markdown"
+            (click)="onMarkdownClick($event)"
           ></div>
         } @else if (fileType() === 'text') {
           <div class="max-w-4xl mx-auto w-full">

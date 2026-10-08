@@ -31,10 +31,10 @@ export class MarkdownPipe implements PipeTransform {
       html = html.replace(`\x00CODEBLOCK${i}\x00`, block);
     });
 
-    html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
-    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    html = html.replace(/^#### (.+)$/gm, (_, t) => `<h4 id="${this.slugify(t)}">${t}</h4>`);
+    html = html.replace(/^### (.+)$/gm, (_, t) => `<h3 id="${this.slugify(t)}">${t}</h3>`);
+    html = html.replace(/^## (.+)$/gm,  (_, t) => `<h2 id="${this.slugify(t)}">${t}</h2>`);
+    html = html.replace(/^# (.+)$/gm,   (_, t) => `<h1 id="${this.slugify(t)}">${t}</h1>`);
 
     html = html.replace(/^---+$/gm, '<hr>');
 
@@ -78,6 +78,14 @@ export class MarkdownPipe implements PipeTransform {
     html = html.replace(/(<br>\s*){2,}/g, '<br><br>');
 
     return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  private slugify(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .trim()
+      .replace(/[\s]+/g, '-');
   }
 
   private escapeHtml(str: string): string {

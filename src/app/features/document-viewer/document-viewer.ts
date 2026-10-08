@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, effect, HostListener, ChangeDetectionStrategy, OnInit, OnDestroy, ElementRef } from '@angular/core';
+import { Component, signal, computed, inject, effect, HostListener, ChangeDetectionStrategy, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Base } from '../../core/models/base';
@@ -37,6 +37,8 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
   isViewingDocument = signal(false);
   isNarrow = signal(false);
   isPinchZoomed = signal(false);
+
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef<HTMLElement>;
 
   private resizeObserver: ResizeObserver | null = null;
 
@@ -321,6 +323,20 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
         this.handleChangeDocument(-1);
       }
     }
+  }
+
+  onMarkdownClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const anchor = target.closest('a');
+    if (!anchor) return;
+
+    const href = anchor.getAttribute('href');
+    if (!href?.startsWith('#')) return;
+
+    event.preventDefault();
+    const id = href.slice(1);
+    const el = this.scrollContainer?.nativeElement.querySelector(`#${CSS.escape(id)}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   getFileIcon() {
