@@ -1,6 +1,5 @@
 import { AboutProject } from '../../features/about-project/about-project';
 import { Browser } from '../../features/browser/browser';
-import { DocumentViewer } from '../../features/document-viewer/document-viewer';
 import { Files } from '../../features/files/files';
 import { Hermes } from '../../features/hermes/hermes';
 import { ImageViewer } from '../../features/image-viewer/image-viewer';
@@ -76,7 +75,9 @@ export const getInstalledApps = (lang: LanguageService): AppRegistry => {
       title: lang.t().apps.documents,
       icon: 'fas fa-file',
       color: '#e01b24',
-      component: DocumentViewer,
+      component: null as never,
+      loadComponent: () =>
+        import('../../features/document-viewer/document-viewer').then((m) => m.DocumentViewer),
       handle: DOC_EXTENSIONS,
     },
     musics: {

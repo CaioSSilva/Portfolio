@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, OnDestroy, inject, signal, computed, effect, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Base } from '../../core/models/base';
 import { AUDIO_EXTENSIONS, FileItem } from '../../core/models/file';
@@ -20,6 +20,11 @@ export class Musics extends Base implements OnDestroy {
   apps = inject(Apps);
   player = inject(AudioPlayer);
   private fs = inject(FileSystem);
+  private ngZone = inject(NgZone);
+  private hostEl = inject(ElementRef<HTMLElement>);
+
+  readonly isNarrow = signal(false);
+  private resizeObserver: ResizeObserver | null = null;
 
   readonly isSidebarOpen = signal(true);
   readonly musicLibrary = signal<FileItem[]>([]);
@@ -28,6 +33,24 @@ export class Musics extends Base implements OnDestroy {
 
   constructor() {
     super();
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        const w = entries[0]?.contentRect.width ?? 0;
+        const narrow = w > 0 && w < 680;
+        this.ngZone.run(() => {
+          this.isNarrow.set(narrow);
+          if (narrow) this.isSidebarOpen.set(false);
+        });
+      });
+      this.resizeObserver.observe(this.hostEl.nativeElement);
+    }
+
+    effect(() => {
+      if (this.isNarrow()) {
+        this.isSidebarOpen.set(false);
+      }
+    });
 
     effect(() => {
       if (!this.fs.isLoaded()) {
@@ -72,6 +95,21 @@ export class Musics extends Base implements OnDestroy {
     this.isLibraryLoaded.set(true);
   }
 
+  goToFiles() {
+    const filesApp = this.apps.appsDefinition().find((a) => a.id === 'files');
+    if (filesApp) this.apps.openApp(filesApp);
+  }
+
+  handleVolume(e: Event) {
+    const val = (e.target as HTMLInputElement).valueAsNumber ?? parseFloat((e.target as HTMLInputElement).value);
+    this.player.setVolume(val);
+  }
+
+  handleSeek(e: Event) {
+    const val = (e.target as HTMLInputElement).valueAsNumber ?? parseFloat((e.target as HTMLInputElement).value);
+    this.player.seek(val);
+  }
+
   formatTime(time: number): string {
     if (isNaN(time) || !isFinite(time)) return '0:00';
     const min = Math.floor(time / 60);
@@ -79,20 +117,8 @@ export class Musics extends Base implements OnDestroy {
     return `${min}:${sec.toString().padStart(2, '0')}`;
   }
 
-  handleSeek(e: Event) {
-    this.player.seek((e.target as HTMLInputElement).valueAsNumber);
-  }
-
-  handleVolume(e: Event) {
-    this.player.setVolume((e.target as HTMLInputElement).valueAsNumber);
-  }
-
-  goToFiles() {
-    const app = this.apps.appsRegistry().files;
-    if (app) this.apps.openApp(app);
-  }
-
-  ngOnDestroy() {
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
     this.player.stop();
   }
 }

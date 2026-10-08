@@ -34,6 +34,12 @@ function makeWindowServiceMock() {
     isDragging: signal(false),
     isResizing: signal(false),
     snapGhost: signal(null),
+    screen: {
+      isMobile: signal(false),
+      isTablet: signal(false),
+      isDesktop: signal(true),
+      isCompact: signal(false),
+    },
     focus: vi.fn(),
     startDrag: vi.fn(),
     startResize: vi.fn(),

@@ -1,33 +1,34 @@
-# Complete Documentation - Cai_OS
+# Complete Documentation — Cai_OS 2.0.0
 
 ## 📋 Table of Contents
 
 1. [Overview](#-overview)
-2. [System Architecture](#️-system-architecture)
-3. [Technologies Used](#️-technologies-used)
-4. [Project Structure](#-project-structure)
-5. [Main Components](#-main-components)
-6. [Services](#️-services)
-7. [Data Models](#-data-models)
-8. [System Features](#-system-features)
-9. [Applications](#-applications)
-10. [Installation and Configuration](#-installation-and-configuration)
-11. [Available Commands](#-available-commands)
-12. [Customization](#-customization)
-13. [Troubleshooting](#-troubleshooting)
-14. [Additional Resources](#-additional-resources)
-15. [Contributing](#-contributing)
-16. [License](#-license)
-17. [Author](#-author)
-18. [Acknowledgments](#-acknowledgments)
-19. [Project Statistics](#-project-statistics)
-20. [Support](#-support)
+2. [What's New in 2.0.0](#-whats-new-in-200)
+3. [System Architecture](#️-system-architecture)
+4. [Technologies Used](#️-technologies-used)
+5. [Project Structure](#-project-structure)
+6. [Main Components](#-main-components)
+7. [Services](#️-services)
+8. [Data Models](#-data-models)
+9. [System Features](#-system-features)
+10. [Applications](#-applications)
+11. [Installation and Configuration](#-installation-and-configuration)
+12. [Available Commands](#-available-commands)
+13. [Customization](#-customization)
+14. [Troubleshooting](#-troubleshooting)
+15. [Additional Resources](#-additional-resources)
+16. [Contributing](#-contributing)
+17. [License](#-license)
+18. [Author](#-author)
+19. [Acknowledgments](#-acknowledgments)
+20. [Project Statistics](#-project-statistics)
+21. [Support](#-support)
 
 ---
 
 ## 🌟 Overview
 
-**Cai_OS** is an interactive web operating system built with Angular 22, inspired by the GNOME desktop environment. The project simulates a complete operating system experience directly in the browser, including window management, applications, terminal, virtual file system, and AI integration.
+**Cai_OS** is an interactive web operating system built with Angular 22, inspired by the GNOME desktop environment. The project simulates a complete operating system experience directly in the browser, including window management, applications, terminal, virtual file system, and AI integration — fully responsive for both desktop and mobile devices.
 
 ### Project Goal
 
@@ -37,21 +38,65 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 - Scalable software architecture
 - Interface design inspired by modern operating systems
 - Integration with external APIs (Google Gemini)
-- Complex state management
-- Professional user experience (UX/UI)
+- Complex state management with Angular Signals
+- Responsive UX/UI across desktop and mobile
 
 ### Key Features
 
 - **Modern Desktop Interface**: GNOME-inspired with dock, top bar, and app grid
-- **Window Management**: Support for dragging, resizing, maximizing, minimizing, and snapping
+- **Full Mobile Support**: Native mobile navigation bar, overview screen, touch gestures
+- **Window Management**: Drag, resize, maximize, minimize, snap (desktop); always full-screen (mobile)
 - **Virtual File System**: Hierarchical structure of folders and files
 - **Interactive Terminal**: Unix-like commands for navigation and system control
-- **Integrated Applications**: Browser, image viewer, music player, document editor
+- **Integrated Applications**: Browser, image viewer, music player, document viewer
 - **Integrated AI**: Virtual assistant "Hermes" using Google Gemini
-- **Themes**: Support for light and dark modes
+- **Themes**: Light and dark mode
 - **Multilingual**: Portuguese and English
-- **Notification System**: Notification center with history
-- **Sound Effects**: System sounds for interactions
+- **Notification System**: Notification center with pull-down gesture on mobile
+- **Sound Effects**: System sounds for mouse interactions (desktop only)
+- **Lazy Loading**: Heavy bundles (PDF viewer) loaded on demand
+
+---
+
+## 🆕 What's New in 2.0.0
+
+### Mobile Support (feature/mobile)
+
+Cai_OS 2.0.0 introduces full mobile support with a dedicated navigation paradigm:
+
+| Feature | Description |
+|---|---|
+| **MobileNavBar** | Bottom navigation bar: Home, Overview, All Apps |
+| **MobileOverview** | Card-based multitasking view with swipe-up-to-close and horizontal scroll |
+| **Touch gestures** | Long-press context menu, swipe-up dismiss, tap-to-focus |
+| **Mobile windows** | All windows auto-maximize to `100vw × calc(100dvh − 80px)` |
+| **Pull-down top bar** | Swipe down from the top bar to open the notification center |
+| **Touch sounds** | No click sounds on mobile; mouse sounds (`mouse_down` / `mouse_up`) on desktop only |
+| **Boot screen** | Fully responsive with safe-area support and `touchend` trigger |
+| **About app** | Opens 1 s after boot on both desktop and mobile |
+
+### Performance
+
+| | v1.2.1 | v2.0.0 |
+|---|---|---|
+| Initial bundle | 995 kB | **492 kB** |
+| Lazy chunks | — | `document-viewer` 507 kB |
+| Budget warning | ⚠ yes | **✓ none** |
+
+The `DocumentViewer` (ng2-pdf-viewer + pdfjs-dist) is now lazy-loaded via dynamic `import()` — loaded only when a PDF is first opened.
+
+### Screen Breakpoints
+
+| Range | Mode |
+|---|---|
+| `< 768 px` | Mobile — `MobileNavBar` + `MobileOverview` |
+| `768–1023 px` | Tablet (compact) — mobile layout |
+| `≥ 1024 px` | Desktop — `Dock` + `WindowSwitcher` |
+
+### Test Suite
+
+- **48 test files · 450 tests · 0 failures**
+- New coverage: `ScreenService`, `MobileNavService`, `MobileNavBar`, `MobileOverview`, `WindowService` (mobile guards), `App` (About launch)
 
 ---
 
@@ -80,28 +125,34 @@ Cai_OS follows a modular architecture based on Angular components, with clear se
 ### Design Patterns Used
 
 1. **Singleton**: Services with `providedIn: 'root'`
-2. **Observer**: RxJS Signals for reactive state management
+2. **Observer**: Angular Signals for reactive state management
 3. **Strategy**: Terminal command system
-4. **Factory**: Dynamic creation of application components
+4. **Factory**: Dynamic creation of application components via `*ngComponentOutlet`
 5. **Dependency Injection**: Angular native injection
+6. **Lazy Loading**: On-demand chunk loading for heavy features
 
 ### Data Flow
 
 ```
-User Interaction
-      ↓
-  Component
-      ↓
-   Service
-      ↓
-  State Update (Signal)
-      ↓
-  UI Re-render
+User Interaction (mouse / touch)
+            ↓
+        Component
+            ↓
+         Service
+            ↓
+   State Update (Signal)
+            ↓
+       UI Re-render
 ```
 
 ---
 
 ## 🛠️ Technologies Used
+
+### Core
+
+- **Angular 22.2**: Component framework with Signals-based reactivity
+- **TypeScript 6.0.3**: Typed superset of JavaScript
 
 ### Styling
 
@@ -113,14 +164,13 @@ User Interaction
 ### External Libraries
 
 - **@google/generative-ai 0.24.1**: Google Gemini integration
-- **ng2-pdf-viewer 10.4.0**: PDF viewing
+- **ng2-pdf-viewer 10.4.0**: PDF viewing (lazy-loaded)
 - **@vercel/analytics 1.6.1**: Analytics
 - **@vercel/speed-insights 1.3.1**: Performance metrics
 
 ### Development Tools
 
 - **Angular CLI 22.0.4**: Angular CLI
-- **TypeScript 6.0.3**: Type-safe superset of JavaScript
 - **Vitest 4.0.18**: Testing framework
 - **jsdom 28.0.0**: DOM environment for testing
 - **Prettier**: Code formatting
@@ -130,506 +180,288 @@ User Interaction
 ## 📁 Project Structure
 
 ```
-Portfolio-main/
+Portfolio/
 ├── src/
 │   ├── app/
-│   │   ├── core/                    # System core
-│   │   │   ├── language/            # Internationalization
-│   │   │   │   ├── en.ts
-│   │   │   │   ├── pt.ts
-│   │   │   │   └── i18n.types.ts
+│   │   ├── core/
+│   │   │   ├── language/            # i18n (en, pt)
 │   │   │   ├── models/              # Data models
-│   │   │   │   ├── app-launcher.ts
-│   │   │   │   ├── app-registry.ts
-│   │   │   │   ├── apps.ts
+│   │   │   │   ├── apps.ts          # App registry definition (lazy loadComponent)
 │   │   │   │   ├── base.ts
-│   │   │   │   ├── dock.ts
+│   │   │   │   ├── dock.ts          # AppDefinition + loadComponent
 │   │   │   │   ├── file.ts
-│   │   │   │   ├── hermes.ts
-│   │   │   │   ├── notification.ts
 │   │   │   │   ├── process.ts
-│   │   │   │   ├── setting.ts
-│   │   │   │   └── terminal.ts
-│   │   │   ├── pipes/               # Custom pipes
+│   │   │   │   └── ...
+│   │   │   ├── pipes/
 │   │   │   │   └── markdown-pipe.ts
-│   │   │   └── services/            # System services
+│   │   │   └── services/
 │   │   │       ├── apps.ts
+│   │   │       ├── app-launcher.ts
+│   │   │       ├── app-registry.ts
 │   │   │       ├── context-menu.ts
 │   │   │       ├── desktop-icons.ts
 │   │   │       ├── dock.ts
 │   │   │       ├── file-system.ts
 │   │   │       ├── gemini.ts
 │   │   │       ├── language.ts
+│   │   │       ├── mobile-nav.ts    # Mobile navigation state
 │   │   │       ├── notification.ts
 │   │   │       ├── process-manager.ts
+│   │   │       ├── screen.ts        # Breakpoint detection
 │   │   │       ├── settings.ts
 │   │   │       ├── sound.ts
 │   │   │       ├── system-tips.ts
 │   │   │       ├── terminal-comands.ts
 │   │   │       ├── theme.ts
 │   │   │       └── window.ts
-│   │   ├── features/                # System applications
-│   │   │   ├── about-project/       # About the project
-│   │   │   ├── browser/             # Web browser
-│   │   │   ├── document-viewer/     # PDF viewer
-│   │   │   ├── files/               # File manager
-│   │   │   │   └── components/
-│   │   │   │       ├── breadcrumbs/
-│   │   │   │       ├── grid/
-│   │   │   │       ├── list/
-│   │   │   │       └── sidebar/
-│   │   │   ├── hermes/              # AI assistant
-│   │   │   ├── image-viewer/        # Image viewer
-│   │   │   ├── musics/              # Music player
+│   │   ├── features/
+│   │   │   ├── about-project/
+│   │   │   ├── browser/
+│   │   │   ├── document-viewer/     # Lazy-loaded (pdfjs)
+│   │   │   ├── files/
+│   │   │   │   └── components/      # breadcrumbs, grid, list, sidebar
+│   │   │   ├── hermes/
+│   │   │   ├── image-viewer/
+│   │   │   ├── musics/
 │   │   │   │   └── player/
-│   │   │   ├── settings/            # System settings
-│   │   │   ├── system-monitor/      # System monitor
-│   │   │   └── terminal/            # Terminal
-│   │   ├── layout/                  # Layout components
-│   │   │   ├── apps-grid/           # Application grid
-│   │   │   ├── dock/                # Taskbar
-│   │   │   ├── notification-center/ # Notification center
-│   │   │   ├── top-bar/             # Top bar
-│   │   │   └── window-switcher/     # Window switcher
-│   │   ├── shared/                  # Shared components
-│   │   │   └── ui/
-│   │   │       ├── boot/            # Boot screen
-│   │   │       ├── shutdown/        # Shutdown screen
-│   │   │       ├── context-menu/    # Context menu
-│   │   │       └── window/          # Window component
-│   │   ├── app.config.ts
-│   │   ├── app.html
-│   │   ├── app.routes.ts
-│   │   ├── app.scss
-│   │   └── app.ts
-│   ├── environments/                # Environment settings
-│   │   ├── environment.ts
-│   │   └── environment.development.ts
+│   │   │   ├── settings/
+│   │   │   ├── system-monitor/
+│   │   │   └── terminal/
+│   │   ├── layout/
+│   │   │   ├── apps-grid/
+│   │   │   ├── dock/                # Desktop only
+│   │   │   ├── mobile-nav-bar/      # Mobile only
+│   │   │   ├── mobile-overview/     # Mobile only
+│   │   │   ├── notification-center/
+│   │   │   ├── top-bar/
+│   │   │   └── window-switcher/     # Desktop only
+│   │   └── shared/ui/
+│   │       ├── boot/
+│   │       ├── context-menu/
+│   │       ├── shutdown/
+│   │       └── window/
 │   ├── index.html
 │   ├── main.ts
-│   └── styles.scss
-├── public/                          # Public assets
-├── angular.json                     # Angular configuration
-├── package.json                     # Dependencies
-├── tsconfig.json                    # TypeScript configuration
-└── README.md
+│   ├── styles.scss
+│   └── test-setup.ts
+├── public/
+│   ├── sounds/
+│   ├── wallpapers/
+│   │   ├── desktop/
+│   │   └── mobile/
+│   └── videos/wallpapers/
+│       └── desktop/
+├── angular.json
+├── package.json
+└── tsconfig.json
 ```
 
 ---
 
 ## 🧩 Main Components
 
-### 1. App Component (Root)
+### 1. App (Root)
 
 **File**: `src/app/app.ts`
 
-Root component of the application that manages the global system state.
-
-**Responsibilities**:
-
-- System initialization
-- Management of interaction sounds
-- Boot and shutdown control
-- Coordination between main services
-
-**Main Code**:
+Root component that manages global system state. On `systemReady`, opens the **About** app after 1 s and optionally starts system tips — works on both desktop and mobile.
 
 ```typescript
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.html',
-  imports: [AppsGrid, Dock, WindowSwitcher, Window, TopBar, Boot, Shutdown],
-})
-export class App {
-  processManager = inject(ProcessManager);
-  settingsService = inject(Settings);
-  sound = inject(Sound);
-  lang = inject(LanguageService);
-  notifications = inject(NotificationService);
-  tipsService = inject(SystemTips);
-  systemReady = signal(false);
-  shutingDown = signal(false);
-}
+effect(() => {
+  if (!this.systemReady()) return;
+  if (this.settingsService.tipsEnabled()) this.tipsService.startRandomTips();
+  const aboutApp = this.apps.appsRegistry().about;
+  if (aboutApp) setTimeout(() => this.apps.openApp(aboutApp), 1000);
+});
 ```
 
-### 2. Window Component
+### 2. Window
 
 **File**: `src/app/shared/ui/window/window.ts`
 
-Component that represents an application window with full management features.
+Application window with full management for desktop; auto-maximized on mobile.
 
-**Features**:
+| Feature | Desktop | Mobile |
+|---|---|---|
+| Drag | ✓ | blocked |
+| Resize | ✓ | blocked |
+| Maximize | ✓ | forced on |
+| Snap to edges | ✓ | — |
+| Title bar | ✓ | hidden |
 
-- Drag
-- Resize
-- Maximize/Restore
-- Minimize
-- Auto-snap to edges
-- Transition animations
-- Dynamic focus and z-index
-
-**Main Methods**:
-
-- `startDrag()`: Starts window dragging
-- `startResize()`: Starts resizing
-- `maximize()`: Maximizes the window
-- `minimize()`: Minimizes the window
-- `close()`: Closes the window
-
-### 3. Dock Component
+### 3. Dock
 
 **File**: `src/app/layout/dock/dock.ts`
 
-Bottom taskbar that displays pinned and running applications.
+Desktop taskbar (hidden on mobile). Supports pinning, drag-and-drop reorder, long-press context menu.
 
-**Features**:
+### 4. MobileNavBar *(new)*
 
-- Display of pinned apps
-- Running app indicators
-- Context menu (right-click)
-- Drag and drop to add apps
-- Animated hover effect
-- Optional auto-hide
+**File**: `src/app/layout/mobile-nav-bar/mobile-nav-bar.ts`
 
-### 4. TopBar Component
+Bottom navigation bar — visible only on mobile (`< 768 px`).
+
+| Button | Action |
+|---|---|
+| Square icon | Toggle Overview (recent apps) |
+| Pill | Go Home (minimize all) |
+| Grid icon | Toggle App Drawer |
+
+### 5. MobileOverview *(new)*
+
+**File**: `src/app/layout/mobile-overview/mobile-overview.ts`
+
+Full-screen card carousel of open processes.
+
+- **Swipe up** a card → closes the process (animated fly-off)
+- **Tap** a card → focuses the app and closes overview
+- **Swipe horizontally** → browse between cards
+- **Close button** on card → individual close
+- **Clear all** button → closes all processes
+
+### 6. TopBar
 
 **File**: `src/app/layout/top-bar/top-bar.ts`
 
-System top bar with clock, app menu, and power button.
+- **Desktop**: click to open notification center
+- **Mobile**: swipe down (≥ 30 px) to open notification center; rubber-band pull feedback
 
-**Features**:
-
-- Real-time clock
-- Access to app grid
-- Notification center
-- Power menu (shutdown/restart)
-- Active window title display
-
-### 5. Apps Grid Component
+### 7. AppsGrid
 
 **File**: `src/app/layout/apps-grid/apps-grid.ts`
 
-Application grid with search and categorization.
-
-**Features**:
-
-- Display of all installed apps
-- Search by name
-- Drag to dock
-- Quick app opening
-
-### 6. Window Switcher Component
-
-**File**: `src/app/layout/window-switcher/window-switcher.ts`
-
-Window switcher activated by `Ctrl+Q`.
-
-**Features**:
-
-- List of open windows
-- Keyboard navigation
-- Visual window preview
-- Quick focus
+App launcher overlay with search. On mobile, apps open via `touchend` (no 300 ms delay). Long-press (500 ms) opens the context menu.
 
 ---
 
 ## ⚙️ Services
 
-### 1. ProcessManager Service
+### ScreenService *(new)*
+
+**File**: `src/app/core/services/screen.ts`
+
+Breakpoint detection using Angular Signals, updated on `window.resize`.
+
+```typescript
+readonly isMobile  = computed(() => this.width() < 768);
+readonly isTablet  = computed(() => this.width() >= 768 && this.width() < 1024);
+readonly isDesktop = computed(() => this.width() >= 1024);
+readonly isCompact = computed(() => this.width() < 1024);
+```
+
+### MobileNavService *(new)*
+
+**File**: `src/app/core/services/mobile-nav.ts`
+
+Central state for mobile navigation.
+
+| Method | Description |
+|---|---|
+| `toggleOverview()` | Toggle overview screen |
+| `openOverview()` | Open overview |
+| `closeOverview()` | Close overview |
+| `goHome()` | Minimize all processes, close drawers |
+| `toggleAppDrawer()` | Toggle apps grid |
+| `openAppAndCloseDrawer(app)` | Open app and close overview |
+
+### ProcessManager
 
 **File**: `src/app/core/services/process-manager.ts`
 
-Manages all running processes (applications).
-
-**Responsibilities**:
-
-- Create new processes
-- Close processes
-- Manage focus (z-index)
-- Minimize/Maximize windows
-- Maintain list of active processes
-
-**Main Methods**:
+Manages all running processes. `spawn()` is now `async` — it resolves `loadComponent()` before creating the process, enabling lazy-loaded app components.
 
 ```typescript
-start(app: AppDefinition, args?: any[]): void
-kill(processId: string): void
-focus(processId: string): void
-minimize(processId: string): void
-toggleMaximize(processId: string): void
-```
-
-### 2. FileSystem Service
-
-**File**: `src/app/core/services/file-system.ts`
-
-Hierarchical virtual file system.
-
-**Structure**:
-
-```typescript
-interface FileNode {
-  name: string;
-  type: 'file' | 'folder';
-  path: string;
-  content?: string;
-  children?: FileNode[];
-  size?: number;
-  extension?: string;
+private async spawn(app, data?): Promise<void> {
+  const component = app.loadComponent
+    ? await app.loadComponent()
+    : app.component;
+  // create and register process
 }
 ```
 
-**Main Methods**:
+### WindowService
 
-- `getNodeByPath()`: Search file/folder by path
-- `listDirectory()`: List directory contents
-- `createFile()`: Create new file
-- `deleteNode()`: Remove file/folder
-- `moveNode()`: Move file/folder
+**File**: `src/app/core/services/window.ts`
 
-### 3. Settings Service
-
-**File**: `src/app/core/services/settings.ts`
-
-Manages system settings.
-
-**Available Settings**:
-
-- Theme (light/dark)
-- Wallpaper
-- Dock icon size
-- Auto-hide dock
-- System sounds
-- System tips
-- Language
-
-**Persistence**: Uses `localStorage` to save preferences.
-
-### 4. LanguageService
-
-**File**: `src/app/core/services/language.ts`
-
-Internationalization system (i18n).
-
-**Supported Languages**:
-
-- Portuguese (pt)
-- English (en)
-
-**Usage**:
+Per-window service (non-root). Key constants:
 
 ```typescript
-lang.t().apps.files; // Returns translation
-lang.setLanguage('pt'); // Changes language
+export const TOP_BAR_HEIGHT = 32;        // px
+export const MOBILE_NAV_BAR_HEIGHT = 48; // px
 ```
 
-### 5. NotificationService
+An `effect()` listens to `ScreenService.isMobile()` — switching to mobile forces maximization; switching back to desktop restores the saved `normalRect`.
 
-**File**: `src/app/core/services/notification.ts`
+### Other Services
 
-Manages system notifications.
-
-**Notification Types**:
-
-- Info
-- Success
-- Warning
-- Error
-
-**Main Methods**:
-
-```typescript
-show(title: string, message: string, type: NotificationType): void
-clear(id: string): void
-clearAll(): void
-```
-
-### 6. Sound Service
-
-**File**: `src/app/core/services/sound.ts`
-
-Plays system sound effects.
-
-**Available Sounds**:
-
-- `mouse_down`: Mouse click
-- `mouse_up`: Mouse release
-- `notification`: Notification sound
-- `error`: Error sound
-
-### 7. Theme Service
-
-**File**: `src/app/core/services/theme.ts`
-
-Manages the visual theme of the system.
-
-**Themes**:
-
-- `light`: Light theme
-- `dark`: Dark theme
-
-**Main Method**:
-
-```typescript
-setTheme(theme: 'light' | 'dark'): void
-toggleTheme(): void
-```
-
-### 8. Gemini Service
-
-**File**: `src/app/core/services/gemini.ts`
-
-Google Gemini AI integration.
-
-**Features**:
-
-- Text generation
-- Image analysis
-- API key rotation
-- Quota handling
-
-**Main Method**:
-
-```typescript
-async generateResponse(
-  prompt: string,
-  fileData?: { mimeType: string; b64: string }
-): Promise<string>
-```
-
-### 9. TerminalCommands Service
-
-**File**: `src/app/core/services/terminal-comands.ts`
-
-Implements Unix-like commands for the terminal.
-
-**Available Commands**:
-
-- `ls`: List files
-- `cd`: Navigate between directories
-- `open`: Open files
-- `date`: Display date/time
-- `theme`: Toggle theme
-- `clear`: Clear terminal
-- `help`: Display help
-- `neofetch`: System info
-- `whoami`: Developer info
-- `about`: System version info
-
-### 10. SystemTips Service
-
-**File**: `src/app/core/services/system-tips.ts`
-
-Displays system tips periodically.
-
-**Included Tips**:
-
-- Alt+Tab shortcut
-- Terminal usage
-- Fullscreen mode
-- Theme toggle
-- Explorer navigation
-
-#### 11. DesktopIcons Service
-
-**File**: `src/app/core/services/desktop-icons.ts`
-
-Manages icons pinned directly to the desktop area.
-
-**Responsibilities**: Pin/unpin apps from the desktop and manage the reactive list of shortcuts.
-
-**Main Methods**: `pinApp()`, `unPinActiveApp()`.
-
-#### 12. AppLauncher Service
-
-**File**: `src/app/core/services/app-launcher.ts`
-
-Orchestrator responsible for triggering application launches and managing UI state.
-
-**Responsibilities**: Close context menus and trigger processes via `ProcessManager`.
-
-**Main Methods**: `launch()`, `launchAndCloseContext()`.
-
-#### 13. AppRegistry Service
-
-**File**: `src/app/core/services/app-registry.ts`
-
-Central registry and search hub for all applications installed in the system.
-
-**Responsibilities**: Manage the reactive list of apps, search by name/ID, and associate file extensions.
-
-**Main Methods**: `getAppById()`, `findHandlerForExtension()`, `searchApps()`.
+| Service | File | Responsibility |
+|---|---|---|
+| `Apps` | `services/apps.ts` | App grid state, search, context menu coords |
+| `AppLauncher` | `services/app-launcher.ts` | Launch orchestration |
+| `AppRegistry` | `services/app-registry.ts` | App catalog, extension handler lookup |
+| `DockService` | `services/dock.ts` | Pinned apps, dock items, click handling |
+| `FileSystem` | `services/file-system.ts` | Virtual hierarchical file system |
+| `Settings` | `services/settings.ts` | Persisted settings (localStorage) |
+| `NotificationService` | `services/notification.ts` | Notification queue and panel |
+| `Sound` | `services/sound.ts` | AudioContext-based sound playback |
+| `Theme` | `services/theme.ts` | Light/dark theme toggle |
+| `LanguageService` | `services/language.ts` | i18n (pt / en) |
+| `GeminiService` | `services/gemini.ts` | Google Gemini API with key rotation |
+| `TerminalCommands` | `services/terminal-comands.ts` | Unix-like command processing |
+| `SystemTips` | `services/system-tips.ts` | Periodic tips via notifications |
+| `DesktopIconsService` | `services/desktop-icons.ts` | Desktop shortcut management |
+| `ContextMenuService` | `services/context-menu.ts` | Context menu state and positioning |
 
 ---
 
 ## 📊 Data Models
 
-### 1. Process Model
+### Process
 
 ```typescript
-interface Process {
+interface Process extends AppBase {
   id: string;
-  app: AppDefinition;
-  args?: any[];
+  appId: string;
   isMinimized: boolean;
   isMaximized: boolean;
   zIndex: number;
-  createdAt: Date;
+  cascadeIndex: number;
+  data?: ProcessData;
 }
 ```
 
-### 2. AppDefinition Model
+### AppDefinition
 
 ```typescript
-interface AppDefinition {
+interface AppDefinition extends AppBase {
+  data?: ProcessData;
+  handle?: string[];                              // file extensions
+  loadComponent?: () => Promise<Type<Base>>;      // lazy load
+}
+```
+
+### FileItem
+
+```typescript
+interface FileItem {
   id: string;
-  title: string;
-  icon: string;
-  color: string;
-  component: Type<any>;
-  handle?: string[]; // File extensions the app can open
-}
-```
-
-### 3. FileNode Model
-
-```typescript
-interface FileNode {
   name: string;
   type: 'file' | 'folder';
-  path: string;
-  content?: string;
-  children?: FileNode[];
-  size?: number;
-  extension?: string;
-  mimeType?: string;
+  icon: string;
+  url?: string;
+  children?: FileItem[];
 }
 ```
 
-### 4. Notification Model
+### Notification
 
 ```typescript
-interface Notification {
+interface NotificationItem {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  icon?: string;
   timestamp: Date;
-  read: boolean;
-}
-```
-
-### 5. Setting Model
-
-```typescript
-interface SystemSettings {
-  theme: 'light' | 'dark';
-  wallpaper: string;
-  dockIconSize: number;
-  autoHideDock: boolean;
-  soundEnabled: boolean;
-  tipsEnabled: boolean;
-  language: 'pt' | 'en';
 }
 ```
 
@@ -637,277 +469,70 @@ interface SystemSettings {
 
 ## 🚀 System Features
 
-### 1. Window Management
+### Window Management (Desktop)
 
-#### Snap (Auto-Docking)
+- **Snap zones**: left half, right half, top-left/right quarter, bottom-left/right quarter, full maximize (drag to top edge)
+- **Resize**: drag the bottom-right handle; minimum 320 × 240 px
+- **Cascade**: new windows open with a 28 px offset from the previous one
+- **Maximize restore**: double-click title bar or click the maximize button; restores to pre-maximize size
 
-The system offers automatic window snapping to screen edges and corners:
+### Mobile Navigation
 
-- **Left Edge**: 50% of screen on the left
-- **Right Edge**: 50% of screen on the right
-- **Top Left Corner**: 25% (1/4 top left)
-- **Top Right Corner**: 25% (1/4 top right)
-- **Bottom Left Corner**: 25% (1/4 bottom left)
-- **Bottom Right Corner**: 25% (1/4 bottom right)
+- **Home** (pill button): minimizes all open processes, closes overview and app drawer
+- **Overview** (square button): shows all open processes as swipeable cards
+- **Apps** (grid button): opens the app drawer
 
-**Implementation**: When dragging a window near edges (15px), a visual "ghost" shows the snap area.
-
-#### Resizing
-
-Windows can be resized in 8 directions:
-
-- North (N)
-- South (S)
-- East (E)
-- West (W)
-- Northeast (NE)
-- Northwest (NW)
-- Southeast (SE)
-- Southwest (SW)
-
-**Limits**: Minimum width of 320px and minimum height of 240px.
-
-#### Maximize/Restore
-
-Double-click on the title bar to maximize/restore the window.
-
-#### Minimize
-
-Minimizes the window to the dock, keeping the process active.
-
-### 2. Virtual File System
-
-Complete hierarchical structure with folders and files:
+### Virtual File System
 
 ```
 /home/
-  ├── documents/
-  │   ├── curriculum.pdf
-  │   └── project-docs.pdf
-  ├── photos/
-  │   ├── feedback1.png
-  │   ├── feedback2.png
-  │   └── dog.jpg
-  ├── music/
-  │   ├── song1.mp3
-  │   └── song2.mp3
-  └── certificates/
-      ├── cert1.pdf
-      └── cert2.pdf
+  ├── documents/    (PDFs)
+  ├── photos/       (images)
+  ├── music/        (audio)
+  └── certificates/ (PDFs)
 ```
 
-**Supported Operations**:
+### Notification Center
 
-- Navigation (cd)
-- Listing (ls)
-- File opening (open)
-- Search
+- Pull-down gesture on mobile (top bar swipe ≥ 30 px)
+- Click on top bar (desktop)
+- Per-notification dismiss or clear all
 
-### 3. Interactive Terminal
+### App Switcher — Ctrl+` (Desktop)
 
-Functional terminal with Unix-like commands.
+Keyboard-driven window switcher. Tab to cycle, Enter/click to focus.
 
-**Features**:
+### Context Menu
 
-- Command history (↑/↓)
-- Autocomplete
-- Output colorization
-- Current path
+- **Desktop**: right-click on dock icon or app grid item
+- **Mobile**: 500 ms long-press on dock icon or app grid item
 
-**Usage Examples**:
+**Actions**: Open · New instance · Close · Remove from dock · Add to desktop
 
-```bash
-$ ls
-documents  photos  music  certificates
-$ cd documents
-/home/documents
-$ open curriculum.pdf
-Opening curriculum.pdf...
-$ theme
-Theme changed to dark
-```
+### Drag and Drop (Desktop)
 
-### 4. Notification Center
-
-Centralized notification system with:
-
-- Relative timestamp (now, 5min ago, etc)
-- Read marking
-- Individual or bulk clearing
-- Visual types (info, success, warning, error)
-
-### 5. App Switcher (Ctrl+Q)
-
-Quick navigation between open windows:
-
-- Activated by `Ctrl+Q`
-- Visual preview of each window
-- Keyboard navigation (Tab)
-- Instant focus
-
-### 6. Context Menu
-
-Right-click on dock icons:
-
-- Open application
-- New instance
-- Close application
-- Remove from dock
-
-### 7. Drag and Drop
-
-Drag applications from the grid to the dock to pin them.
+Drag apps from the grid to the dock to pin them at a specific position.
 
 ---
 
 ## 📱 Applications
 
-### 1. Files (File Manager)
+| App | ID | File extensions |
+|---|---|---|
+| Files | `files` | — |
+| Firefox | `firefox` | — |
+| Terminal | `terminal` | — |
+| Settings | `settings` | — |
+| About | `about` | — |
+| Photos | `photos` | jpg, jpeg, png, gif, webp, svg |
+| Documents | `documents` | pdf, txt, md *(lazy-loaded)* |
+| Musics | `musics` | mp3, wav, ogg |
+| System Monitor | `systemMonitor` | — |
+| Hermes (AI) | `hermes` | — |
 
-**Features**:
+### Documents — Lazy Loading
 
-- Folder navigation
-- Grid or list view
-- Breadcrumbs
-- Sidebar with favorite locations
-- Real-time search
-- File opening with associated apps
-- Size information
-
-**Components**:
-
-- `FilesComponent`: Main component
-- `BreadcrumbsComponent`: Path navigation
-- `SidebarComponent`: Location sidebar
-- `GridComponent`: Grid view
-- `ListComponent`: List view
-
-### 2. Firefox (Web Browser)
-
-**Features**:
-
-- URL navigation
-- Iframe for external sites
-- Error handling (CORS)
-- Back/refresh buttons
-- Loading indicator
-
-**Limitations**: Some sites block iframe due to CORS policy.
-
-### 3. Terminal
-
-**Features**:
-
-- Unix-like commands
-- Command history
-- Dynamic path
-- FileSystem integration
-- File opening
-- Theme change
-- System info
-
-### 4. Photos (Image Viewer)
-
-**Features**:
-
-- Image gallery
-- Full-screen viewing
-- Image navigation (previous/next)
-- Zoom
-- Support for JPG, PNG, GIF, WebP
-
-### 5. Documents (PDF Viewer)
-
-**Features**:
-
-- PDF rendering
-- Page navigation
-- Zoom
-- Download
-- List of available documents
-
-**Library**: Uses `ng2-pdf-viewer`.
-
-### 6. Musics (Music Player)
-
-**Features**:
-
-- Music library
-- Player with controls
-- Progress bar
-- Volume
-- Play/Pause
-- Previous/Next
-- Metadata (if available)
-
-**Supported Formats**: MP3, WAV, OGG.
-
-### 7. Settings
-
-**Sections**:
-
-#### Appearance
-
-- Color scheme (light/dark)
-- Wallpaper
-
-#### Desktop
-
-- Auto-hide dock
-- Icon size
-
-#### Sound
-
-- System sounds (on/off)
-
-#### System
-
-- System tips (on/off)
-
-#### Language
-
-- Portuguese/English
-
-#### About
-
-- System name
-- Version
-- Hardware information
-- Engine
-
-### 8. System Monitor
-
-**Features**:
-
-- List of active processes
-- Actions (close process)
-- Network information
-- Latency
-- Connection type
-
-**Note**: CPU/RAM data is simulated due to browser limitations.
-
-### 9. Hermes (AI Assistant)
-
-**Features**:
-
-- Chat with AI (Google Gemini)
-- Image analysis
-- Contextualized responses
-- Multilingual support
-- Modern chat interface
-
-**Configuration**: Requires Google Gemini API key in `environment.ts`.
-
-### 10. About Project
-
-**Content**:
-
-- Developer's vision
-- System features
-- Application descriptions
-- Project motivation
-- Technologies used
+The PDF viewer (`ng2-pdf-viewer` + `pdfjs-dist`) is only loaded when the Documents app is first opened, reducing the initial bundle by ~503 kB.
 
 ---
 
@@ -916,19 +541,14 @@ Drag applications from the grid to the dock to pin them.
 ### Prerequisites
 
 - Node.js 18+ and npm 11+
-- Angular CLI 21+
+- Angular CLI 22+
 
 ### Installation
 
 ```bash
-# Clone the repository
 git clone <repository-url>
-cd Portfolio-main
-
-# Install dependencies
+cd Portfolio
 npm install
-
-# Start development server
 npm start
 ```
 
@@ -941,27 +561,12 @@ export const environment = {
   production: false,
   geminiApiKeys: [
     'YOUR_API_KEY_HERE',
-    'YOUR_BACKUP_API_KEY', // Optional
+    'YOUR_BACKUP_API_KEY',
   ],
 };
 ```
 
-**Get Gemini API Key**:
-
-1. Access [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a new API key
-3. Paste into environment file
-
-### Production Environment
-
-Edit `src/environments/environment.ts` for production:
-
-```typescript
-export const environment = {
-  production: true,
-  geminiApiKeys: ['PRODUCTION_API_KEY'],
-};
-```
+Get a Gemini key at [Google AI Studio](https://makersuite.google.com/app/apikey).
 
 ---
 
@@ -970,189 +575,135 @@ export const environment = {
 ### NPM Scripts
 
 ```bash
-# Start development server
-npm start
-# or
-npm run start
-
-# Production build
-npm run build
-
-# Build with watch
-npm run watch
-
-# Run tests
-npm test
-
-# Generate component
-ng generate component component-name
-
-# Generate service
-ng generate service service-name
+npm start        # Development server
+npm run build    # Production build
+npm run watch    # Build with watch
+npm test         # Run test suite (Vitest)
 ```
 
 ### Terminal Commands (inside the app)
 
-| Command    | Description                  | Example               |
-| ---------- | ---------------------------- | --------------------- |
-| `help`     | Display command list         | `help`                |
-| `ls`       | List directory files         | `ls`                  |
-| `cd`       | Navigate between directories | `cd documents`        |
-| `open`     | Open a file                  | `open curriculum.pdf` |
-| `date`     | Display current date/time    | `date`                |
-| `theme`    | Toggle light/dark theme      | `theme`               |
-| `clear`    | Clear terminal screen        | `clear`               |
-| `neofetch` | System info                  | `neofetch`            |
-| `whoami`   | Developer info               | `whoami`              |
-| `about`    | Display system version       | `about`               |
+| Command | Description |
+|---|---|
+| `help` | List all commands |
+| `ls` | List current directory |
+| `cd <dir>` | Change directory |
+| `open <file>` | Open file with associated app |
+| `date` | Show current date/time |
+| `theme` | Toggle light/dark theme |
+| `clear` | Clear terminal |
+| `neofetch` | System info (ASCII art) |
+| `whoami` | Developer info |
+| `about` | System version (Cai_OS v2.0.0) |
 
 ---
 
 ## 🎨 Customization
 
-### Changing Theme Colors
+### Wallpapers
 
-Edit `src/styles.scss`:
+Add images to `public/wallpapers/desktop/` (desktop) or `public/wallpapers/mobile/` (mobile) and configure in Settings.
 
-```scss
-:root {
-  --primary-color: #3584e4;
-  --secondary-color: #ff7139;
-  --background: #ffffff;
-  --text-color: #000000;
-}
-.dark {
-  --background: #1e1e1e;
-  --text-color: #ffffff;
+### Sounds
+
+Add audio files to `public/sounds/` and register in `SoundService`.
+
+### Adding a New App
+
+1. Create component in `src/app/features/<app-name>/`
+2. Register in `src/app/core/models/apps.ts`:
+
+```typescript
+myApp: {
+  id: 'myApp',
+  title: lang.t().apps.myApp,
+  icon: 'fas fa-star',
+  color: '#ff0000',
+  component: MyAppComponent,
+  // or lazy:
+  component: null as never,
+  loadComponent: () => import('../features/my-app/my-app').then(m => m.MyApp),
 }
 ```
-
-### Changing Wallpaper
-
-Add images to `public/wallpapers/` and configure in Settings.
-
-### Changing Sounds
-
-Add audio files to `public/sounds/` and configure in `SoundService`.
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Problem: Application doesn't open
-
-**Solution**: Check if the app is registered in `apps.ts` and if the component is imported correctly.
-
-### Problem: Theme doesn't change
-
-**Solution**: Clear browser localStorage:
-
-```javascript
-localStorage.clear();
-```
-
-### Problem: Hermes doesn't respond
-
-**Solution**:
-
-1. Check if Gemini API key is configured
-2. Check API quota in Google Cloud Console
-3. See errors in browser console
-
-### Problem: Files don't appear
-
-**Solution**: FileSystem is initialized in `file-system.service.ts`. Check for console errors.
-
-### Problem: Terminal doesn't execute commands
-
-**Solution**: Check if the command exists in `terminal-comands.ts` and if syntax is correct.
+| Problem | Solution |
+|---|---|
+| App doesn't open | Check registration in `apps.ts` and `AppRegistry` |
+| Theme doesn't persist | `localStorage.clear()` in the browser console |
+| Hermes doesn't respond | Check Gemini API key in `environment.ts` and quota in Google Cloud Console |
+| Files don't appear | Check for errors in the browser console (FileSystem HTTP request) |
+| About doesn't open on mobile | Ensure `systemReady` fires; logic is in `App.effect()`, not `Dock` |
+| PDF doesn't load | The `document-viewer` chunk loads lazily; check network tab for the chunk request |
 
 ---
 
 ## 📚 Additional Resources
 
-### Documentation
-
 - [Angular](https://angular.dev)
 - [Tailwind CSS](https://tailwindcss.com)
 - [TypeScript](https://www.typescriptlang.org)
 - [Google Gemini](https://ai.google.dev)
-
-### Design Inspiration
-
-- [GNOME Desktop](https://www.gnome.org)
-- [Elementary OS](https://elementary.io)
-- [Ubuntu](https://ubuntu.com)
+- [GNOME Design](https://www.gnome.org)
 
 ---
 
 ## 🤝 Contributing
 
-### How to Contribute
-
 1. Fork the project
-2. Create a branch for your feature `git checkout -b feature/AmazingFeature`
-3. Commit your changes `git commit -m 'Add some AmazingFeature'`
-4. Push to the branch `git push origin feature/AmazingFeature`
+2. Create a branch: `git checkout -b feature/MyFeature`
+3. Commit: `git commit -m 'Add MyFeature'`
+4. Push: `git push origin feature/MyFeature`
 5. Open a Pull Request
 
-### Guidelines
-
-- Follow existing code style
-- Add tests for new features
-- Update documentation
-- Use descriptive commits
+**Guidelines**: follow existing code style · add tests · update this README · use descriptive commits.
 
 ---
 
 ## 📄 License
 
-This project is a personal portfolio. All rights reserved.
+Personal portfolio project. All rights reserved.
 
 ---
 
 ## 👤 Author
 
-**Developer**: Caio Souza Silva  
-**Contact**: caiosouzasilva13650@gmail.com  
-**Portfolio**: [caiossiva.com](https://caiossiva.com)  
-**GitHub**: [github.com/CaioSSilva](https://github.com/CaioSSilva/)
+**Caio Souza Silva**  
+caiosouzasilva13650@gmail.com  
+[caiossiva.com](https://caiossiva.com) · [github.com/CaioSSilva](https://github.com/CaioSSilva/)
 
 ---
 
 ## 🙏 Acknowledgments
 
-- Angular Team
-- GNOME Design Team
-- Open Source Community
-- Google Gemini Team
-- Font Awesome
-- Tailwind CSS Team
+Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team · Font Awesome · Tailwind CSS Team
 
 ---
 
 ## 📊 Project Statistics
 
-- **Lines of Code**: ~15,000+
-- **Components**: 25+
-- **Services**: 15+
-- **Applications**: 10
-- **Languages**: 2
-- **Test Files**: 44
-- **Tests**: 401 (100% passing)
-- **Performance Score**: 90+
+| Metric | Value |
+|---|---|
+| Version | **2.0.0** |
+| Test files | **48** |
+| Tests passing | **450 / 450** |
+| Initial bundle | **492 kB** (−50% vs 1.x) |
+| Components | 28+ |
+| Services | 17 |
+| Applications | 10 |
+| Languages | 2 (pt / en) |
+| Platforms | Desktop + Mobile |
 
 ---
 
 ## 📞 Support
-
-For questions, suggestions, or to report bugs:
 
 - **Issues**: Open an issue on GitHub
 - **Discussions**: Use the Discussions tab on GitHub
 
 ---
 
-**Developed with ❤️ using Angular 22**
-
-**Last Update**: October 2026
+**Developed with ❤️ using Angular 22 — Last Update: October 2026**

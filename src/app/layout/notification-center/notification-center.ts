@@ -3,6 +3,7 @@ import { NotificationService } from '../../core/services/notification';
 import { DatePipe, registerLocaleData } from '@angular/common';
 import localePtBr from '@angular/common/locales/pt';
 import { LanguageService } from '../../core/services/language';
+import { ScreenService } from '../../core/services/screen';
 
 registerLocaleData(localePtBr, 'pt-BR');
 
@@ -16,6 +17,7 @@ registerLocaleData(localePtBr, 'pt-BR');
 export class NotificationCenter {
   notifService = inject(NotificationService);
   lang = inject(LanguageService);
+  screen = inject(ScreenService);
 
   now = new Date();
 

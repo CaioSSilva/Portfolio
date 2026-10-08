@@ -346,7 +346,7 @@ export const pt = {
   systemTips: {
     title: 'Dica do Sistema',
     descriptions: {
-      altTab: 'Use CNTRL + Q para alternar rapidamente entre as janelas abertas.',
+      altTab: 'Use Ctrl + ` (crase) para alternar rapidamente entre as janelas abertas.',
       terminal: 'Abra o Terminal para interagir diretamente com o kernel do Cai_OS.',
       fullscreen:
         'Pressione F11 para alternar para o modo de tela cheia para uma melhor experiência.',
@@ -371,6 +371,16 @@ export const pt = {
     welcome: 'Bem vindo ao Hermes!',
     desc: 'Peça algo para começar!',
     ask: 'Pergunte algo...',
+  },
+
+  mobileNav: {
+    recentApps: 'Aplicativos Recentes',
+    home: 'Início',
+    allApps: 'Todos os Apps',
+    noOpenApps: 'Nenhum app aberto',
+    swipeToClose: 'Deslize para cima para fechar',
+    tapToResume: 'Toque para retomar',
+    swipeToBrowse: 'Deslize horizontalmente para navegar',
   },
 
   errors: {

@@ -140,6 +140,80 @@ describe('DockService', () => {
     expect(processManager.processes()[0].isMinimized).toBe(false);
   });
 
+  it('should cycle to next instance when multiple pids are open', () => {
+    const app2 = { ...mockApp, id: 'test-app-2' };
+    processManager.open(mockApp);
+    processManager.open(app2);
+
+    const pids = processManager.processes().map((p) => p.id);
+    processManager.focus(pids[0]);
+
+    const dockItem: DockItem = {
+      ...mockApp,
+      pinned: false,
+      isOpen: true,
+      isActive: true,
+      count: 2,
+      pids,
+    };
+
+    // First click: active is pids[0] → should focus pids[1]
+    service.handleAppClick(dockItem);
+    expect(processManager.activeProcessId()).toBe(pids[1]);
+
+    // Second click: active is pids[1] → should cycle back to pids[0]
+    service.handleAppClick(dockItem);
+    expect(processManager.activeProcessId()).toBe(pids[0]);
+  });
+
+  it('should cycle to first instance when no instance is currently active', () => {
+    const app2 = { ...mockApp, id: 'test-app-3' };
+    processManager.open(mockApp);
+    processManager.open(app2);
+
+    const pids = processManager.processes().map((p) => p.id);
+    // Focus an unrelated process so none of the two instances is active
+    const other = { ...mockApp, id: 'other' };
+    processManager.open(other);
+    const otherPid = processManager.processes()[2].id;
+    processManager.focus(otherPid);
+
+    const dockItem: DockItem = {
+      ...mockApp,
+      pinned: false,
+      isOpen: true,
+      isActive: false,
+      count: 2,
+      pids,
+    };
+
+    // No active instance → currentIndex = -1 → nextIndex = 0
+    service.handleAppClick(dockItem);
+    expect(processManager.activeProcessId()).toBe(pids[0]);
+  });
+
+  it('should restore minimized instance during cycle', () => {
+    const app2 = { ...mockApp, id: 'test-app-4' };
+    processManager.open(mockApp);
+    processManager.open(app2);
+
+    const pids = processManager.processes().map((p) => p.id);
+    processManager.focus(pids[0]);
+    processManager.toggleMinimize(pids[1]);
+
+    const dockItem: DockItem = {
+      ...mockApp,
+      pinned: false,
+      isOpen: true,
+      isActive: true,
+      count: 2,
+      pids,
+    };
+
+    service.handleAppClick(dockItem);
+    expect(processManager.processes().find(p => p.id === pids[1])?.isMinimized).toBe(false);
+  });
+
   it('should close active app via closeActiveApp', () => {
     processManager.open(mockApp);
     expect(processManager.processes().length).toBe(1);
@@ -162,7 +236,7 @@ describe('DockService', () => {
     contextMenuSpy.activeAppId.mockReturnValue('firefox');
 
     service.openActiveApp();
-    expect(appLauncherSpy.launch).toHaveBeenCalledWith(app);
+    expect(appLauncherSpy.launch).toHaveBeenCalledWith(app, undefined);
   });
 
   it('should not open when no activeAppId in openActiveApp', () => {

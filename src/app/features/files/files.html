@@ -1,48 +1,128 @@
 <div
   class="flex h-full bg-gnome-bg text-gnome-text overflow-hidden selection:bg-gnome-blue/30 relative font-gnome"
 >
-  <app-files-sidebar
-    [tree]="fs.tree()"
-    [width]="sidebarWidth()"
-    [currentFolderId]="currentFolderId()"
-    [selectedId]="selectedId()"
-    [expandedFolders]="expandedFolders()"
-    (onNavigate)="handleNavigate($event)"
-    (onToggle)="handleToggleExpand($event)"
-  >
-  </app-files-sidebar>
+  @if (!isNarrow()) {
+    <app-files-sidebar
+      [tree]="fs.tree()"
+      [width]="sidebarWidth()"
+      [currentFolderId]="currentFolderId()"
+      [selectedId]="selectedId()"
+      [expandedFolders]="expandedFolders()"
+      (onNavigate)="handleNavigate($event)"
+      (onToggle)="handleToggleExpand($event)"
+    >
+    </app-files-sidebar>
 
-  <div
-    (mousedown)="startResizing($event)"
-    [style.left.px]="sidebarWidth() - 2"
-    class="absolute top-0 bottom-0 w-1 z-20 cursor-col-resize hover:bg-gnome-blue/40 active:bg-gnome-blue transition-colors"
-  ></div>
+    <div
+      (mousedown)="startResizing($event)"
+      [style.left.px]="sidebarWidth() - 2"
+      class="absolute top-0 bottom-0 w-1 z-20 cursor-col-resize hover:bg-gnome-blue/40 active:bg-gnome-blue transition-colors"
+    ></div>
+  }
+  @if (isNarrow() && isMobileSidebarOpen()) {
+    <div
+      (click)="isMobileSidebarOpen.set(false)"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
+    ></div>
+
+    <div
+      class="fixed top-0 bottom-0 left-0 w-full bg-gnome-surface z-50 shadow-2xl border-r border-gnome-border flex flex-col overflow-hidden animate-in slide-in-from-left duration-200"
+    >
+      <div class="h-12 flex items-center justify-between px-4 border-b border-gnome-border shrink-0">
+        <span class="font-bold text-sm text-gnome-text">{{ lang.t().files.locations }}</span>
+        <button
+          (click)="isMobileSidebarOpen.set(false)"
+          class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-black/10 text-gnome-text-secondary"
+        >
+          <i class="fas fa-times text-xs"></i>
+        </button>
+      </div>
+      <div class="flex-1 overflow-y-auto overflow-x-hidden">
+        <app-files-sidebar
+          [tree]="fs.tree()"
+          [width]="0"
+          [currentFolderId]="currentFolderId()"
+          [selectedId]="selectedId()"
+          [expandedFolders]="expandedFolders()"
+          (onNavigate)="handleNavigate($event)"
+          (onToggle)="handleToggleExpand($event)"
+        >
+        </app-files-sidebar>
+      </div>
+    </div>
+  }
 
   <div class="flex-1 flex flex-col min-w-0">
-    <header
-      class="h-12 shrink-0 flex items-center px-3 gap-3 bg-gnome-header border-b border-gnome-border"
-    >
-      <button
-        (click)="goBack()"
-        [disabled]="pathIds().length <= 1"
-        [title]="lang.t().files.back"
-        class="flex-none cursor-pointer w-7 h-7 rounded flex items-center justify-center hover:bg-black/5 disabled:opacity-20 transition-opacity outline-none"
-      >
-        <i class="fas fa-chevron-left text-xs"></i>
-      </button>
+    <header class="shrink-0 flex flex-col bg-gnome-header border-b border-gnome-border">
+      <div class="h-11 flex items-center px-2 @min-[680px]:px-3 gap-2 @min-[680px]:gap-3">
+        @if (isNarrow()) {
+          <button
+            (click)="isMobileSidebarOpen.set(true)"
+            class="flex-none cursor-pointer w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/5 active:bg-black/10 text-gnome-text transition-colors touch-manipulation"
+            title="Locations"
+          >
+            <i class="fas fa-bars text-sm"></i>
+          </button>
+        }
 
-      <div class="group flex-1 flex items-center gap-2 min-w-0">
+        <button
+          (click)="goBack()"
+          [disabled]="pathIds().length <= 1"
+          [title]="lang.t().files.back"
+          class="flex-none cursor-pointer w-7 h-7 rounded flex items-center justify-center hover:bg-black/5 disabled:opacity-20 transition-opacity outline-none touch-manipulation"
+        >
+          <i class="fas fa-chevron-left text-xs"></i>
+        </button>
+
         <app-files-breadcrumbs
           [items]="breadcrumbs()"
           (onJump)="jumpTo($event)"
-          class="flex-1 min-w-0 group-focus-within:flex-none group-focus-within:w-48"
+          class="flex-1 min-w-0 overflow-x-auto no-scrollbar"
         >
         </app-files-breadcrumbs>
+        @if (!isNarrow()) {
+          <div class="relative flex-none flex items-center w-32">
+            <i class="fas fa-search absolute left-2.5 text-[10px] text-gnome-text-secondary opacity-50"></i>
+            <input
+              type="text"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+              [placeholder]="lang.t().files.searchPlaceholder"
+              class="w-full h-8 pl-8 pr-8 py-1 text-[12px] bg-black/5 dark:bg-white/5 border border-gnome-border rounded-md text-gnome-text outline-none focus:ring-1 focus:ring-gnome-blue/50 transition-all placeholder:opacity-50"
+            />
+            @if (searchQuery()) {
+              <button (click)="searchQuery.set('')" class="absolute cursor-pointer right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text">
+                <i class="fas fa-times-circle text-[10px]"></i>
+              </button>
+            }
+          </div>
+        }
 
-        <div class="relative flex-none flex items-center lg:w-32 group-focus-within:flex-1">
-          <i
-            class="fas fa-search absolute left-2.5 text-[10px] text-gnome-text-secondary opacity-50"
-          ></i>
+        <div class="flex-none flex border border-gnome-border rounded-md overflow-hidden shadow-sm">
+          <button
+            (click)="viewMode.set('grid')"
+            [class.bg-black/10]="viewMode() === 'grid'"
+            [class.text-gnome-blue]="viewMode() === 'grid'"
+            [title]="lang.t().files.gridView"
+            class="w-8 h-7 cursor-pointer flex justify-center items-center bg-gnome-surface hover:bg-black/5 border-r border-gnome-border outline-none touch-manipulation"
+          >
+            <i class="fas fa-th-large text-[10px]"></i>
+          </button>
+          <button
+            (click)="viewMode.set('list')"
+            [class.bg-black/10]="viewMode() === 'list'"
+            [class.text-gnome-blue]="viewMode() === 'list'"
+            [title]="lang.t().files.listView"
+            class="w-8 cursor-pointer h-7 flex justify-center items-center bg-gnome-surface hover:bg-black/5 outline-none touch-manipulation"
+          >
+            <i class="fas fa-list text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+      @if (isNarrow()) {
+      <div class="h-10 flex items-center px-2 border-t border-gnome-border/50">
+        <div class="relative flex-1 flex items-center">
+          <i class="fas fa-search absolute left-2.5 text-[10px] text-gnome-text-secondary opacity-50"></i>
           <input
             type="text"
             [ngModel]="searchQuery()"
@@ -53,38 +133,18 @@
           @if (searchQuery()) {
             <button
               (click)="searchQuery.set('')"
-              class="absolute cursor-pointer right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text"
+              class="absolute cursor-pointer right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text touch-manipulation"
             >
               <i class="fas fa-times-circle text-[10px]"></i>
             </button>
           }
         </div>
       </div>
+      }
 
-      <div class="flex-none flex border border-gnome-border rounded-md overflow-hidden shadow-sm">
-        <button
-          (click)="viewMode.set('grid')"
-          [class.bg-black/10]="viewMode() === 'grid'"
-          [class.text-gnome-blue]="viewMode() === 'grid'"
-          [title]="lang.t().files.gridView"
-          class="w-8 h-7 cursor-pointer flex justify-center items-center bg-gnome-surface hover:bg-black/5 border-r border-gnome-border outline-none"
-        >
-          <i class="fas fa-th-large text-[10px]"></i>
-        </button>
-        <button
-          (click)="viewMode.set('list')"
-          [class.bg-black/10]="viewMode() === 'list'"
-          [class.text-gnome-blue]="viewMode() === 'list'"
-          [title]="lang.t().files.listView"
-          class="w-8 cursor-pointer h-7 flex justify-center items-center bg-gnome-surface hover:bg-black/5 outline-none"
-        >
-          <i class="fas fa-list text-[10px]"></i>
-        </button>
-      </div>
     </header>
-
     <main
-      class="flex-1 overflow-y-auto select-none bg-gnome-bg custom-scrollbar relative"
+      class="flex-1 overflow-y-auto select-none bg-gnome-bg custom-scrollbar relative p-1"
       (click)="selectedId.set(null)"
     >
       @if (fs.isLoaded()) {
@@ -108,11 +168,10 @@
         }
       }
     </main>
-
     <footer
-      class="h-10 shrink-0 flex items-center justify-between px-4 bg-gnome-header border-t border-gnome-border z-10"
+      class="h-10 shrink-0 flex items-center justify-between px-3 @min-[680px]:px-4 bg-gnome-header border-t border-gnome-border z-10"
     >
-      <div class="text-[10px] uppercase tracking-widest font-bold text-gnome-text opacity-60">
+      <div class="text-[10px] uppercase tracking-widest font-bold text-gnome-text opacity-60 truncate">
         {{ filteredFiles().length }}
         {{ filteredFiles().length === 1 ? lang.t().files.item : lang.t().files.items }}
       </div>
@@ -128,13 +187,13 @@
               step="10"
               [value]="gridSize()"
               (input)="updateGridSize($event)"
-              class="w-24 h-1 bg-gnome-blue rounded-lg appearance-none cursor-pointer accent-gnome-blue outline-none"
+              class="w-20 @min-[680px]:w-24 h-1 bg-gnome-blue rounded-lg appearance-none cursor-pointer accent-gnome-blue outline-none"
             />
             <i class="fas fa-image text-sm text-gnome-text-secondary opacity-40"></i>
           </div>
         } @else {
           <div
-            class="text-[10px] mr-4 uppercase tracking-widest font-bold text-gnome-text opacity-60"
+            class="text-[10px] uppercase tracking-widest font-bold text-gnome-text opacity-60 truncate"
           >
             {{ lang.t().files.totalSize }}: {{ totalSize() }}
           </div>

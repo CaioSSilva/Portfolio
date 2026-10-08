@@ -3,6 +3,7 @@ import { SettingsComponent } from './settings';
 import { Theme } from '../../core/services/theme';
 import { Settings } from '../../core/services/settings';
 import { LanguageService } from '../../core/services/language';
+import { ScreenService } from '../../core/services/screen';
 
 describe('SettingsComponent', () => {
   let component: SettingsComponent;
@@ -11,7 +12,7 @@ describe('SettingsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SettingsComponent],
-      providers: [Theme, Settings, LanguageService],
+      providers: [Theme, Settings, LanguageService, ScreenService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SettingsComponent);
@@ -51,9 +52,10 @@ describe('SettingsComponent', () => {
     expect(component.wallpapersAnimated.length).toBeGreaterThan(0);
   });
 
-  it('should systemInfo have cpu and os properties', () => {
+  it('should systemInfo have os and kernel properties', () => {
     expect(component.systemInfo).toBeDefined();
-    expect(component.systemInfo.cpu).toBeDefined();
+    expect(component.systemInfo.os).toBeDefined();
+    expect(component.systemInfo.kernel).toBeDefined();
   });
 
   it('should setSection to desktop', () => {

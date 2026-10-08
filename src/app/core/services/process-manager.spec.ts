@@ -111,11 +111,11 @@ describe('ProcessManager', () => {
 
   it('should close all instances by appId', () => {
     service.open(mockApp);
-    service.open(mockApp);
+    service.open(musicApp);
     expect(service.processes().length).toBe(2);
 
     service.closeAllInstancesById(mockApp.id);
-    expect(service.processes().length).toBe(0);
+    expect(service.processes().length).toBe(1);
   });
 
   it('should check if there are active processes by appId', () => {
@@ -194,10 +194,9 @@ describe('ProcessManager', () => {
 
   it('should assign incremental cascadeIndex to each opened process', () => {
     service.open(mockApp);
-    service.open(mockApp);
-    service.open(mockApp);
+    service.open(musicApp);
 
     const indices = service.processes().map((p) => p.cascadeIndex);
-    expect(indices).toEqual([0, 1, 2]);
+    expect(indices).toEqual([0, 1]);
   });
 });

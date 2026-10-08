@@ -28,29 +28,12 @@ describe('Boot', () => {
     expect(component).toBeTruthy();
   });
 
-  it('detectDevice sets isMobile=true on small screens', () => {
-    Object.defineProperty(window, 'innerWidth', { value: 800, writable: true, configurable: true });
-    fixture.detectChanges();
-    expect(component.isMobile()).toBe(true);
-  });
-
-  it('detectDevice starts simulateLoading on large non-mobile screens', () => {
+  it('simulates loading and enables waitingClick upon completion', () => {
     vi.useFakeTimers();
-    Object.defineProperty(window, 'innerWidth', { value: 1440, writable: true, configurable: true });
-    const origUA = navigator.userAgent;
-    Object.defineProperty(navigator, 'userAgent', {
-      value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-      writable: true,
-      configurable: true,
-    });
-
     fixture.detectChanges();
-    expect(component.isMobile()).toBe(false);
-    vi.advanceTimersByTime(5000); // run the interval
-    expect(component.progress()).toBeGreaterThan(0);
-
-    Object.defineProperty(navigator, 'userAgent', { value: origUA, writable: true, configurable: true });
-    Object.defineProperty(window, 'innerWidth', { value: 1024, writable: true, configurable: true });
+    vi.advanceTimersByTime(3500);
+    expect(component.progress()).toBe(100);
+    expect(component.waitingClick()).toBe(true);
     vi.useRealTimers();
   });
 
@@ -61,19 +44,10 @@ describe('Boot', () => {
     expect(soundMock.play).not.toHaveBeenCalled();
   });
 
-  it('startSystem does nothing when isMobile is true', () => {
-    fixture.detectChanges();
-    component.waitingClick.set(true);
-    component.isMobile.set(true);
-    component.startSystem();
-    expect(soundMock.play).not.toHaveBeenCalled();
-  });
-
   it('startSystem does nothing when already exiting', () => {
     fixture.detectChanges();
     component.waitingClick.set(true);
     component.isExiting.set(true);
-    component.isMobile.set(false);
     component.startSystem();
     expect(soundMock.play).not.toHaveBeenCalled();
   });
@@ -82,7 +56,6 @@ describe('Boot', () => {
     vi.useFakeTimers();
     fixture.detectChanges();
     component.waitingClick.set(true);
-    component.isMobile.set(false);
     component.isExiting.set(false);
 
     let emitted = false;

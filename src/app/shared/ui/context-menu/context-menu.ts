@@ -5,7 +5,7 @@ import { LanguageService } from '../../../core/services/language';
 import { ProcessManager } from '../../../core/services/process-manager';
 import { ContextMenuService } from '../../../core/services/context-menu';
 import { DesktopIconsService } from '../../../core/services/desktop-icons';
-
+import { ScreenService } from '../../../core/services/screen';
 @Component({
   selector: 'app-context-menu',
   imports: [],
@@ -20,4 +20,5 @@ export class ContextMenu {
   process = inject(ProcessManager);
   contextMenu = inject(ContextMenuService);
   lang = inject(LanguageService);
+  screen = inject(ScreenService);
 }

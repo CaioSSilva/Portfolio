@@ -154,6 +154,10 @@ export class Terminal extends Base {
     this.termInput().nativeElement.focus();
   }
 
+  onInputFocus(): void {
+    setTimeout(() => this.scrollToBottom(), 100);
+  }
+
   getTranslatedName(id: string): string {
     const trans = this.lang.t().files as Record<string, string>;
     return trans[id.toLowerCase()] || this.fs.getNode(id)?.name || id;

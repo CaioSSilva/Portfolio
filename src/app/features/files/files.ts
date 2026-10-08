@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, linkedSignal, computed, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ElementRef, inject, signal, linkedSignal, computed, HostListener, ChangeDetectionStrategy, OnDestroy, NgZone } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Base } from '../../core/models/base';
 import { FileItem } from '../../core/models/file';
@@ -17,11 +17,18 @@ import { ProcessManager } from '../../core/services/process-manager';
   imports: [CommonModule, FormsModule, FilesSidebar, FilesBreadcrumbs, FilesGrid, FilesList],
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './files.html',
+  styleUrl: './files.scss',
 })
-export class Files extends Base {
+export class Files extends Base implements OnDestroy {
   public fs = inject(FileSystem);
   readonly lang = inject(LanguageService);
   private manager = inject(ProcessManager);
+  private ngZone = inject(NgZone);
+  private hostEl = inject(ElementRef<HTMLElement>);
+
+  /** True when the component's container is narrower than 680px */
+  readonly isNarrow = signal(false);
+  private resizeObserver: ResizeObserver | null = null;
 
   readonly viewMode = signal<'grid' | 'list'>('list');
   readonly searchQuery = signal('');
@@ -29,6 +36,7 @@ export class Files extends Base {
   readonly expandedFolders = signal<Set<string>>(new Set(['root', 'home']));
   readonly sidebarWidth = signal(240);
   readonly gridSize = signal(110);
+  readonly isMobileSidebarOpen = signal(false);
 
   private isResizing = false;
   private startX = 0;
@@ -80,9 +88,22 @@ export class Files extends Base {
   constructor() {
     super();
     this.fs.ensureLoaded().catch(console.error);
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        const w = entries[0]?.contentRect.width ?? 0;
+        this.ngZone.run(() => this.isNarrow.set(w > 0 && w < 680));
+      });
+      this.resizeObserver.observe(this.hostEl.nativeElement);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
   }
 
   handleNavigate(item: FileItem): void {
+    this.isMobileSidebarOpen.set(false);
     this.navigate(item, item.type !== 'file');
   }
 
@@ -93,7 +114,7 @@ export class Files extends Base {
 
   @HostListener('window:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
-    if (!this.isResizing) return;
+    if (!this.isResizing || this.isNarrow()) return;
 
     const diff = event.clientX - this.startX;
     const newWidth = Math.min(Math.max(160, this.sidebarWidth() + diff), 500);
@@ -108,6 +129,7 @@ export class Files extends Base {
   }
 
   startResizing(event: MouseEvent): void {
+    if (this.isNarrow()) return;
     this.isResizing = true;
     this.startX = event.clientX;
     event.preventDefault();

@@ -1,75 +1,98 @@
-<div class="flex h-full bg-gnome-bg text-gnome-text overflow-hidden">
-  <aside class="w-64 border-r border-gnome-border bg-gnome-surface/50 flex flex-col p-4 gap-2">
+<div class="flex h-full bg-gnome-bg text-gnome-text overflow-hidden relative">
+  <aside class="hidden @min-[680px]:flex w-60 @lg:w-64 border-r border-gnome-border bg-gnome-surface/50 flex-col p-4 gap-1.5 shrink-0">
     @for (item of menuItems(); track item.id) {
       <button
         (click)="setSection(item.id)"
         [class.bg-gnome-blue]="activeSection() === item.id"
         [class.text-white]="activeSection() === item.id"
         [class.hover:bg-gnome-blue/10]="activeSection() !== item.id"
-        class="cursor-pointer flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm font-medium"
+        class="cursor-pointer flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-sm font-medium"
       >
         <i [class]="item.icon + ' w-5'"></i> {{ item.label }}
       </button>
     }
-
     <div class="mt-auto border-t border-gnome-border pt-4">
       <button
         (click)="setSection('about')"
         [class.bg-gnome-blue]="activeSection() === 'about'"
         [class.text-white]="activeSection() === 'about'"
         [class.hover:bg-gnome-blue/10]="activeSection() !== 'about'"
-        class="flex items-center gap-3 px-4 py-2 rounded-lg transition-colors text-sm font-medium w-full text-left cursor-pointer"
+        class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors text-sm font-medium w-full text-left cursor-pointer"
       >
         <i class="fas fa-info-circle w-5"></i> {{ lang.t().settings.about.title }}
       </button>
     </div>
   </aside>
+  <main class="flex-1 flex flex-col overflow-y-auto custom-scrollbar selection:bg-gnome-blue/30 min-w-0">
+    <div class="@min-[680px]:hidden sticky top-0 z-20 bg-gnome-surface/90 backdrop-blur-md border-b border-gnome-border px-3 py-3 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+      @for (item of menuItems(); track item.id) {
+        <button
+          (click)="setSection(item.id)"
+          [class.bg-gnome-blue]="activeSection() === item.id"
+          [class.text-white]="activeSection() === item.id"
+          [class.bg-black/5]="activeSection() !== item.id"
+          class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors active:scale-95 touch-manipulation"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </button>
+      }
+      <button
+        (click)="setSection('about')"
+        [class.bg-gnome-blue]="activeSection() === 'about'"
+        [class.text-white]="activeSection() === 'about'"
+        [class.bg-black/5]="activeSection() !== 'about'"
+        class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-colors active:scale-95 touch-manipulation"
+      >
+        <i class="fas fa-info-circle"></i>
+        <span>{{ lang.t().settings.about.title }}</span>
+      </button>
+    </div>
 
-  <main class="flex-1 overflow-y-auto p-8 custom-scrollbar selection:bg-gnome-blue/30">
-    <div class="max-w-2xl mx-auto">
+    <div class="flex-1 p-4 @min-[680px]:p-8 max-w-2xl w-full mx-auto">
       @if (activeSection() === 'appearance') {
-        <h2 class="text-3xl font-bold mb-8">{{ lang.t().settings.appearance.title }}</h2>
-        <div class="space-y-10">
+        <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">{{ lang.t().settings.appearance.title }}</h2>
+        <div class="space-y-8 @min-[680px]:space-y-10">
           <section>
             <h3 class="text-xs uppercase tracking-[0.2em] text-gnome-text-secondary mb-4 font-bold">
               {{ lang.t().settings.appearance.colorScheme }}
             </h3>
             <div
-              class="grid grid-cols-2 gap-6 bg-gnome-surface p-6 rounded-2xl border border-gnome-border"
+              class="grid grid-cols-2 gap-4 @min-[680px]:gap-6 bg-gnome-surface p-4 @min-[680px]:p-6 rounded-2xl border border-gnome-border"
             >
               <button
                 (click)="theme.setDark(false)"
-                class="flex flex-col items-center gap-3 p-4 rounded-xl transition-all duration-200 group cursor-pointer"
+                class="flex flex-col items-center gap-3 p-3 @min-[680px]:p-4 rounded-xl transition-all duration-200 group cursor-pointer"
                 [class.ring-4]="!theme.isDarkMode()"
                 [class.ring-gnome-blue]="!theme.isDarkMode()"
                 [class.bg-gnome-header]="!theme.isDarkMode()"
               >
                 <div
-                  class="w-full h-40 bg-zinc-100 rounded-lg border border-black/5 shadow-sm overflow-hidden relative"
+                  class="w-full h-28 @min-[680px]:h-40 bg-zinc-100 rounded-lg border border-black/5 shadow-sm overflow-hidden relative"
                 >
                   <div class="absolute top-0 left-0 right-0 h-3 bg-zinc-200"></div>
                   <div
                     class="absolute bottom-2 left-1/2 -translate-x-1/2 w-10 h-2 bg-zinc-300 rounded-full"
                   ></div>
                 </div>
-                <span class="text-sm font-semibold">{{ lang.t().settings.appearance.light }}</span>
+                <span class="text-xs @min-[680px]:text-sm font-semibold">{{ lang.t().settings.appearance.light }}</span>
               </button>
               <button
                 (click)="theme.setDark(true)"
-                class="flex flex-col items-center gap-3 p-4 rounded-xl transition-all duration-200 group cursor-pointer"
+                class="flex flex-col items-center gap-3 p-3 @min-[680px]:p-4 rounded-xl transition-all duration-200 group cursor-pointer"
                 [class.ring-4]="theme.isDarkMode()"
                 [class.ring-gnome-blue]="theme.isDarkMode()"
                 [class.bg-gnome-header]="theme.isDarkMode()"
               >
                 <div
-                  class="w-full h-40 bg-zinc-900 rounded-lg border border-white/5 shadow-sm overflow-hidden relative"
+                  class="w-full h-28 @min-[680px]:h-40 bg-zinc-900 rounded-lg border border-white/5 shadow-sm overflow-hidden relative"
                 >
                   <div class="absolute top-0 left-0 right-0 h-3 bg-zinc-800"></div>
                   <div
                     class="absolute bottom-2 left-1/2 -translate-x-1/2 w-10 h-2 bg-zinc-700 rounded-full"
                   ></div>
                 </div>
-                <span class="text-sm font-semibold">{{ lang.t().settings.appearance.dark }}</span>
+                <span class="text-xs @min-[680px]:text-sm font-semibold">{{ lang.t().settings.appearance.dark }}</span>
               </button>
             </div>
           </section>
@@ -78,81 +101,85 @@
             <h3 class="text-xs uppercase tracking-[0.2em] text-gnome-text-secondary mb-4 font-bold">
               {{ lang.t().settings.appearance.wallpaper }}
             </h3>
-            <div class="flex flex-col">
-              <h4 class="text-xs ml-2 tracking-[0.2em] text-gnome-text-secondary mb-4 font-bold">
-                {{ lang.t().settings.appearance.static }}
-              </h4>
-              <div class="grid grid-cols-2 gap-4">
-                @for (wp of wallpapers; track wp) {
+
+            @if (isNarrow()) {
+              <div class="grid grid-cols-2 gap-3">
+                @for (wp of wallpapersMobile; track wp) {
                   <button
                     (click)="settings.setWallpaper(wp)"
-                    class="group aspect-video rounded-xl overflow-hidden border-4 transition-all duration-300 relative shadow-sm cursor-pointer"
+                    class="group aspect-[9/16] rounded-xl overflow-hidden border-2 transition-all duration-300 relative shadow-sm cursor-pointer active:scale-95 touch-manipulation"
                     [class.border-gnome-blue]="settings.wallpaper() === wp"
                     [class.border-transparent]="settings.wallpaper() !== wp"
                   >
-                    <img
-                      [src]="wp"
-                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    <img [src]="wp" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     @if (settings.wallpaper() === wp) {
-                      <div
-                        class="absolute inset-0 bg-gnome-blue/10 flex items-center justify-center"
-                      >
+                      <div class="absolute inset-0 bg-gnome-blue/20 flex items-center justify-center">
                         <i class="fas fa-check-circle text-white text-2xl drop-shadow-md"></i>
                       </div>
                     }
                   </button>
                 }
               </div>
-              <h4
-                class="text-xs mt-4 ml-2 tracking-[0.2em] text-gnome-text-secondary mb-4 font-bold"
-              >
-                {{ lang.t().settings.appearance.animated }}
-              </h4>
-              <div class="grid grid-cols-2 gap-4">
-                @for (wp of wallpapersAnimated; track wp) {
-                  <button
-                    (click)="settings.setWallpaper(wp)"
-                    class="group aspect-video rounded-xl overflow-hidden border-4 transition-all duration-300 relative shadow-sm cursor-pointer"
-                    [class.border-gnome-blue]="settings.wallpaper() === wp"
-                    [class.border-transparent]="settings.wallpaper() !== wp"
-                  >
-                    <video
-                      autoplay
-                      loop
-                      muted
-                      playsinline
-                      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    >
-                      <source [src]="wp" type="video/mp4" />
-                    </video>
-                    @if (settings.wallpaper() === wp) {
-                      <div
-                        class="absolute inset-0 bg-gnome-blue/10 flex items-center justify-center"
+            } @else {
+              <div class="flex flex-col gap-6">
+                <div>
+                  <h4 class="text-xs ml-2 tracking-[0.2em] text-gnome-text-secondary mb-3 font-bold">
+                    {{ lang.t().settings.appearance.static }}
+                  </h4>
+                  <div class="grid grid-cols-2 gap-3 @min-[680px]:gap-4">
+                    @for (wp of wallpapers; track wp) {
+                      <button
+                        (click)="settings.setWallpaper(wp)"
+                        class="group aspect-video rounded-xl overflow-hidden border-2 @min-[680px]:border-4 transition-all duration-300 relative shadow-sm cursor-pointer active:scale-95"
+                        [class.border-gnome-blue]="settings.wallpaper() === wp"
+                        [class.border-transparent]="settings.wallpaper() !== wp"
                       >
-                        <i class="fas fa-check-circle text-white text-2xl drop-shadow-md"></i>
-                      </div>
+                        <img [src]="wp" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                        @if (settings.wallpaper() === wp) {
+                          <div class="absolute inset-0 bg-gnome-blue/20 flex items-center justify-center">
+                            <i class="fas fa-check-circle text-white text-xl @min-[680px]:text-2xl drop-shadow-md"></i>
+                          </div>
+                        }
+                      </button>
                     }
-                  </button>
-                }
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-xs ml-2 tracking-[0.2em] text-gnome-text-secondary mb-3 font-bold">
+                    {{ lang.t().settings.appearance.animated }}
+                  </h4>
+                  <div class="grid grid-cols-2 gap-3 @min-[680px]:gap-4">
+                    @for (wp of wallpapersAnimated; track wp) {
+                      <button
+                        (click)="settings.setWallpaper(wp)"
+                        class="group aspect-video rounded-xl overflow-hidden border-2 @min-[680px]:border-4 transition-all duration-300 relative shadow-sm cursor-pointer active:scale-95"
+                        [class.border-gnome-blue]="settings.wallpaper() === wp"
+                        [class.border-transparent]="settings.wallpaper() !== wp"
+                      >
+                        <video [src]="wp" muted loop autoplay playsinline preload="none" class="w-full h-full object-cover"></video>
+                        @if (settings.wallpaper() === wp) {
+                          <div class="absolute inset-0 bg-gnome-blue/20 flex items-center justify-center">
+                            <i class="fas fa-check-circle text-white text-xl @min-[680px]:text-2xl drop-shadow-md"></i>
+                          </div>
+                        }
+                      </button>
+                    }
+                  </div>
+                </div>
               </div>
-            </div>
+            }
           </section>
         </div>
       }
 
       @if (activeSection() === 'desktop') {
-        <h2 class="text-3xl font-bold mb-8">{{ lang.t().settings.desktop.title }}</h2>
+        <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">{{ lang.t().settings.desktop.title }}</h2>
         <div class="space-y-6">
-          <div
-            class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border"
-          >
+          <div class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border">
             <div class="p-4 flex items-center justify-between">
               <div>
                 <div class="font-medium">{{ lang.t().settings.desktop.autoHideDock }}</div>
-                <div class="text-sm text-gnome-text-secondary">
-                  {{ lang.t().settings.desktop.autoHideDockDesc }}
-                </div>
+                <div class="text-sm text-gnome-text-secondary">{{ lang.t().settings.desktop.autoHideDockDesc }}</div>
               </div>
               <button
                 (click)="settings.toggleAutoHideDock()"
@@ -167,46 +194,42 @@
                 ></div>
               </button>
             </div>
-            <div class="p-4 flex items-center justify-between">
-              <div>
+
+            <div class="p-4 flex items-center justify-between gap-4">
+              <div class="min-w-0">
                 <div class="font-medium">{{ lang.t().settings.desktop.iconSize }}</div>
-                <div class="text-sm text-gnome-text-secondary">
-                  {{ lang.t().settings.desktop.iconSizeDesc }}
-                </div>
+                <div class="text-sm text-gnome-text-secondary">{{ lang.t().settings.desktop.iconSizeDesc }}</div>
               </div>
-              <div class="flex bg-gnome-bg border border-gnome-border rounded-lg p-1 gap-1">
-                @for (size of [32, 48, 64]; track size) {
-                  <button
-                    (click)="settings.setDockSize(size)"
-                    [class.bg-gnome-blue]="settings.dockSize() === size"
-                    [class.text-white]="settings.dockSize() === size"
-                    [class.hover:bg-gnome-blue/10]="settings.dockSize() !== size"
-                    class="px-3 py-1 rounded text-xs font-bold transition-colors cursor-pointer"
-                  >
-                    {{ size }}px
-                  </button>
-                }
+              <div class="flex items-center gap-3 shrink-0">
+                <input
+                  type="range"
+                  min="28"
+                  max="64"
+                  step="2"
+                  [value]="settings.dockSize()"
+                  (input)="settings.setDockSize(+$any($event.target).value)"
+                  class="w-28 accent-gnome-blue cursor-pointer"
+                />
+                <span class="text-xs font-mono font-bold w-8 text-right">{{ settings.dockSize() }}px</span>
               </div>
             </div>
-            <div class="p-4 flex items-center justify-between">
-              <div>
+
+            <div class="p-4 flex items-center justify-between gap-4">
+              <div class="min-w-0">
                 <div class="font-medium">{{ lang.t().settings.desktop.desktopItemsSize }}</div>
-                <div class="text-sm text-gnome-text-secondary">
-                  {{ lang.t().settings.desktop.desktopItemsSizeDesc }}
-                </div>
+                <div class="text-sm text-gnome-text-secondary">{{ lang.t().settings.desktop.desktopItemsSizeDesc }}</div>
               </div>
-              <div class="flex bg-gnome-bg border border-gnome-border rounded-lg p-1 gap-1">
-                @for (size of [40, 50, 60, 70]; track size) {
-                  <button
-                    (click)="settings.setDesktopSize(size)"
-                    [class.bg-gnome-blue]="settings.desktopSize() === size"
-                    [class.text-white]="settings.desktopSize() === size"
-                    [class.hover:bg-gnome-blue/10]="settings.desktopSize() !== size"
-                    class="px-3 py-1 rounded text-xs font-bold transition-colors cursor-pointer"
-                  >
-                    {{ size }}px
-                  </button>
-                }
+              <div class="flex items-center gap-3 shrink-0">
+                <input
+                  type="range"
+                  min="32"
+                  max="80"
+                  step="2"
+                  [value]="settings.desktopSize()"
+                  (input)="settings.setDesktopSize(+$any($event.target).value)"
+                  class="w-28 accent-gnome-blue cursor-pointer"
+                />
+                <span class="text-xs font-mono font-bold w-8 text-right">{{ settings.desktopSize() }}px</span>
               </div>
             </div>
           </div>
@@ -214,138 +237,113 @@
       }
 
       @if (activeSection() === 'sound') {
-        <h2 class="text-3xl font-bold mb-8">{{ lang.t().settings.sound.title }}</h2>
-        <div class="space-y-6">
-          <div
-            class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border"
-          >
-            <div class="p-4 flex items-center justify-between">
-              <div>
-                <div class="font-medium">{{ lang.t().settings.sound.systemSounds }}</div>
-                <div class="text-sm text-gnome-text-secondary">
-                  {{ lang.t().settings.sound.systemSoundsDesc }}
-                </div>
-              </div>
-              <button
-                (click)="settings.toggleSystemSounds()"
-                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
-                [class.bg-gnome-blue]="!settings.systemMuted()"
-                [class.bg-zinc-400]="settings.systemMuted()"
-              >
-                <div
-                  class="w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm"
-                  [class.translate-x-6]="!settings.systemMuted()"
-                  [class.translate-x-0]="settings.systemMuted()"
-                ></div>
-              </button>
+        <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">{{ lang.t().settings.sound.title }}</h2>
+        <div class="space-y-6 bg-gnome-surface p-4 @min-[680px]:p-6 rounded-2xl border border-gnome-border">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-sm @min-[680px]:text-base font-semibold">{{ lang.t().settings.sound.systemSounds }}</div>
+              <div class="text-xs text-gnome-text-secondary">{{ lang.t().settings.sound.systemSoundsDesc }}</div>
             </div>
+            <button
+              (click)="settings.toggleSystemSounds()"
+              class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
+              [class.bg-gnome-blue]="!settings.systemMuted()"
+              [class.bg-zinc-400]="settings.systemMuted()"
+            >
+              <div
+                class="w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm"
+                [class.translate-x-6]="!settings.systemMuted()"
+                [class.translate-x-0]="settings.systemMuted()"
+              ></div>
+            </button>
           </div>
         </div>
       }
 
       @if (activeSection() === 'language') {
-        <h2 class="text-3xl font-bold mb-8">{{ lang.t().settings.language.title }}</h2>
-        <div class="space-y-6">
-          <div
-            class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border"
+        <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">{{ lang.t().settings.language.title }}</h2>
+        <div class="grid grid-cols-1 @min-[680px]:grid-cols-2 gap-4">
+          <button
+            (click)="setLanguage('pt')"
+            [class.border-gnome-blue]="lang.currentLang() === 'pt'"
+            [class.bg-gnome-blue/5]="lang.currentLang() === 'pt'"
+            class="flex items-center gap-4 p-4 rounded-2xl border-2 border-gnome-border bg-gnome-surface transition-all cursor-pointer text-left active:scale-95"
           >
-            <button
-              (click)="lang.setLanguage('pt')"
-              class="w-full p-4 flex items-center justify-between hover:bg-gnome-text/5 transition-colors text-left outline-none cursor-pointer"
-            >
-              <div class="flex items-center gap-4">
-                <span class="text-2xl">🇧🇷</span>
-                <div>
-                  <div class="font-medium">{{ lang.t().settings.language.portuguese }}</div>
-                  <div class="text-xs text-gnome-text-secondary">
-                    {{ lang.t().settings.language.brazil }}
-                  </div>
-                </div>
-              </div>
-              @if (lang.currentLang() === 'pt') {
-                <i class="fas fa-check text-gnome-blue"></i>
-              }
-            </button>
-            <button
-              (click)="lang.setLanguage('en')"
-              class="w-full p-4 flex items-center justify-between hover:bg-gnome-text/5 transition-colors text-left outline-none cursor-pointer"
-            >
-              <div class="flex items-center gap-4">
-                <span class="text-2xl">🇺🇸</span>
-                <div>
-                  <div class="font-medium">{{ lang.t().settings.language.english }}</div>
-                  <div class="text-xs text-gnome-text-secondary">
-                    {{ lang.t().settings.language.unitedStates }}
-                  </div>
-                </div>
-              </div>
-              @if (lang.currentLang() === 'en') {
-                <i class="fas fa-check text-gnome-blue"></i>
-              }
-            </button>
-          </div>
-          <div class="px-2 flex gap-2 items-start text-left opacity-70">
-            <i class="fas fa-info-circle text-[10px] text-gnome-blue"></i>
-            <p class="text-[10px] text-gnome-text-secondary leading-tight">
-              {{ lang.t().settings.language.languageChangeNote }}
-            </p>
-          </div>
+            <span class="text-2xl">🇧🇷</span>
+            <div>
+              <div class="font-bold text-sm @min-[680px]:text-base">{{ lang.t().settings.language.portuguese }}</div>
+              <div class="text-xs text-gnome-text-secondary">{{ lang.t().settings.language.brazil }}</div>
+            </div>
+          </button>
+          <button
+            (click)="setLanguage('en')"
+            [class.border-gnome-blue]="lang.currentLang() === 'en'"
+            [class.bg-gnome-blue/5]="lang.currentLang() === 'en'"
+            class="flex items-center gap-4 p-4 rounded-2xl border-2 border-gnome-border bg-gnome-surface transition-all cursor-pointer text-left active:scale-95"
+          >
+            <span class="text-2xl">🇺🇸</span>
+            <div>
+              <div class="font-bold text-sm @min-[680px]:text-base">{{ lang.t().settings.language.english }}</div>
+              <div class="text-xs text-gnome-text-secondary">{{ lang.t().settings.language.unitedStates }}</div>
+            </div>
+          </button>
         </div>
       }
 
       @if (activeSection() === 'system') {
-        <h2 class="text-3xl font-bold mb-8">{{ lang.t().settings.system.title }}</h2>
-        <div class="space-y-6">
-          <div
-            class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border"
-          >
-            <div class="p-4 flex items-center justify-between">
-              <div>
-                <div class="font-medium">{{ lang.t().settings.system.systemTips }}</div>
-                <div class="text-sm text-gnome-text-secondary">
-                  {{ lang.t().settings.system.systemTipsDesc }}
-                </div>
-              </div>
-              <button
-                (click)="settings.toggleSystemTips()"
-                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
-                [class.bg-gnome-blue]="settings.tipsEnabled()"
-                [class.bg-zinc-400]="!settings.tipsEnabled()"
-              >
-                <div
-                  class="w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm"
-                  [class.translate-x-6]="settings.tipsEnabled()"
-                  [class.translate-x-0]="!settings.tipsEnabled()"
-                ></div>
-              </button>
+        <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">{{ lang.t().settings.system.title }}</h2>
+        <div class="space-y-4 bg-gnome-surface p-4 @min-[680px]:p-6 rounded-2xl border border-gnome-border divide-y divide-gnome-border/50">
+          <div class="flex items-center justify-between pb-4">
+            <div>
+              <div class="text-sm @min-[680px]:text-base font-semibold">{{ lang.t().settings.system.systemTips }}</div>
+              <div class="text-xs text-gnome-text-secondary">{{ lang.t().settings.system.systemTipsDesc }}</div>
+            </div>
+            <button
+              (click)="settings.toggleSystemTips()"
+              class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer"
+              [class.bg-gnome-blue]="settings.tipsEnabled()"
+              [class.bg-zinc-400]="!settings.tipsEnabled()"
+            >
+              <div
+                class="w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm"
+                [class.translate-x-6]="settings.tipsEnabled()"
+                [class.translate-x-0]="!settings.tipsEnabled()"
+              ></div>
+            </button>
+          </div>
+
+          <div class="pt-4 divide-y divide-gnome-border/40 text-xs @min-[680px]:text-sm">
+            <div class="py-2.5 flex justify-between items-center">
+              <span class="text-gnome-text-secondary font-medium">{{ lang.t().settings.about.systemName }}</span>
+              <span class="font-semibold text-right">Cai_OS</span>
+            </div>
+            <div class="py-2.5 flex justify-between items-center">
+              <span class="text-gnome-text-secondary font-medium">{{ lang.t().settings.about.ram }}</span>
+              <span class="font-semibold">{{ systemInfo.ram }}</span>
+            </div>
+            <div class="py-2.5 flex justify-between items-center">
+              <span class="text-gnome-text-secondary font-medium">{{ lang.t().settings.about.display }}</span>
+              <span class="font-semibold">{{ systemInfo.resolution }}</span>
             </div>
           </div>
         </div>
       }
 
       @if (activeSection() === 'about') {
-        <div class="flex flex-col items-center text-center pb-8">
-          <div
-            class="w-24 h-24 bg-white rounded-3xl flex items-center justify-center shadow-2xl mb-6"
-          >
-            <span class="text-zinc-950 text-5xl font-black italic">C</span>
+        <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">{{ lang.t().settings.about.title }}</h2>
+        <div class="flex flex-col items-center gap-2">
+          <div class="w-20 h-20 bg-gnome-blue rounded-3xl flex items-center justify-center text-white text-4xl font-black italic shadow-xl mb-2">
+            C
           </div>
-          <h2 class="text-3xl font-bold mb-2">Cai_OS</h2>
-          <p class="text-gnome-text-secondary mb-8">
-            {{ lang.t().settings.about.version }} 1.2.1 (Rolling Release)
+          <h3 class="text-xl font-bold">Cai_OS</h3>
+          <p class="text-xs text-gnome-text-secondary">{{ lang.t().settings.about.version }} 2.0.0</p>
+          <p class="text-xs @min-[680px]:text-sm text-gnome-text-secondary max-w-md leading-relaxed text-center mt-1">
+            {{ lang.t().settings.about.description }}
           </p>
-          <div
-            class="p-4 text-center w-full bg-gnome-surface rounded-xl border border-gnome-border overflow-hidden"
-          >
-            <span class="font-medium"> "{{ lang.t().settings.about.description }}" </span>
-          </div>
-          <div
-            class="mt-8 w-full bg-gnome-surface rounded-xl border border-gnome-border text-left overflow-hidden"
-          >
+
+          <div class="mt-8 w-full bg-gnome-surface rounded-xl border border-gnome-border text-left overflow-hidden">
             <div class="p-4 flex justify-between border-b border-gnome-border">
-              <span class="text-gnome-text-secondary">{{
-                lang.t().settings.about.systemName
-              }}</span>
+              <span class="text-gnome-text-secondary">{{ lang.t().settings.about.systemName }}</span>
               <span class="font-medium">Cai_OS</span>
             </div>
             <div class="p-4 flex justify-between">
@@ -355,25 +353,17 @@
           </div>
 
           <div class="w-full mt-8 mb-2">
-            <div
-              class="text-[10px] text-gnome-text-secondary uppercase font-black tracking-widest mb-2 ml-1 text-left"
-            >
+            <div class="text-[10px] text-gnome-text-secondary uppercase font-black tracking-widest mb-2 ml-1 text-left">
               {{ lang.t().settings.about.hardwareInfo }}
             </div>
-
-            <div
-              class="bg-gnome-surface rounded-xl border border-gnome-border overflow-hidden divide-y divide-gnome-border/30"
-            >
+            <div class="bg-gnome-surface rounded-xl border border-gnome-border overflow-hidden divide-y divide-gnome-border/30">
               <div class="flex items-center justify-between p-4 border-b border-gnome-border">
                 <span class="text-xs text-gnome-text-secondary font-medium flex items-center gap-2">
                   <i class="fas fa-microchip text-gnome-blue opacity-80"></i>
                   {{ lang.t().settings.about.cpu }}
                 </span>
-                <span class="text-xs text-gnome-text"
-                  >{{ systemInfo.cpu }} {{ this.lang.t().settings.about.cores }}</span
-                >
+                <span class="text-xs text-gnome-text">{{ systemInfo.cpu }} {{ lang.t().settings.about.cores }}</span>
               </div>
-
               <div class="flex items-center justify-between p-4 border-b border-gnome-border">
                 <span class="text-xs text-gnome-text-secondary font-medium flex items-center gap-2">
                   <i class="fas fa-expand text-gnome-blue opacity-80"></i>
@@ -381,7 +371,6 @@
                 </span>
                 <span class="text-xs text-gnome-text">Web GPU</span>
               </div>
-
               <div class="flex items-center justify-between p-4 border-b border-gnome-border">
                 <span class="text-xs text-gnome-text-secondary font-medium flex items-center gap-2">
                   <i class="fas fa-memory text-gnome-blue opacity-80"></i>
@@ -389,7 +378,6 @@
                 </span>
                 <span class="text-xs text-gnome-text">{{ systemInfo.ram }}</span>
               </div>
-
               <div class="flex items-center justify-between p-4">
                 <span class="text-xs text-gnome-text-secondary font-medium flex items-center gap-2">
                   <i class="fas fa-display text-gnome-blue opacity-80"></i>
@@ -401,7 +389,7 @@
           </div>
 
           <div class="w-full mt-3 px-2 flex gap-2 items-start text-left opacity-70">
-            <i class="fas fa-info-circle text-[10px] mt-1/2 text-gnome-blue"></i>
+            <i class="fas fa-info-circle text-[10px] mt-0.5 text-gnome-blue"></i>
             <p class="text-[10px] text-gnome-text-secondary leading-tight">
               {{ lang.t().settings.about.privacyWarning }}
             </p>

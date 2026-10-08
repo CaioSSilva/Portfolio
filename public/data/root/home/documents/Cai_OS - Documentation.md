@@ -41,6 +41,7 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 ### Key Features
 
 - **Modern Desktop Interface**: GNOME-inspired with dock, top bar, and app grid
+- **Responsive Mobile Interface**: Native mobile experience with bottom nav bar and app overview
 - **Window Management**: Support for dragging, resizing, maximizing, minimizing, and snapping
 - **Virtual File System**: Hierarchical structure of folders and files
 - **Interactive Terminal**: Unix-like commands for navigation and system control
@@ -155,8 +156,10 @@ Portfolio-main/
 │   │   │       ├── file-system.ts
 │   │   │       ├── gemini.ts
 │   │   │       ├── language.ts
+│   │   │       ├── mobile-nav.ts
 │   │   │       ├── notification.ts
 │   │   │       ├── process-manager.ts
+│   │   │       ├── screen.ts
 │   │   │       ├── settings.ts
 │   │   │       ├── sound.ts
 │   │   │       ├── system-tips.ts
@@ -183,6 +186,8 @@ Portfolio-main/
 │   │   ├── layout/                  # Layout components
 │   │   │   ├── apps-grid/           # Application grid
 │   │   │   ├── dock/                # Taskbar
+│   │   │   ├── mobile-nav-bar/      # Mobile bottom navigation bar
+│   │   │   ├── mobile-overview/     # Mobile open-windows overview
 │   │   │   ├── notification-center/ # Notification center
 │   │   │   ├── top-bar/             # Top bar
 │   │   │   └── window-switcher/     # Window switcher
@@ -310,13 +315,38 @@ Application grid with search and categorization.
 
 **File**: `src/app/layout/window-switcher/window-switcher.ts`
 
-Window switcher activated by `Ctrl+Q`.
+Window switcher activated by `Ctrl+\``.
 
 **Features**:
 - List of open windows
 - Keyboard navigation
 - Visual window preview
 - Quick focus
+
+### 7. MobileNavBar Component
+
+**File**: `src/app/layout/mobile-nav-bar/mobile-nav-bar.ts`
+
+Bottom navigation bar shown exclusively on mobile devices.
+
+**Features**:
+- Home button (minimizes all open windows)
+- Overview button (opens the app overview)
+- App drawer button (opens the apps grid)
+- Running-process indicator badge
+
+### 8. MobileOverview Component
+
+**File**: `src/app/layout/mobile-overview/mobile-overview.ts`
+
+Overlay that displays all open application windows as cards for quick switching on mobile.
+
+**Features**:
+- Sorted card list (by z-index)
+- Tap to focus and close overview
+- Swipe-up gesture to dismiss a process (auto-closes overview when the last process is dismissed)
+- "Close all" button
+- Tap on backdrop to dismiss
 
 ---
 
@@ -488,7 +518,44 @@ Implements Unix-like commands for the terminal.
 - `whoami`: Developer info
 - `about`: System version info
 
-### 10. SystemTips Service
+### 10. ScreenService
+
+**File**: `src/app/core/services/screen.ts`
+
+Tracks the current viewport size and device type reactively.
+
+**Breakpoints**:
+- `isMobile`: width < 768px
+- `isTablet`: 768px ≤ width < 1024px
+- `isDesktop`: width ≥ 1024px
+- `isCompact`: width < 1024px
+- `isTouchDevice`: detected by touch events
+
+**Main Signals**: `width`, `height`, `isTouchDevice`, `isMobile`, `isTablet`, `isDesktop`, `isCompact`.
+
+### 11. MobileNavService
+
+**File**: `src/app/core/services/mobile-nav.ts`
+
+Controls the mobile navigation state (overview and app drawer).
+
+**Responsibilities**:
+- Toggle/open/close the mobile overview panel
+- "Go home" action (minimizes all processes)
+- Open app and close the drawer in one step
+- Toggle the app drawer
+
+**Main Methods**:
+```typescript
+toggleOverview(): void
+openOverview(): void
+closeOverview(): void
+goHome(): void
+openAppAndCloseDrawer(app: AppDefinition): void
+toggleAppDrawer(): void
+```
+
+### 12. SystemTips Service
 
 **File**: `src/app/core/services/system-tips.ts`
 
@@ -501,7 +568,7 @@ Displays system tips periodically.
 - Theme toggle
 - Explorer navigation
 
-#### 11. DesktopIcons Service
+#### 13. DesktopIcons Service
 
 **File**: `src/app/core/services/desktop-icons.ts`
 
@@ -511,7 +578,7 @@ Manages icons pinned directly to the desktop area.
 
 **Main Methods**: `pinApp()`, `unPinActiveApp()`.
 
-#### 12. AppLauncher Service
+#### 14. AppLauncher Service
 
 **File**: `src/app/core/services/app-launcher.ts`
 
@@ -521,7 +588,7 @@ Orchestrator responsible for triggering application launches and managing UI sta
 
 **Main Methods**: `launch()`, `launchAndCloseContext()`.
 
-#### 13. AppRegistry Service
+#### 15. AppRegistry Service
 
 **File**: `src/app/core/services/app-registry.ts`
 
@@ -588,16 +655,16 @@ interface Notification {
 
 ### 5. Setting Model
 ```typescript
-interface SystemSettings {
-  theme: 'light' | 'dark';
-  wallpaper: string;
-  dockIconSize: number;
-  autoHideDock: boolean;
-  soundEnabled: boolean;
-  tipsEnabled: boolean;
-  language: 'pt' | 'en';
-}
+// Settings signals (from Settings service)
+dockSize: signal<number>           // Dock icon size (px)
+desktopSize: signal<number>        // Desktop icon size (px)
+systemMuted: signal<boolean>       // System sounds muted
+autoHideDock: signal<boolean>      // Auto-hide the dock
+tipsEnabled: signal<boolean>       // System tips on/off
+wallpaper: computed<string>        // Active wallpaper (desktop or mobile)
 ```
+
+> **Note**: Wallpaper is now split into `desktopWallpaper` and `mobileWallpaper` internally. `setWallpaper()` automatically writes to the correct signal based on `ScreenService.isMobile()`.
 
 ---
 
@@ -688,9 +755,9 @@ Centralized notification system with:
 - Individual or bulk clearing
 - Visual types (info, success, warning, error)
 
-### 5. App Switcher (Ctrl+Q)
+### 5. App Switcher (Ctrl+`)
 Quick navigation between open windows:
-- Activated by `Ctrl+Q`
+- Activated by `Ctrl+\``
 - Visual preview of each window
 - Keyboard navigation (Tab)
 - Instant focus
@@ -704,6 +771,14 @@ Right-click on dock icons:
 
 ### 7. Drag and Drop
 Drag applications from the grid to the dock to pin them.
+
+### 8. Mobile Navigation (feature/mobile)
+On devices with width < 768px the desktop layout is replaced by a mobile-optimised experience:
+- **MobileNavBar**: fixed bottom bar with Home, Overview, and App Drawer buttons
+- **MobileOverview**: fullscreen card grid of open windows; tap to focus, swipe-up to close; auto-closes when the last process is dismissed
+- **Adaptive Wallpapers**: separate wallpaper sets for `public/wallpapers/desktop/` and `public/wallpapers/mobile/`
+- **Adaptive Videos**: desktop live-wallpaper videos in `public/videos/wallpapers/desktop/`; no video wallpapers on mobile
+- **Touch Gestures**: tap, swipe-up dismiss, and backdrop-tap implemented natively without third-party libraries
 
 ---
 
@@ -787,7 +862,7 @@ Drag applications from the grid to the dock to pin them.
 **Sections**:
 #### Appearance
 - Color scheme (light/dark)
-- Wallpaper
+- Wallpaper (separate sets for desktop and mobile)
 
 #### Desktop
 - Auto-hide dock
@@ -947,7 +1022,11 @@ Edit `src/styles.scss`:
 ```
 
 ### Changing Wallpaper
-Add images to `public/wallpapers/` and configure in Settings.
+Wallpapers are now split by device type:
+- **Desktop**: add images to `public/wallpapers/desktop/`
+- **Mobile**: add images to `public/wallpapers/mobile/`
+
+The `Settings` service automatically picks the correct set via `ScreenService.isMobile()`.
 
 ### Changing Sounds
 Add audio files to `public/sounds/` and configure in `SoundService`.
@@ -1039,13 +1118,13 @@ This project is a personal portfolio. All rights reserved.
 
 ## 📊 Project Statistics
 
-- **Lines of Code**: ~15,000+
-- **Components**: 25+
-- **Services**: 15+
+- **Lines of Code**: ~17,000+
+- **Components**: 27+
+- **Services**: 17+
 - **Applications**: 10
 - **Languages**: 2
-- **Test Files**: 44
-- **Tests**: 401 (100% passing)
+- **Test Files**: 48
+- **Tests**: 457 (100% passing)
 - **Performance Score**: 90+
 
 ---
@@ -1060,4 +1139,4 @@ For questions, suggestions, or to report bugs:
 
 **Developed with ❤️ using Angular 22**
 
-**Last Update**: October 2026
+**Last Update**: July 2025

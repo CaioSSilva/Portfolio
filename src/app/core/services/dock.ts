@@ -5,6 +5,7 @@ import { Process } from '../models/process';
 import { ContextMenuService } from './context-menu';
 import { AppRegistry } from './app-registry';
 import { AppLauncher } from './app-launcher';
+import { Apps } from './apps';
 
 @Injectable({ providedIn: 'root' })
 export class DockService {
@@ -12,6 +13,7 @@ export class DockService {
   private readonly appRegistry = inject(AppRegistry);
   private readonly appLauncher = inject(AppLauncher);
   private readonly contextMenu = inject(ContextMenuService);
+  private readonly appsService = inject(Apps);
 
   public readonly pinnedAppIds = signal<string[]>(['firefox', 'files', 'terminal']);
   public readonly forceShow = signal<boolean>(false);
@@ -62,15 +64,34 @@ export class DockService {
       return;
     }
 
-    const process = this.getProcessById(item.pids[item.pids.length - 1]);
-    if (!process) return;
-
     const source = this.calculateClickSource(event);
+
+    if (item.pids.length > 1) {
+      this.cycleInstances(item, source);
+      return;
+    }
+
+    const process = this.getProcessById(item.pids[0]);
+    if (!process) return;
 
     if (process.isMinimized) {
       this.restoreProcess(process, source);
     } else {
       this.focusOrMinimize(process, item);
+    }
+  }
+
+  private cycleInstances(item: DockItem, source: { x: number; y: number }): void {
+    const activeId = this.processManager.activeProcessId();
+    const currentIndex = item.pids.indexOf(activeId ?? '');
+    const nextIndex = (currentIndex + 1) % item.pids.length;
+    const next = this.getProcessById(item.pids[nextIndex]);
+    if (!next) return;
+
+    if (next.isMinimized) {
+      this.restoreProcess(next, source);
+    } else {
+      this.processManager.focus(next.id);
     }
   }
 
@@ -131,7 +152,29 @@ export class DockService {
     if (!appId) return;
 
     const app = this.appRegistry.getAppById(appId);
-    if (app) this.appLauncher.launch(app);
+    if (!app) return;
+
+    if (this.processManager.hasActiveProcessesById(appId)) {
+      this.appsService.closeGrid();
+      this.processManager.forceOpen(app, app.data);
+      this.contextMenu.close();
+    } else {
+      this.appsService.openApp(app);
+    }
+  }
+
+  public focusActiveApp(): void {
+    const appId = this.contextMenu.activeAppId();
+    if (!appId) return;
+
+    const processes = this.processManager.processes();
+    const process = processes.find((p) => p.appId === appId);
+    if (!process) return;
+
+    this.contextMenu.close();
+    this.appsService.closeGrid();
+    if (process.isMinimized) this.processManager.toggleMinimize(process.id);
+    this.processManager.focus(process.id);
   }
 
   public unPinActiveApp(): void {

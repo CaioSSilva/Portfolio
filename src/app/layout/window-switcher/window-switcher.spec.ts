@@ -53,37 +53,42 @@ describe('WindowSwitcher', () => {
     expect(sorted[2].id).toBe('a');
   });
 
-  it('onKeyDown Ctrl+Q with no processes does nothing', () => {
+  it('onKeyDown Ctrl+` with no processes does nothing', () => {
     processesSig.set([]);
     fixture.detectChanges();
-    const event = new KeyboardEvent('keydown', { key: 'q', ctrlKey: true });
-    component.onKeyDown(event);
+    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
     expect(component.isVisible()).toBe(false);
   });
 
-  it('onKeyDown Ctrl+Q with processes opens switcher', () => {
+  it('onKeyDown Ctrl+` with processes opens switcher', () => {
     processesSig.set([makeProcess('a', 1), makeProcess('b', 2)]);
     fixture.detectChanges();
-    const event = new KeyboardEvent('keydown', { key: 'q', ctrlKey: true });
-    component.onKeyDown(event);
+    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
     expect(component.isVisible()).toBe(true);
   });
 
-  it('onKeyDown Ctrl+Q cycles selectedIndex when already visible', () => {
+  it('onKeyDown Ctrl+` cycles selectedIndex forward when already visible', () => {
     processesSig.set([makeProcess('a', 1), makeProcess('b', 2), makeProcess('c', 3)]);
     fixture.detectChanges();
-    // open
-    component.onKeyDown(new KeyboardEvent('keydown', { key: 'q', ctrlKey: true }));
+    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
     const firstIdx = component.selectedIndex();
-    // cycle
-    component.onKeyDown(new KeyboardEvent('keydown', { key: 'q', ctrlKey: true }));
+    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
     expect(component.selectedIndex()).not.toBe(firstIdx);
+  });
+
+  it('onKeyDown Ctrl+Shift+` cycles selectedIndex backward', () => {
+    processesSig.set([makeProcess('a', 1), makeProcess('b', 2), makeProcess('c', 3)]);
+    fixture.detectChanges();
+    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
+    const afterOpen = component.selectedIndex(); // 1
+    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true, shiftKey: true }));
+    expect(component.selectedIndex()).toBe((afterOpen - 1 + 3) % 3);
   });
 
   it('onKeyDown Escape closes switcher', () => {
     processesSig.set([makeProcess('a', 1)]);
     fixture.detectChanges();
-    component.onKeyDown(new KeyboardEvent('keydown', { key: 'q', ctrlKey: true }));
+    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
     expect(component.isVisible()).toBe(true);
     component.onKeyDown(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(component.isVisible()).toBe(false);
@@ -93,10 +98,17 @@ describe('WindowSwitcher', () => {
     processesSig.set([makeProcess('p1', 1)]);
     component.isVisible.set(true);
     component.selectedIndex.set(0);
-    const event = new KeyboardEvent('keyup', { ctrlKey: false });
-    component.onKeyUp(event);
+    component.onKeyUp(new KeyboardEvent('keyup', { ctrlKey: false }));
     expect(focusMock).toHaveBeenCalledWith('p1');
     expect(component.isVisible()).toBe(false);
+  });
+
+  it('onKeyUp does nothing when Ctrl still held', () => {
+    processesSig.set([makeProcess('p1', 1)]);
+    component.isVisible.set(true);
+    component.onKeyUp(new KeyboardEvent('keyup', { ctrlKey: true }));
+    expect(focusMock).not.toHaveBeenCalled();
+    expect(component.isVisible()).toBe(true);
   });
 
   it('onKeyUp does nothing when not visible', () => {

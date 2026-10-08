@@ -1,0 +1,78 @@
+@if (nav.isOverviewOpen()) {
+  <div
+    class="fixed inset-0 z-[9600] bg-black/60 backdrop-blur-2xl flex flex-col justify-between py-12 px-4 animate-in fade-in duration-200 select-none"
+    (click)="onBackdropClick($event)"
+    (touchstart)="onBackdropTouchStart($event)"
+    (touchend)="onBackdropTouchEnd($event)"
+  >
+    <div class="flex items-center justify-end px-4 min-h-[32px]" (click)="$event.stopPropagation()">
+      @if (processes().length > 0) {
+        <button
+          (click)="closeAll()"
+          class="px-3 py-1.5 rounded-full bg-white/10 hover:bg-red-500/20 text-white hover:text-red-400 text-xs font-semibold transition-colors active:scale-95 cursor-pointer border border-white/10 touch-manipulation"
+        >
+          <i class="fas fa-trash-alt mr-1.5 text-[10px]"></i>
+          {{ lang.t().common.clearAll || 'Clear all' }}
+        </button>
+      }
+    </div>
+    @if (processes().length === 0) {
+      <div class="flex-1 flex flex-col items-center justify-center text-center text-white/60 gap-4">
+        <div class="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl">
+          <i class="far fa-window-restore opacity-40"></i>
+        </div>
+        <p class="text-sm font-medium">{{ lang.t().mobileNav.noOpenApps }}</p>
+      </div>
+    }
+    @if (processes().length > 0) {
+      <div
+        class="flex-1 flex items-center gap-5 overflow-x-auto py-6 px-4 no-scrollbar snap-x snap-mandatory"
+        (click)="$event.stopPropagation()"
+      >
+        @for (proc of processes(); track proc.id) {
+          <div
+            (click)="onCardClick($event, proc)"
+            (touchstart)="onCardTouchStart($event, proc)"
+            (touchmove)="onCardTouchMove($event, proc)"
+            (touchend)="onCardTouchEnd($event, proc)"
+            [style.transform]="getCardTransform(proc.id)"
+            [style.opacity]="getCardOpacity(proc.id)"
+            [style.transition]="isDismissing(proc.id) ? 'transform 300ms cubic-bezier(0.25,0.46,0.45,0.94), opacity 300ms ease' : swipeOffsets()[proc.id] ? 'none' : 'transform 200ms ease, opacity 200ms ease'"
+            class="snap-center shrink-0 w-[78vw] max-w-[320px] h-[55vh] max-h-[460px] bg-gnome-surface border border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col cursor-pointer group relative touch-manipulation will-change-transform"
+          >
+            <div class="h-12 bg-gnome-header px-4 flex items-center justify-between border-b border-gnome-border/40 shrink-0">
+              <div class="flex items-center gap-2.5 truncate">
+                <div
+                  class="w-6 h-6 rounded-lg flex items-center justify-center text-white text-xs shadow-sm shrink-0"
+                  [style.background-color]="proc.color || '#3584e4'"
+                >
+                  <i [class]="proc.icon"></i>
+                </div>
+                <span class="text-xs font-bold text-gnome-text truncate">
+                  {{ $any(lang.t()).apps[proc.appId] || proc.title }}
+                </span>
+              </div>
+            </div>
+            <div class="flex-1 bg-gnome-bg flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+              <div
+                class="w-20 h-20 rounded-3xl flex items-center justify-center text-3xl text-white shadow-xl mb-4"
+                [style.background-color]="proc.color || '#3584e4'"
+              >
+                <i [class]="proc.icon"></i>
+              </div>
+              <span class="text-sm font-bold text-gnome-text">
+                {{ $any(lang.t()).apps[proc.appId] || proc.title }}
+              </span>
+              <span class="text-xs text-gnome-text-secondary mt-1 opacity-70">
+               {{ lang.t().mobileNav.tapToResume }}
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+    <div class="text-center text-white/40 text-[11px] font-medium" (click)="$event.stopPropagation()">
+      {{ lang.t().mobileNav.swipeToClose }} • {{ lang.t().mobileNav.swipeToBrowse }}
+    </div>
+  </div>
+}

@@ -5,7 +5,7 @@
     <app-shutdown (shutdown)="shutingDown.set($event)"></app-shutdown>
   }
 
-  <div class="relative h-screen w-screen overflow-hidden bg-gnome-bg">
+  <div class="relative w-screen overflow-hidden bg-gnome-bg" style="height:100dvh">
     <div class="absolute inset-0 z-0">
       @if (isAnimated()) {
         <video
@@ -32,12 +32,17 @@
         <app-desktop-icons></app-desktop-icons>
 
         @for (process of processManager.processes(); track process.id) {
-          <app-window [process]="process"></app-window>
+          <app-window class="contents" [process]="process"></app-window>
         }
 
         <app-apps-grid></app-apps-grid>
-        <app-dock></app-dock>
-        <app-window-switcher></app-window-switcher>
+        @if (!screen.isMobile()) {
+          <app-dock></app-dock>
+          <app-window-switcher></app-window-switcher>
+        } @else {
+          <app-mobile-nav-bar></app-mobile-nav-bar>
+          <app-mobile-overview></app-mobile-overview>
+        }
       </div>
     </div>
   </div>

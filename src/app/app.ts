@@ -13,9 +13,13 @@ import { NotificationService } from './core/services/notification';
 import { ProcessManager } from './core/services/process-manager';
 import { Settings } from './core/services/settings';
 import { Sound } from './core/services/sound';
+import { ScreenService } from './core/services/screen';
+import { Apps } from './core/services/apps';
 import { AppsGrid } from './layout/apps-grid/apps-grid';
 import { Dock } from './layout/dock/dock';
 import { WindowSwitcher } from './layout/window-switcher/window-switcher';
+import { MobileNavBar } from './layout/mobile-nav-bar/mobile-nav-bar';
+import { MobileOverview } from './layout/mobile-overview/mobile-overview';
 import { Window } from './shared/ui/window/window';
 import { TopBar } from './layout/top-bar/top-bar';
 import { Boot } from './shared/ui/boot/boot';
@@ -29,15 +33,28 @@ import { DesktopIcons } from './features/desktop-icons/desktop-icons';
   standalone: true,
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.Eager,
-  imports: [AppsGrid, Dock, WindowSwitcher, Window, TopBar, Boot, Shutdown, DesktopIcons],
+  imports: [
+    AppsGrid,
+    Dock,
+    WindowSwitcher,
+    MobileNavBar,
+    MobileOverview,
+    Window,
+    TopBar,
+    Boot,
+    Shutdown,
+    DesktopIcons,
+  ],
 })
 export class App {
   processManager = inject(ProcessManager);
   settingsService = inject(Settings);
   sound = inject(Sound);
+  screen = inject(ScreenService);
   lang = inject(LanguageService);
   notifications = inject(NotificationService);
   tipsService = inject(SystemTips);
+  private apps = inject(Apps);
 
   systemReady = signal(false);
   shutingDown = signal(false);
@@ -51,10 +68,19 @@ export class App {
 
   constructor() {
     effect(() => {
-      if (this.systemReady() && this.settingsService.tipsEnabled()) {
+      if (!this.systemReady()) return;
+
+      if (this.settingsService.tipsEnabled()) {
         this.tipsService.startRandomTips();
       }
 
+      const aboutApp = this.apps.appsRegistry().about;
+      if (aboutApp) {
+        setTimeout(() => this.apps.openApp(aboutApp), 1000);
+      }
+    });
+
+    effect(() => {
       this.settingsService.wallpaper();
       const videoEl = this.videoPlayer()?.nativeElement;
 
@@ -67,15 +93,16 @@ export class App {
 
   @HostListener('mousedown')
   onClick() {
-    if (this.systemReady()) {
+    if (this.systemReady() && !this.screen.isMobile()) {
       this.sound.play('mouse_down');
     }
   }
 
   @HostListener('mouseup')
   onMouseUp() {
-    if (this.systemReady()) {
+    if (this.systemReady() && !this.screen.isMobile()) {
       this.sound.play('mouse_up');
     }
   }
+
 }

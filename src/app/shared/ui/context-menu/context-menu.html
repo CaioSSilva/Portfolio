@@ -1,43 +1,67 @@
 @if (contextMenu.isOpen() && contextMenu.activeAppId()) {
   <div
-    (document:click)="contextMenu.close()"
+    (touchstart)="contextMenu.touchInsideMenu = true"
+    (touchend)="contextMenu.touchInsideMenu = true"
+    (document:click)="contextMenu.closeIfSettled()"
+    (document:touchstart)="contextMenu.closeIfSettled()"
     class="fixed z-[20000] min-w-[245px] bg-gnome-bg/95 backdrop-blur-md border border-gnome-border rounded-xl p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
     [style.left.px]="contextMenu.position().x"
     [style.top.px]="contextMenu.position().y"
-    [style.transform]="'translateY(-100%)'"
+    [style.transform]="contextMenu.opensBelow() ? 'none' : 'translateY(-100%)'"
   >
-    <button
-      (click)="dock.openActiveApp()"
-      class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
-    >
-      <i class="fas fa-plus"></i>
-      {{
-        process.hasActiveProcessesById(contextMenu.activeAppId()!)
-          ? lang.t().common.newInstance
-          : lang.t().common.openApp
-      }}
-    </button>
-    <button
-      (click)="
-        dock.hasPinnedAppWithId(contextMenu.activeAppId()!)
-          ? dock.unPinActiveApp()
-          : dock.pinApp(contextMenu.activeAppId()!)
-      "
-      class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
-    >
-      <i
-        [class]="
-          !dock.hasPinnedAppWithId(contextMenu.activeAppId()!)
-            ? 'fas fa-thumbtack'
-            : 'fas fa-thumbtack-slash'
+    @if (screen.isMobile()) {
+      @if (process.hasActiveProcessesById(contextMenu.activeAppId()!)) {
+        <button
+          (click)="dock.focusActiveApp()"
+          class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+        >
+          <i class="fas fa-arrow-up-right-from-square"></i>
+          {{ lang.t().common.openApp }}
+        </button>
+      } @else {
+        <button
+          (click)="dock.openActiveApp()"
+          class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+        >
+          <i class="fas fa-plus"></i>
+          {{ lang.t().common.openApp }}
+        </button>
+      }
+    } @else {
+      <button
+        (click)="dock.openActiveApp()"
+        class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+      >
+        <i class="fas fa-plus"></i>
+        {{
+          process.hasActiveProcessesById(contextMenu.activeAppId()!)
+            ? lang.t().common.newInstance
+            : lang.t().common.openApp
+        }}
+      </button>
+      <button
+        (click)="
+          dock.hasPinnedAppWithId(contextMenu.activeAppId()!)
+            ? dock.unPinActiveApp()
+            : dock.pinApp(contextMenu.activeAppId()!)
         "
-      ></i>
-      {{
-        dock.hasPinnedAppWithId(contextMenu.activeAppId()!)
-          ? lang.t().common.removeFromDock
-          : lang.t().common.addToDock
-      }}
-    </button>
+        class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
+      >
+        <i
+          [class]="
+            !dock.hasPinnedAppWithId(contextMenu.activeAppId()!)
+              ? 'fas fa-thumbtack'
+              : 'fas fa-thumbtack-slash'
+          "
+        ></i>
+        {{
+          dock.hasPinnedAppWithId(contextMenu.activeAppId()!)
+            ? lang.t().common.removeFromDock
+            : lang.t().common.addToDock
+        }}
+      </button>
+    }
+
     <button
       (click)="
         desktop.hasPinnedAppWithId(contextMenu.activeAppId()!)
@@ -59,6 +83,7 @@
           : lang.t().common.addToDesktop
       }}
     </button>
+
     @if (process.hasActiveProcessesById(contextMenu.activeAppId()!)) {
       <button
         (click)="dock.closeActiveApp()"

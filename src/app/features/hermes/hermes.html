@@ -1,9 +1,12 @@
-<div class="flex h-full flex-1 flex-col bg-gnome-bg p-6">
-  <div #scrollFrame class="flex-1 overflow-y-auto mb-4 pr-4 space-y-4 custom-scrollbar">
+<div class="flex h-full flex-1 flex-col bg-gnome-bg p-3 @sm:p-6">
+  <div #scrollFrame class="flex-1 overflow-y-auto mb-3 @sm:mb-4 pr-1 @sm:pr-4 space-y-3 @sm:space-y-4 custom-scrollbar">
     @if (messages().length === 0) {
-      <div class="flex flex-col items-center justify-center h-full text-center opacity-80">
-        <h1 class="text-[#00916E] font-bold text-3xl mb-2">{{ lang.t().hermes.welcome }}</h1>
-        <p class="text-sm text-gnome-text-secondary">{{ lang.t().hermes.desc }}</p>
+      <div class="flex flex-col items-center justify-center h-full text-center opacity-80 px-4">
+        <div class="w-16 h-16 rounded-2xl bg-[#00916E]/10 flex items-center justify-center mb-4 text-[#00916E]">
+          <i class="fas fa-feather-pointed text-2xl"></i>
+        </div>
+        <h1 class="text-[#00916E] font-bold text-2xl @sm:text-3xl mb-2">{{ lang.t().hermes.welcome }}</h1>
+        <p class="text-xs @sm:text-sm text-gnome-text-secondary max-w-sm">{{ lang.t().hermes.desc }}</p>
       </div>
     }
 
@@ -12,17 +15,17 @@
         <div
           [ngClass]="
             msg.role === 'user'
-              ? 'bg-[#00916E] text-white rounded-l-2xl rounded-tr-2xl'
-              : 'bg-gnome-surface border border-gnome-border text-gnome-text rounded-r-2xl rounded-tl-2xl'
+              ? 'bg-[#00916E] text-white rounded-2xl rounded-tr-sm'
+              : 'bg-gnome-surface border border-gnome-border text-gnome-text rounded-2xl rounded-tl-sm'
           "
-          class="max-w-[85%] p-1.5 shadow-sm text-sm overflow-hidden"
+          class="max-w-[92%] @sm:max-w-[85%] p-2 @sm:p-3 shadow-sm text-sm overflow-hidden"
         >
           @if (msg.image) {
-            <img [src]="msg.image" class="w-full max-h-80 object-cover rounded-xl" />
+            <img [src]="msg.image" class="w-full max-h-60 @sm:max-h-80 object-cover rounded-xl mb-2" />
           }
 
           @if (msg.text) {
-            <div class="p-2 leading-relaxed" [innerHTML]="msg.text | markdown"></div>
+            <div class="leading-relaxed" [innerHTML]="msg.text | markdown"></div>
           }
         </div>
       </div>
@@ -30,19 +33,18 @@
 
     @if (isLoading()) {
       <div class="flex justify-start">
-        <div class="bg-gnome-surface p-3 rounded-2xl animate-pulse flex items-center gap-2">
+        <div class="bg-gnome-surface p-2.5 @sm:p-3 rounded-2xl animate-pulse flex items-center gap-2 border border-gnome-border/40">
           <div class="w-2 h-2 bg-[#00916E] rounded-full animate-bounce"></div>
           <span class="text-xs italic text-gnome-text-secondary">Hermes...</span>
         </div>
       </div>
     }
   </div>
-
-  <div class="relative w-full max-w-2xl mx-auto">
+  <div class="relative w-full max-w-2xl mx-auto shrink-0">
     @if (previewUrl()) {
-      <div class="absolute -top-28 left-0 z-20 animate-in zoom-in-95 duration-200">
+      <div class="absolute -top-24 left-0 z-20 animate-in zoom-in-95 duration-200">
         <div class="relative p-1 bg-gnome-surface border border-gnome-border rounded-xl shadow-2xl">
-          <img [src]="previewUrl()" class="h-24 w-24 object-cover rounded-lg shadow-inner" />
+          <img [src]="previewUrl()" class="h-20 w-20 @sm:h-24 @sm:w-24 object-cover rounded-lg shadow-inner" />
           <button
             (click)="clearAttachment()"
             class="absolute -top-2 cursor-pointer -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] hover:bg-red-600 shadow-md transition-all active:scale-90"
@@ -55,9 +57,10 @@
 
     <div class="relative flex items-center">
       <label
-        class="absolute left-4 cursor-pointer text-gnome-text-secondary hover:text-[#00916E] transition-colors z-10"
+        class="absolute left-3.5 @sm:left-4 cursor-pointer text-gnome-text-secondary hover:text-[#00916E] transition-colors z-10"
+        title="Attach image"
       >
-        <i class="fas fa-image text-lg" [class.text-[#00916E]]="selectedFile()"></i>
+        <i class="fas fa-image text-lg @sm:text-xl" [class.text-[#00916E]]="selectedFile()"></i>
         <input type="file" class="hidden" (change)="onFileSelected($event)" accept="image/*" />
       </label>
 
@@ -66,15 +69,16 @@
         [(ngModel)]="userInput"
         (keyup.enter)="handleSendMessage()"
         [placeholder]="lang.t().hermes.ask"
-        class="w-full p-4 pl-12 pr-12 rounded-2xl border outline-none transition-all duration-300 bg-gnome-surface border-gnome-border text-gnome-text focus:border-[#00916E] focus:ring-4 focus:ring-[#00916E]/15 shadow-lg"
+        class="w-full p-3 @sm:p-4 pl-11 @sm:pl-12 pr-11 @sm:pr-12 rounded-2xl border outline-none text-sm @sm:text-base transition-all duration-300 bg-gnome-surface border-gnome-border text-gnome-text focus:border-[#00916E] focus:ring-4 focus:ring-[#00916E]/15 shadow-lg"
       />
 
       <button
         (click)="handleSendMessage()"
         [disabled]="isButtonDisabled()"
-        class="absolute right-4 text-[#00916E] cursor-pointer disabled:opacity-30 enabled:hover:scale-110 transition-transform active:scale-95"
+        class="absolute right-3 @sm:right-4 text-[#00916E] cursor-pointer disabled:opacity-30 enabled:hover:scale-110 transition-transform active:scale-90"
+        aria-label="Send message"
       >
-        <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-feather-pointed'"></i>
+        <i [class]="isLoading() ? 'fas fa-spinner fa-spin' : 'fas fa-paper-plane'" class="text-base @sm:text-lg"></i>
       </button>
     </div>
   </div>
