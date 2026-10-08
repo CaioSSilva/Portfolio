@@ -1,9 +1,9 @@
-# Complete Documentation — Cai_OS 2.0.0
+# Complete Documentation — Cai_OS 2.1.0
 
 ## 📋 Table of Contents
 
 1. [Overview](#-overview)
-2. [What's New in 2.0.0](#-whats-new-in-200)
+2. [What's New in 2.1.0](#-whats-new-in-210)
 3. [System Architecture](#️-system-architecture)
 4. [Technologies Used](#️-technologies-used)
 5. [Project Structure](#-project-structure)
@@ -58,32 +58,34 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 
 ---
 
-## 🆕 What's New in 2.0.0
+## 🆕 What's New in 2.1.0
 
-### Mobile Support (feature/mobile)
-
-Cai_OS 2.0.0 introduces full mobile support with a dedicated navigation paradigm:
+### Hermes AI — Model Selection
 
 | Feature | Description |
 |---|---|
-| **MobileNavBar** | Bottom navigation bar: Home, Overview, All Apps |
-| **MobileOverview** | Card-based multitasking view with swipe-up-to-close and horizontal scroll |
-| **Touch gestures** | Long-press context menu, swipe-up dismiss, tap-to-focus |
-| **Mobile windows** | All windows auto-maximize to `100vw × calc(100dvh − 80px)` |
-| **Pull-down top bar** | Swipe down from the top bar to open the notification center |
-| **Touch sounds** | No click sounds on mobile; mouse sounds (`mouse_down` / `mouse_up`) on desktop only |
-| **Boot screen** | Fully responsive with safe-area support and `touchend` trigger |
-| **About app** | Opens 1 s after boot on both desktop and mobile |
+| **Model picker** | Dropdown in the Hermes chat to select any available Gemini model |
+| **Dynamic listing** | Models fetched live from the Gemini REST API (`GET /v1beta/models`), filtered to `generateContent`-capable only |
+| **Persisted choice** | Selected model saved to `localStorage` via `Settings.geminiModel` (default: `gemini-2.0-flash-lite`) |
+| **API key fallback** | If `geminiApiKey` fails, automatically retries with `geminiApiKey2`; throws (notifies user) only if both fail |
+
+### Documents — Mobile UX
+
+| Feature | Description |
+|---|---|
+| **Responsive header** | Download button shows icon-only on narrow windows; filename truncates naturally |
+| **Floating zoom bar** | Pill-shaped control bar at the bottom (matches image-viewer style), visible when window width < 500 px |
+| **Pinch-to-zoom** | Two-finger pinch gesture on mobile (via `ScreenService.isMobile`) scales the PDF |
+| **Reset button** | While `isPinchZoomed`, the zoom % button becomes a compress icon to reset to 1× |
+| **Container-aware narrow** | `isNarrow` driven by `ResizeObserver` on the app window, not `window.innerWidth` |
 
 ### Performance
 
-| | v1.2.1 | v2.0.0 |
-|---|---|---|
-| Initial bundle | 995 kB | **492 kB** |
-| Lazy chunks | — | `document-viewer` 507 kB |
-| Budget warning | ⚠ yes | **✓ none** |
-
-The `DocumentViewer` (ng2-pdf-viewer + pdfjs-dist) is now lazy-loaded via dynamic `import()` — loaded only when a PDF is first opened.
+| | v1.2.1 | v2.0.0 | v2.1.0 |
+|---|---|---|---|
+| Initial bundle | 995 kB | **492 kB** | **492 kB** |
+| Lazy chunks | — | `document-viewer` 507 kB | `document-viewer` 507 kB |
+| Budget warning | ⚠ yes | **✓ none** | **✓ none** |
 
 ### Screen Breakpoints
 
@@ -95,8 +97,8 @@ The `DocumentViewer` (ng2-pdf-viewer + pdfjs-dist) is now lazy-loaded via dynami
 
 ### Test Suite
 
-- **48 test files · 450 tests · 0 failures**
-- New coverage: `ScreenService`, `MobileNavService`, `MobileNavBar`, `MobileOverview`, `WindowService` (mobile guards), `App` (About launch)
+- **48 test files · 480+ tests · 0 failures**
+- New coverage: `Gemini.listModels`, `Gemini` key-fallback, `Settings.geminiModel`, `DocumentViewer` pinch/reset/isNarrow, `Hermes` model picker
 
 ---
 
@@ -401,12 +403,12 @@ An `effect()` listens to `ScreenService.isMobile()` — switching to mobile forc
 | `AppRegistry` | `services/app-registry.ts` | App catalog, extension handler lookup |
 | `DockService` | `services/dock.ts` | Pinned apps, dock items, click handling |
 | `FileSystem` | `services/file-system.ts` | Virtual hierarchical file system |
-| `Settings` | `services/settings.ts` | Persisted settings (localStorage) |
+| `Settings` | `services/settings.ts` | Persisted settings (`dockSize`, `wallpaper`, `geminiModel`, …) |
 | `NotificationService` | `services/notification.ts` | Notification queue and panel |
 | `Sound` | `services/sound.ts` | AudioContext-based sound playback |
 | `Theme` | `services/theme.ts` | Light/dark theme toggle |
 | `LanguageService` | `services/language.ts` | i18n (pt / en) |
-| `GeminiService` | `services/gemini.ts` | Google Gemini API with key rotation |
+| `GeminiService` | `services/gemini.ts` | Google Gemini API — streaming, key fallback, model listing |
 | `TerminalCommands` | `services/terminal-comands.ts` | Unix-like command processing |
 | `SystemTips` | `services/system-tips.ts` | Periodic tips via notifications |
 | `DesktopIconsService` | `services/desktop-icons.ts` | Desktop shortcut management |
@@ -530,9 +532,14 @@ Drag apps from the grid to the dock to pin them at a specific position.
 | System Monitor | `systemMonitor` | — |
 | Hermes (AI) | `hermes` | — |
 
-### Documents — Lazy Loading
+### Documents — Lazy Loading & Mobile UX
 
 The PDF viewer (`ng2-pdf-viewer` + `pdfjs-dist`) is only loaded when the Documents app is first opened, reducing the initial bundle by ~503 kB.
+
+On narrow windows (< 500 px, measured via `ResizeObserver` on the app container), the Documents viewer switches to a mobile-optimised layout:
+- Floating zoom pill at the bottom (identical to the image-viewer toolbar)
+- Header shows only the download icon (no label text)
+- Pinch-to-zoom gesture enabled on mobile devices; pinch icon replaces the zoom % for a one-tap reset
 
 ---
 
@@ -687,9 +694,9 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 | Metric | Value |
 |---|---|
-| Version | **2.0.0** |
+| Version | **2.1.0** |
 | Test files | **48** |
-| Tests passing | **450 / 450** |
+| Tests passing | **480+ / 480+** |
 | Initial bundle | **492 kB** (−50% vs 1.x) |
 | Components | 28+ |
 | Services | 17 |

@@ -10,6 +10,7 @@ export class Settings {
   readonly systemMuted = signal<boolean>(this.load('soundMuted', false));
   readonly autoHideDock = signal<boolean>(this.load('autoHideDock', true));
   readonly tipsEnabled = signal<boolean>(this.load('tipsEnabled', true));
+  readonly geminiModel = signal<string>(this.load('geminiModel', 'gemini-2.0-flash-lite'));
 
   private readonly desktopWallpaper = signal<string>(
     this.load('wallpaper', '/wallpapers/desktop/default.webp')
@@ -31,6 +32,7 @@ export class Settings {
       this.save('autoHideDock', this.autoHideDock());
       this.save('soundMuted', this.systemMuted());
       this.save('tipsEnabled', this.tipsEnabled());
+      this.save('geminiModel', this.geminiModel());
     });
   }
 
@@ -52,6 +54,10 @@ export class Settings {
 
   toggleAutoHideDock() {
     this.autoHideDock.update((v) => !v);
+  }
+
+  setGeminiModel(model: string) {
+    this.geminiModel.set(model);
   }
 
   toggleSystemTips() {

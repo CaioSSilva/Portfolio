@@ -1,4 +1,4 @@
-# Complete Documentation - Cai_OS
+# Complete Documentation - Cai_OS 2.1.0
 
 ## 📋 Table of Contents
 1. [Overview](#-overview)
@@ -487,17 +487,17 @@ toggleTheme(): void
 Google Gemini AI integration.
 
 **Features**:
-- Text generation
+- Text generation (streaming)
 - Image analysis
-- API key rotation
-- Quota handling
+- Dual API key with automatic fallback (`geminiApiKey` → `geminiApiKey2`)
+- Dynamic model listing via REST (`GET /v1beta/models`)
+- Active model driven by `Settings.geminiModel` (persisted)
 
-**Main Method**:
+**Main Methods**:
 ```typescript
-async generateResponse(
-  prompt: string, 
-  fileData?: { mimeType: string; b64: string }
-): Promise<string>
+async generateResponse(prompt: string, history: string, fileData?: { mimeType: string; b64: string }): Promise<string>
+async generateResponseStream(prompt: string, history: string, fileData: ..., onChunk: (text: string) => void): Promise<string>
+async listModels(): Promise<GeminiModel[]>
 ```
 
 ### 9. TerminalCommands Service
@@ -836,11 +836,13 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 5. Documents (PDF Viewer)
 
 **Features**:
-- PDF rendering
+- PDF rendering (lazy-loaded via dynamic import)
 - Page navigation
-- Zoom
+- Zoom (header controls on desktop; floating pill bar on narrow windows)
+- Pinch-to-zoom on mobile with reset button
 - Download
 - List of available documents
+- Container-aware responsive layout (`ResizeObserver`, breakpoint: 500 px)
 
 **Library**: Uses `ng2-pdf-viewer`.
 
@@ -897,13 +899,14 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 9. Hermes (AI Assistant)
 
 **Features**:
-- Chat with AI (Google Gemini)
-- Image analysis
-- Contextualized responses
+- Chat with AI (Google Gemini) — streaming responses
+- Image analysis (attach image to message)
+- Contextualized responses with conversation history
 - Multilingual support
-- Modern chat interface
+- Model selector dropdown — lists all available Gemini models live from the API
+- System actions (open apps, change theme, show notifications, etc.)
 
-**Configuration**: Requires Google Gemini API key in `environment.ts`.
+**Configuration**: Requires Google Gemini API key (`geminiApiKey` + optional `geminiApiKey2`) in `environment.ts`.
 
 ### 10. About Project
 
@@ -1118,13 +1121,14 @@ This project is a personal portfolio. All rights reserved.
 
 ## 📊 Project Statistics
 
-- **Lines of Code**: ~17,000+
+- **Version**: 2.1.0
+- **Lines of Code**: ~17,500+
 - **Components**: 27+
 - **Services**: 17+
 - **Applications**: 10
 - **Languages**: 2
 - **Test Files**: 48
-- **Tests**: 457 (100% passing)
+- **Tests**: 480+ (100% passing)
 - **Performance Score**: 90+
 
 ---

@@ -4,31 +4,31 @@
 >
   @if (isViewingDocument() && safePath() && !hasError()) {
     <header
-      class="h-12 bg-gnome-surface border-b border-gnome-border flex items-center justify-between px-4 shrink-0 z-20 shadow-sm"
+      class="h-12 bg-gnome-surface border-b border-gnome-border flex items-center justify-between px-3 shrink-0 z-20 shadow-sm"
     >
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 min-w-0 flex-1">
         <button
           (click)="closeDocumentView()"
-          class="w-8 h-8 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-bg transition-colors"
+          class="w-8 h-8 shrink-0 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-bg transition-colors"
           [title]="lang.t().imageViewer.backButton"
         >
           <i class="fas fa-arrow-left text-gnome-text"></i>
         </button>
         <div
-          class="w-8 h-8 rounded-lg flex items-center justify-center bg-gnome-bg border border-gnome-border"
+          class="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-gnome-bg border border-gnome-border"
         >
           <i [class]="getFileIcon()" [style.color]="getIconColor()" aria-hidden="true"></i>
         </div>
         <span
-          class="text-[11px] font-bold text-gnome-text opacity-90 truncate max-w-[150px]"
+          class="text-[11px] font-bold text-gnome-text opacity-90 truncate"
           [title]="fileName()"
         >
           {{ fileName() }}
         </span>
       </div>
 
-      <div class="flex items-center gap-4">
-        @if (fileType() === 'pdf') {
+      <div class="flex items-center gap-2 shrink-0 ml-2">
+        @if (fileType() === 'pdf' && !isNarrow()) {
           <div
             class="flex items-center bg-gnome-bg border border-gnome-border rounded-full p-0.5 shadow-sm"
           >
@@ -49,7 +49,8 @@
             </button>
           </div>
         }
-        <div class="flex items-center gap-2">
+        <!-- mobile zoom moved to floating bar below -->
+        <div class="flex items-center gap-1">
           <button
             (click)="handleChangeDocument(-1)"
             [disabled]="isFirstDoc()"
@@ -73,12 +74,15 @@
         </div>
         <button
           (click)="fs.downloadFile(safePath()!, fileName())"
-          class="cursor-pointer hover:bg-gnome-blue-dark bg-gnome-blue border border-gnome-border rounded-full p-0.5 shadow-sm text-sm px-5 py-1.5 active:scale-95 transition-all text-white flex items-center gap-2"
+          [title]="lang.t().common.download"
+          class="cursor-pointer hover:bg-gnome-blue-dark bg-gnome-blue rounded-full active:scale-95 transition-all text-white flex items-center gap-2 px-2 py-1.5"
         >
           <i class="fas fa-download text-[11px]"></i>
-          <span class="text-[10px] font-bold uppercase tracking-tighter">{{
-            lang.t().common.download
-          }}</span>
+          @if (!isNarrow()) {
+            <span class="text-[10px] font-bold uppercase tracking-tighter pr-2">{{
+              lang.t().common.download
+            }}</span>
+          }
         </button>
       </div>
     </header>
@@ -174,7 +178,12 @@
       </div>
     }
     @if (isViewingDocument() && safePath() && !hasError()) {
-      <div class="flex-1 flex flex-col min-h-full p-6">
+      <div
+        class="flex-1 flex flex-col min-h-full p-6 relative"
+        style="touch-action: pan-y;"
+        (touchstart)="onTouchStart($event)"
+        (touchmove)="onTouchMove($event)"
+      >
         @if (fileType() === 'pdf') {
           <pdf-viewer
             [src]="safePath()!"
@@ -183,10 +192,46 @@
             [zoom]="zoom()"
             [autoresize]="true"
             [show-all]="true"
+            [fit-to-page]="false"
             (after-load-complete)="onPdfLoadSuccess()"
             (error)="onPdfLoadError()"
             class="mx-auto block shadow-2xl flex-1 w-full"
           ></pdf-viewer>
+
+          <!-- floating zoom bar — always visible when viewing PDF on narrow window -->
+          @if (isNarrow()) {
+            <div
+              class="sticky bottom-4 left-1/2 -translate-x-1/2 z-20 w-fit mx-auto flex items-center gap-1 p-1.5 bg-gnome-header/90 backdrop-blur-md border border-gnome-border rounded-full shadow-2xl transition-opacity hover:opacity-100 opacity-60"
+            >
+              <button
+                (click)="changeZoom(-0.1)"
+                class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
+              >
+                <i class="fas fa-search-minus"></i>
+              </button>
+              @if (isPinchZoomed()) {
+                <button
+                  (click)="resetZoom()"
+                  class="px-3 h-9 cursor-pointer flex items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text text-xs font-medium"
+                >
+                  <i class="fas fa-compress-alt text-sm"></i>
+                </button>
+              } @else {
+                <button
+                  (click)="resetZoom()"
+                  class="px-3 h-9 cursor-pointer flex items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text text-xs font-medium"
+                >
+                  {{ (zoom() * 100).toFixed(0) }}%
+                </button>
+              }
+              <button
+                (click)="changeZoom(0.1)"
+                class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
+              >
+                <i class="fas fa-search-plus"></i>
+              </button>
+            </div>
+          }
         } @else if (fileType() === 'text') {
           <div class="max-w-4xl mx-auto w-full">
             <pre

@@ -5,6 +5,7 @@ import { DocumentViewer } from './document-viewer';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
 import { FileSystem } from '../../core/services/file-system';
+import { ScreenService } from '../../core/services/screen';
 import { Sound } from '../../core/services/sound';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FileItem } from '../../core/models/file';
@@ -44,6 +45,8 @@ describe('DocumentViewer', () => {
     makeDoc('doc2', 'notes.txt', '/notes.txt'),
   ];
 
+  let screenSpy: { isMobile: ReturnType<typeof vi.fn> };
+
   beforeEach(async () => {
     fsSpy = {
       isLoaded: vi.fn().mockReturnValue(true),
@@ -64,6 +67,7 @@ describe('DocumentViewer', () => {
       error: vi.fn().mockReturnValue(null),
       isLoading: vi.fn().mockReturnValue(false),
     };
+    screenSpy = { isMobile: vi.fn().mockReturnValue(false) };
 
     await TestBed.configureTestingModule({
       imports: [DocumentViewer],
@@ -76,6 +80,7 @@ describe('DocumentViewer', () => {
         AppLauncher,
         ContextMenuService,
         { provide: FileSystem, useValue: fsSpy },
+        { provide: ScreenService, useValue: screenSpy },
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -224,5 +229,69 @@ describe('DocumentViewer', () => {
     expect(fsSpy.getSiblingsByUrl).toHaveBeenCalledWith('/resume.pdf', expect.any(Array));
     expect(component.availableDocs().length).toBe(1);
     expect(component.isViewingDocument()).toBe(true);
+  });
+
+  describe('isNarrow (ResizeObserver)', () => {
+    it('should start as false', () => {
+      expect(component.isNarrow()).toBe(false);
+    });
+
+    it('should set isNarrow true when container width < 500', () => {
+      component.isNarrow.set(true);
+      expect(component.isNarrow()).toBe(true);
+    });
+  });
+
+  describe('resetZoom', () => {
+    it('should reset zoom to 1.0 and clear isPinchZoomed', () => {
+      component.zoom.set(2.5);
+      component.isPinchZoomed.set(true);
+      component.resetZoom();
+      expect(component.zoom()).toBe(1.0);
+      expect(component.isPinchZoomed()).toBe(false);
+    });
+  });
+
+  describe('pinch zoom (mobile only)', () => {
+    const makeTouches = (d: number): TouchList => {
+      const half = d / 2;
+      return {
+        0: { clientX: 0, clientY: 0 } as Touch,
+        1: { clientX: half * Math.SQRT2, clientY: half * Math.SQRT2 } as Touch,
+        length: 2,
+        item: (i: number) => null,
+      } as unknown as TouchList;
+    };
+
+    it('should not change zoom when not mobile', () => {
+      screenSpy.isMobile.mockReturnValue(false);
+      component.zoom.set(1.0);
+      component.onTouchMove({ touches: makeTouches(200) } as TouchEvent);
+      expect(component.zoom()).toBe(1.0);
+    });
+
+    it('should change zoom when mobile and pinch distance diff > 18', () => {
+      screenSpy.isMobile.mockReturnValue(true);
+      component.zoom.set(1.0);
+      // bootstrap start distance
+      component.onTouchStart({ touches: makeTouches(100) } as TouchEvent);
+      // simulate a large open pinch
+      component.onTouchMove({ touches: makeTouches(200), preventDefault: vi.fn() } as unknown as TouchEvent);
+      expect(component.zoom()).toBeGreaterThan(1.0);
+    });
+
+    it('should set isPinchZoomed when zoom changes via pinch', () => {
+      screenSpy.isMobile.mockReturnValue(true);
+      component.onTouchStart({ touches: makeTouches(100) } as TouchEvent);
+      component.onTouchMove({ touches: makeTouches(200), preventDefault: vi.fn() } as unknown as TouchEvent);
+      expect(component.isPinchZoomed()).toBe(true);
+    });
+
+    it('should not react if only 1 touch point in onTouchStart', () => {
+      screenSpy.isMobile.mockReturnValue(true);
+      component.zoom.set(1.0);
+      component.onTouchStart({ touches: { length: 1 } } as unknown as TouchEvent);
+      expect(component.zoom()).toBe(1.0);
+    });
   });
 });

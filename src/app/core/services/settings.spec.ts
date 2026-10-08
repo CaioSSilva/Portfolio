@@ -41,4 +41,19 @@ describe('Settings', () => {
     service.toggleSystemSounds();
     expect(service.systemMuted()).toBe(!initialMute);
   });
+
+  it('should have default geminiModel', () => {
+    expect(service.geminiModel()).toBe('gemini-2.0-flash-lite');
+  });
+
+  it('should setGeminiModel update the signal', () => {
+    service.setGeminiModel('gemini-1.5-pro');
+    expect(service.geminiModel()).toBe('gemini-1.5-pro');
+  });
+
+  it('should setGeminiModel persist across multiple updates', () => {
+    service.setGeminiModel('gemini-ultra');
+    service.setGeminiModel('gemini-nano');
+    expect(service.geminiModel()).toBe('gemini-nano');
+  });
 });

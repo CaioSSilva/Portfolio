@@ -1,10 +1,11 @@
-import { Component, signal, computed, inject, effect, HostListener, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, inject, effect, HostListener, ChangeDetectionStrategy, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Base } from '../../core/models/base';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
 import { FileSystem } from '../../core/services/file-system';
+import { ScreenService } from '../../core/services/screen';
 import { FileItem, DOC_EXTENSIONS } from '../../core/models/file';
 
 @Component({
@@ -15,10 +16,12 @@ import { FileItem, DOC_EXTENSIONS } from '../../core/models/file';
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './document-viewer.scss',
 })
-export class DocumentViewer extends Base {
+export class DocumentViewer extends Base implements OnInit, OnDestroy {
   lang = inject(LanguageService);
   private appsService = inject(Apps);
   public fs = inject(FileSystem);
+  private hostEl = inject(ElementRef<HTMLElement>);
+  private screen = inject(ScreenService);
 
   fileType = signal<'pdf' | 'text' | 'unsupported'>('unsupported');
   fileName = signal('');
@@ -29,6 +32,15 @@ export class DocumentViewer extends Base {
   availableDocs = signal<FileItem[]>([]);
   selectedFile = signal<FileItem | null>(null);
   isViewingDocument = signal(false);
+  isNarrow = signal(false);
+  isPinchZoomed = signal(false);
+
+  private resizeObserver: ResizeObserver | null = null;
+
+  // pinch state
+  private pinchStartDistance = 0;
+  private pinchLastStepDistance = 0;
+  private pinchLastStepTime = 0;
 
   private isUpdatingFromNavigation = false;
 
@@ -58,6 +70,20 @@ export class DocumentViewer extends Base {
     if (docs.length === 0) return true;
     return index >= docs.length - 1;
   });
+
+  ngOnInit(): void {
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        const w = entries[0]?.contentRect.width ?? 0;
+        this.isNarrow.set(w > 0 && w < 500);
+      });
+      this.resizeObserver.observe(this.hostEl.nativeElement);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+  }
 
   constructor() {
     super();
@@ -211,6 +237,42 @@ export class DocumentViewer extends Base {
 
   changeZoom(v: number) {
     this.zoom.update((z) => Math.min(Math.max(0.3, z + v), 3.0));
+  }
+
+  resetZoom() {
+    this.zoom.set(1.0);
+    this.isPinchZoomed.set(false);
+  }
+
+  private getPinchDistance(touches: TouchList): number {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  onTouchStart(event: TouchEvent) {
+    if (!this.screen.isMobile() || event.touches.length !== 2) return;
+    const d = this.getPinchDistance(event.touches);
+    this.pinchStartDistance = d;
+    this.pinchLastStepDistance = d;
+    this.pinchLastStepTime = 0;
+  }
+
+  onTouchMove(event: TouchEvent) {
+    if (!this.screen.isMobile() || event.touches.length !== 2) return;
+    event.preventDefault();
+    const now = Date.now();
+    if (now - this.pinchLastStepTime < 120) return;
+
+    const distance = this.getPinchDistance(event.touches);
+    const diff = distance - this.pinchLastStepDistance;
+
+    if (Math.abs(diff) > 18) {
+      this.changeZoom(diff > 0 ? 0.1 : -0.1);
+      this.pinchLastStepDistance = distance;
+      this.pinchLastStepTime = now;
+      if (this.zoom() !== 1.0) this.isPinchZoomed.set(true);
+    }
   }
 
   getFileIcon() {

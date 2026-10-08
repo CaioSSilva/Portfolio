@@ -159,6 +159,16 @@ export const en = {
   settings: {
     title: 'Settings',
 
+    hermes: {
+      title: 'Hermes',
+      model: 'AI Model',
+      modelDesc: 'Select which Gemini model Hermes will use to respond',
+      loadingModels: 'Loading available models...',
+      errorModels: 'Could not load models. Check your API key.',
+      retryModels: 'Try again',
+      currentModel: 'Current model',
+    },
+
     appearance: {
       title: 'Appearance',
       colorScheme: 'Color Scheme',
@@ -386,5 +396,6 @@ export const en = {
     noFileHandler: 'The system doesnt hava an app capable to open that file!',
     enableToLoadFs: 'Unable to load the file system! Reload the page.',
     seviceUnavailable: 'Service unavailable at this time!',
+    actionExecutionFailed: 'Could not execute the action requested by Hermes.',
   },
 };

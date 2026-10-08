@@ -1,4 +1,4 @@
-# Documentação Completa - Cai_OS
+# Documentação Completa - Cai_OS 2.1.0
 
 ## 📋 Sumário
 
@@ -511,17 +511,17 @@ toggleTheme(): void
 Integração com Google Gemini AI.
 
 **Funcionalidades**:
-- Geração de texto
+- Geração de texto (streaming)
 - Análise de imagens
-- Rotação de API keys
-- Tratamento de quota
+- Fallback automático de API key (`geminiApiKey` → `geminiApiKey2`)
+- Listagem dinâmica de modelos via REST (`GET /v1beta/models`)
+- Modelo ativo controlado por `Settings.geminiModel` (persistido)
 
-**Método Principal**:
+**Métodos Principais**:
 ```typescript
-async generateResponse(
-  prompt: string, 
-  fileData?: { mimeType: string; b64: string }
-): Promise<string>
+async generateResponse(prompt: string, history: string, fileData?: { mimeType: string; b64: string }): Promise<string>
+async generateResponseStream(prompt: string, history: string, fileData: ..., onChunk: (text: string) => void): Promise<string>
+async listModels(): Promise<GeminiModel[]>
 ```
 
 ### 9. TerminalCommands Service
@@ -893,11 +893,13 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 5. Documents (Visualizador de PDFs)
 
 **Funcionalidades**:
-- Renderização de PDFs
+- Renderização de PDFs (carregamento lazy via dynamic import)
 - Navegação entre páginas
-- Zoom
+- Zoom (controles no header no desktop; barra flutuante em janelas estreitas)
+- Pinch-to-zoom no mobile com botão de reset
 - Download
 - Lista de documentos disponíveis
+- Layout responsivo ao container (`ResizeObserver`, breakpoint: 500 px)
 
 **Biblioteca**: Usa `ng2-pdf-viewer`.
 
@@ -955,13 +957,14 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 9. Hermes (Assistente IA)
 
 **Funcionalidades**:
-- Chat com IA (Google Gemini)
-- Análise de imagens
-- Respostas contextualizadas
+- Chat com IA (Google Gemini) — respostas em streaming
+- Análise de imagens (anexar imagem à mensagem)
+- Respostas contextualizadas com histórico de conversa
 - Suporte multilíngue
-- Interface de chat moderna
+- Seletor de modelo — lista todos os modelos Gemini disponíveis em tempo real
+- Ações no sistema (abrir apps, mudar tema, exibir notificações, etc.)
 
-**Configuração**: Requer API key do Google Gemini em `environment.ts`.
+**Configuração**: Requer API key do Google Gemini (`geminiApiKey` + `geminiApiKey2` opcional) em `environment.ts`.
 
 ### 10. About Project (Sobre o Projeto)
 
@@ -1198,13 +1201,14 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 📊 Estatísticas do Projeto
 
-- **Linhas de Código**: ~17.000+
+- **Versão**: 2.1.0
+- **Linhas de Código**: ~17.500+
 - **Componentes**: 27+
 - **Serviços**: 17+
 - **Aplicativos**: 10
 - **Idiomas**: 2
 - **Arquivos de Teste**: 48
-- **Testes**: 457 (100% passando)
+- **Testes**: 480+ (100% passando)
 - **Performance Score**: 90+
 
 ---

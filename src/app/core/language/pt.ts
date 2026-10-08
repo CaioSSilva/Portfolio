@@ -159,6 +159,16 @@ export const pt = {
   settings: {
     title: 'Ajustes',
 
+    hermes: {
+      title: 'Hermes',
+      model: 'Modelo de IA',
+      modelDesc: 'Selecione qual modelo Gemini o Hermes usará para responder',
+      loadingModels: 'Carregando modelos disponíveis...',
+      errorModels: 'Não foi possível carregar os modelos. Verifique sua API key.',
+      retryModels: 'Tentar novamente',
+      currentModel: 'Modelo atual',
+    },
+
     appearance: {
       title: 'Aparência',
       colorScheme: 'Esquema de Cores',
@@ -389,5 +399,6 @@ export const pt = {
     noFileHandler: 'O sistema não possui um aplicativo capaz de abrir este arquivo!',
     enableToLoadFs: 'Erro ao carregar sistema de arquivos! Recarregue a pagina.',
     seviceUnavailable: 'Serviço indisponível no momento!',
+    actionExecutionFailed: 'Não foi possível executar a ação solicitada pelo Hermes.',
   },
 };
