@@ -8,6 +8,6 @@ import { Component, input, output, ChangeDetectionStrategy } from '@angular/core
   styleUrl: './breadcrumbs.scss',
 })
 export class FilesBreadcrumbs {
-  items = input<{ id: string; name: string }[]>([]);
-  onJump = output<number>();
+  readonly items = input<{ id: string; name: string }[]>([]);
+  readonly onJump = output<number>();
 }

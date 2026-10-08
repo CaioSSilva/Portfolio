@@ -101,7 +101,7 @@
       <div>
         <div
           (click)="
-            fs.downloadFile(
+            fileSystem.downloadFile(
               `/data/root/home/documents/Cai_OS - ${lang.t().aboutProj.documentation}.md`,
               `Cai_OS - ${lang.t().aboutProj.documentation}.md`
             )
@@ -122,7 +122,7 @@
 
         <div
           (click)="
-            fs.downloadFile(
+            fileSystem.downloadFile(
               'https://github.com/CaioSSilva/Portfolio/archive/refs/heads/main.zip',
               `Portfolio-main.zip`
             )
@@ -324,30 +324,34 @@
       <a
         href="https://github.com/CaioSSilva"
         target="_blank"
+        aria-label="GitHub"
         class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:border-white/40 hover:bg-zinc-800 text-gnome-text hover:text-white"
       >
-        <i class="fab fa-github"></i>
+        <i class="fab fa-github" aria-hidden="true"></i>
       </a>
       <a
         href="https://www.linkedin.com/in/caio-souza-silva/"
         target="_blank"
+        aria-label="LinkedIn"
         class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:border-blue-400/40 hover:bg-[#0077b5] text-gnome-text hover:text-white"
       >
-        <i class="fab fa-linkedin-in"></i>
+        <i class="fab fa-linkedin-in" aria-hidden="true"></i>
       </a>
       <a
         href="https://www.instagram.com/caios_silvaa/"
         target="_blank"
+        aria-label="Instagram"
         class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:border-pink-400/40 hover:bg-gradient-to-tr hover:from-[#f9ce34] hover:via-[#ee2a7b] hover:to-[#6228d7] text-gnome-text hover:text-white"
       >
-        <i class="fab fa-instagram"></i>
+        <i class="fab fa-instagram" aria-hidden="true"></i>
       </a>
       <a
         href="https://twitter.com/Caiomas_levanto"
         target="_blank"
+        aria-label="X (Twitter)"
         class="w-12 h-12 bg-gnome-surface border border-gnome-border rounded-2xl flex items-center justify-center text-xl transition-all duration-300 hover:scale-110 hover:border-zinc-400/40 hover:bg-black text-gnome-text hover:text-white"
       >
-        <i class="fab fa-x-twitter"></i>
+        <i class="fab fa-x-twitter" aria-hidden="true"></i>
       </a>
     </div>
   </div>

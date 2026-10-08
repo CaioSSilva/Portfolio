@@ -3,7 +3,7 @@
 >
   @if (!isNarrow()) {
     <app-files-sidebar
-      [tree]="fs.tree()"
+      [tree]="fileSystem.tree()"
       [width]="sidebarWidth()"
       [currentFolderId]="currentFolderId()"
       [selectedId]="selectedId()"
@@ -28,10 +28,13 @@
     <div
       class="fixed top-0 bottom-0 left-0 w-full bg-gnome-surface z-50 shadow-2xl border-r border-gnome-border flex flex-col overflow-hidden animate-in slide-in-from-left duration-200"
     >
-      <div class="h-12 flex items-center justify-between px-4 border-b border-gnome-border shrink-0">
+      <div
+        class="h-12 flex items-center justify-between px-4 border-b border-gnome-border shrink-0"
+      >
         <span class="font-bold text-sm text-gnome-text">{{ lang.t().files.locations }}</span>
         <button
           (click)="isMobileSidebarOpen.set(false)"
+          [attr.aria-label]="lang.t().files.closeSidebar"
           class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-black/10 text-gnome-text-secondary"
         >
           <i class="fas fa-times text-xs"></i>
@@ -39,7 +42,7 @@
       </div>
       <div class="flex-1 overflow-y-auto overflow-x-hidden">
         <app-files-sidebar
-          [tree]="fs.tree()"
+          [tree]="fileSystem.tree()"
           [width]="0"
           [currentFolderId]="currentFolderId()"
           [selectedId]="selectedId()"
@@ -60,6 +63,7 @@
             (click)="isMobileSidebarOpen.set(true)"
             class="flex-none cursor-pointer w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/5 active:bg-black/10 text-gnome-text transition-colors touch-manipulation"
             title="Locations"
+            aria-label="Locations"
           >
             <i class="fas fa-bars text-sm"></i>
           </button>
@@ -69,6 +73,7 @@
           (click)="goBack()"
           [disabled]="pathIds().length <= 1"
           [title]="lang.t().files.back"
+          [attr.aria-label]="lang.t().files.back"
           class="flex-none cursor-pointer w-7 h-7 rounded flex items-center justify-center hover:bg-black/5 disabled:opacity-20 transition-opacity outline-none touch-manipulation"
         >
           <i class="fas fa-chevron-left text-xs"></i>
@@ -82,7 +87,9 @@
         </app-files-breadcrumbs>
         @if (!isNarrow()) {
           <div class="relative flex-none flex items-center w-32">
-            <i class="fas fa-search absolute left-2.5 text-[10px] text-gnome-text-secondary opacity-50"></i>
+            <i
+              class="fas fa-search absolute left-2.5 text-[10px] text-gnome-text-secondary opacity-50"
+            ></i>
             <input
               type="text"
               [ngModel]="searchQuery()"
@@ -91,7 +98,11 @@
               class="w-full h-8 pl-8 pr-8 py-1 text-[12px] bg-black/5 dark:bg-white/5 border border-gnome-border rounded-md text-gnome-text outline-none focus:ring-1 focus:ring-gnome-blue/50 transition-all placeholder:opacity-50"
             />
             @if (searchQuery()) {
-              <button (click)="searchQuery.set('')" class="absolute cursor-pointer right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text">
+              <button
+                (click)="searchQuery.set('')"
+                aria-label="Clear search"
+                class="absolute cursor-pointer right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text"
+              >
                 <i class="fas fa-times-circle text-[10px]"></i>
               </button>
             }
@@ -104,6 +115,7 @@
             [class.bg-black/10]="viewMode() === 'grid'"
             [class.text-gnome-blue]="viewMode() === 'grid'"
             [title]="lang.t().files.gridView"
+            [attr.aria-label]="lang.t().files.gridView"
             class="w-8 h-7 cursor-pointer flex justify-center items-center bg-gnome-surface hover:bg-black/5 border-r border-gnome-border outline-none touch-manipulation"
           >
             <i class="fas fa-th-large text-[10px]"></i>
@@ -113,6 +125,7 @@
             [class.bg-black/10]="viewMode() === 'list'"
             [class.text-gnome-blue]="viewMode() === 'list'"
             [title]="lang.t().files.listView"
+            [attr.aria-label]="lang.t().files.listView"
             class="w-8 cursor-pointer h-7 flex justify-center items-center bg-gnome-surface hover:bg-black/5 outline-none touch-manipulation"
           >
             <i class="fas fa-list text-[10px]"></i>
@@ -120,34 +133,36 @@
         </div>
       </div>
       @if (isNarrow()) {
-      <div class="h-10 flex items-center px-2 border-t border-gnome-border/50">
-        <div class="relative flex-1 flex items-center">
-          <i class="fas fa-search absolute left-2.5 text-[10px] text-gnome-text-secondary opacity-50"></i>
-          <input
-            type="text"
-            [ngModel]="searchQuery()"
-            (ngModelChange)="searchQuery.set($event)"
-            [placeholder]="lang.t().files.searchPlaceholder"
-            class="w-full h-8 pl-8 pr-8 py-1 text-[12px] bg-black/5 dark:bg-white/5 border border-gnome-border rounded-md text-gnome-text outline-none focus:ring-1 focus:ring-gnome-blue/50 transition-all placeholder:opacity-50"
-          />
-          @if (searchQuery()) {
-            <button
-              (click)="searchQuery.set('')"
-              class="absolute cursor-pointer right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text touch-manipulation"
-            >
-              <i class="fas fa-times-circle text-[10px]"></i>
-            </button>
-          }
+        <div class="h-10 flex items-center px-2 border-t border-gnome-border/50">
+          <div class="relative flex-1 flex items-center">
+            <i
+              class="fas fa-search absolute left-2.5 text-[10px] text-gnome-text-secondary opacity-50"
+            ></i>
+            <input
+              type="text"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+              [placeholder]="lang.t().files.searchPlaceholder"
+              class="w-full h-8 pl-8 pr-8 py-1 text-[12px] bg-black/5 dark:bg-white/5 border border-gnome-border rounded-md text-gnome-text outline-none focus:ring-1 focus:ring-gnome-blue/50 transition-all placeholder:opacity-50"
+            />
+            @if (searchQuery()) {
+              <button
+                (click)="searchQuery.set('')"
+                [attr.aria-label]="lang.t().files.clearSearch"
+                class="absolute cursor-pointer right-2 w-5 h-5 flex items-center justify-center text-gnome-text-secondary hover:text-gnome-text touch-manipulation"
+              >
+                <i class="fas fa-times-circle text-[10px]"></i>
+              </button>
+            }
+          </div>
         </div>
-      </div>
       }
-
     </header>
     <main
       class="flex-1 overflow-y-auto select-none bg-gnome-bg custom-scrollbar relative p-1"
       (click)="selectedId.set(null)"
     >
-      @if (fs.isLoaded()) {
+      @if (fileSystem.isLoaded()) {
         @if (viewMode() === 'grid') {
           <app-files-grid
             [files]="filteredFiles()"
@@ -171,7 +186,9 @@
     <footer
       class="h-10 shrink-0 flex items-center justify-between px-3 @min-[680px]:px-4 bg-gnome-header border-t border-gnome-border z-10"
     >
-      <div class="text-[10px] uppercase tracking-widest font-bold text-gnome-text opacity-60 truncate">
+      <div
+        class="text-[10px] uppercase tracking-widest font-bold text-gnome-text opacity-60 truncate"
+      >
         {{ filteredFiles().length }}
         {{ filteredFiles().length === 1 ? lang.t().files.item : lang.t().files.items }}
       </div>
@@ -187,7 +204,7 @@
               step="10"
               [value]="gridSize()"
               (input)="updateGridSize($event)"
-              [style.--slider-pct]="((gridSize() - 80) / (300 - 80) * 100) + '%'"
+              [style.--slider-pct]="((gridSize() - 80) / (300 - 80)) * 100 + '%'"
               class="gnome-slider w-20 @min-[680px]:w-24 h-1 appearance-none cursor-pointer rounded-full"
             />
             <i class="fas fa-plus text-[8px] text-gnome-text-secondary opacity-40"></i>

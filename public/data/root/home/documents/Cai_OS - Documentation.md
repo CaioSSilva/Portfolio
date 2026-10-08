@@ -1,6 +1,7 @@
 # Complete Documentation - Cai_OS 2.5.0
 
 ## 📋 Table of Contents
+
 1. [Overview](#-overview)
 2. [System Architecture](#️-system-architecture)
 3. [Technologies Used](#️-technologies-used)
@@ -31,6 +32,7 @@
 ### Project Goal
 
 Cai_OS was developed as an interactive portfolio that demonstrates:
+
 - Advanced mastery of Angular and TypeScript
 - Scalable software architecture
 - Interface design inspired by modern operating systems
@@ -104,18 +106,21 @@ User Interaction
 ## 🛠️ Technologies Used
 
 ### Styling
+
 - **Tailwind CSS 4.1.18**: Utility-first CSS framework
 - **SCSS**: CSS preprocessor
 - **PostCSS 8.5.6**: CSS processing
 - **Font Awesome 7.1.0**: Icon library
 
 ### External Libraries
+
 - **@google/generative-ai 0.24.1**: Google Gemini integration
 - **ng2-pdf-viewer 10.4.0**: PDF viewing
 - **@vercel/analytics 1.6.1**: Analytics
 - **@vercel/speed-insights 1.3.1**: Performance metrics
 
 ### Development Tools
+
 - **Angular CLI 22.0.4**: Angular CLI
 - **TypeScript 6.0.3**: Type-safe superset of JavaScript
 - **Vitest 4.0.18**: Testing framework
@@ -227,12 +232,14 @@ Portfolio-main/
 Root component of the application that manages the global system state.
 
 **Responsibilities**:
+
 - System initialization
 - Management of interaction sounds
 - Boot and shutdown control
 - Coordination between main services
 
 **Main Code**:
+
 ```typescript
 @Component({
   selector: 'app-root',
@@ -258,6 +265,7 @@ export class App {
 Component that represents an application window with full management features.
 
 **Features**:
+
 - Drag
 - Resize
 - Maximize/Restore
@@ -267,6 +275,7 @@ Component that represents an application window with full management features.
 - Dynamic focus and z-index
 
 **Main Methods**:
+
 - `startDrag()`: Starts window dragging
 - `startResize()`: Starts resizing
 - `maximize()`: Maximizes the window
@@ -280,6 +289,7 @@ Component that represents an application window with full management features.
 Bottom taskbar that displays pinned and running applications.
 
 **Features**:
+
 - Display of pinned apps
 - Running app indicators
 - Context menu (right-click)
@@ -294,6 +304,7 @@ Bottom taskbar that displays pinned and running applications.
 System top bar with clock, app menu, and power button.
 
 **Features**:
+
 - Real-time clock
 - Access to app grid
 - Notification center
@@ -307,6 +318,7 @@ System top bar with clock, app menu, and power button.
 Application grid with search and categorization.
 
 **Features**:
+
 - Display of all installed apps
 - Search by name
 - Drag to dock
@@ -319,6 +331,7 @@ Application grid with search and categorization.
 Window switcher activated by `Ctrl+\``.
 
 **Features**:
+
 - List of open windows
 - Keyboard navigation
 - Visual window preview
@@ -331,6 +344,7 @@ Window switcher activated by `Ctrl+\``.
 Bottom navigation bar shown exclusively on mobile devices.
 
 **Features**:
+
 - Home button (minimizes all open windows)
 - Overview button (opens the app overview)
 - App drawer button (opens the apps grid)
@@ -343,6 +357,7 @@ Bottom navigation bar shown exclusively on mobile devices.
 Overlay that displays all open application windows as cards for quick switching on mobile.
 
 **Features**:
+
 - Sorted card list (by z-index)
 - Tap to focus and close overview
 - Swipe-up gesture to dismiss a process (auto-closes overview when the last process is dismissed)
@@ -360,6 +375,7 @@ Overlay that displays all open application windows as cards for quick switching 
 Manages all running processes (applications).
 
 **Responsibilities**:
+
 - Create new processes
 - Close processes
 - Manage focus (z-index)
@@ -367,6 +383,7 @@ Manages all running processes (applications).
 - Maintain list of active processes
 
 **Main Methods**:
+
 ```typescript
 start(app: AppDefinition, args?: any[]): void
 kill(processId: string): void
@@ -382,6 +399,7 @@ toggleMaximize(processId: string): void
 Hierarchical virtual file system.
 
 **Structure**:
+
 ```typescript
 interface FileNode {
   name: string;
@@ -395,6 +413,7 @@ interface FileNode {
 ```
 
 **Main Methods**:
+
 - `getNodeByPath()`: Search file/folder by path
 - `listDirectory()`: List directory contents
 - `createFile()`: Create new file
@@ -408,6 +427,7 @@ interface FileNode {
 Manages system settings.
 
 **Available Settings**:
+
 - Theme (light/dark)
 - Wallpaper
 - Dock icon size
@@ -425,13 +445,15 @@ Manages system settings.
 Internationalization system (i18n).
 
 **Supported Languages**:
+
 - Portuguese (pt)
 - English (en)
 
 **Usage**:
+
 ```typescript
-lang.t().apps.files // Returns translation
-lang.setLanguage('pt') // Changes language
+lang.t().apps.files; // Returns translation
+lang.setLanguage('pt'); // Changes language
 ```
 
 ### 5. NotificationService
@@ -441,12 +463,14 @@ lang.setLanguage('pt') // Changes language
 Manages system notifications.
 
 **Notification Types**:
+
 - Info
 - Success
 - Warning
 - Error
 
 **Main Methods**:
+
 ```typescript
 show(title: string, message: string, type: NotificationType): void
 clear(id: string): void
@@ -460,6 +484,7 @@ clearAll(): void
 Plays system sound effects.
 
 **Available Sounds**:
+
 - `mouse_down`: Mouse click
 - `mouse_up`: Mouse release
 - `notification`: Notification sound
@@ -472,10 +497,12 @@ Plays system sound effects.
 Manages the visual theme of the system.
 
 **Themes**:
+
 - `light`: Light theme
 - `dark`: Dark theme
 
 **Main Method**:
+
 ```typescript
 setTheme(theme: 'light' | 'dark'): void
 toggleTheme(): void
@@ -488,6 +515,7 @@ toggleTheme(): void
 Google Gemini AI integration.
 
 **Features**:
+
 - Text generation (streaming)
 - Image analysis
 - Dual API key with automatic fallback (`geminiApiKey` → `geminiApiKey2`)
@@ -495,6 +523,7 @@ Google Gemini AI integration.
 - Active model driven by `Settings.geminiModel` (persisted)
 
 **Main Methods**:
+
 ```typescript
 async generateResponse(prompt: string, history: string, fileData?: { mimeType: string; b64: string }): Promise<string>
 async generateResponseStream(prompt: string, history: string, fileData: ..., onChunk: (text: string) => void): Promise<string>
@@ -508,6 +537,7 @@ async listModels(): Promise<GeminiModel[]>
 Implements Unix-like commands for the terminal.
 
 **Available Commands**:
+
 - `ls`: List files
 - `cd`: Navigate between directories
 - `open`: Open files
@@ -526,6 +556,7 @@ Implements Unix-like commands for the terminal.
 Tracks the current viewport size and device type reactively.
 
 **Breakpoints**:
+
 - `isMobile`: width < 768px
 - `isTablet`: 768px ≤ width < 1024px
 - `isDesktop`: width ≥ 1024px
@@ -541,12 +572,14 @@ Tracks the current viewport size and device type reactively.
 Controls the mobile navigation state (overview and app drawer).
 
 **Responsibilities**:
+
 - Toggle/open/close the mobile overview panel
 - "Go home" action (minimizes all processes)
 - Open app and close the drawer in one step
 - Toggle the app drawer
 
 **Main Methods**:
+
 ```typescript
 toggleOverview(): void
 openOverview(): void
@@ -571,6 +604,7 @@ A `shownIndexes` set tracks which tips have been displayed. Once all tips in the
 **Mobile tip pool** (11 tips): swipe-to-overview, swipe-to-close, tap-to-resume, All Apps grid, Hermes commands, notifications, Files navigation, Settings, Terminal, synced lyrics.
 
 **Main Methods**:
+
 ```typescript
 startRandomTips(): void       // first tip after 15 s, then every 7–10 min
 stopTips(): void              // clears pending timer
@@ -611,6 +645,7 @@ Central registry and search hub for all applications installed in the system.
 ## 📊 Data Models
 
 ### 1. Process Model
+
 ```typescript
 interface Process {
   id: string;
@@ -624,6 +659,7 @@ interface Process {
 ```
 
 ### 2. AppDefinition Model
+
 ```typescript
 interface AppDefinition {
   id: string;
@@ -636,6 +672,7 @@ interface AppDefinition {
 ```
 
 ### 3. FileNode Model
+
 ```typescript
 interface FileNode {
   name: string;
@@ -650,6 +687,7 @@ interface FileNode {
 ```
 
 ### 4. Notification Model
+
 ```typescript
 interface Notification {
   id: string;
@@ -662,14 +700,15 @@ interface Notification {
 ```
 
 ### 5. Setting Model
+
 ```typescript
 // Settings signals (from Settings service)
-dockSize: signal<number>           // Dock icon size (px)
-desktopSize: signal<number>        // Desktop icon size (px)
-systemMuted: signal<boolean>       // System sounds muted
-autoHideDock: signal<boolean>      // Auto-hide the dock
-tipsEnabled: signal<boolean>       // System tips on/off
-wallpaper: computed<string>        // Active wallpaper (desktop or mobile)
+dockSize: signal<number>; // Dock icon size (px)
+desktopSize: signal<number>; // Desktop icon size (px)
+systemMuted: signal<boolean>; // System sounds muted
+autoHideDock: signal<boolean>; // Auto-hide the dock
+tipsEnabled: signal<boolean>; // System tips on/off
+wallpaper: computed<string>; // Active wallpaper (desktop or mobile)
 ```
 
 > **Note**: Wallpaper is now split into `desktopWallpaper` and `mobileWallpaper` internally. `setWallpaper()` automatically writes to the correct signal based on `ScreenService.isMobile()`.
@@ -681,7 +720,9 @@ wallpaper: computed<string>        // Active wallpaper (desktop or mobile)
 ### 1. Window Management
 
 #### Snap (Auto-Docking)
+
 The system offers automatic window snapping to screen edges and corners:
+
 - **Left Edge**: 50% of screen on the left
 - **Right Edge**: 50% of screen on the right
 - **Top Left Corner**: 25% (1/4 top left)
@@ -692,7 +733,9 @@ The system offers automatic window snapping to screen edges and corners:
 **Implementation**: When dragging a window near edges (15px), a visual "ghost" shows the snap area.
 
 #### Resizing
+
 Windows can be resized in 8 directions:
+
 - North (N)
 - South (S)
 - East (E)
@@ -705,13 +748,17 @@ Windows can be resized in 8 directions:
 **Limits**: Minimum width of 320px and minimum height of 240px.
 
 #### Maximize/Restore
+
 Double-click on the title bar to maximize/restore the window.
 
 #### Minimize
+
 Minimizes the window to the dock, keeping the process active.
 
 ### 2. Virtual File System
+
 Complete hierarchical structure with folders and files:
+
 ```
 /home/
   ├── documents/
@@ -730,21 +777,25 @@ Complete hierarchical structure with folders and files:
 ```
 
 **Supported Operations**:
+
 - Navigation (cd)
 - Listing (ls)
 - File opening (open)
 - Search
 
 ### 3. Interactive Terminal
+
 Functional terminal with Unix-like commands.
 
 **Features**:
+
 - Command history (↑/↓)
 - Autocomplete
 - Output colorization
 - Current path
 
 **Usage Examples**:
+
 ```bash
 $ ls
 documents  photos  music  certificates
@@ -757,31 +808,40 @@ Theme changed to dark
 ```
 
 ### 4. Notification Center
+
 Centralized notification system with:
+
 - Relative timestamp (now, 5min ago, etc)
 - Read marking
 - Individual or bulk clearing
 - Visual types (info, success, warning, error)
 
 ### 5. App Switcher (Ctrl+`)
+
 Quick navigation between open windows:
+
 - Activated by `Ctrl+\``
 - Visual preview of each window
 - Keyboard navigation (Tab)
 - Instant focus
 
 ### 6. Context Menu
+
 Right-click on dock icons:
+
 - Open application
 - New instance
 - Close application
 - Remove from dock
 
 ### 7. Drag and Drop
+
 Drag applications from the grid to the dock to pin them.
 
 ### 8. Mobile Navigation (feature/mobile)
+
 On devices with width < 768px the desktop layout is replaced by a mobile-optimised experience:
+
 - **MobileNavBar**: fixed bottom bar with Home, Overview, and App Drawer buttons
 - **MobileOverview**: fullscreen card grid of open windows; tap to focus, swipe-up to close; auto-closes when the last process is dismissed
 - **Adaptive Wallpapers**: separate wallpaper sets for `public/wallpapers/desktop/` and `public/wallpapers/mobile/`
@@ -795,6 +855,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 1. Files (File Manager)
 
 **Features**:
+
 - Folder navigation
 - Grid or list view
 - Breadcrumbs
@@ -804,6 +865,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 - Size information
 
 **Components**:
+
 - `FilesComponent`: Main component
 - `BreadcrumbsComponent`: Path navigation
 - `SidebarComponent`: Location sidebar
@@ -813,6 +875,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 2. Firefox (Web Browser)
 
 **Features**:
+
 - URL navigation
 - Iframe for external sites
 - Error handling (CORS)
@@ -824,6 +887,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 3. Terminal
 
 **Features**:
+
 - Unix-like commands
 - Command history
 - Dynamic path
@@ -835,6 +899,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 4. Photos (Image Viewer)
 
 **Features**:
+
 - Image gallery
 - Full-screen viewing
 - Image navigation (previous/next)
@@ -844,6 +909,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 5. Documents (Document Viewer)
 
 **Features**:
+
 - PDF rendering (lazy-loaded via dynamic import)
 - Markdown (`.md`) rendering with full formatting — same engine as Hermes
 - Page navigation
@@ -852,7 +918,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 - Horizontal swipe to navigate between documents on mobile (blocked when zoom > 1)
 - Download
 - List of available documents (differentiated icon for `.md` files)
-- Container-aware responsive layout (`ResizeObserver`, breakpoint: 500 px)
+- Container-aware responsive layout (`ScreenService` / `window.resize`, breakpoint: 500 px)
 
 **Supported Formats**: PDF, TXT, MD and other text files.
 
@@ -861,6 +927,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 6. Musics (Music Player)
 
 **Features**:
+
 - Music library with collapsible sidebar
 - Player controls (Play/Pause, Previous/Next)
 - Seek bar with click and drag
@@ -876,6 +943,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 - Seek debounce (80 ms) to avoid rebuffer glitches when jumping lyrics lines
 
 **Services**:
+
 - `AudioPlayer` (`player/audio-player.ts`): controls native `<audio>` via Angular Signals
 - `LyricsService` (`player/lyrics.service.ts`): fetches LRCLIB, parses LRC, active line via binary search
 
@@ -886,25 +954,32 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 7. Settings
 
 **Sections**:
+
 #### Appearance
+
 - Color scheme (light/dark)
 - Wallpaper (separate sets for desktop and mobile)
 
 #### Desktop
-- Auto-hide dock *(desktop only — hidden on mobile)*
-- Dock icon size *(desktop only)*
+
+- Auto-hide dock _(desktop only — hidden on mobile)_
+- Dock icon size _(desktop only)_
 - Desktop icon size
 
 #### Sound
+
 - System sounds (on/off)
 
 #### System
+
 - System tips (on/off)
 
 #### Language
+
 - Portuguese/English
 
 #### About
+
 - System name
 - Version
 - Hardware information
@@ -913,6 +988,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 8. System Monitor
 
 **Features**:
+
 - List of active processes
 - Actions (close process)
 - Network information
@@ -924,6 +1000,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 9. Hermes (AI Assistant)
 
 **Features**:
+
 - Chat with AI (Google Gemini) — streaming responses
 - Image analysis (attach image to message)
 - Contextualized responses with conversation history
@@ -937,6 +1014,7 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ### 10. About Project
 
 **Content**:
+
 - Developer's vision
 - System features
 - Application descriptions
@@ -948,10 +1026,12 @@ On devices with width < 768px the desktop layout is replaced by a mobile-optimis
 ## 🔧 Installation and Configuration
 
 ### Prerequisites
+
 - Node.js 18+ and npm 11+
 - Angular CLI 21+
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -965,28 +1045,33 @@ npm start
 ```
 
 ### Environment Configuration
+
 Edit `src/environments/environment.ts`:
+
 ```typescript
 export const environment = {
   production: false,
   geminiApiKeys: [
     'YOUR_API_KEY_HERE',
-    'YOUR_BACKUP_API_KEY' // Optional
-  ]
+    'YOUR_BACKUP_API_KEY', // Optional
+  ],
 };
 ```
 
 **Get Gemini API Key**:
+
 1. Access [Google AI Studio](https://makersuite.google.com/app/apikey)
 2. Create a new API key
 3. Paste into environment file
 
 ### Production Environment
+
 Edit `src/environments/environment.ts` for production:
+
 ```typescript
 export const environment = {
   production: true,
-  geminiApiKeys: ['PRODUCTION_API_KEY']
+  geminiApiKeys: ['PRODUCTION_API_KEY'],
 };
 ```
 
@@ -995,6 +1080,7 @@ export const environment = {
 ## 📜 Available Commands
 
 ### NPM Scripts
+
 ```bash
 # Start development server
 npm start
@@ -1018,8 +1104,9 @@ ng generate service service-name
 ```
 
 ### Terminal Commands (inside the app)
+
 | Command    | Description                  | Example               |
-|------------|------------------------------|-----------------------|
+| ---------- | ---------------------------- | --------------------- |
 | `help`     | Display command list         | `help`                |
 | `ls`       | List directory files         | `ls`                  |
 | `cd`       | Navigate between directories | `cd documents`        |
@@ -1036,7 +1123,9 @@ ng generate service service-name
 ## 🎨 Customization
 
 ### Changing Theme Colors
+
 Edit `src/styles.scss`:
+
 ```scss
 :root {
   --primary-color: #3584e4;
@@ -1051,13 +1140,16 @@ Edit `src/styles.scss`:
 ```
 
 ### Changing Wallpaper
+
 Wallpapers are now split by device type:
+
 - **Desktop**: add images to `public/wallpapers/desktop/`
 - **Mobile**: add images to `public/wallpapers/mobile/`
 
 The `Settings` service automatically picks the correct set via `ScreenService.isMobile()`.
 
 ### Changing Sounds
+
 Add audio files to `public/sounds/` and configure in `SoundService`.
 
 ---
@@ -1065,24 +1157,31 @@ Add audio files to `public/sounds/` and configure in `SoundService`.
 ## 🐛 Troubleshooting
 
 ### Problem: Application doesn't open
+
 **Solution**: Check if the app is registered in `apps.ts` and if the component is imported correctly.
 
 ### Problem: Theme doesn't change
+
 **Solution**: Clear browser localStorage:
+
 ```javascript
-localStorage.clear()
+localStorage.clear();
 ```
 
 ### Problem: Hermes doesn't respond
+
 **Solution**:
+
 1. Check if Gemini API key is configured
 2. Check API quota in Google Cloud Console
 3. See errors in browser console
 
 ### Problem: Files don't appear
+
 **Solution**: FileSystem is initialized in `file-system.service.ts`. Check for console errors.
 
 ### Problem: Terminal doesn't execute commands
+
 **Solution**: Check if the command exists in `terminal-comands.ts` and if syntax is correct.
 
 ---
@@ -1090,12 +1189,14 @@ localStorage.clear()
 ## 📚 Additional Resources
 
 ### Documentation
+
 - [Angular](https://angular.dev)
 - [Tailwind CSS](https://tailwindcss.com)
 - [TypeScript](https://www.typescriptlang.org)
 - [Google Gemini](https://ai.google.dev)
 
 ### Design Inspiration
+
 - [GNOME Desktop](https://www.gnome.org)
 - [Elementary OS](https://elementary.io)
 - [Ubuntu](https://ubuntu.com)
@@ -1105,6 +1206,7 @@ localStorage.clear()
 ## 🤝 Contributing
 
 ### How to Contribute
+
 1. Fork the project
 2. Create a branch for your feature `git checkout -b feature/AmazingFeature`
 3. Commit your changes `git commit -m 'Add some AmazingFeature'`
@@ -1112,6 +1214,7 @@ localStorage.clear()
 5. Open a Pull Request
 
 ### Guidelines
+
 - Follow existing code style
 - Add tests for new features
 - Update documentation
@@ -1127,9 +1230,9 @@ This project is a personal portfolio. All rights reserved.
 
 ## 👤 Author
 
-**Developer**: Caio Souza Silva  
-**Contact**: caiosouzasilva13650@gmail.com  
-**Portfolio**: [caiossiva.com](https://caiossiva.com)  
+**Developer**: Caio Souza Silva
+**Contact**: caiosouzasilva13650@gmail.com
+**Portfolio**: [caiossilva.com](https://caiossilva.com)
 **GitHub**: [github.com/CaioSSilva](https://github.com/CaioSSilva/)
 
 ---
@@ -1162,6 +1265,7 @@ This project is a personal portfolio. All rights reserved.
 ## 📞 Support
 
 For questions, suggestions, or to report bugs:
+
 - **Issues**: Open an issue on GitHub
 - **Discussions**: Use the Discussions tab on GitHub
 

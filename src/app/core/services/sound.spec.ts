@@ -33,10 +33,12 @@ describe('Sound', () => {
 
     const decodeAudioData = vi.fn().mockRejectedValue(new Error('decode failed'));
 
-    const origAudioContext = (globalThis as Record<string, unknown>)['AudioContext'];
-    (globalThis as Record<string, unknown>)['AudioContext'] = function AudioContextStub() {
-      return { createBufferSource: vi.fn(), destination: {}, decodeAudioData };
-    };
+    type GlobalWithAudioContext = typeof globalThis & { AudioContext: typeof AudioContext };
+    const globals = globalThis as GlobalWithAudioContext;
+    const origAudioContext = globals.AudioContext;
+    globals.AudioContext = function AudioContextStub() {
+      return { createBufferSource: vi.fn(), destination: {}, decodeAudioData, close: vi.fn() };
+    } as unknown as typeof AudioContext;
 
     const origFetch = globalThis.fetch;
     globalThis.fetch = vi.fn().mockResolvedValue({
@@ -45,7 +47,7 @@ describe('Sound', () => {
 
     await expect(service.play('error-sound')).resolves.toBeUndefined();
 
-    (globalThis as Record<string, unknown>)['AudioContext'] = origAudioContext;
+    globals.AudioContext = origAudioContext;
     globalThis.fetch = origFetch;
   });
 });

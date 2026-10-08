@@ -1,11 +1,19 @@
-import { inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 import { Settings } from './settings';
 
 @Injectable({ providedIn: 'root' })
 export class Sound {
   private readonly settings = inject(Settings);
+  private readonly destroyRef = inject(DestroyRef);
   private audioContext: AudioContext | null = null;
   private readonly bufferCache = new Map<string, AudioBuffer>();
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.audioContext?.close();
+      this.audioContext = null;
+    });
+  }
 
   private getAudioContext(): AudioContext | null {
     if (typeof window === 'undefined' || typeof AudioContext === 'undefined') return null;
@@ -22,11 +30,13 @@ export class Sound {
       const ctx = this.getAudioContext();
       if (!ctx) return;
 
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+      }
+
       const buffer = await this.getAudioBuffer(soundName, ctx);
       this.createAndStartSource(buffer, ctx);
-    } catch {
-      // audio playback unavailable — skip
-    }
+    } catch {}
   }
 
   private async getAudioBuffer(soundName: string, ctx: AudioContext): Promise<AudioBuffer> {
@@ -44,7 +54,7 @@ export class Sound {
     return ctx.decodeAudioData(arrayBuffer);
   }
 
-  private createAndStartSource(buffer: AudioBuffer, ctx: AudioContext) {
+  private createAndStartSource(buffer: AudioBuffer, ctx: AudioContext): void {
     const source = ctx.createBufferSource();
     source.buffer = buffer;
     source.connect(ctx.destination);

@@ -14,11 +14,11 @@ import { ScreenService } from '../../../core/services/screen';
   styleUrl: './context-menu.scss',
 })
 export class ContextMenu {
-  appsService = inject(Apps);
-  dock = inject(DockService);
-  desktop = inject(DesktopIconsService);
-  process = inject(ProcessManager);
-  contextMenu = inject(ContextMenuService);
-  lang = inject(LanguageService);
-  screen = inject(ScreenService);
+  readonly appsService = inject(Apps);
+  readonly dock = inject(DockService);
+  readonly desktop = inject(DesktopIconsService);
+  readonly processManager = inject(ProcessManager);
+  readonly contextMenu = inject(ContextMenuService);
+  readonly lang = inject(LanguageService);
+  readonly screen = inject(ScreenService);
 }

@@ -8,14 +8,14 @@ export class ContextMenuService {
   readonly activeItem = signal<string | null>(null);
   readonly opensBelow = signal(false);
 
-  openApp(x: number, y: number, appId: string, opensBelow = false) {
+  openApp(x: number, y: number, appId: string, opensBelow = false): void {
     this.position.set({ x, y });
     this.activeAppId.set(appId);
     this.opensBelow.set(opensBelow);
     this.isOpen.set(true);
   }
 
-  close() {
+  close(): void {
     this.isOpen.set(false);
     this.activeAppId.set(null);
   }

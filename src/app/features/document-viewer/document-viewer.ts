@@ -1,14 +1,26 @@
-import { Component, signal, computed, inject, effect, HostListener, ChangeDetectionStrategy, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  signal,
+  computed,
+  inject,
+  effect,
+  HostListener,
+  ChangeDetectionStrategy,
+  DestroyRef,
+  ElementRef,
+  viewChild,
+} from '@angular/core';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Base } from '../../core/models/base';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
 import { FileSystem } from '../../core/services/file-system';
 import { ScreenService } from '../../core/services/screen';
-import { NotificationService } from '../../core/services/notification';
+import { ProcessManager } from '../../core/services/process-manager';
 import { MarkdownPipe } from '../../core/pipes/markdown-pipe';
-import { FileItem, DOC_EXTENSIONS } from '../../core/models/file';
+import { FileItem } from '../../core/models/file';
+import { DocumentLoaderService } from '../../core/services/document-loader';
+import { DocFileType } from '../../core/models/document';
 
 @Component({
   selector: 'app-document-viewer',
@@ -16,42 +28,40 @@ import { FileItem, DOC_EXTENSIONS } from '../../core/models/file';
   templateUrl: './document-viewer.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './document-viewer.scss',
-  imports: [PdfViewerModule, CommonModule, MarkdownPipe],
+  imports: [PdfViewerModule, MarkdownPipe],
 })
-export class DocumentViewer extends Base implements OnInit, OnDestroy {
-  lang = inject(LanguageService);
-  private appsService = inject(Apps);
-  public fs = inject(FileSystem);
-  private hostEl = inject(ElementRef<HTMLElement>);
-  private screen = inject(ScreenService);
-  private nots = inject(NotificationService);
+export class DocumentViewer extends Base {
+  private readonly appsService = inject(Apps);
+  private readonly hostEl = inject(ElementRef<HTMLElement>);
+  private readonly screen = inject(ScreenService);
+  private readonly processManager = inject(ProcessManager);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly lang = inject(LanguageService);
+  readonly fileSystem = inject(FileSystem);
+  readonly loader = inject(DocumentLoaderService);
 
-  fileType = signal<'pdf' | 'text' | 'markdown' | 'unsupported'>('unsupported');
-  fileName = signal('');
-  textContent = signal('');
-  zoom = signal(1.0);
-  hasError = signal(false);
-  isLoading = signal(true);
-  availableDocs = signal<FileItem[]>([]);
-  selectedFile = signal<FileItem | null>(null);
-  isViewingDocument = signal(false);
-  isNarrow = signal(false);
-  isPinchZoomed = signal(false);
-
-  @ViewChild('scrollContainer') private scrollContainer!: ElementRef<HTMLElement>;
+  private readonly scrollContainer = viewChild<ElementRef<HTMLElement>>('scrollContainer');
 
   private resizeObserver: ResizeObserver | null = null;
-
   private touchStartX = 0;
   private touchStartY = 0;
   private touchStartTarget: EventTarget | null = null;
   private pinchStartDistance = 0;
   private pinchLastStepDistance = 0;
   private pinchLastStepTime = 0;
+  private lastUrl: string | null | undefined = undefined;
 
-  private isUpdatingFromNavigation = false;
+  readonly fileType = signal<DocFileType>('unsupported');
+  readonly fileName = signal('');
+  readonly textContent = signal('');
+  readonly zoom = signal(1.0);
+  readonly availableDocs = signal<FileItem[]>([]);
+  readonly selectedFile = signal<FileItem | null>(null);
+  readonly isViewingDocument = signal(false);
+  readonly isNarrow = signal(false);
+  readonly isPinchZoomed = signal(false);
 
-  safePath = computed(() => {
+  readonly safePath = computed(() => {
     const selectedFile = this.selectedFile();
     const isViewing = this.isViewingDocument();
 
@@ -62,145 +72,85 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     return null;
   });
 
-  private currentDocIndex = computed(() => {
+  private readonly currentDocIndex = computed(() => {
     const docs = this.availableDocs();
     const currentFile = this.selectedFile();
     if (!currentFile || docs.length === 0) return -1;
     return docs.findIndex((doc) => doc.id === currentFile.id);
   });
 
-  isFirstDoc = computed(() => this.currentDocIndex() <= 0);
+  readonly isFirstDoc = computed(() => this.currentDocIndex() <= 0);
 
-  isLastDoc = computed(() => {
+  readonly isLastDoc = computed(() => {
     const docs = this.availableDocs();
     const index = this.currentDocIndex();
     if (docs.length === 0) return true;
     return index >= docs.length - 1;
   });
 
-  ngOnInit(): void {
-    if (typeof ResizeObserver !== 'undefined') {
-      this.resizeObserver = new ResizeObserver((entries) => {
-        const w = entries[0]?.contentRect.width ?? 0;
-        this.isNarrow.set(w > 0 && w < 500);
-      });
-      this.resizeObserver.observe(this.hostEl.nativeElement);
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.resizeObserver?.disconnect();
-  }
-
   constructor() {
     super();
+    this.initResizeObserver();
 
     effect(() => {
-      this.fs.ensureLoaded();
-      if (this.isUpdatingFromNavigation) return;
-
-      if (!this.fs.isLoaded()) return;
+      this.fileSystem.ensureLoaded();
+      if (!this.fileSystem.isLoaded()) return;
 
       const rawData = this.data();
+      const url = !rawData ? null : typeof rawData === 'string' ? rawData : (rawData.url ?? null);
 
-      const url = !rawData
-        ? null
-        : typeof rawData === 'string'
-          ? rawData
-          : rawData.url ?? null;
-
-      if (url) {
-        this.loadLibraryForUrl(url);
-      } else {
-        this.loadAllDocs();
+      if (url !== this.lastUrl) {
+        this.lastUrl = url;
+        if (url) {
+          this.loadLibraryForUrl(url);
+        } else {
+          this.loadAllDocs();
+        }
       }
     });
   }
 
+  private initResizeObserver(): void {
+    if (typeof ResizeObserver === 'undefined') return;
+    this.resizeObserver = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      this.isNarrow.set(width > 0 && width < 500);
+    });
+    this.resizeObserver.observe(this.hostEl.nativeElement);
+    this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());
+  }
+
   private loadAllDocs(): void {
-    try {
-      this.availableDocs.set(this.fs.getFilesByExtensions(['pdf', ...DOC_EXTENSIONS]));
-    } catch {
-      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToLoadFiles, icon: 'fas fa-folder-open' });
-      this.hasError.set(true);
-    } finally {
-      this.isLoading.set(false);
-    }
+    const docs = this.loader.loadAllDocs();
+    this.availableDocs.set(docs);
   }
 
   private loadLibraryForUrl(url: string): void {
-    try {
-      const docs = this.fs.getSiblingsByUrl(url, ['pdf', ...DOC_EXTENSIONS]);
-      this.availableDocs.set(docs);
+    const docs = this.loader.loadLibraryForUrl(url);
+    this.availableDocs.set(docs);
 
-      const matchingDoc = docs.find((doc) => doc.url === url);
-      if (matchingDoc) {
-        if (matchingDoc.id !== this.selectedFile()?.id) {
-          this.selectedFile.set(matchingDoc);
-          this.processFile(matchingDoc);
-        }
-        this.isViewingDocument.set(true);
+    const matchingDoc = docs.find((doc) => doc.url === url);
+    if (matchingDoc) {
+      if (matchingDoc.id !== this.selectedFile()?.id) {
+        this.selectedFile.set(matchingDoc);
+        this.applyProcessedFile(matchingDoc);
       }
-    } catch {
-      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToLoadDocument, icon: 'fas fa-file-circle-exclamation' });
-      this.hasError.set(true);
-    } finally {
-      this.isLoading.set(false);
+      this.isViewingDocument.set(true);
     }
   }
 
-  private processFile(file: FileItem): void {
-    try {
-      this.resetState();
-      this.fileName.set(file.name);
-
-      const ext = file.name.split('.').pop()?.toLowerCase() || '';
-
-      if (ext === 'pdf') {
-        this.fileType.set('pdf');
-      } else if (ext === 'md' && file.url) {
-        this.fileType.set('markdown');
-        this.loadTextFile(file.url);
-      } else if (file.url) {
-        this.fileType.set('text');
-        this.loadTextFile(file.url);
-      } else {
-        this.fileType.set('unsupported');
-      }
-    } catch {
-      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToProcessDocument, icon: 'fas fa-file-circle-exclamation' });
-      this.hasError.set(true);
-      this.isLoading.set(false);
-    }
+  private async applyProcessedFile(file: FileItem): Promise<void> {
+    const result = await this.loader.processFile(file);
+    this.fileType.set(result.fileType);
+    this.fileName.set(result.fileName);
+    this.textContent.set(result.textContent);
   }
 
-  private resetState(): void {
-    this.isLoading.set(true);
-    this.hasError.set(false);
-    this.textContent.set('');
-  }
-
-  private async loadTextFile(path: string): Promise<void> {
-    try {
-      const response = await fetch(path);
-      if (!response.ok) {
-        throw new Error(`HTTP error ${response.status}`);
-      }
-      const text = await response.text();
-      this.textContent.set(text);
-      this.isLoading.set(false);
-    } catch {
-      this.nots.show({ title: this.lang.t().errors.systemError, message: this.lang.t().errors.failedToLoadDocument, icon: 'fas fa-file-circle-exclamation' });
-      this.hasError.set(true);
-      this.isLoading.set(false);
-    }
-  }
-
-  selectFile(file: FileItem) {
+  selectFile(file: FileItem): void {
     this.selectedFile.set(file);
   }
 
-  handleChangeDocument(delta: number) {
+  handleChangeDocument(delta: number): void {
     const docs = this.availableDocs();
     const currentIndex = this.currentDocIndex();
 
@@ -209,47 +159,42 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     const newIndex = (currentIndex + delta + docs.length) % docs.length;
     const nextDoc = docs[newIndex];
 
-    this.isUpdatingFromNavigation = true;
-
     this.selectedFile.set(nextDoc);
-    this.processFile(nextDoc);
-    this.data.set(nextDoc.url ?? null);
-
-    setTimeout(() => {
-      this.isUpdatingFromNavigation = false;
-    }, 0);
+    this.applyProcessedFile(nextDoc);
   }
 
-  openSelectedDocument() {
+  openSelectedDocument(): void {
     const file = this.selectedFile();
     if (file?.url) {
-      this.processFile(file);
+      this.applyProcessedFile(file);
       this.isViewingDocument.set(true);
     }
   }
 
-  closeDocumentView() {
+  closeDocumentView(): void {
     this.isViewingDocument.set(false);
     this.data.set(null);
     this.zoom.set(1.0);
-    this.resetState();
+    this.loader.resetState();
+    this.textContent.set('');
+    this.fileType.set('unsupported');
   }
 
-  onPdfLoadSuccess() {
-    this.isLoading.set(false);
-    this.hasError.set(false);
+  onPdfLoadSuccess(): void {
+    this.loader.isLoading.set(false);
+    this.loader.hasError.set(false);
   }
 
-  onPdfLoadError() {
-    this.hasError.set(true);
-    this.isLoading.set(false);
+  onPdfLoadError(): void {
+    this.loader.hasError.set(true);
+    this.loader.isLoading.set(false);
   }
 
-  changeZoom(v: number) {
-    this.zoom.update((z) => Math.min(Math.max(0.3, z + v), 3.0));
+  changeZoom(delta: number): void {
+    this.zoom.update((zoom) => Math.min(Math.max(0.3, zoom + delta), 3.0));
   }
 
-  resetZoom() {
+  resetZoom(): void {
     this.zoom.set(1.0);
     this.isPinchZoomed.set(false);
   }
@@ -260,12 +205,12 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  onTouchStart(event: TouchEvent) {
+  onTouchStart(event: TouchEvent): void {
     if (!this.screen.isMobile()) return;
     if (event.touches.length === 2) {
-      const d = this.getPinchDistance(event.touches);
-      this.pinchStartDistance = d;
-      this.pinchLastStepDistance = d;
+      const pinchDistance = this.getPinchDistance(event.touches);
+      this.pinchStartDistance = pinchDistance;
+      this.pinchLastStepDistance = pinchDistance;
       this.pinchLastStepTime = 0;
       return;
     }
@@ -276,7 +221,7 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     this.touchStartTarget = touch.target;
   }
 
-  onTouchMove(event: TouchEvent) {
+  onTouchMove(event: TouchEvent): void {
     if (!this.screen.isMobile() || event.touches.length !== 2) return;
     event.preventDefault();
     const now = Date.now();
@@ -306,7 +251,7 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     return false;
   }
 
-  onTouchEnd(event: TouchEvent) {
+  onTouchEnd(event: TouchEvent): void {
     if (!this.screen.isMobile() || !this.isViewingDocument()) return;
     if (event.touches.length > 0 || this.zoom() > 1) return;
     if (this.isInsideHorizontalScrollable(this.touchStartTarget)) return;
@@ -324,7 +269,7 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     }
   }
 
-  onMarkdownClick(event: MouseEvent) {
+  onMarkdownClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     const anchor = target.closest('a');
     if (!anchor) return;
@@ -333,16 +278,18 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
     if (!href?.startsWith('#')) return;
 
     event.preventDefault();
-    const rawId = href.slice(1);
-    const container = this.scrollContainer?.nativeElement;
+    this.scrollToAnchor(href.slice(1));
+  }
+
+  private scrollToAnchor(rawId: string): void {
+    const container = this.scrollContainer()?.nativeElement;
     if (!container) return;
 
-    // Tenta match exato primeiro; se falhar, normaliza ambos e tenta de novo
     let el = container.querySelector(`[id="${rawId}"]`) as HTMLElement | null;
     if (!el) {
       const normalizedTarget = this.normalizeId(rawId);
       el = Array.from(container.querySelectorAll('[id]')).find(
-        (e) => this.normalizeId((e as HTMLElement).id) === normalizedTarget
+        (el) => this.normalizeId((el as HTMLElement).id) === normalizedTarget,
       ) as HTMLElement | null;
     }
     if (!el) return;
@@ -360,26 +307,27 @@ export class DocumentViewer extends Base implements OnInit, OnDestroy {
       .replace(/^-|-$/g, '');
   }
 
-  getFileIcon() {
+  getFileIcon(): string {
     if (this.fileType() === 'pdf') return 'fas fa-file-pdf';
     if (this.fileType() === 'markdown') return 'fab fa-markdown';
     return 'fas fa-file-alt';
   }
 
-  getIconColor() {
+  getIconColor(): string {
     if (this.fileType() === 'pdf') return '#ef4444';
     if (this.fileType() === 'markdown') return '#7c5cd8';
     return '#3b82f6';
   }
 
-  goToFiles() {
+  goToFiles(): void {
     const filesApp = this.appsService.appsRegistry().files;
     if (filesApp) this.appsService.openApp(filesApp);
   }
 
   @HostListener('document:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
+  onKeyDown(event: KeyboardEvent): void {
     if (!this.selectedFile() || !this.isViewingDocument()) return;
+    if (!this.processManager.isActiveComponent(DocumentViewer)) return;
 
     if (event.key === 'ArrowLeft' && !this.isFirstDoc()) {
       event.preventDefault();

@@ -12,15 +12,15 @@ import { LanguageService } from '../../core/services/language';
   templateUrl: './browser.html',
 })
 export class Browser extends Base {
-  private sanitizer = inject(DomSanitizer);
-  lang = inject(LanguageService);
-  displayUrl = signal('');
-  safeUrl = signal<SafeResourceUrl | null>(null);
+  private readonly sanitizer = inject(DomSanitizer);
+  readonly lang = inject(LanguageService);
+  readonly displayUrl = signal('');
+  readonly safeUrl = signal<SafeResourceUrl | null>(null);
 
-  history = signal<string[]>([]);
+  readonly history = signal<string[]>([]);
 
-  isLoading = signal(false);
-  hasError = signal(false);
+  readonly isLoading = signal(false);
+  readonly hasError = signal(false);
 
   constructor() {
     super();
@@ -31,7 +31,7 @@ export class Browser extends Base {
     });
   }
 
-  navigateToUrl() {
+  navigateToUrl(): void {
     let target = this.displayUrl().trim();
     if (!target) {
       this.safeUrl.set(null);
@@ -43,11 +43,11 @@ export class Browser extends Base {
     this.updateInternalState(target, true);
   }
 
-  goBack() {
+  goBack(): void {
     if (this.history().length <= 1) return;
 
-    this.history.update((h) => {
-      const newHistory = [...h];
+    this.history.update((entries) => {
+      const newHistory = [...entries];
       newHistory.pop();
       const previousUrl = newHistory[newHistory.length - 1];
       this.updateInternalState(previousUrl, false);
@@ -55,19 +55,19 @@ export class Browser extends Base {
     });
   }
 
-  onLoad() {
+  onLoad(): void {
     this.isLoading.set(false);
     this.hasError.set(false);
   }
 
-  private updateInternalState(url: string, addToHistory: boolean) {
+  private updateInternalState(url: string, addToHistory: boolean): void {
     this.hasError.set(false);
     this.isLoading.set(true);
     this.displayUrl.set(url);
     this.safeUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
 
     if (addToHistory) {
-      this.history.update((h) => [...h, url]);
+      this.history.update((entries) => [...entries, url]);
     }
 
     setTimeout(() => {

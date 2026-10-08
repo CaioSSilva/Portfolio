@@ -36,7 +36,7 @@ export class Gemini {
   private buildParts(
     prompt: string,
     history?: string,
-    fileData?: { mimeType: string; b64: string }
+    fileData?: { mimeType: string; b64: string },
   ): Array<string | Part> {
     const parts: Array<string | Part> = [];
     if (history) {
@@ -51,21 +51,25 @@ export class Gemini {
     return parts;
   }
 
-  public async listModels(): Promise<GeminiModel[]> {
+  async listModels(): Promise<GeminiModel[]> {
     const apiKey = environment.geminiApiKey;
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`,
     );
-    if (!res.ok) throw new Error(`Failed to list models: ${res.status}`);
-    const data = await res.json();
-    const all: Array<{ name: string; displayName: string; description: string; supportedGenerationMethods?: string[] }> =
-      data.models ?? [];
+    if (!response.ok) throw new Error(`Failed to list models: ${response.status}`);
+    const data = await response.json();
+    const all: Array<{
+      name: string;
+      displayName: string;
+      description: string;
+      supportedGenerationMethods?: string[];
+    }> = data.models ?? [];
     return all
-      .filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
-      .map((m) => ({
-        name: m.name.replace('models/', ''),
-        displayName: m.displayName,
-        description: m.description ?? '',
+      .filter((model) => model.supportedGenerationMethods?.includes('generateContent'))
+      .map((model) => ({
+        name: model.name.replace('models/', ''),
+        displayName: model.displayName,
+        description: model.description ?? '',
       }));
   }
 
@@ -77,27 +81,38 @@ export class Gemini {
     });
   }
 
-  public async generateResponse(
+  private isFallbackError(error: Error): boolean {
+    const errorMessage = error.message;
+    return (
+      errorMessage.includes('404') ||
+      errorMessage.includes('NOT_FOUND') ||
+      errorMessage.includes('429') ||
+      errorMessage.includes('RESOURCE_EXHAUSTED')
+    );
+  }
+
+  async generateResponse(
     prompt: string,
     history: string,
-    fileData?: { mimeType: string; b64: string }
+    fileData?: { mimeType: string; b64: string },
   ): Promise<string> {
     const parts = this.buildParts(prompt, history, fileData);
 
     try {
       const result = await this.getModel(environment.geminiApiKey).generateContent(parts);
       return result.response.text();
-    } catch {
+    } catch (error) {
+      if (!this.isFallbackError(error as Error)) throw error;
       const result = await this.getModel(environment.geminiApiKey2).generateContent(parts);
       return result.response.text();
     }
   }
 
-  public async generateResponseStream(
+  async generateResponseStream(
     prompt: string,
     history: string,
     fileData: { mimeType: string; b64: string } | undefined,
-    onChunk: (chunkText: string) => void
+    onChunk: (chunkText: string) => void,
   ): Promise<string> {
     const parts = this.buildParts(prompt, history, fileData);
 
@@ -114,7 +129,8 @@ export class Gemini {
 
     try {
       return await runStream(environment.geminiApiKey);
-    } catch {
+    } catch (error) {
+      if (!this.isFallbackError(error as Error)) throw error;
       return await runStream(environment.geminiApiKey2);
     }
   }

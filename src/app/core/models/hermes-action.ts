@@ -54,9 +54,24 @@ export interface SetLanguagePayload {
   lang: 'pt' | 'en';
 }
 
+export type HermesPayload =
+  | OpenAppPayload
+  | CloseAppPayload
+  | OpenFilePayload
+  | SetThemePayload
+  | SetWallpaperPayload
+  | SetSizePayload
+  | PlaySoundPayload
+  | ShowNotificationPayload
+  | SetLanguagePayload
+  | Record<string, never>;
+
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonPrimitive[] | Record<string, JsonPrimitive>;
+
 export interface HermesAction {
   type: HermesActionType;
-  payload?: Record<string, unknown>;
+  payload?: Record<string, JsonValue>;
 }
 
 export interface ParseActionResult {

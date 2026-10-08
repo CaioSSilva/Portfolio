@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Window } from './window';
-import { WindowService } from '../../../core/services/window';
+import { WindowService, TOP_BAR_HEIGHT } from '../../../core/services/window';
 import { LanguageService } from '../../../core/services/language';
 import { Process } from '../../../core/models/process';
 import { Component, NO_ERRORS_SCHEMA, signal } from '@angular/core';
@@ -61,10 +61,10 @@ describe('Window', () => {
       providers: [LanguageService],
       schemas: [NO_ERRORS_SCHEMA],
     })
-    .overrideComponent(Window, {
-      set: { providers: [{ provide: WindowService, useValue: windowServiceMock }] },
-    })
-    .compileComponents();
+      .overrideComponent(Window, {
+        set: { providers: [{ provide: WindowService, useValue: windowServiceMock }] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(Window);
     component = fixture.componentInstance;
@@ -83,18 +83,15 @@ describe('Window', () => {
   });
 
   it('TOP_BAR_HEIGHT is a positive number', () => {
-    expect(component.TOP_BAR_HEIGHT).toBeGreaterThan(0);
+    expect(TOP_BAR_HEIGHT).toBeGreaterThan(0);
   });
 
-  it('onWindowResize calls toggleMaximize when isMaximized is true', () => {
-    windowServiceMock.isMaximized.set(true);
-    component.onWindowResize();
-    expect(windowServiceMock.toggleMaximize).toHaveBeenCalled();
+  it('windowService.init is called after view init', () => {
+    expect(windowServiceMock.init).toHaveBeenCalled();
   });
 
-  it('onWindowResize does nothing when not maximized', () => {
-    windowServiceMock.isMaximized.set(false);
-    component.onWindowResize();
-    expect(windowServiceMock.toggleMaximize).not.toHaveBeenCalled();
+  it('windowService.focus is accessible', () => {
+    component.windowService.focus();
+    expect(windowServiceMock.focus).toHaveBeenCalled();
   });
 });

@@ -1,9 +1,12 @@
 <div
   class="flex flex-col w-full bg-gnome-bg text-gnome-text font-mono text-xs @sm:text-sm p-3 @sm:p-4 overflow-hidden transition-colors duration-300"
-  style="height: 100%; height: 100dvh; max-height: 100%;"
+  style="height: 100%; height: 100dvh; max-height: 100%"
   (click)="focusInput()"
 >
-  <div class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1 min-h-0" #scrollContainer>
+  <div
+    class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1 min-h-0"
+    #scrollContainer
+  >
     <div class="text-gnome-blue font-bold mb-1 @sm:mb-2 text-xs @sm:text-sm">
       {{ lang.t().terminal.welcome }}
     </div>
@@ -19,7 +22,9 @@
         </div>
 
         @if (line.output) {
-          <div class="whitespace-pre-wrap pl-2.5 @sm:pl-4 mt-1 border-l border-gnome-border/30 text-[11px] @sm:text-xs">
+          <div
+            class="whitespace-pre-wrap pl-2.5 @sm:pl-4 mt-1 border-l border-gnome-border/30 text-[11px] @sm:text-xs"
+          >
             @for (item of line.output.split('\n'); track $index) {
               @if (item.startsWith('[NEO]')) {
                 <div class="flex flex-wrap gap-x-2">

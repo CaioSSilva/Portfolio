@@ -71,7 +71,7 @@ describe('Apps', () => {
     service.isAppsGridOpen.set(true);
     service.searchQuery.set('files');
 
-    service.toggleGrid(); // closes
+    service.toggleGrid();
     expect(service.searchQuery()).toBe('');
   });
 
@@ -103,7 +103,12 @@ describe('Apps', () => {
       preventDefault: vi.fn(),
       stopPropagation: vi.fn(),
       currentTarget: {
-        getBoundingClientRect: () => ({ left: window.innerWidth - 10, top: 300, width: 60, height: 60 }),
+        getBoundingClientRect: () => ({
+          left: window.innerWidth - 10,
+          top: 300,
+          width: 60,
+          height: 60,
+        }),
       },
     } as unknown as MouseEvent;
 

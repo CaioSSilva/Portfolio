@@ -1,11 +1,11 @@
 @if (!systemReady()) {
   <app-boot (bootFinished)="systemReady.set(true)"></app-boot>
 } @else {
-  @if (shutingDown()) {
-    <app-shutdown (shutdown)="shutingDown.set($event)"></app-shutdown>
+  @if (isShuttingDown()) {
+    <app-shutdown (shutdown)="isShuttingDown.set($event)"></app-shutdown>
   }
 
-  <div class="relative w-screen overflow-hidden bg-gnome-bg" style="height:100dvh">
+  <div class="relative w-screen overflow-hidden bg-gnome-bg" style="height: 100dvh">
     <div class="absolute inset-0 z-0">
       @if (isAnimated()) {
         <video
@@ -26,7 +26,10 @@
     </div>
 
     <div class="relative z-10 flex flex-col h-full w-full pointer-events-none">
-      <app-top-bar class="pointer-events-auto" (onShutdown)="shutingDown.set($event)"></app-top-bar>
+      <app-top-bar
+        class="pointer-events-auto"
+        (onShutdown)="isShuttingDown.set($event)"
+      ></app-top-bar>
 
       <div class="flex-1 relative desktop-area pointer-events-auto">
         <app-desktop-icons></app-desktop-icons>
@@ -43,6 +46,8 @@
           <app-mobile-nav-bar></app-mobile-nav-bar>
           <app-mobile-overview></app-mobile-overview>
         }
+
+        <app-context-menu></app-context-menu>
       </div>
     </div>
   </div>

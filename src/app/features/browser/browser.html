@@ -4,9 +4,10 @@
       (click)="goBack()"
       [disabled]="history().length <= 1"
       [title]="lang.t().browser.back"
+      [attr.aria-label]="lang.t().browser.back"
       class="cursor-pointer p-2 flex items-center justify-center hover:bg-gnome-surface rounded-lg transition-colors text-gnome-text-secondary disabled:opacity-30 outline-none"
     >
-      <i class="fas fa-arrow-left text-xs"></i>
+      <i class="fas fa-arrow-left text-xs" aria-hidden="true"></i>
     </button>
 
     <div class="flex-1 relative flex items-center group">
@@ -24,9 +25,10 @@
     <button
       (click)="navigateToUrl()"
       [title]="lang.t().browser.refresh"
+      [attr.aria-label]="lang.t().browser.refresh"
       class="p-2 hover:bg-gnome-surface rounded-lg transition-colors text-gnome-text-secondary cursor-pointer"
     >
-      <i class="fas fa-redo text-xs" [class.fa-spin]="isLoading()"></i>
+      <i class="fas fa-redo text-xs" [class.fa-spin]="isLoading()" aria-hidden="true"></i>
     </button>
   </div>
 

@@ -13,7 +13,8 @@ describe('ContextMenu', () => {
   let fixture: ComponentFixture<ContextMenu>;
 
   const contextMenuMock = {
-    open: vi.fn(), close: vi.fn(),
+    open: vi.fn(),
+    close: vi.fn(),
     isOpen: signal(false),
     position: signal({ x: 0, y: 0 }),
     activeAppId: signal<string | null>(null),
@@ -70,7 +71,7 @@ describe('ContextMenu', () => {
   });
 
   it('exposes process manager', () => {
-    expect(component.process).toBe(processMock);
+    expect(component.processManager).toBe(processMock);
   });
 
   it('exposes apps service', () => {

@@ -14,5 +14,4 @@ try {
       configurable: true,
     });
   }
-} catch {
-}
+} catch {}

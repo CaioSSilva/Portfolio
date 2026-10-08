@@ -52,12 +52,16 @@ export const en = {
   notifications: {
     title: 'Notifications',
     clearAll: 'Clear all',
+    closePanel: 'Close notifications panel',
     noNotifications: 'No notifications',
 
-    timmings: {
+    timings: {
       justNow: 'Just now',
+      minuteAgo: 'minute ago',
       minutesAgo: 'minutes ago',
+      hourAgo: 'hour ago',
       hoursAgo: 'hours ago',
+      dayAgo: 'day ago',
       daysAgo: 'days ago',
     },
   },
@@ -75,7 +79,7 @@ export const en = {
     docDescription: 'Want to know how the things work under the hood? Read the documentation!',
     codeDescription: 'Want to analyze the source code? Download the .zip file.',
     resumeDescription: 'Want to know about the creator? Read here!',
-    aboutSO: "Want to know more about the operational system of the portfolio? Check below!",
+    aboutSO: 'Want to know more about the operational system of the portfolio? Check below!',
     featureList: {
       snaps: {
         tag: 'Workspace',
@@ -127,7 +131,7 @@ export const en = {
       },
       settings: {
         name: 'Settings',
-        desc: 'Proof that aesthetics are personal. Adapt the systemc on your own way.',
+        desc: 'Proof that aesthetics are personal. Adapt the system in your own way.',
       },
       browser: {
         name: 'Firefox',
@@ -245,6 +249,7 @@ export const en = {
     processes: 'Processes',
     action: 'Action',
     app: 'Application',
+    killProcess: 'Kill process',
   },
 
   documents: {
@@ -262,6 +267,9 @@ export const en = {
     item: 'item',
     items: 'items',
     searchPlaceholder: 'Search...',
+    clearSearch: 'Clear search',
+    closeSidebar: 'Close sidebar',
+    toggleFolder: 'Toggle folder',
     noResults: 'No results found',
     back: 'Back',
     gridView: 'Grid View',
@@ -354,13 +362,14 @@ export const en = {
   systemTips: {
     title: 'System Tip',
     desktop: {
-      altTab: 'Use Ctrl + ` (backtick) to quickly switch between open windows.',
+      altTab: 'Use Ctrl + ` (backtick) to quickly switch between open windows (App Switcher).',
       snapLeft: 'Drag a window to the left or right edge to snap it to 50% of the screen.',
       snapCorner: 'Drag a window to any corner to snap it into a 25% quadrant.',
       snapTop: 'Drag a window to the top of the screen to maximize it instantly.',
       contextMenu: 'Right-click the Dock or desktop icons to see quick actions.',
       dockDrag: 'Drag an app from the app menu directly to the Dock to pin it.',
-      terminal: 'In the Terminal, run "neofetch" for system info or "whoami" to learn about the creator.',
+      terminal:
+        'In the Terminal, run "neofetch" for system info or "whoami" to learn about the creator.',
       terminalOpen: 'Run "open FileName" in the Terminal to open any file in the system.',
       theme: 'Type "theme" in the Terminal to toggle between light and dark mode instantly.',
       fullscreen: 'Press F11 to enter fullscreen mode for a fully immersive experience.',
@@ -368,7 +377,8 @@ export const en = {
       hermesWallpaper: 'Ask Hermes to change the wallpaper by describing what you want.',
       desktopIcons: 'Right-click the desktop to add or remove app shortcuts.',
       windowResize: 'Drag the bottom-right corner of any window to resize it freely.',
-      multiWindow: 'Open multiple windows of the same app using "New instance" in the context menu.',
+      multiWindow:
+        'Open multiple windows of the same app using "New instance" in the context menu.',
       notifications: 'Click the bell icon in the top bar to access the notification history.',
       settings: 'In Settings, you can customize icon size, wallpaper, theme, and much more.',
       settingsSound: 'Enable or disable system sounds in Settings → Sound.',
@@ -414,6 +424,8 @@ export const en = {
     welcome: 'Welcome to Hermes!',
     desc: 'Type something to start!',
     ask: 'Ask something...',
+    roleUser: 'User',
+    roleAssistant: 'Hermes',
   },
 
   mobileNav: {
@@ -424,15 +436,17 @@ export const en = {
     swipeToClose: 'Swipe up to close',
     tapToResume: 'Tap to resume',
     swipeToBrowse: 'Swipe horizontally to browse',
+    pullDown: 'Pull down',
   },
 
   errors: {
     systemError: 'System error',
-    noFileHandler: 'The system doesnt hava an app capable to open that file!',
+    noFileHandler: "The system doesn't have an app capable of opening that file!",
     enableToLoadFs: 'Unable to load the file system! Reload the page.',
-    seviceUnavailable: 'Service unavailable at this time!',
+    serviceUnavailable: 'Service unavailable at this time!',
     actionExecutionFailed: 'Could not execute the action requested by Hermes.',
-    modelUnavailable: 'The selected model is not available. Please change the model in Hermes settings.',
+    modelUnavailable:
+      'The selected model is not available. Please change the model in Hermes settings.',
     failedToLoadFiles: 'Failed to load files from the file system.',
     failedToLoadDocument: 'Failed to load the document.',
     failedToProcessDocument: 'Failed to process the document.',

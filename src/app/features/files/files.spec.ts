@@ -10,7 +10,13 @@ import { signal } from '@angular/core';
 import { FileItem } from '../../core/models/file';
 
 const mockFolder: FileItem = { id: 'docs', name: 'Documents', type: 'folder', icon: 'folder' };
-const mockFile: FileItem = { id: 'readme', name: 'readme.txt', type: 'file', icon: 'file', size: 1024 };
+const mockFile: FileItem = {
+  id: 'readme',
+  name: 'readme.txt',
+  type: 'file',
+  icon: 'file',
+  size: 1024,
+};
 
 function makeFsMock() {
   return {
@@ -28,7 +34,11 @@ describe('Files', () => {
   let component: Files;
   let fixture: ComponentFixture<Files>;
   let fsMock: ReturnType<typeof makeFsMock>;
-  let processManagerMock: { processes: ReturnType<typeof signal>; openFile: ReturnType<typeof vi.fn>; focus: ReturnType<typeof vi.fn> };
+  let processManagerMock: {
+    processes: ReturnType<typeof signal>;
+    openFile: ReturnType<typeof vi.fn>;
+    focus: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
     fsMock = makeFsMock();
@@ -167,19 +177,19 @@ describe('Files', () => {
 
   it('grid size slider --slider-pct is 0% at minimum value', () => {
     component.gridSize.set(80);
-    const pct = (component.gridSize() - 80) / (300 - 80) * 100;
+    const pct = ((component.gridSize() - 80) / (300 - 80)) * 100;
     expect(pct).toBe(0);
   });
 
   it('grid size slider --slider-pct is 100% at maximum value', () => {
     component.gridSize.set(300);
-    const pct = (component.gridSize() - 80) / (300 - 80) * 100;
+    const pct = ((component.gridSize() - 80) / (300 - 80)) * 100;
     expect(pct).toBe(100);
   });
 
   it('grid size slider --slider-pct is proportional mid-range', () => {
     component.gridSize.set(190);
-    const pct = (component.gridSize() - 80) / (300 - 80) * 100;
+    const pct = ((component.gridSize() - 80) / (300 - 80)) * 100;
     expect(pct).toBeCloseTo(50, 0);
   });
 });

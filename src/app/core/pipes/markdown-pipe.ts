@@ -6,15 +6,22 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   standalone: true,
 })
 export class MarkdownPipe implements PipeTransform {
-  private sanitizer = inject(DomSanitizer);
+  private readonly sanitizer = inject(DomSanitizer);
 
   transform(value: string): SafeHtml {
     if (!value) return '';
 
-    let html = value;
+    let html = this.sanitizeAndNormalise(value);
+    html = this.applyHeadingsAndInlines(html);
+    html = this.renderLists(html);
+    html = this.collapseLineBreaks(html);
 
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+
+  private sanitizeAndNormalise(value: string): string {
     const codeBlocks: string[] = [];
-    html = html.replace(/```[\w]*\n?([\s\S]*?)```/g, (_, code) => {
+    let html = value.replace(/```[\w]*\n?([\s\S]*?)```/g, (_, code) => {
       const placeholder = `\x00CODEBLOCK${codeBlocks.length}\x00`;
       codeBlocks.push(`<pre><code>${this.escapeHtml(code.trim())}</code></pre>`);
       return placeholder;
@@ -30,54 +37,127 @@ export class MarkdownPipe implements PipeTransform {
     codeBlocks.forEach((block, i) => {
       html = html.replace(`\x00CODEBLOCK${i}\x00`, block);
     });
+    return html;
+  }
 
-    html = html.replace(/^#### (.+)$/gm, (_, t) => `<h4 id="${this.slugify(t)}">${t}</h4>`);
-    html = html.replace(/^### (.+)$/gm, (_, t) => `<h3 id="${this.slugify(t)}">${t}</h3>`);
-    html = html.replace(/^## (.+)$/gm,  (_, t) => `<h2 id="${this.slugify(t)}">${t}</h2>`);
-    html = html.replace(/^# (.+)$/gm,   (_, t) => `<h1 id="${this.slugify(t)}">${t}</h1>`);
-
+  private applyHeadingsAndInlines(html: string): string {
+    html = html.replace(
+      /^#### (.+)$/gm,
+      (_, title) => `<h4 id="${this.slugify(title)}">${title}</h4>`,
+    );
+    html = html.replace(
+      /^### (.+)$/gm,
+      (_, title) => `<h3 id="${this.slugify(title)}">${title}</h3>`,
+    );
+    html = html.replace(
+      /^## (.+)$/gm,
+      (_, title) => `<h2 id="${this.slugify(title)}">${title}</h2>`,
+    );
+    html = html.replace(
+      /^# (.+)$/gm,
+      (_, title) => `<h1 id="${this.slugify(title)}">${title}</h1>`,
+    );
     html = html.replace(/^---+$/gm, '<hr>');
-
     html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
-
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
-    html = html.replace(/(?<!`)``?(?!`)([^`\n]+)``?(?!`)/g, '<code>$1</code>');
+    html = html.replace(/(?<!`)``([^`\n]+)``(?!`)/g, '<code>$1</code>');
+    html = html.replace(/(?<!`)(`(?!`))([^`\n]+)`(?!`)/g, '<code>$2</code>');
+    html = this.applyLinks(html);
+    return html;
+  }
 
-    html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  private applyLinks(html: string): string {
+    html = html.replace(
+      /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener">$1</a>',
+    );
+    return html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, href) => {
+      const lower = href.toLowerCase().trim();
+      if (
+        lower.startsWith('javascript:') ||
+        lower.startsWith('vbscript:') ||
+        lower.startsWith('data:')
+      ) {
+        return text;
+      }
+      return `<a href="${href}">${text}</a>`;
+    });
+  }
 
+  private renderLists(html: string): string {
     const lines = html.split('\n');
     const out: string[] = [];
     let inList = false;
     let inOl = false;
-
     for (const line of lines) {
-      const ulMatch = line.match(/^[-*] (.+)/);
-      const olMatch = line.match(/^\d+\. (.+)/);
-      if (ulMatch) {
-        if (inOl) { out.push('</ol>'); inOl = false; }
-        if (!inList) { out.push('<ul>'); inList = true; }
-        out.push(`<li>${ulMatch[1]}</li>`);
-      } else if (olMatch) {
-        if (inList) { out.push('</ul>'); inList = false; }
-        if (!inOl) { out.push('<ol>'); inOl = true; }
-        out.push(`<li>${olMatch[1]}</li>`);
-      } else {
-        if (inList) { out.push('</ul>'); inList = false; }
-        if (inOl) { out.push('</ol>'); inOl = false; }
-        out.push(line);
-      }
+      this.processListLine(
+        line,
+        out,
+        (v) => {
+          inList = v;
+        },
+        (v) => {
+          inOl = v;
+        },
+        inList,
+        inOl,
+      );
     }
     if (inList) out.push('</ul>');
     if (inOl) out.push('</ol>');
-    html = out.join('\n');
+    return out.join('\n');
+  }
 
-    html = html.replace(/(?<!<\/(?:h[1-4]|li|blockquote|pre|ul|ol|hr)>)\n(?!<(?:h[1-4]|li|blockquote|pre|ul|ol|hr))/g, '<br>');
+  private processListLine(
+    line: string,
+    out: string[],
+    setList: (v: boolean) => void,
+    setOl: (v: boolean) => void,
+    inList: boolean,
+    inOl: boolean,
+  ): void {
+    const ulMatch = line.match(/^[-*] (.+)/);
+    const olMatch = line.match(/^\d+\. (.+)/);
+    if (ulMatch) {
+      if (inOl) {
+        out.push('</ol>');
+        setOl(false);
+      }
+      if (!inList) {
+        out.push('<ul>');
+        setList(true);
+      }
+      out.push(`<li>${ulMatch[1]}</li>`);
+    } else if (olMatch) {
+      if (inList) {
+        out.push('</ul>');
+        setList(false);
+      }
+      if (!inOl) {
+        out.push('<ol>');
+        setOl(true);
+      }
+      out.push(`<li>${olMatch[1]}</li>`);
+    } else {
+      if (inList) {
+        out.push('</ul>');
+        setList(false);
+      }
+      if (inOl) {
+        out.push('</ol>');
+        setOl(false);
+      }
+      out.push(line);
+    }
+  }
 
-    html = html.replace(/(<br>\s*){2,}/g, '<br><br>');
-
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+  private collapseLineBreaks(html: string): string {
+    html = html.replace(
+      /(?<!<\/(?:h[1-4]|li|blockquote|pre|ul|ol|hr)>)\n(?!<(?:h[1-4]|li|blockquote|pre|ul|ol|hr))/g,
+      '<br>',
+    );
+    return html.replace(/(<br>\s*){2,}/g, '<br><br>');
   }
 
   private slugify(text: string): string {
@@ -90,9 +170,6 @@ export class MarkdownPipe implements PipeTransform {
   }
 
   private escapeHtml(str: string): string {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 }

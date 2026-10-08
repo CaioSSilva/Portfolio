@@ -1,4 +1,6 @@
-<div class="@container flex h-full w-full bg-gnome-bg overflow-hidden select-none text-gnome-text relative">
+<div
+  class="@container flex h-full w-full bg-gnome-bg overflow-hidden select-none text-gnome-text relative"
+>
   <aside
     [class.w-full]="isSidebarOpen()"
     [class.w-0]="!isSidebarOpen()"
@@ -13,6 +15,7 @@
         <i class="fas fa-list-music opacity-50"></i>
         <button
           (click)="isSidebarOpen.set(false)"
+          aria-label="Close sidebar"
           class="@min-[680px]:hidden w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/10"
         >
           <i class="fas fa-times text-xs"></i>
@@ -75,9 +78,9 @@
   <div class="relative flex-1 flex flex-col min-w-0 overflow-y-auto">
     <button
       (click)="isSidebarOpen.set(!isSidebarOpen())"
+      [attr.aria-label]="lang.t().audioPlayer.menuLabel"
       class="absolute cursor-pointer transition-all duration-300 top-4 left-4 z-20 w-9 h-9 flex items-center justify-center bg-gnome-surface border border-gnome-border rounded-xl shadow-lg hover:bg-gnome-header active:scale-95"
       [class.menu-hint]="!player.currentTrack() && !isSidebarOpen()"
-      [title]="lang.t().audioPlayer.menuLabel"
     >
       <i class="fas" [class.fa-indent]="!isSidebarOpen()" [class.fa-outdent]="isSidebarOpen()"></i>
     </button>
@@ -88,8 +91,12 @@
           <span class="lyrics-card__label">
             <i class="fas fa-quote-left"></i>{{ lang.t().audioPlayer.lyricsLabel }}
           </span>
-          <button (click)="showLyrics.set(false)" class="lyrics-overlay__close cursor-pointer">
-            <i class="fas fa-chevron-down text-sm"></i>
+          <button
+            (click)="showLyrics.set(false)"
+            aria-label="Close lyrics"
+            class="lyrics-overlay__close cursor-pointer"
+          >
+            <i class="fas fa-chevron-down text-sm" aria-hidden="true"></i>
           </button>
         </div>
         <div #lyricsScroll class="lyrics-overlay__scroll" (scroll)="onLyricsScroll()">
@@ -110,7 +117,9 @@
                 [class.lyrics-line--plain]="lyrics.isPlainOnly()"
                 [class.lyrics-line--clickable]="line.time >= 0"
                 (click)="seekToLine(line.time, i)"
-              >{{ line.text || '·' }}</p>
+              >
+                {{ line.text || '·' }}
+              </p>
             }
             <p class="lyrics-overlay__disclaimer">{{ lang.t().audioPlayer.lyricsDisclaimer }}</p>
           }
@@ -126,8 +135,12 @@
           >
             <i class="fas fa-music text-4xl @min-[680px]:text-5xl opacity-20"></i>
           </div>
-          <h2 class="text-base @min-[680px]:text-lg font-bold">{{ lang.t().audioPlayer.noAudio }}</h2>
-          <p class="mt-2 text-xs text-gnome-text-secondary opacity-70">{{ lang.t().audioPlayer.viewLibrary }}</p>
+          <h2 class="text-base @min-[680px]:text-lg font-bold">
+            {{ lang.t().audioPlayer.noAudio }}
+          </h2>
+          <p class="mt-2 text-xs text-gnome-text-secondary opacity-70">
+            {{ lang.t().audioPlayer.viewLibrary }}
+          </p>
         </div>
       } @else if (!player.hasError()) {
         <div
@@ -162,7 +175,9 @@
 
         <div class="text-center mb-6 @min-[680px]:mb-8 w-full max-w-md">
           <h1 class="text-base @min-[680px]:text-lg font-bold truncate px-4">{{ fileName() }}</h1>
-          <p class="text-xs @min-[680px]:text-sm text-gnome-text-secondary">{{ lang.t().audioPlayer.appSubtitle }}</p>
+          <p class="text-xs @min-[680px]:text-sm text-gnome-text-secondary">
+            {{ lang.t().audioPlayer.appSubtitle }}
+          </p>
         </div>
         <div class="w-full max-w-md space-y-4 @min-[680px]:space-y-6 px-2 @min-[680px]:px-0">
           <div class="mb-2">
@@ -175,7 +190,9 @@
               (input)="onSeekMove($event)"
               (pointerup)="onSeekEnd($event)"
               (pointercancel)="onSeekEnd($event)"
-              [style.--slider-pct]="(player.duration() > 0 ? (displayTime() / player.duration()) * 100 : 0) + '%'"
+              [style.--slider-pct]="
+                (player.duration() > 0 ? (displayTime() / player.duration()) * 100 : 0) + '%'
+              "
               class="gnome-slider w-full h-1.5 appearance-none cursor-pointer rounded-full"
             />
             <div class="flex justify-between text-[11px] font-mono opacity-60 mt-1.5">
@@ -187,12 +204,14 @@
           <div class="flex items-center justify-center gap-6 @min-[680px]:gap-8">
             <button
               (click)="player.prevTrack()"
+              aria-label="Previous track"
               class="opacity-60 hover:opacity-100 cursor-pointer active:scale-90 transition-transform"
             >
               <i class="fas fa-backward-step text-xl"></i>
             </button>
             <button
               (click)="player.togglePlay()"
+              [attr.aria-label]="player.isPlaying() ? 'Pause' : 'Play'"
               class="w-14 h-14 @min-[680px]:w-16 @min-[680px]:h-16 flex items-center justify-center bg-white text-black rounded-full shadow-xl hover:scale-105 active:scale-95 cursor-pointer transition-transform"
             >
               <i
@@ -203,6 +222,7 @@
             </button>
             <button
               (click)="player.nextTrack()"
+              aria-label="Next track"
               class="opacity-60 hover:opacity-100 cursor-pointer active:scale-90 transition-transform"
             >
               <i class="fas fa-forward-step text-xl"></i>
@@ -210,7 +230,11 @@
           </div>
 
           <div class="flex items-center gap-3 @min-[680px]:gap-4 px-4 @min-[680px]:px-8 opacity-70">
-            <button (click)="player.toggleMute()" class="w-7 cursor-pointer">
+            <button
+              (click)="player.toggleMute()"
+              [attr.aria-label]="player.isMuted() ? 'Unmute' : 'Mute'"
+              class="w-7 cursor-pointer"
+            >
               <i
                 class="fas"
                 [class.fa-volume-high]="!player.isMuted()"
@@ -224,7 +248,7 @@
               step="0.01"
               [value]="player.volume()"
               (input)="handleVolume($event)"
-              [style.--slider-pct]="(player.volume() * 100) + '%'"
+              [style.--slider-pct]="player.volume() * 100 + '%'"
               class="gnome-slider cursor-pointer flex-1 h-1 appearance-none rounded-full"
             />
           </div>

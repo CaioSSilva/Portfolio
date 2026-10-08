@@ -20,7 +20,9 @@
     class="w-16 h-10 flex items-center justify-center rounded-2xl text-gnome-text hover:bg-black/10 active:scale-90 transition-all cursor-pointer touch-manipulation"
     [attr.aria-label]="lang.t().mobileNav.home"
   >
-    <div class="w-10 h-1.5 bg-gnome-text/70 rounded-full hover:bg-gnome-text transition-colors"></div>
+    <div
+      class="w-10 h-1.5 bg-gnome-text/70 rounded-full hover:bg-gnome-text transition-colors"
+    ></div>
   </button>
   <button
     (click)="tap(nav.toggleAppDrawer.bind(nav))"

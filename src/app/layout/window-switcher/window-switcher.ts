@@ -1,27 +1,33 @@
-import { Component, HostListener, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  HostListener,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ProcessManager } from '../../core/services/process-manager';
 
 @Component({
   selector: 'app-window-switcher',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './window-switcher.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './window-switcher.scss',
 })
 export class WindowSwitcher {
-  private processManager = inject(ProcessManager);
+  private readonly processManager = inject(ProcessManager);
 
-  isVisible = signal(false);
-  selectedIndex = signal(0);
+  readonly isVisible = signal(false);
+  readonly selectedIndex = signal(0);
 
-  processes = computed(() => {
+  readonly processes = computed(() => {
     return [...this.processManager.processes()].sort((a, b) => b.zIndex - a.zIndex);
   });
 
   @HostListener('window:keydown', ['$event'])
-  onKeyDown(event: KeyboardEvent) {
+  onKeyDown(event: KeyboardEvent): void {
     if (event.ctrlKey && event.code === 'Backquote') {
       event.preventDefault();
 
@@ -32,7 +38,7 @@ export class WindowSwitcher {
       } else {
         const delta = event.shiftKey ? -1 : 1;
         const len = this.processes().length;
-        this.selectedIndex.update((idx) => (idx + delta + len) % len);
+        this.selectedIndex.update((i) => (i + delta + len) % len);
       }
     }
 
@@ -42,13 +48,13 @@ export class WindowSwitcher {
   }
 
   @HostListener('window:keyup', ['$event'])
-  onKeyUp(event: KeyboardEvent) {
+  onKeyUp(event: KeyboardEvent): void {
     if (!event.ctrlKey && this.isVisible()) {
       this.confirmSelection();
     }
   }
 
-  confirmSelection() {
+  confirmSelection(): void {
     const selected = this.processes()[this.selectedIndex()];
     if (selected) {
       this.processManager.focus(selected.id);
@@ -56,7 +62,7 @@ export class WindowSwitcher {
     this.isVisible.set(false);
   }
 
-  selectAndFocus(index: number) {
+  selectAndFocus(index: number): void {
     this.selectedIndex.set(index);
     this.confirmSelection();
   }

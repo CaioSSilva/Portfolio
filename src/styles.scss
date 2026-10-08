@@ -82,7 +82,7 @@ body {
 
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-gnome-border) transparent; /* Para Firefox */
+  scrollbar-color: var(--color-gnome-border) transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -149,7 +149,6 @@ body {
   }
 }
 
-/* ── Disc spin animations (shared across player, widget, notification-center) ── */
 .disc-playing {
   animation: disc-spin 8s linear infinite;
 }
@@ -163,11 +162,19 @@ body {
 }
 
 @keyframes disc-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes disc-spin-reverse {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(-360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
 }

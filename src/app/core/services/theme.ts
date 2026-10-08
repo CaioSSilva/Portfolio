@@ -2,7 +2,7 @@ import { Injectable, signal, effect } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class Theme {
-  public readonly isDarkMode = signal<boolean>(this.getInitialTheme());
+  readonly isDarkMode = signal<boolean>(this.getInitialTheme());
 
   constructor() {
     effect(() => {
@@ -11,30 +11,17 @@ export class Theme {
     this.listenToSystemChanges();
   }
 
-  public toggle(): void {
+  toggle(): void {
     this.isDarkMode.update((dark) => !dark);
   }
 
-  public setDark(value: boolean): void {
+  setDark(value: boolean): void {
     this.isDarkMode.set(value);
   }
 
   private applyTheme(isDark: boolean): void {
     document.documentElement.classList.toggle('dark', isDark);
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  }
-
-  private getInitialTheme(): boolean {
-    try {
-      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
-      if (saved) return saved === 'dark';
-      if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches;
-      }
-    } catch {
-      // localStorage unavailable — use default theme
-    }
-    return false;
   }
 
   private listenToSystemChanges(): void {
@@ -48,5 +35,16 @@ export class Theme {
         });
       }
     }
+  }
+
+  private getInitialTheme(): boolean {
+    try {
+      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('theme') : null;
+      if (saved) return saved === 'dark';
+      if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+    } catch {}
+    return false;
   }
 }

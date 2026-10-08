@@ -8,8 +8,8 @@ export interface ProcessData {
 
 @Directive()
 export abstract class Base<T = ProcessData | string> {
-  data = model<T | null>(null);
-  handle = input<string[] | undefined>();
+  readonly data = model<T | null>(null);
+  readonly handle = input<string[] | undefined>();
 }
 
 export interface AppBase {

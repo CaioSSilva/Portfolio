@@ -1,5 +1,11 @@
-import { Component, inject, OnInit, output, signal, ChangeDetectionStrategy } from '@angular/core';
-import { Theme } from '../../core/services/theme';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { DatePipe, registerLocaleData } from '@angular/common';
 import { ProcessManager } from '../../core/services/process-manager';
 import { NotificationCenter } from '../notification-center/notification-center';
@@ -19,24 +25,35 @@ registerLocaleData(localePtBr, 'pt-BR');
   styleUrl: './top-bar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TopBar implements OnInit {
-  themeService = inject(Theme);
-  languageService = inject(LanguageService);
-  processManager = inject(ProcessManager);
-  notfService = inject(NotificationService);
-  screen = inject(ScreenService);
-  lang = inject(LanguageService);
-  onShutdown = output<boolean>();
-  forceShow = signal(false);
-  now = signal(new Date());
-  pullOffset = signal(0);
-  isPulling = signal(false);
-  isReturning = signal(false);
+export class TopBar {
+  private readonly destroyRef = inject(DestroyRef);
+  readonly processManager = inject(ProcessManager);
+  readonly notificationService = inject(NotificationService);
+  readonly screen = inject(ScreenService);
+  readonly lang = inject(LanguageService);
+
+  readonly forceShow = signal(false);
+  readonly now = signal(new Date());
+  readonly pullOffset = signal(0);
+  readonly isPulling = signal(false);
+  readonly isReturning = signal(false);
+
+  readonly onShutdown = output<boolean>();
 
   private touchStartY = 0;
   private isSwiping = false;
 
-  onTouchStart(event: TouchEvent) {
+  constructor() {
+    this.initClock();
+  }
+
+  private initClock(): void {
+    if (typeof window === 'undefined') return;
+    const id = setInterval(() => this.now.set(new Date()), 1000);
+    this.destroyRef.onDestroy(() => clearInterval(id));
+  }
+
+  onTouchStart(event: TouchEvent): void {
     if (this.screen.isMobile() && event.touches.length > 0) {
       this.touchStartY = event.touches[0].clientY;
       this.isSwiping = true;
@@ -45,7 +62,7 @@ export class TopBar implements OnInit {
     }
   }
 
-  onTouchMove(event: TouchEvent) {
+  onTouchMove(event: TouchEvent): void {
     if (!this.isSwiping || !this.screen.isMobile() || event.touches.length === 0) return;
     const currentY = event.touches[0].clientY;
     const deltaY = currentY - this.touchStartY;
@@ -55,7 +72,7 @@ export class TopBar implements OnInit {
     }
   }
 
-  onTouchEnd(event: TouchEvent) {
+  onTouchEnd(event: TouchEvent): void {
     if (!this.screen.isMobile() || !this.isSwiping) return;
     this.isSwiping = false;
     this.isPulling.set(false);
@@ -64,21 +81,17 @@ export class TopBar implements OnInit {
     if (event.changedTouches.length > 0) {
       const touchEndY = event.changedTouches[0].clientY;
       const deltaY = touchEndY - this.touchStartY;
-      if (deltaY > 30 || Math.abs(deltaY) < 10) {
-        this.notfService.openPanel();
+      if (deltaY > 30) {
+        this.notificationService.openPanel();
+      } else if (Math.abs(deltaY) < 5) {
+        this.notificationService.togglePanel();
       }
     }
     this.pullOffset.set(0);
     setTimeout(() => this.isReturning.set(false), 350);
   }
 
-  ngOnInit() {
-    setInterval(() => {
-      this.now.set(new Date());
-    }, 1000);
-  }
-
-  handlePowerOff() {
+  handlePowerOff(): void {
     this.onShutdown.emit(true);
   }
 }

@@ -6,8 +6,9 @@ import { LanguageService } from '../../core/services/language';
 import { DockService } from '../../core/services/dock';
 import { DesktopIconsService } from '../../core/services/desktop-icons';
 import { ProcessManager } from '../../core/services/process-manager';
-import { signal } from '@angular/core';
+import { Type, signal } from '@angular/core';
 import { AppDefinition } from '../../core/models/dock';
+import { Base } from '../../core/models/base';
 
 describe('AppsGrid', () => {
   let component: AppsGrid;
@@ -18,17 +19,17 @@ describe('AppsGrid', () => {
     appsSearchQuery = signal('');
 
     const appsMock = {
-        searchQuery: appsSearchQuery,
-        isAppsGridOpen: signal(false),
-        filteredApps: signal([]),
-        appsRegistry: signal({}),
-        appsDefinition: signal([]),
-        appSearchResult: signal([]),
-        debouncedQuery: signal(''),
-        openApp: vi.fn(),
-        toggleGrid: vi.fn(),
-        onRightClickApp: vi.fn(),
-      };
+      searchQuery: appsSearchQuery,
+      isAppsGridOpen: signal(false),
+      filteredApps: signal([]),
+      appsRegistry: signal({}),
+      appsDefinition: signal([]),
+      appSearchResult: signal([]),
+      debouncedQuery: signal(''),
+      openApp: vi.fn(),
+      toggleGrid: vi.fn(),
+      onRightClickApp: vi.fn(),
+    };
 
     const contextMenuMock = {
       open: vi.fn(),
@@ -74,18 +75,30 @@ describe('AppsGrid', () => {
     expect(appsSearchQuery()).toBe('');
   });
 
-  it('ondragStart sets appId on dataTransfer', () => {
-    const app: AppDefinition = { id: 'browser', title: 'Browser', icon: 'globe', color: '#fff', component: null as any };
+  it('onDragStart sets appId on dataTransfer', () => {
+    const app: AppDefinition = {
+      id: 'browser',
+      title: 'Browser',
+      icon: 'globe',
+      color: '#fff',
+      component: Base as Type<Base>,
+    };
     const dt = { setData: vi.fn(), effectAllowed: '' } as unknown as DataTransfer;
     const event = { dataTransfer: dt } as unknown as DragEvent;
-    component.ondragStart(event, app);
+    component.onDragStart(event, app);
     expect(dt.setData).toHaveBeenCalledWith('appId', 'browser');
     expect(dt.effectAllowed).toBe('link');
   });
 
-  it('ondragStart handles null dataTransfer gracefully', () => {
-    const app: AppDefinition = { id: 'browser', title: 'Browser', icon: 'globe', color: '#fff', component: null as any };
+  it('onDragStart handles null dataTransfer gracefully', () => {
+    const app: AppDefinition = {
+      id: 'browser',
+      title: 'Browser',
+      icon: 'globe',
+      color: '#fff',
+      component: Base as Type<Base>,
+    };
     const event = { dataTransfer: null } as unknown as DragEvent;
-    expect(() => component.ondragStart(event, app)).not.toThrow();
+    expect(() => component.onDragStart(event, app)).not.toThrow();
   });
 });

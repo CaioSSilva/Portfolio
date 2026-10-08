@@ -10,7 +10,18 @@ import { Base } from '../../core/models/base';
 class MockApp extends Base {}
 
 function makeProcess(id: string, zIndex: number): Process {
-  return { id, appId: id, title: id, icon: '', color: '', component: MockApp, isMinimized: false, isMaximized: false, zIndex, cascadeIndex: 0 };
+  return {
+    id,
+    appId: id,
+    title: id,
+    icon: '',
+    color: '',
+    component: MockApp,
+    isMinimized: false,
+    isMaximized: false,
+    zIndex,
+    cascadeIndex: 0,
+  };
 }
 
 describe('WindowSwitcher', () => {
@@ -56,39 +67,53 @@ describe('WindowSwitcher', () => {
   it('onKeyDown Ctrl+` with no processes does nothing', () => {
     processesSig.set([]);
     fixture.detectChanges();
-    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
+    component.onKeyDown(
+      new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }),
+    );
     expect(component.isVisible()).toBe(false);
   });
 
   it('onKeyDown Ctrl+` with processes opens switcher', () => {
     processesSig.set([makeProcess('a', 1), makeProcess('b', 2)]);
     fixture.detectChanges();
-    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
+    component.onKeyDown(
+      new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }),
+    );
     expect(component.isVisible()).toBe(true);
   });
 
   it('onKeyDown Ctrl+` cycles selectedIndex forward when already visible', () => {
     processesSig.set([makeProcess('a', 1), makeProcess('b', 2), makeProcess('c', 3)]);
     fixture.detectChanges();
-    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
+    component.onKeyDown(
+      new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }),
+    );
     const firstIdx = component.selectedIndex();
-    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
+    component.onKeyDown(
+      new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }),
+    );
     expect(component.selectedIndex()).not.toBe(firstIdx);
   });
 
   it('onKeyDown Ctrl+Shift+` cycles selectedIndex backward', () => {
     processesSig.set([makeProcess('a', 1), makeProcess('b', 2), makeProcess('c', 3)]);
     fixture.detectChanges();
-    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
+    component.onKeyDown(
+      new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }),
+    );
     const afterOpen = component.selectedIndex();
-    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true, shiftKey: true }));
+    component.onKeyDown(
+      new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true, shiftKey: true }),
+    );
     expect(component.selectedIndex()).toBe((afterOpen - 1 + 3) % 3);
   });
 
   it('onKeyDown Escape closes switcher', () => {
     processesSig.set([makeProcess('a', 1)]);
     fixture.detectChanges();
-    component.onKeyDown(new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }));
+    component.onKeyDown(
+      new KeyboardEvent('keydown', { key: '`', code: 'Backquote', ctrlKey: true }),
+    );
     expect(component.isVisible()).toBe(true);
     component.onKeyDown(new KeyboardEvent('keydown', { key: 'Escape' }));
     expect(component.isVisible()).toBe(false);

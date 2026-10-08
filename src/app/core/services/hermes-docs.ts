@@ -16,7 +16,7 @@ Cai_OS é um web desktop inspirado no GNOME, portfólio de Caio Souza Silva.
 - hermes (Você)
 
 ## Autor
-Caio Souza Silva | Email: caiosouzasilva13650@gmail.com | Portfolio: caiossiva.com | GitHub: github.com/CaioSSilva
+Caio Souza Silva | Email: caiosouzasilva13650@gmail.com | Portfolio: caiossilva.com | GitHub: github.com/CaioSSilva
 
 ## Ações no Sistema
 Quando o usuário solicitar uma ação no CaiOS, adicione uma tag de ação no final da sua resposta no formato:
@@ -57,7 +57,7 @@ Cai_OS is a GNOME-inspired web desktop and portfolio of Caio Souza Silva.
 - hermes (You)
 
 ## Author
-Caio Souza Silva | Email: caiosouzasilva13650@gmail.com | Portfolio: caiossiva.com | GitHub: github.com/CaioSSilva
+Caio Souza Silva | Email: caiosouzasilva13650@gmail.com | Portfolio: caiossilva.com | GitHub: github.com/CaioSSilva
 
 ## System Actions
 When the user asks you to perform an action in CaiOS, append an action tag at the end of your response:

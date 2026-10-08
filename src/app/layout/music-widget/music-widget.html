@@ -5,7 +5,9 @@
     class="mx-4 mb-0 md:mb-4 mt-0 bg-gnome-surface/60 border border-gnome-border/40 rounded-t-2xl rounded-b-[24px] md:rounded-b-lg p-3.5 flex flex-col gap-2.5 cursor-pointer active:opacity-80 transition-opacity"
   >
     <div class="flex items-center gap-3 min-w-0 w-full">
-      <div class="w-9 h-9 rounded-xl bg-gnome-blue flex items-center justify-center shrink-0 overflow-hidden">
+      <div
+        class="w-9 h-9 rounded-xl bg-gnome-blue flex items-center justify-center shrink-0 overflow-hidden"
+      >
         @if (player.currentTrack()?.thumb && !widgetThumbError()) {
           <img
             [src]="player.currentTrack()!.thumb"
@@ -33,16 +35,20 @@
     <div class="flex items-center justify-center gap-5">
       <button
         (click)="player.prevTrack(); $event.stopPropagation()"
+        aria-label="Previous track"
         class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gnome-text/10 active:scale-90 transition-all cursor-pointer text-gnome-text opacity-70 hover:opacity-100"
       >
         <i class="fas fa-backward-step text-base"></i>
       </button>
       <button
         (click)="player.togglePlay(); $event.stopPropagation()"
+        [attr.aria-label]="player.isPlaying() ? 'Pause' : 'Play'"
         class="w-11 h-11 flex items-center justify-center bg-gnome-blue rounded-full shadow-lg hover:opacity-90 active:scale-95 transition-all cursor-pointer"
       >
         @if (player.isLoading()) {
-          <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <div
+            class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+          ></div>
         } @else {
           <i
             class="fas text-white text-base"
@@ -53,6 +59,7 @@
       </button>
       <button
         (click)="player.nextTrack(); $event.stopPropagation()"
+        aria-label="Next track"
         class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gnome-text/10 active:scale-90 transition-all cursor-pointer text-gnome-text opacity-70 hover:opacity-100"
       >
         <i class="fas fa-forward-step text-base"></i>
@@ -72,7 +79,9 @@
         (input)="onSeekMove($event)"
         (pointerup)="onSeekEnd($event)"
         (pointercancel)="onSeekEnd($event)"
-        [style.--slider-pct]="(player.duration() > 0 ? (displayTime() / player.duration()) * 100 : 0) + '%'"
+        [style.--slider-pct]="
+          (player.duration() > 0 ? (displayTime() / player.duration()) * 100 : 0) + '%'
+        "
         class="gnome-slider flex-1 h-1.5 appearance-none cursor-pointer rounded-full"
       />
       <span class="text-[10px] font-mono text-gnome-text-secondary w-7 shrink-0">

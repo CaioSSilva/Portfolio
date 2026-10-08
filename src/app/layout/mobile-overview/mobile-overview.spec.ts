@@ -70,11 +70,11 @@ describe('MobileOverview', () => {
 
   it('closeProcess closes single process and stops event propagation', () => {
     const closeSpy = vi.spyOn(processManager, 'close');
-    const p = makeProcess('p1');
-    processManager.processes.set([p]);
+    const proc = makeProcess('p1');
+    processManager.processes.set([proc]);
 
     const stopPropSpy = vi.fn();
-    component.closeProcess(p, { stopPropagation: stopPropSpy } as unknown as Event);
+    component.closeProcess(proc, { stopPropagation: stopPropSpy } as unknown as Event);
 
     expect(stopPropSpy).toHaveBeenCalled();
     expect(closeSpy).toHaveBeenCalledWith('p1');
@@ -83,11 +83,11 @@ describe('MobileOverview', () => {
   it('onCardClick focuses process and closes overview', () => {
     const focusSpy = vi.spyOn(processManager, 'focus');
     const closeOverviewSpy = vi.spyOn(nav, 'closeOverview');
-    const p = makeProcess('p1');
-    processManager.processes.set([p]);
+    const proc = makeProcess('p1');
+    processManager.processes.set([proc]);
 
     const event = { stopPropagation: vi.fn() } as unknown as MouseEvent;
-    component.onCardClick(event, p);
+    component.onCardClick(event, proc);
 
     expect(focusSpy).toHaveBeenCalledWith('p1');
     expect(closeOverviewSpy).toHaveBeenCalled();
@@ -160,14 +160,17 @@ describe('MobileOverview', () => {
   });
 
   it('onCardTouchMove sets negative offset on upward swipe', () => {
-    const p = makeProcess('p1');
+    const proc = makeProcess('p1');
     component.onCardTouchStart(
       { touches: [{ clientX: 100, clientY: 300 }] } as unknown as TouchEvent,
-      p
+      proc,
     );
     component.onCardTouchMove(
-      { touches: [{ clientX: 100, clientY: 240 }], stopPropagation: vi.fn() } as unknown as TouchEvent,
-      p
+      {
+        touches: [{ clientX: 100, clientY: 240 }],
+        stopPropagation: vi.fn(),
+      } as unknown as TouchEvent,
+      proc,
     );
     expect(component.swipeOffsets()['p1']).toBeLessThan(0);
   });
@@ -175,19 +178,19 @@ describe('MobileOverview', () => {
   it('onCardTouchEnd dismisses card on swipe-up > 80px', () => {
     vi.useFakeTimers();
     const closeSpy = vi.spyOn(processManager, 'close');
-    const p = makeProcess('p1');
-    processManager.processes.set([p]);
+    const proc = makeProcess('p1');
+    processManager.processes.set([proc]);
 
     component.onCardTouchStart(
       { touches: [{ clientX: 100, clientY: 400 }] } as unknown as TouchEvent,
-      p
+      proc,
     );
     component.onCardTouchEnd(
       {
         changedTouches: [{ clientX: 100, clientY: 300 }],
         stopPropagation: vi.fn(),
       } as unknown as TouchEvent,
-      p
+      proc,
     );
 
     expect(component.isDismissing('p1')).toBe(true);
@@ -199,19 +202,19 @@ describe('MobileOverview', () => {
   it('dismissCard closes overview when last process is dismissed', () => {
     vi.useFakeTimers();
     const closeOverviewSpy = vi.spyOn(nav, 'closeOverview');
-    const p = makeProcess('p1');
-    processManager.processes.set([p]);
+    const proc = makeProcess('p1');
+    processManager.processes.set([proc]);
 
     component.onCardTouchStart(
       { touches: [{ clientX: 100, clientY: 400 }] } as unknown as TouchEvent,
-      p
+      proc,
     );
     component.onCardTouchEnd(
       {
         changedTouches: [{ clientX: 100, clientY: 300 }],
         stopPropagation: vi.fn(),
       } as unknown as TouchEvent,
-      p
+      proc,
     );
 
     processManager.processes.set([]);
@@ -229,14 +232,14 @@ describe('MobileOverview', () => {
 
     component.onCardTouchStart(
       { touches: [{ clientX: 100, clientY: 400 }] } as unknown as TouchEvent,
-      p1
+      p1,
     );
     component.onCardTouchEnd(
       {
         changedTouches: [{ clientX: 100, clientY: 300 }],
         stopPropagation: vi.fn(),
       } as unknown as TouchEvent,
-      p1
+      p1,
     );
 
     processManager.processes.set([p2]);
@@ -248,18 +251,18 @@ describe('MobileOverview', () => {
   it('onCardTouchEnd focuses and closes overview on tap', () => {
     const focusSpy = vi.spyOn(processManager, 'focus');
     const closeOverviewSpy = vi.spyOn(nav, 'closeOverview');
-    const p = makeProcess('p1');
+    const proc = makeProcess('p1');
 
     component.onCardTouchStart(
       { touches: [{ clientX: 100, clientY: 300 }] } as unknown as TouchEvent,
-      p
+      proc,
     );
     component.onCardTouchEnd(
       {
         changedTouches: [{ clientX: 102, clientY: 302 }],
         stopPropagation: vi.fn(),
       } as unknown as TouchEvent,
-      p
+      proc,
     );
 
     expect(focusSpy).toHaveBeenCalledWith('p1');

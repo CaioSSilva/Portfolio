@@ -178,35 +178,64 @@
               class="hidden @sm:grid grid-cols-12 gap-4 px-4 py-3 items-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors group"
             >
               <div class="col-span-6 flex items-center gap-3 min-w-0">
-                <div class="w-9 h-9 rounded-lg bg-gnome-bg border border-gnome-border flex items-center justify-center shadow-sm shrink-0">
+                <div
+                  class="w-9 h-9 rounded-lg bg-gnome-bg border border-gnome-border flex items-center justify-center shadow-sm shrink-0"
+                >
                   <i [class]="p.icon" class="text-sm text-gnome-text"></i>
                 </div>
                 <div class="flex flex-col min-w-0">
-                  <span class="text-sm font-bold text-gnome-text truncate">{{ p.title }}</span>
-                  <span class="text-[10px] opacity-50 font-mono text-gnome-text-secondary tracking-tighter">PID: {{ p.id.split('-')[0] }}</span>
+                  <span class="text-sm font-bold text-gnome-text truncate">{{
+                    getProcessTitle(p.appId, p.title)
+                  }}</span>
+                  <span
+                    class="text-[10px] opacity-50 font-mono text-gnome-text-secondary tracking-tighter"
+                    >PID: {{ p.id.split('-')[0] }}</span
+                  >
                 </div>
               </div>
-              <div class="col-span-2 text-right font-mono text-xs text-gnome-blue font-black">{{ getProcessStats(p.id).cpu }}%</div>
-              <div class="col-span-2 text-right font-mono text-xs text-gnome-text opacity-90">{{ getProcessStats(p.id).ram }}MB</div>
+              <div class="col-span-2 text-right font-mono text-xs text-gnome-blue font-black">
+                {{ getProcessStats(p.id).cpu }}%
+              </div>
+              <div class="col-span-2 text-right font-mono text-xs text-gnome-text opacity-90">
+                {{ getProcessStats(p.id).ram }}MB
+              </div>
               <div class="col-span-2 flex justify-center">
-                <button (click)="killProcess(p.id)" class="opacity-0 cursor-pointer group-hover:opacity-100 p-2.5 rounded-full hover:bg-gnome-red/10 text-gnome-red transition-all active:scale-90 @max-sm:opacity-100">
+                <button
+                  (click)="killProcess(p.id)"
+                  [attr.aria-label]="lang.t().systemMonitor.killProcess"
+                  class="opacity-0 cursor-pointer group-hover:opacity-100 p-2.5 rounded-full hover:bg-gnome-red/10 text-gnome-red transition-all active:scale-90 @max-sm:opacity-100"
+                >
                   <i class="fas fa-times-circle text-lg"></i>
                 </button>
               </div>
             </div>
             <div class="flex @sm:hidden items-center gap-3 px-4 py-3">
-              <div class="w-9 h-9 rounded-lg bg-gnome-bg border border-gnome-border flex items-center justify-center shadow-sm shrink-0">
+              <div
+                class="w-9 h-9 rounded-lg bg-gnome-bg border border-gnome-border flex items-center justify-center shadow-sm shrink-0"
+              >
                 <i [class]="p.icon" class="text-sm text-gnome-text"></i>
               </div>
               <div class="flex-1 min-w-0">
-                <span class="text-sm font-bold text-gnome-text truncate block">{{ p.title }}</span>
+                <span class="text-sm font-bold text-gnome-text truncate block">{{
+                  getProcessTitle(p.appId, p.title)
+                }}</span>
                 <div class="flex gap-3 mt-0.5">
-                  <span class="text-[10px] font-mono text-gnome-blue font-black">CPU {{ getProcessStats(p.id).cpu }}%</span>
-                  <span class="text-[10px] font-mono text-gnome-text opacity-70">RAM {{ getProcessStats(p.id).ram }}MB</span>
-                  <span class="text-[10px] opacity-40 font-mono text-gnome-text-secondary">PID {{ p.id.split('-')[0] }}</span>
+                  <span class="text-[10px] font-mono text-gnome-blue font-black"
+                    >CPU {{ getProcessStats(p.id).cpu }}%</span
+                  >
+                  <span class="text-[10px] font-mono text-gnome-text opacity-70"
+                    >RAM {{ getProcessStats(p.id).ram }}MB</span
+                  >
+                  <span class="text-[10px] opacity-40 font-mono text-gnome-text-secondary"
+                    >PID {{ p.id.split('-')[0] }}</span
+                  >
                 </div>
               </div>
-              <button (click)="killProcess(p.id)" class="shrink-0 p-1.5 rounded-full hover:bg-gnome-red/10 active:bg-gnome-red/20 text-gnome-red touch-manipulation">
+              <button
+                (click)="killProcess(p.id)"
+                [attr.aria-label]="lang.t().systemMonitor.killProcess"
+                class="shrink-0 p-1.5 rounded-full hover:bg-gnome-red/10 active:bg-gnome-red/20 text-gnome-red touch-manipulation"
+              >
                 <i class="fas fa-times-circle text-base"></i>
               </button>
             </div>

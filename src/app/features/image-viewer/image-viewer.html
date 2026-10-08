@@ -34,6 +34,7 @@
                   >
                     <img
                       [src]="img.url"
+                      [alt]="img.name"
                       class="w-full h-full object-cover group-hover:scale-110 transition-transform"
                     />
                   </div>
@@ -76,7 +77,7 @@
     @if (isViewingImage() && !hasError()) {
       <div
         class="flex-1 flex items-center justify-center p-4 relative overflow-hidden"
-        style="touch-action: none;"
+        style="touch-action: none"
         [class.cursor-grab]="zoom() > 1 && !isDragging()"
         [class.cursor-grabbing]="isDragging()"
         (mousedown)="onMouseDown($event)"
@@ -87,6 +88,7 @@
         <button
           (click)="closeImageView()"
           class="absolute top-6 left-6 z-20 w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
+          [attr.aria-label]="lang.t().imageViewer.backButton"
           [title]="lang.t().imageViewer.backButton"
         >
           <i class="fas fa-arrow-left"></i>
@@ -97,12 +99,14 @@
           [class.opacity-50]="isFirstImage()"
           [class.cursor-not-allowed]="isFirstImage()"
           class="absolute left-6 z-20 w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors disabled:hover:bg-transparent"
+          [attr.aria-label]="lang.t().imageViewer.previousButton"
           [title]="lang.t().imageViewer.previousButton"
         >
           <i class="fas fa-chevron-left"></i>
         </button>
         <img
           [src]="safeUrl()!"
+          [alt]="selectedFile()?.name || ''"
           (load)="isLoading.set(false)"
           (error)="hasError.set(true); isLoading.set(false)"
           [style.transform]="
@@ -127,6 +131,7 @@
           [class.opacity-50]="isLastImage()"
           [class.cursor-not-allowed]="isLastImage()"
           class="absolute right-6 z-20 w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors disabled:hover:bg-transparent"
+          [attr.aria-label]="lang.t().imageViewer.nextButton"
           [title]="lang.t().imageViewer.nextButton"
         >
           <i class="fas fa-chevron-right"></i>
@@ -137,28 +142,32 @@
         >
           <button
             (click)="handleZoomOut()"
+            aria-label="Zoom out"
             class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
           >
-            <i class="fas fa-search-minus"></i>
+            <i class="fas fa-search-minus" aria-hidden="true"></i>
           </button>
           <button
             (click)="reset()"
+            aria-label="Reset zoom"
             class="px-3 h-9 cursor-pointer flex items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text text-xs font-medium"
           >
             {{ zoom() * 100 | number: '1.0-0' }}%
           </button>
           <button
             (click)="handleZoomIn()"
+            aria-label="Zoom in"
             class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
           >
-            <i class="fas fa-search-plus"></i>
+            <i class="fas fa-search-plus" aria-hidden="true"></i>
           </button>
           <div class="w-px h-4 bg-gnome-border mx-1"></div>
           <button
             (click)="handleRotate()"
+            aria-label="Rotate"
             class="w-9 h-9 flex cursor-pointer items-center justify-center rounded-full hover:bg-gnome-surface text-gnome-text transition-colors"
           >
-            <i class="fas fa-rotate-right"></i>
+            <i class="fas fa-rotate-right" aria-hidden="true"></i>
           </button>
         </div>
       </div>

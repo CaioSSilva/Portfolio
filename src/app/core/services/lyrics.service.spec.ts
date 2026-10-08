@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { LyricsService } from './lyrics.service';
 import { AudioPlayer } from './audio-player';
-import { FileItem } from '../../../core/models/file';
+import { FileItem } from '../models/file';
+import { LrclibResponse } from '../models/music';
 
 const mockTrack = (url: string, name = 'Song - Artist.mp3'): FileItem => ({
   id: '1',
@@ -14,7 +15,7 @@ const mockTrack = (url: string, name = 'Song - Artist.mp3'): FileItem => ({
 const SYNCED = '[00:01.00] Hello\n[00:03.00] World';
 const PLAIN = 'Hello\nWorld\n\nFoo';
 
-const setupFetch = (body: unknown, ok = true) => {
+const setupFetch = (body: LrclibResponse[] | null, ok = true) => {
   vi.spyOn(globalThis, 'fetch').mockResolvedValue({
     ok,
     json: () => Promise.resolve(body),
@@ -23,8 +24,8 @@ const setupFetch = (body: unknown, ok = true) => {
 
 const flush = async () => {
   TestBed.flushEffects();
-  await new Promise(r => setTimeout(r, 0));
-  await new Promise(r => setTimeout(r, 0));
+  await new Promise((r) => setTimeout(r, 0));
+  await new Promise((r) => setTimeout(r, 0));
 };
 
 describe('LyricsService', () => {
@@ -76,7 +77,7 @@ describe('LyricsService', () => {
 
     expect(service.hasLyrics()).toBe(true);
     expect(service.isPlainOnly()).toBe(true);
-    expect(service.lines().every(l => l.time === -1)).toBe(true);
+    expect(service.lines().every((l) => l.time === -1)).toBe(true);
   });
 
   it('should fall back to plain lyrics when syncedLyrics is null', async () => {
@@ -112,7 +113,7 @@ describe('LyricsService', () => {
     player.currentTrack.set(mockTrack('/song6.mp3'));
     player.duration.set(0);
     TestBed.flushEffects();
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });
@@ -132,7 +133,7 @@ describe('LyricsService', () => {
 
     player.duration.set(201);
     TestBed.flushEffects();
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });
@@ -177,6 +178,6 @@ describe('LyricsService', () => {
     await flush();
 
     expect(service.lines().length).toBe(2);
-    expect(service.lines().every(l => l.text.length > 0)).toBe(true);
+    expect(service.lines().every((l) => l.text.length > 0)).toBe(true);
   });
 });

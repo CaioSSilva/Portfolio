@@ -5,7 +5,8 @@
 }
 
 @keyframes menu-hint-pulse {
-  0%, 100% {
+  0%,
+  100% {
     background-color: var(--color-gnome-blue);
     border-color: var(--color-gnome-blue);
     color: white;
@@ -27,8 +28,6 @@
   color: white !important;
 }
 
-// ── Overlay fullscreen ──────────────────────────────────────────
-
 .lyrics-overlay {
   background: var(--color-gnome-bg);
   color: var(--color-gnome-text);
@@ -43,7 +42,9 @@
     padding: 4px 8px;
     border-radius: 6px;
 
-    &:hover { opacity: 1; }
+    &:hover {
+      opacity: 1;
+    }
   }
 
   &__scroll {
@@ -56,7 +57,9 @@
     align-items: center;
     padding: 1rem 2rem 0;
     scrollbar-width: none;
-    &::-webkit-scrollbar { display: none; }
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   &__state {
@@ -81,8 +84,6 @@
     width: 100%;
   }
 }
-
-// ── Lyrics lines ────────────────────────────────────────────────
 
 .lyrics-line {
   width: 100%;
@@ -118,11 +119,11 @@
 
   &--clickable {
     cursor: pointer;
-    &:hover { opacity: 0.6; }
+    &:hover {
+      opacity: 0.6;
+    }
   }
 }
-
-// ── Inline card ─────────────────────────────────────────────────
 
 .lyrics-card {
   margin-top: 0.75rem;
@@ -130,14 +131,18 @@
   border-radius: 1rem;
   border: 1px solid var(--color-gnome-border);
   background: var(--color-gnome-surface);
-  transition: border-color 0.2s ease, transform 0.15s ease;
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease;
 
   &--clickable {
     cursor: pointer;
     &:hover {
       border-color: color-mix(in srgb, var(--color-gnome-blue) 45%, transparent);
     }
-    &:active { transform: scale(0.985); }
+    &:active {
+      transform: scale(0.985);
+    }
   }
 
   &__header {

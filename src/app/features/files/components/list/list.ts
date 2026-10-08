@@ -11,10 +11,10 @@ import { LanguageService } from '../../../../core/services/language';
   styleUrl: './list.scss',
 })
 export class FilesList {
-  public fs = inject(FileSystem);
-  lang = inject(LanguageService);
-  files = input<FileItem[]>([]);
-  selectedId = input<string | null>(null);
-  onSelect = output<string>();
-  onNavigate = output<FileItem>();
+  readonly fileSystem = inject(FileSystem);
+  readonly lang = inject(LanguageService);
+  readonly files = input<FileItem[]>([]);
+  readonly selectedId = input<string | null>(null);
+  readonly onSelect = output<string>();
+  readonly onNavigate = output<FileItem>();
 }

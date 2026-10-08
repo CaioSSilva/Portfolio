@@ -26,20 +26,20 @@ describe('DesktopIconsService', () => {
 
   it('should pin and unpin apps', () => {
     service.pinApp('files');
-    expect(service.hasPinnedAppWithId('files')).toBeDefined();
+    expect(service.hasPinnedAppWithId('files')).toBe(true);
     expect(service.onDesktopApps().some((a) => a.id === 'files')).toBe(true);
 
     service.unpinApp('files');
-    expect(service.hasPinnedAppWithId('files')).toBeUndefined();
+    expect(service.hasPinnedAppWithId('files')).toBe(false);
     expect(service.onDesktopApps().some((a) => a.id === 'files')).toBe(false);
   });
 
   it('should trigger action and open app', () => {
     service.pinApp('terminal');
-    const pinned = service.hasPinnedAppWithId('terminal');
-    expect(pinned).toBeDefined();
+    expect(service.hasPinnedAppWithId('terminal')).toBe(true);
 
-    pinned?.action();
+    const pinnedItem = service.onDesktopApps().find((a) => a.id === 'terminal');
+    pinnedItem?.action();
     expect(appLauncherSpy.launch).toHaveBeenCalled();
 
     service.openApp('terminal');

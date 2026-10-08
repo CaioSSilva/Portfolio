@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NowPlayingWidget } from './now-playing-widget';
-import { AudioPlayer } from '../../features/musics/player/audio-player';
+import { AudioPlayer } from '../../core/services/audio-player';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
 import { signal } from '@angular/core';

@@ -9,23 +9,25 @@ import { NotificationService } from './notification';
 export class FileSystem {
   private readonly http = inject(HttpClient);
   private readonly lang = inject(LanguageService);
-  private readonly nots = inject(NotificationService);
+  private readonly notifications = inject(NotificationService);
 
   readonly tree = signal<FileItem | null>(null);
   readonly isLoaded = signal(false);
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
 
-  private readonly nodeMap = new Map<string, FileItem>();
-  private readonly searchIndex = new Map<string, Set<FileItem>>();
-  private readonly sizeFormatCache = new Map<number, string>();
-  private loadPromise?: Promise<void>;
-
   readonly totalFiles = computed(() => this.countFiles(this.tree()));
   readonly totalSize = computed(() => this.tree()?.size || 0);
 
+  private readonly nodeMap = new Map<string, FileItem>();
+  private readonly parentMap = new Map<string, string>();
+  private readonly searchIndex = new Map<string, Set<FileItem>>();
+  private readonly sizeFormatCache = new Map<string, string>();
+  private loadPromise?: Promise<void>;
+
   async ensureLoaded(): Promise<void> {
-    if (this.isLoaded() || this.loadPromise) return this.loadPromise;
+    if (this.isLoaded()) return;
+    if (this.loadPromise) return this.loadPromise;
 
     this.startLoading();
 
@@ -37,24 +39,27 @@ export class FileSystem {
     return this.loadPromise;
   }
 
-  private initializeFileSystem(root: FileItem) {
+  private initializeFileSystem(root: FileItem): void {
     this.calculateSize(root);
     this.tree.set(root);
     this.processNodeRecursively(root);
     this.isLoaded.set(true);
   }
 
-  private processNodeRecursively(node: FileItem) {
+  private processNodeRecursively(node: FileItem): void {
     this.nodeMap.set(node.id, node);
     this.updateSearchIndex(node);
-    node.children?.forEach((child) => this.processNodeRecursively(child));
+    node.children?.forEach((child) => {
+      this.parentMap.set(child.id, node.id);
+      this.processNodeRecursively(child);
+    });
   }
 
-  private updateSearchIndex(node: FileItem) {
+  private updateSearchIndex(node: FileItem): void {
     const terms = node.name
       .toLowerCase()
       .split(/[\s._-]+/)
-      .filter((t) => t.length > 1);
+      .filter((term) => term.length > 1);
 
     terms.forEach((term) => {
       if (!this.searchIndex.has(term)) this.searchIndex.set(term, new Set());
@@ -93,7 +98,7 @@ export class FileSystem {
     const terms = query
       .toLowerCase()
       .split(/\s+/)
-      .filter((t) => t.length > 1);
+      .filter((term) => term.length > 1);
     if (terms.length === 0) return [];
 
     const resultSets = terms.map((term) => this.getMatchesForTerm(term));
@@ -103,22 +108,23 @@ export class FileSystem {
   private getMatchesForTerm(term: string): Set<FileItem> {
     const matches = new Set<FileItem>();
     for (const [indexTerm, files] of this.searchIndex.entries()) {
-      if (indexTerm.includes(term)) files.forEach((f) => matches.add(f));
+      if (indexTerm.includes(term)) files.forEach((file) => matches.add(file));
     }
     return matches;
   }
 
   private intersectSets(sets: Set<FileItem>[]): FileItem[] {
     if (sets.length === 0) return [];
-    return Array.from(sets[0]).filter((item) => sets.every((s) => s.has(item)));
+    return Array.from(sets[0]).filter((item) => sets.every((set) => set.has(item)));
   }
 
   formatFileSize(bytes: number): string {
-    const cached = this.sizeFormatCache.get(bytes);
+    const cacheKey = `${bytes}_${this.lang.currentLang()}`;
+    const cached = this.sizeFormatCache.get(cacheKey);
     if (cached) return cached;
 
     const result = this.calculateFormattedSize(bytes);
-    this.manageFormatCache(bytes, result);
+    this.manageFormatCache(cacheKey, result);
     return result;
   }
 
@@ -126,12 +132,15 @@ export class FileSystem {
     const units = this.lang.t().units;
     if (bytes === 0) return `0 ${units.bytes}`;
 
-    const k = 1024;
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const size = (bytes / Math.pow(k, i)).toFixed(1);
+    const kilobyte = 1024;
     const unitList = [units.bytes, units.kb, units.mb, units.gb];
+    const unitIndex = Math.min(
+      Math.floor(Math.log(bytes) / Math.log(kilobyte)),
+      unitList.length - 1,
+    );
+    const size = (bytes / Math.pow(kilobyte, unitIndex)).toFixed(1);
 
-    return `${size} ${unitList[i]}`;
+    return `${size} ${unitList[unitIndex]}`;
   }
 
   private calculateSize(node: FileItem): number {
@@ -148,25 +157,26 @@ export class FileSystem {
   }
 
   private findParent(childId: string): FileItem | undefined {
-    return Array.from(this.nodeMap.values()).find((node) =>
-      node.children?.some((child) => child.id === childId),
-    );
+    const parentId = this.parentMap.get(childId);
+    return parentId ? this.nodeMap.get(parentId) : undefined;
   }
 
-  private startLoading() {
+  private startLoading(): void {
     this.isLoading.set(true);
     this.error.set(null);
   }
 
-  private handleLoadError() {
-    this.nots.show({
+  private handleLoadError(): void {
+    this.error.set('load_failed');
+    this.loadPromise = undefined;
+    this.notifications.show({
       title: this.lang.t().errors.systemError,
       message: this.lang.t().errors.enableToLoadFs,
       icon: 'fas fa-circle-exclamation',
     });
   }
 
-  private manageFormatCache(key: number, value: string) {
+  private manageFormatCache(key: string, value: string): void {
     if (this.sizeFormatCache.size > 1000) {
       const firstKey = this.sizeFormatCache.keys().next().value;
       if (firstKey !== undefined) this.sizeFormatCache.delete(firstKey);
@@ -188,22 +198,24 @@ export class FileSystem {
 
   getSiblingsByUrl(url: string, extensions: string[]): FileItem[] {
     const targetExts = new Set(extensions.map((ext) => ext.toLowerCase()));
-    const targetNode = Array.from(this.nodeMap.values()).find((n) => n.url === url);
+    const targetNode = Array.from(this.nodeMap.values()).find((node) => node.url === url);
     if (!targetNode) return this.getFilesByExtensions(extensions);
 
     const parent = this.findParent(targetNode.id);
     const siblings = parent ? (parent.children ?? []) : [targetNode];
 
     return siblings.filter(
-      (n) => n.type === 'file' && targetExts.has(this.getFileExtension(n.name)),
+      (node) => node.type === 'file' && targetExts.has(this.getFileExtension(node.name)),
     );
   }
 
-  downloadFile(path: string, name: string) {
+  downloadFile(path: string, name: string): void {
     if (!path || !name) return;
-    const a = document.createElement('a');
-    a.href = path;
-    a.download = name;
-    a.click();
+    const anchor = document.createElement('a');
+    anchor.href = path;
+    anchor.download = name;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
   }
 }

@@ -9,18 +9,18 @@ import { App } from '../../../app';
   templateUrl: './shutdown.html',
 })
 export class Shutdown {
-  lang = inject(LanguageService);
-  shutdown = output<boolean>();
+  readonly lang = inject(LanguageService);
+  readonly shutdown = output<boolean>();
 
-  cancelShutdown() {
+  cancelShutdown(): void {
     this.shutdown.emit(false);
   }
 
-  restart() {
+  restart(): void {
     window.location.reload();
   }
 
-  onConfirmPowerOff() {
+  onConfirmPowerOff(): void {
     window.close();
     setTimeout(() => {
       window.location.href = 'about:blank';

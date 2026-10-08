@@ -11,24 +11,28 @@ import { LanguageService } from '../../../../core/services/language';
   styleUrl: './sidebar.scss',
 })
 export class FilesSidebar {
-  tree = input<FileItem | null>(null);
-  width = input(240);
-  currentFolderId = input<string>('');
-  selectedId = input<string | null>(null);
-  expandedFolders = input<Set<string>>(new Set());
+  readonly tree = input<FileItem | null>(null);
+  readonly width = input(240);
+  readonly currentFolderId = input<string>('');
+  readonly selectedId = input<string | null>(null);
+  readonly expandedFolders = input<Set<string>>(new Set());
 
-  lang = inject(LanguageService);
+  readonly lang = inject(LanguageService);
 
-  onNavigate = output<FileItem>();
-  onToggle = output<string>();
+  readonly onNavigate = output<FileItem>();
+  readonly onToggle = output<string>();
 
-  isSelected(item: FileItem) {
+  isSelected(item: FileItem): boolean {
     return item.type === 'file'
       ? this.selectedId() === item.id
       : this.currentFolderId() === item.id;
   }
 
-  isExpanded(id: string) {
+  isExpanded(id: string): boolean {
     return this.expandedFolders().has(id);
+  }
+
+  getFileLabel(id: string, fallback: string): string {
+    return (this.lang.t().files as Record<string, string>)[id.toLowerCase()] || fallback;
   }
 }

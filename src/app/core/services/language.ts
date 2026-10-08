@@ -17,24 +17,20 @@ export class LanguageService {
           return browserLang;
         }
       }
-    } catch {
-      // localStorage unavailable — fallback to default
-    }
+    } catch {}
     return 'pt';
   }
 
-  setLanguage(lang: Language) {
+  setLanguage(lang: Language): void {
     this.currentLang.set(lang);
     try {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('lang', lang);
       }
-    } catch {
-      // localStorage unavailable — skip persistence
-    }
+    } catch {}
   }
 
-  toggle() {
+  toggle(): void {
     this.setLanguage(this.currentLang() === 'pt' ? 'en' : 'pt');
   }
 }

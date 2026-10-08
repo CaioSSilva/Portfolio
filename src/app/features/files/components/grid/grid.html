@@ -19,6 +19,7 @@
         @if (file.url && isImage(file.name)) {
           <img
             [src]="file.url"
+            [alt]="file.name"
             [style.height.px]="gridSize() * 0.7"
             [style.width.px]="gridSize() * 0.7"
             class="object-cover rounded-lg shadow-sm border border-black/5 group-active:scale-95 transition-transform animate-fade-in"

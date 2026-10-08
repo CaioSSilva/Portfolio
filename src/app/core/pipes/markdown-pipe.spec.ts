@@ -45,15 +45,21 @@ describe('MarkdownPipe', () => {
   });
 
   it('should convert ## heading to <h2> with id', () => {
-    expect(pipe.transform('## My Section').toString()).toContain('<h2 id="my-section">My Section</h2>');
+    expect(pipe.transform('## My Section').toString()).toContain(
+      '<h2 id="my-section">My Section</h2>',
+    );
   });
 
   it('should convert ### heading to <h3> with id', () => {
-    expect(pipe.transform('### Sub Title').toString()).toContain('<h3 id="sub-title">Sub Title</h3>');
+    expect(pipe.transform('### Sub Title').toString()).toContain(
+      '<h3 id="sub-title">Sub Title</h3>',
+    );
   });
 
   it('should convert #### heading to <h4> with id', () => {
-    expect(pipe.transform('#### Deep Title').toString()).toContain('<h4 id="deep-title">Deep Title</h4>');
+    expect(pipe.transform('#### Deep Title').toString()).toContain(
+      '<h4 id="deep-title">Deep Title</h4>',
+    );
   });
 
   it('should slugify heading: lowercase and spaces to hyphens', () => {

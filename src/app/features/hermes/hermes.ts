@@ -1,60 +1,72 @@
-import { Component, inject, signal, computed, viewChild, ElementRef, effect, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  computed,
+  viewChild,
+  ElementRef,
+  effect,
+  signal,
+  ChangeDetectionStrategy,
+  DestroyRef,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Gemini, GeminiModel } from '../../core/services/gemini';
 import { Settings } from '../../core/services/settings';
 import { LanguageService } from '../../core/services/language';
-import { NotificationService } from '../../core/services/notification';
-import { HermesActionService } from '../../core/services/hermes-action';
 import { Base } from '../../core/models/base';
-import { Message } from '../../core/models/hermes';
 import { MarkdownPipe } from '../../core/pipes/markdown-pipe';
-
-const MAX_HISTORY_MESSAGES = 6;
+import { HermesChatService } from '../../core/services/hermes-chat';
 
 @Component({
   selector: 'app-hermes',
   standalone: true,
-  imports: [FormsModule, CommonModule, MarkdownPipe],
+  imports: [FormsModule, NgClass, MarkdownPipe],
   templateUrl: './hermes.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './hermes.scss',
 })
 export class Hermes extends Base {
-  protected readonly lang = inject(LanguageService);
-  private readonly not = inject(NotificationService);
   private readonly gemini = inject(Gemini);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly lang = inject(LanguageService);
   readonly settings = inject(Settings);
-  private readonly actionService = inject(HermesActionService);
+  readonly chat = inject(HermesChatService);
 
-  scrollFrame = viewChild<ElementRef>('scrollFrame');
+  private readonly scrollFrame = viewChild<ElementRef>('scrollFrame');
 
-  userInput = signal('');
-  isLoading = signal(false);
-  messages = signal<Message[]>([]);
-  selectedFile = signal<{ mimeType: string; b64: string } | null>(null);
-  previewUrl = signal<string | null>(null);
+  readonly userInput = signal('');
+  readonly selectedFile = signal<{ mimeType: string; b64: string } | null>(null);
+  readonly previewUrl = signal<string | null>(null);
 
-  modelPickerOpen = signal(false);
-  geminiModels = signal<GeminiModel[]>([]);
-  modelsLoading = signal(false);
-  modelsError = signal(false);
-  private modelsLoaded = false;
+  readonly modelPickerOpen = signal(false);
+  readonly geminiModels = signal<GeminiModel[]>([]);
+  readonly modelsLoading = signal(false);
+  readonly modelsError = signal(false);
 
-  isButtonDisabled = computed(
-    () => (this.userInput().trim().length === 0 && !this.selectedFile()) || this.isLoading(),
+  readonly isButtonDisabled = computed(
+    () => (this.userInput().trim().length === 0 && !this.selectedFile()) || this.chat.isLoading(),
   );
+
+  private modelsLoaded = false;
+  private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     super();
     effect(() => {
-      if (this.messages().length || this.isLoading()) {
+      if (this.chat.messages().length || this.chat.isLoading()) {
         this.scrollToBottom();
+      }
+    });
+    this.destroyRef.onDestroy(() => {
+      if (this.scrollTimeout !== null) {
+        clearTimeout(this.scrollTimeout);
+        this.scrollTimeout = null;
       }
     });
   }
 
-  async onFileSelected(event: Event) {
+  async onFileSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
@@ -71,106 +83,25 @@ export class Hermes extends Base {
     reader.readAsDataURL(file);
   }
 
-  async handleSendMessage() {
+  async handleSendMessage(): Promise<void> {
     if (this.isButtonDisabled()) return;
 
-    const currentText = this.userInput();
-    const currentFile = this.selectedFile();
-    const currentPreview = this.previewUrl();
-
-    // Limit history to the last N messages to save context and tokens
-    const recentMessages = this.messages().slice(-MAX_HISTORY_MESSAGES);
-    const historyFormatted = recentMessages
-      .map((m) => `${m.role === 'user' ? 'User' : 'Hermes'}: ${m.text}`)
-      .join('\n');
-
-    const historyHeader =
-      this.lang.currentLang() === 'pt'
-        ? 'Histórico recente:\n'
-        : 'Recent history:\n';
-
-    const history = recentMessages.length > 0 ? historyHeader + historyFormatted : '';
-
-    this.messages.update((prev) => [
-      ...prev,
-      {
-        role: 'user',
-        text: currentText,
-        image: currentPreview ?? undefined,
-      },
-    ]);
+    const text = this.userInput();
+    const fileData = this.selectedFile();
+    const preview = this.previewUrl();
 
     this.userInput.set('');
     this.clearAttachment();
-    this.isLoading.set(true);
 
-    // Placeholder message for streaming response
-    const modelMessageIndex = this.messages().length;
-    this.messages.update((prev) => [
-      ...prev,
-      {
-        role: 'model',
-        text: '',
-      },
-    ]);
-
-    try {
-      const rawResponse = await this.gemini.generateResponseStream(
-        currentText,
-        history,
-        currentFile ?? undefined,
-        (streamedText) => {
-          const { cleanText } = this.actionService.parseActions(streamedText);
-          this.messages.update((prev) => {
-            const next = [...prev];
-            if (next[modelMessageIndex]) {
-              next[modelMessageIndex] = {
-                ...next[modelMessageIndex],
-                text: cleanText,
-              };
-            }
-            return next;
-          });
-        }
-      );
-
-      // Parse final response and execute any detected actions
-      const { cleanText, actions } = this.actionService.parseActions(rawResponse);
-
-      this.messages.update((prev) => {
-        const next = [...prev];
-        if (next[modelMessageIndex]) {
-          next[modelMessageIndex] = {
-            ...next[modelMessageIndex],
-            text: cleanText,
-          };
-        }
-        return next;
-      });
-
-      for (const action of actions) {
-        this.actionService.execute(action);
-      }
-    } catch (error) {
-      this.messages.update((prev) => prev.filter((_, idx) => idx !== modelMessageIndex));
-      const is404 = error instanceof Error && (error.message.includes('404') || error.message.includes('NOT_FOUND'));
-      this.not.show({
-        title: this.lang.t().errors.systemError,
-        message: is404 ? this.lang.t().errors.modelUnavailable : this.lang.t().errors.seviceUnavailable,
-        icon: is404 ? 'fas fa-robot' : 'fas fa-circle-exclamation',
-        duration: is404 ? 10000 : 6000,
-      });
-    } finally {
-      this.isLoading.set(false);
-    }
+    await this.chat.send(text, fileData, preview);
   }
 
-  clearAttachment() {
+  clearAttachment(): void {
     this.selectedFile.set(null);
     this.previewUrl.set(null);
   }
 
-  async toggleModelPicker() {
+  async toggleModelPicker(): Promise<void> {
     const opening = !this.modelPickerOpen();
     this.modelPickerOpen.set(opening);
     if (opening && !this.modelsLoaded) {
@@ -178,7 +109,7 @@ export class Hermes extends Base {
     }
   }
 
-  async loadModels() {
+  async loadModels(): Promise<void> {
     this.modelsLoading.set(true);
     this.modelsError.set(false);
     try {
@@ -192,8 +123,12 @@ export class Hermes extends Base {
     }
   }
 
-  private scrollToBottom() {
-    setTimeout(() => {
+  private scrollToBottom(): void {
+    if (this.scrollTimeout !== null) {
+      clearTimeout(this.scrollTimeout);
+    }
+    this.scrollTimeout = setTimeout(() => {
+      this.scrollTimeout = null;
       const frame = this.scrollFrame()?.nativeElement;
       if (frame) {
         frame.scrollTo({ top: frame.scrollHeight, behavior: 'smooth' });

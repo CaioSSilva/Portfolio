@@ -72,9 +72,9 @@ describe('FileSystem', () => {
   };
 
   async function loadFs() {
-    const p = service.ensureLoaded();
+    const loadPromise = service.ensureLoaded();
     httpMock.expectOne('/data/fs.json').flush(mockFsData);
-    await p;
+    await loadPromise;
   }
 
   beforeEach(() => {
@@ -112,16 +112,16 @@ describe('FileSystem', () => {
   });
 
   it('should set isLoading=true then false during load', async () => {
-    const p = service.ensureLoaded();
+    const loadPromise = service.ensureLoaded();
     expect(service.isLoading()).toBe(true);
     httpMock.expectOne('/data/fs.json').flush(mockFsData);
-    await p;
+    await loadPromise;
     expect(service.isLoading()).toBe(false);
   });
 
   it('should not re-request if already loaded (ensureLoaded idempotent)', async () => {
     await loadFs();
-    await service.ensureLoaded(); // should not fire another HTTP request
+    await service.ensureLoaded();
     httpMock.expectNone('/data/fs.json');
   });
 
@@ -187,9 +187,9 @@ describe('FileSystem', () => {
   });
 
   it('should show notification on HTTP error', async () => {
-    const p = service.ensureLoaded();
+    const loadPromise = service.ensureLoaded();
     httpMock.expectOne('/data/fs.json').error(new ErrorEvent('Network error'));
-    await p;
+    await loadPromise;
     expect(notificationSpy.show).toHaveBeenCalled();
   });
 
@@ -197,10 +197,16 @@ describe('FileSystem', () => {
     const anchor = document.createElement('a');
     vi.spyOn(document, 'createElement').mockReturnValueOnce(anchor);
     vi.spyOn(anchor, 'click').mockImplementation(() => {});
+    vi.spyOn(document.body, 'appendChild').mockImplementation(() => anchor);
+    vi.spyOn(document.body, 'removeChild').mockImplementation(() => anchor);
 
     expect(() => service.downloadFile('/file.pdf', 'file.pdf')).not.toThrow();
     expect(anchor.href).toContain('file.pdf');
     expect(anchor.download).toBe('file.pdf');
+    expect(document.body.appendChild).toHaveBeenCalledWith(anchor);
+    expect(document.body.removeChild).toHaveBeenCalledWith(anchor);
+
+    vi.restoreAllMocks();
   });
 
   it('should skip downloadFile when path or name is empty', () => {

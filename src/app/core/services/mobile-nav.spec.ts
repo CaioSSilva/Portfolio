@@ -63,7 +63,10 @@ describe('MobileNavService', () => {
 
   it('goHome minimizes all non-minimized processes', () => {
     const mockApp = {
-      id: 'app1', title: 'App', icon: 'i', color: '#000',
+      id: 'app1',
+      title: 'App',
+      icon: 'i',
+      color: '#000',
       component: class {} as never,
     };
     processManager.open(mockApp);
@@ -76,7 +79,10 @@ describe('MobileNavService', () => {
 
   it('goHome does not double-minimize already minimized processes', () => {
     const mockApp = {
-      id: 'app2', title: 'App2', icon: 'i', color: '#000',
+      id: 'app2',
+      title: 'App2',
+      icon: 'i',
+      color: '#000',
       component: class {} as never,
     };
     processManager.open(mockApp);

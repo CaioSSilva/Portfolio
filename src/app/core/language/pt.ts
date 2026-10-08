@@ -25,7 +25,7 @@ export const pt = {
   },
 
   boot: {
-    poweredBy: 'Construido com',
+    poweredBy: 'Construído com',
     systemKernel: 'Kernel do Sistema',
     pressToStart: 'Pressione para Iniciar',
     mobileAlert: {
@@ -44,7 +44,7 @@ export const pt = {
     firefox: 'Firefox',
     photos: 'Fotos',
     documents: 'Documentos',
-    musics: 'Musicas',
+    musics: 'Músicas',
     systemMonitor: 'Monitor do sistema',
     hermes: 'Hermes',
   },
@@ -52,12 +52,16 @@ export const pt = {
   notifications: {
     title: 'Notificações',
     clearAll: 'Limpar tudo',
+    closePanel: 'Fechar painel de notificações',
     noNotifications: 'Nenhuma notificação',
 
-    timmings: {
+    timings: {
       justNow: 'Agora mesmo',
+      minuteAgo: 'minuto atrás',
       minutesAgo: 'minutos atrás',
+      hourAgo: 'hora atrás',
       hoursAgo: 'horas atrás',
+      dayAgo: 'dia atrás',
       daysAgo: 'dias atrás',
     },
   },
@@ -73,9 +77,9 @@ export const pt = {
     downloads: 'Downloads',
     documentation: 'Documentação',
     docDescription: 'Quer saber como as coisas funcionam por baixo do capô? Leia a documentação!',
-    codeDescription: 'Quer analizar o código fonte? Baixe o .zip',
+    codeDescription: 'Quer analisar o código fonte? Baixe o .zip',
     resumeDescription: 'Quer saber sobre o criador? Leia aqui!',
-    aboutSO: "Quer saber mais sobre o sistema operacional do portfolio? Confira abaixo!",
+    aboutSO: 'Quer saber mais sobre o sistema operacional do portfolio? Confira abaixo!',
     featureList: {
       snaps: {
         tag: 'Workspace',
@@ -225,7 +229,7 @@ export const pt = {
       hardwareInfo: 'Informações de Hardware',
       cpu: 'Processador',
       cores: 'Núcleos',
-      gpu: 'Processador Grafico',
+      gpu: 'Processador Gráfico',
       ram: 'Memória RAM',
       display: 'Tela',
       privacyWarning: 'O navegador pode limitar a exibição do hardware real por privacidade.',
@@ -247,6 +251,7 @@ export const pt = {
     processes: 'Processos',
     action: 'Ação',
     app: 'Aplicativo',
+    killProcess: 'Encerrar processo',
   },
 
   documents: {
@@ -264,6 +269,9 @@ export const pt = {
     item: 'item',
     items: 'itens',
     searchPlaceholder: 'Pesquisar...',
+    clearSearch: 'Limpar busca',
+    closeSidebar: 'Fechar painel lateral',
+    toggleFolder: 'Expandir/recolher pasta',
     noResults: 'Nenhum resultado encontrado',
     back: 'Voltar',
     gridView: 'Visualização em Grade',
@@ -276,7 +284,7 @@ export const pt = {
     documents: 'Documentos',
     photos: 'Fotos',
     certificates: 'Certificados',
-    musics: 'Musicas',
+    musics: 'Músicas',
     feedbacks: 'Avaliações',
   },
 
@@ -284,7 +292,7 @@ export const pt = {
     connectionFailed: 'Falha na conexão',
     embedWarning: 'O site recusou a conexão porque não permite visualização incorporada.',
     notExistsWarning: 'Ou talvez ele só não exista mesmo.',
-    tryToSearch: 'Experiemente pesquisar por uma URL',
+    tryToSearch: 'Experimente pesquisar por uma URL',
     urlDisclaimer: 'Algumas URLs não serão acessiveis por questão de privacidade',
     tryAgain: 'Tentar de novo',
     openExternal: 'Abrir fora',
@@ -356,39 +364,59 @@ export const pt = {
   systemTips: {
     title: 'Dica do Sistema',
     desktop: {
-      altTab: 'Use Ctrl + ` (crase) para alternar rapidamente entre as janelas abertas.',
+      altTab:
+        'Use Ctrl + ` (crase) para alternar rapidamente entre as janelas abertas (App Switcher).',
       snapLeft: 'Arraste uma janela para a borda esquerda ou direita da tela para fixá-la em 50%.',
       snapCorner: 'Arraste uma janela para um canto da tela para fixá-la em um quadrante de 25%.',
       snapTop: 'Arraste uma janela até o topo da tela para maximizá-la instantaneamente.',
-      contextMenu: 'Clique com o botão direito na Dock ou nos ícones da área de trabalho para ver ações rápidas.',
+      contextMenu:
+        'Clique com o botão direito na Dock ou nos ícones da área de trabalho para ver ações rápidas.',
       dockDrag: 'Arraste um app diretamente do menu de aplicativos para a Dock para fixá-lo.',
-      terminal: 'No Terminal, use "neofetch" para ver informações do sistema ou "whoami" para saber sobre o criador.',
-      terminalOpen: 'Execute "open NomeDoArquivo" no Terminal para abrir qualquer arquivo do sistema.',
+      terminal:
+        'No Terminal, use "neofetch" para ver informações do sistema ou "whoami" para saber sobre o criador.',
+      terminalOpen:
+        'Execute "open NomeDoArquivo" no Terminal para abrir qualquer arquivo do sistema.',
       theme: 'Digite "theme" no Terminal para alternar entre modo claro e escuro instantaneamente.',
-      fullscreen: 'Pressione F11 para alternar para o modo de tela cheia e ter uma experiência imersiva.',
-      hermes: 'Pergunte ao Hermes para ele abrir apps, mudar o tema ou tocar sons — ele controla o sistema.',
+      fullscreen:
+        'Pressione F11 para alternar para o modo de tela cheia e ter uma experiência imersiva.',
+      hermes:
+        'Pergunte ao Hermes para ele abrir apps, mudar o tema ou tocar sons — ele controla o sistema.',
       hermesWallpaper: 'Peça ao Hermes para trocar o wallpaper descrevendo o que você quer.',
-      desktopIcons: 'Clique com o botão direito na área de trabalho para adicionar ou remover atalhos.',
-      windowResize: 'Arraste o canto inferior direito de qualquer janela para redimensioná-la livremente.',
-      multiWindow: 'Abra múltiplas janelas do mesmo app usando "Nova instância" no menu de contexto.',
-      notifications: 'Clique no ícone de sino na barra superior para acessar o histórico de notificações.',
-      settings: 'Em Ajustes, você pode personalizar o tamanho dos ícones, wallpaper, tema e muito mais.',
+      desktopIcons:
+        'Clique com o botão direito na área de trabalho para adicionar ou remover atalhos.',
+      windowResize:
+        'Arraste o canto inferior direito de qualquer janela para redimensioná-la livremente.',
+      multiWindow:
+        'Abra múltiplas janelas do mesmo app usando "Nova instância" no menu de contexto.',
+      notifications:
+        'Clique no ícone de sino na barra superior para acessar o histórico de notificações.',
+      settings:
+        'Em Ajustes, você pode personalizar o tamanho dos ícones, wallpaper, tema e muito mais.',
       settingsSound: 'Ative ou desative os sons do sistema em Ajustes → Som.',
-      files: 'No gerenciador de Arquivos, alterne entre visualização em grade e lista pelo botão no topo.',
-      browser: 'O Firefox integrado suporta qualquer URL — tente acessar wikipedia.com ou github.com.',
+      files:
+        'No gerenciador de Arquivos, alterne entre visualização em grade e lista pelo botão no topo.',
+      browser:
+        'O Firefox integrado suporta qualquer URL — tente acessar wikipedia.com ou github.com.',
     },
     mobile: {
-      swipeOverview: 'Deslize de baixo para cima na barra de navegação para ver todos os apps abertos.',
+      swipeOverview:
+        'Deslize de baixo para cima na barra de navegação para ver todos os apps abertos.',
       swipeClose: 'Na visão geral de apps, deslize um card para cima para fechá-lo rapidamente.',
       tapResume: 'Toque em qualquer card na visão geral para retomar o app de onde parou.',
-      allApps: 'Toque em "Todos os Apps" na barra inferior para acessar a grade completa de aplicativos.',
-      hermes: 'Peça ao Hermes para abrir apps, mudar o tema ou exibir notificações — tudo por voz ou texto.',
-      hermesControl: 'O Hermes pode controlar o sistema: diga "mude para o tema escuro" e ele fará isso.',
-      notifications: 'Toque no ícone de sino para ver o histórico completo de notificações do sistema.',
-      files: 'No app Arquivos, navegue pelas pastas tocando nelas e use a barra de busca para filtrar.',
+      allApps:
+        'Toque em "Todos os Apps" na barra inferior para acessar a grade completa de aplicativos.',
+      hermes:
+        'Peça ao Hermes para abrir apps, mudar o tema ou exibir notificações — tudo por voz ou texto.',
+      hermesControl:
+        'O Hermes pode controlar o sistema: diga "mude para o tema escuro" e ele fará isso.',
+      notifications:
+        'Toque no ícone de sino para ver o histórico completo de notificações do sistema.',
+      files:
+        'No app Arquivos, navegue pelas pastas tocando nelas e use a barra de busca para filtrar.',
       settings: 'Em Ajustes você pode trocar o wallpaper, idioma e ativar ou desativar sons.',
       terminal: 'O Terminal está disponível no mobile — experimente "ls", "cd" e "whoami".',
-      music: 'O player de músicas suporta letras sincronizadas — toque em "Letra" enquanto uma música toca.',
+      music:
+        'O player de músicas suporta letras sincronizadas — toque em "Letra" enquanto uma música toca.',
     },
   },
 
@@ -416,6 +444,8 @@ export const pt = {
     welcome: 'Bem vindo ao Hermes!',
     desc: 'Peça algo para começar!',
     ask: 'Pergunte algo...',
+    roleUser: 'Usuário',
+    roleAssistant: 'Hermes',
   },
 
   mobileNav: {
@@ -426,15 +456,17 @@ export const pt = {
     swipeToClose: 'Deslize para cima para fechar',
     tapToResume: 'Toque para retomar',
     swipeToBrowse: 'Deslize horizontalmente para navegar',
+    pullDown: 'Deslize para baixo',
   },
 
   errors: {
     systemError: 'Erro de sistema',
     noFileHandler: 'O sistema não possui um aplicativo capaz de abrir este arquivo!',
-    enableToLoadFs: 'Erro ao carregar sistema de arquivos! Recarregue a pagina.',
-    seviceUnavailable: 'Serviço indisponível no momento!',
+    enableToLoadFs: 'Erro ao carregar sistema de arquivos! Recarregue a página.',
+    serviceUnavailable: 'Serviço indisponível no momento!',
     actionExecutionFailed: 'Não foi possível executar a ação solicitada pelo Hermes.',
-    modelUnavailable: 'O modelo selecionado não está disponível. Troque o modelo nas configurações do Hermes.',
+    modelUnavailable:
+      'O modelo selecionado não está disponível. Troque o modelo nas configurações do Hermes.',
     failedToLoadFiles: 'Falha ao carregar arquivos do sistema de arquivos.',
     failedToLoadDocument: 'Falha ao carregar o documento.',
     failedToProcessDocument: 'Falha ao processar o documento.',

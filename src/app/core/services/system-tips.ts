@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable } from '@angular/core';
 import { NotificationService } from './notification';
 import { LanguageService } from './language';
 import { Settings } from './settings';
@@ -12,43 +12,56 @@ export class SystemTips {
   private readonly screen = inject(ScreenService);
 
   private timeoutId: ReturnType<typeof setTimeout> | null = null;
-  private shownIndexes: Set<number> = new Set();
+  private shownDesktopIndexes: Set<number> = new Set();
+  private shownMobileIndexes: Set<number> = new Set();
 
-  startRandomTips() {
+  constructor() {
+    effect(() => {
+      this.lang.currentLang();
+      this.shownDesktopIndexes.clear();
+      this.shownMobileIndexes.clear();
+    });
+  }
+
+  startRandomTips(): void {
     this.scheduleNextTip(15000, true);
   }
 
-  stopTips() {
+  stopTips(): void {
     if (this.timeoutId !== null) {
       clearTimeout(this.timeoutId);
       this.timeoutId = null;
     }
   }
 
-  private scheduleNextTip(delay: number, isFirst: boolean) {
+  private scheduleNextTip(delay: number, isFirst: boolean): void {
     this.stopTips();
 
     this.timeoutId = setTimeout(() => {
-      this.processTipCycle();
-      this.scheduleNextTip(this.calculateNextDelay(isFirst), false);
+      this.processTipCycle(isFirst);
     }, delay);
   }
 
-  private processTipCycle() {
-    if (this.settings.tipsEnabled()) {
-      this.showRandomTip();
+  private processTipCycle(isFirst: boolean): void {
+    if (!this.settings.tipsEnabled()) {
+      this.stopTips();
+      return;
     }
+    this.showRandomTip();
+    this.scheduleNextTip(this.calculateNextDelay(isFirst), false);
   }
 
-  private showRandomTip() {
-    const t = this.lang.t();
-    const pool = this.screen.isMobile() ? t.systemTips.mobile : t.systemTips.desktop;
+  private showRandomTip(): void {
+    const translations = this.lang.t();
+    const pool = this.screen.isMobile()
+      ? translations.systemTips.mobile
+      : translations.systemTips.desktop;
     const message = this.getNextTipMessage(pool);
 
     if (!message) return;
 
     this.notifications.show({
-      title: t.systemTips.title,
+      title: translations.systemTips.title,
       message,
       icon: 'fas fa-lightbulb',
     });
@@ -58,18 +71,20 @@ export class SystemTips {
     const values = Object.values(pool);
     if (values.length === 0) return null;
 
-    if (this.shownIndexes.size >= values.length) {
-      this.shownIndexes.clear();
+    const seen = this.screen.isMobile() ? this.shownMobileIndexes : this.shownDesktopIndexes;
+
+    if (seen.size >= values.length) {
+      seen.clear();
     }
 
     const remaining = values
-      .map((v, i) => ({ v, i }))
-      .filter(({ i }) => !this.shownIndexes.has(i));
+      .map((value, index) => ({ value, index }))
+      .filter(({ index }) => !seen.has(index));
 
     const pick = remaining[Math.floor(Math.random() * remaining.length)];
-    this.shownIndexes.add(pick.i);
+    seen.add(pick.index);
 
-    return pick.v;
+    return pick.value;
   }
 
   private calculateNextDelay(isFirst: boolean): number {

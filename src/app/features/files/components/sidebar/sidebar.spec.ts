@@ -15,9 +15,7 @@ const rootTree: FileItem = {
       name: 'Home',
       type: 'folder',
       icon: 'folder',
-      children: [
-        { id: 'readme', name: 'readme.txt', type: 'file', icon: 'file' },
-      ],
+      children: [{ id: 'readme', name: 'readme.txt', type: 'file', icon: 'file' }],
     },
   ],
 };

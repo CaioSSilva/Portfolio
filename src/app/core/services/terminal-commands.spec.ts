@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { TerminalComands } from './terminal-comands';
+import { TerminalCommands } from './terminal-commands';
 import { LanguageService } from './language';
 import { Theme } from './theme';
 import { FileSystem } from './file-system';
@@ -11,8 +11,8 @@ import { AppRegistry } from './app-registry';
 import { Sound } from './sound';
 import { FileItem } from '../models/file';
 
-describe('TerminalComands', () => {
-  let service: TerminalComands;
+describe('TerminalCommands', () => {
+  let service: TerminalCommands;
   let fileSystemMock: {
     isLoaded: ReturnType<typeof vi.fn>;
     ensureLoaded: ReturnType<typeof vi.fn>;
@@ -62,7 +62,7 @@ describe('TerminalComands', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        TerminalComands,
+        TerminalCommands,
         LanguageService,
         { provide: Theme, useValue: themeMock },
         { provide: FileSystem, useValue: fileSystemMock },
@@ -72,7 +72,7 @@ describe('TerminalComands', () => {
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
     });
-    service = TestBed.inject(TerminalComands);
+    service = TestBed.inject(TerminalCommands);
   });
 
   it('should be created', () => {

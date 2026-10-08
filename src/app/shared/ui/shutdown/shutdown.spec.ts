@@ -57,7 +57,9 @@ describe('Shutdown', () => {
       Object.defineProperty(window, 'location', {
         value: {
           ...window.location,
-          get href() { return ''; },
+          get href() {
+            return '';
+          },
           set href(v: string) {
             if (v === 'about:blank') setHrefCalled = true;
           },

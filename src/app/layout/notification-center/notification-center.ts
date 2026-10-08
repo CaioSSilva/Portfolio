@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { NotificationService } from '../../core/services/notification';
 import { DatePipe, registerLocaleData } from '@angular/common';
 import localePtBr from '@angular/common/locales/pt';
@@ -12,35 +12,44 @@ registerLocaleData(localePtBr, 'pt-BR');
   selector: 'app-notification-center',
   imports: [DatePipe, MusicWidget],
   templateUrl: './notification-center.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './notification-center.scss',
 })
 export class NotificationCenter {
-  notifService = inject(NotificationService);
-  lang = inject(LanguageService);
-  screen = inject(ScreenService);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly notifications = inject(NotificationService);
+  readonly lang = inject(LanguageService);
+  readonly screen = inject(ScreenService);
 
-  now = new Date();
+  readonly now = signal(new Date());
+
+  constructor() {
+    this.initClock();
+  }
+
+  private initClock(): void {
+    const id = setInterval(() => this.now.set(new Date()), 60_000);
+    this.destroyRef.onDestroy(() => clearInterval(id));
+  }
 
   formatTimestamp(timestamp: Date): string {
-    const diff = new Date().getTime() - new Date(timestamp).getTime();
+    const diff = Date.now() - new Date(timestamp).getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    const t = this.lang.t().notifications.timmings;
+    const timings = this.lang.t().notifications.timings;
 
-    if (minutes < 1) return t.justNow;
+    if (minutes < 1) return timings.justNow;
 
     if (minutes < 60) {
-      return `${minutes} ${minutes > 1 ? t.minutesAgo : t.minutesAgo.replace('s ', ' ')}`;
+      return `${minutes} ${minutes === 1 ? timings.minuteAgo : timings.minutesAgo}`;
     }
 
     if (hours < 24) {
-      return `${hours} ${hours > 1 ? t.hoursAgo : t.hoursAgo.replace('s ', ' ')}`;
+      return `${hours} ${hours === 1 ? timings.hourAgo : timings.hoursAgo}`;
     }
 
-    return `${days} ${days > 1 ? t.daysAgo : t.daysAgo.replace('s ', ' ')}`;
+    return `${days} ${days === 1 ? timings.dayAgo : timings.daysAgo}`;
   }
-
 }

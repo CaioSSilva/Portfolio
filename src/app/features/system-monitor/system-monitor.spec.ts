@@ -43,7 +43,7 @@ describe('SystemMonitor', () => {
     expect(component.cpuHistory()).toEqual([]);
     expect(component.ramHistory()).toEqual([]);
     expect(component.rtt()).toBe(0);
-    expect(component.downHistory().length).toBe(component.historyLimit);
+    expect(component.downHistory().length).toBe(20);
   });
 
   it('should getProcessStats return cpu and ram values based on processId', () => {
@@ -62,7 +62,10 @@ describe('SystemMonitor', () => {
 
   it('should killProcess close the process in processManager', () => {
     processManager.open({
-      id: 'test-app', title: 'T', icon: 'i', color: '#000',
+      id: 'test-app',
+      title: 'T',
+      icon: 'i',
+      color: '#000',
       component: class {} as never,
     });
     const pid = processManager.processes()[0].id;

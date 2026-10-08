@@ -6,10 +6,7 @@
     <div
       class="w-full max-w-5xl flex flex-col items-center gap-6 sm:gap-10 p-4 sm:p-6 animate-in zoom-in-95 duration-300"
     >
-      <div
-        (click)="$event.stopPropagation()"
-        class="relative w-full max-w-lg group"
-      >
+      <div (click)="$event.stopPropagation()" class="relative w-full max-w-lg group">
         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <i
             class="fas fa-search text-sm text-gnome-text-secondary group-focus-within:text-gnome-blue transition-colors duration-200"
@@ -26,9 +23,10 @@
         @if (appsService.searchQuery()) {
           <button
             (click)="appsService.searchQuery.set(''); $event.stopPropagation()"
+            aria-label="Clear search"
             class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-gnome-text-secondary hover:text-gnome-text transition-colors"
           >
-            <i class="fas fa-times-circle text-sm"></i>
+            <i class="fas fa-times-circle text-sm" aria-hidden="true"></i>
           </button>
         }
       </div>
@@ -39,12 +37,13 @@
         @for (app of appsService.appSearchResult(); track app.id) {
           <button
             [attr.draggable]="!screen.isMobile()"
-            (dragstart)="ondragStart($event, app)"
+            (dragstart)="onDragStart($event, app)"
             (contextmenu)="appsService.onRightClickApp($event, app.id)"
             (click)="onAppClick($event, app)"
             (touchstart)="onAppTouchStart($event, app)"
             (touchmove)="onAppTouchMove($event)"
             (touchend)="onAppTouchEnd($event, app)"
+            [attr.aria-label]="getAppLabel(app.id, app.title)"
             class="group relative flex cursor-pointer flex-col items-center gap-2 sm:gap-3 outline-none transition-all touch-manipulation"
           >
             <div
@@ -60,13 +59,16 @@
                 ></div>
               </div>
 
-              <i [class]="app.icon" class="relative z-20 text-xl sm:text-2xl text-white drop-shadow-md"></i>
+              <i
+                [class]="app.icon"
+                class="relative z-20 text-xl sm:text-2xl text-white drop-shadow-md"
+              ></i>
             </div>
 
             <span
               class="text-gnome-text font-medium text-[11px] sm:text-[12px] text-center tracking-tight line-clamp-2 w-20 sm:w-24 leading-tight opacity-90 group-hover:opacity-100 transition-opacity"
             >
-              {{ $any(lang.t().apps)[app.id] || app.title }}
+              {{ getAppLabel(app.id, app.title) }}
             </span>
           </button>
         }
@@ -82,6 +84,5 @@
         </div>
       }
     </div>
-    <app-context-menu></app-context-menu>
   </div>
 }

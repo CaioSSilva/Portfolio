@@ -3,7 +3,7 @@ import { NotificationCenter } from './notification-center';
 import { NotificationService } from '../../core/services/notification';
 import { LanguageService } from '../../core/services/language';
 import { Sound } from '../../core/services/sound';
-import { AudioPlayer } from '../../features/musics/player/audio-player';
+import { AudioPlayer } from '../../core/services/audio-player';
 import { Apps } from '../../core/services/apps';
 import { signal } from '@angular/core';
 
@@ -36,8 +36,8 @@ describe('NotificationCenter', () => {
   it('formatTimestamp retorna justNow para menos de 1 minuto atrás', () => {
     const now = new Date();
     const result = component.formatTimestamp(now);
-    const t = component.lang.t().notifications.timmings;
-    expect(result).toBe(t.justNow);
+    const timings = component.lang.t().notifications.timings;
+    expect(result).toBe(timings.justNow);
   });
 
   it('formatTimestamp retorna minutos para 1–59 minutos atrás', () => {

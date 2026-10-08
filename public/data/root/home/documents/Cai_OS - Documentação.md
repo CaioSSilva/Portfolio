@@ -32,6 +32,7 @@
 ### Objetivo do Projeto
 
 O Cai_OS foi desenvolvido como um portfólio interativo que demonstra:
+
 - Domínio avançado de Angular e TypeScript
 - Arquitetura de software escalável
 - Design de interface inspirado em sistemas operacionais modernos
@@ -231,12 +232,14 @@ Portfolio-main/
 Componente raiz da aplicação que gerencia o estado global do sistema.
 
 **Responsabilidades**:
+
 - Inicialização do sistema
 - Gerenciamento de sons de interação
 - Controle de boot e shutdown
 - Coordenação entre serviços principais
 
 **Código Principal**:
+
 ```typescript
 @Component({
   selector: 'app-root',
@@ -263,6 +266,7 @@ export class App {
 Componente que representa uma janela de aplicativo com funcionalidades completas de gerenciamento.
 
 **Funcionalidades**:
+
 - Arrastar (drag)
 - Redimensionar (resize)
 - Maximizar/Restaurar
@@ -272,6 +276,7 @@ Componente que representa uma janela de aplicativo com funcionalidades completas
 - Foco e z-index dinâmico
 
 **Principais Métodos**:
+
 - `startDrag()`: Inicia o arrasto da janela
 - `startResize()`: Inicia o redimensionamento
 - `maximize()`: Maximiza a janela
@@ -285,6 +290,7 @@ Componente que representa uma janela de aplicativo com funcionalidades completas
 Barra de tarefas inferior que exibe aplicativos fixados e em execução.
 
 **Funcionalidades**:
+
 - Exibição de apps fixados
 - Indicadores de apps em execução
 - Menu de contexto (clique direito)
@@ -299,6 +305,7 @@ Barra de tarefas inferior que exibe aplicativos fixados e em execução.
 Barra superior do sistema com relógio, menu de aplicativos e botão de energia.
 
 **Funcionalidades**:
+
 - Relógio em tempo real
 - Acesso ao grid de aplicativos
 - Centro de notificações
@@ -312,6 +319,7 @@ Barra superior do sistema com relógio, menu de aplicativos e botão de energia.
 Grid de aplicativos com pesquisa e categorização.
 
 **Funcionalidades**:
+
 - Exibição de todos os apps instalados
 - Busca por nome
 - Arrastar para a dock
@@ -324,6 +332,7 @@ Grid de aplicativos com pesquisa e categorização.
 Alternador de janelas ativado por `Ctrl+\``.
 
 **Funcionalidades**:
+
 - Listagem de janelas abertas
 - Navegação por teclado
 - Preview visual das janelas
@@ -336,6 +345,7 @@ Alternador de janelas ativado por `Ctrl+\``.
 Barra de navegação inferior exibida exclusivamente em dispositivos móveis.
 
 **Funcionalidades**:
+
 - Botão Home (minimiza todas as janelas abertas)
 - Botão Overview (abre a visão geral de apps)
 - Botão App Drawer (abre o grid de aplicativos)
@@ -348,6 +358,7 @@ Barra de navegação inferior exibida exclusivamente em dispositivos móveis.
 Overlay que exibe todas as janelas de aplicativos abertas como cards para troca rápida no mobile.
 
 **Funcionalidades**:
+
 - Lista de cards ordenada por z-index
 - Toque para focar e fechar o overview
 - Gesto de deslizar para cima para fechar um processo (fecha o overview automaticamente quando o último processo é dispensado)
@@ -361,6 +372,7 @@ Overlay que exibe todas as janelas de aplicativos abertas como cards para troca 
 Menu de contexto visual que aparece ao clicar com botão direito.
 
 **Funcionalidades**:
+
 - Abrir aplicativo
 - Nova instância
 - Fechar aplicativo
@@ -369,6 +381,7 @@ Menu de contexto visual que aparece ao clicar com botão direito.
 - Posicionamento dinâmico baseado no cursor
 
 **Integração**:
+
 - Funciona com ícones da Dock
 - Funciona com ícones da área de trabalho
 - Integrado com ContextMenuService
@@ -384,6 +397,7 @@ Menu de contexto visual que aparece ao clicar com botão direito.
 Gerencia todos os processos (aplicativos) em execução.
 
 **Responsabilidades**:
+
 - Criar novos processos
 - Fechar processos
 - Gerenciar foco (z-index)
@@ -391,6 +405,7 @@ Gerencia todos os processos (aplicativos) em execução.
 - Manter lista de processos ativos
 
 **Principais Métodos**:
+
 ```typescript
 start(app: AppDefinition, args?: any[]): void
 kill(processId: string): void
@@ -406,6 +421,7 @@ toggleMaximize(processId: string): void
 Sistema de arquivos virtual hierárquico.
 
 **Estrutura**:
+
 ```typescript
 interface FileNode {
   name: string;
@@ -419,6 +435,7 @@ interface FileNode {
 ```
 
 **Principais Métodos**:
+
 - `getNodeByPath()`: Busca arquivo/pasta por caminho
 - `listDirectory()`: Lista conteúdo de diretório
 - `createFile()`: Cria novo arquivo
@@ -432,6 +449,7 @@ interface FileNode {
 Gerencia as configurações do sistema.
 
 **Configurações Disponíveis**:
+
 - Tema (claro/escuro)
 - Papel de parede
 - Tamanho dos ícones da dock
@@ -449,13 +467,15 @@ Gerencia as configurações do sistema.
 Sistema de internacionalização (i18n).
 
 **Idiomas Suportados**:
+
 - Português (pt)
 - Inglês (en)
 
 **Uso**:
+
 ```typescript
-lang.t().apps.files // Retorna tradução
-lang.setLanguage('pt') // Altera idioma
+lang.t().apps.files; // Retorna tradução
+lang.setLanguage('pt'); // Altera idioma
 ```
 
 ### 5. NotificationService
@@ -465,12 +485,14 @@ lang.setLanguage('pt') // Altera idioma
 Gerencia notificações do sistema.
 
 **Tipos de Notificação**:
+
 - Info
 - Success
 - Warning
 - Error
 
 **Principais Métodos**:
+
 ```typescript
 show(title: string, message: string, type: NotificationType): void
 clear(id: string): void
@@ -484,6 +506,7 @@ clearAll(): void
 Reproduz efeitos sonoros do sistema.
 
 **Sons Disponíveis**:
+
 - `mouse_down`: Clique do mouse
 - `mouse_up`: Soltar o mouse
 - `notification`: Som de notificação
@@ -496,10 +519,12 @@ Reproduz efeitos sonoros do sistema.
 Gerencia o tema visual do sistema.
 
 **Temas**:
+
 - `light`: Tema claro
 - `dark`: Tema escuro
 
 **Método Principal**:
+
 ```typescript
 setTheme(theme: 'light' | 'dark'): void
 toggleTheme(): void
@@ -512,6 +537,7 @@ toggleTheme(): void
 Integração com Google Gemini AI.
 
 **Funcionalidades**:
+
 - Geração de texto (streaming)
 - Análise de imagens
 - Fallback automático de API key (`geminiApiKey` → `geminiApiKey2`)
@@ -519,6 +545,7 @@ Integração com Google Gemini AI.
 - Modelo ativo controlado por `Settings.geminiModel` (persistido)
 
 **Métodos Principais**:
+
 ```typescript
 async generateResponse(prompt: string, history: string, fileData?: { mimeType: string; b64: string }): Promise<string>
 async generateResponseStream(prompt: string, history: string, fileData: ..., onChunk: (text: string) => void): Promise<string>
@@ -532,6 +559,7 @@ async listModels(): Promise<GeminiModel[]>
 Implementa comandos Unix-like para o terminal.
 
 **Comandos Disponíveis**:
+
 - `ls`: Lista arquivos
 - `cd`: Navega entre diretórios
 - `open`: Abre arquivos
@@ -550,6 +578,7 @@ Implementa comandos Unix-like para o terminal.
 Monitora o tamanho da viewport e o tipo de dispositivo de forma reativa.
 
 **Breakpoints**:
+
 - `isMobile`: largura < 768px
 - `isTablet`: 768px ≤ largura < 1024px
 - `isDesktop`: largura ≥ 1024px
@@ -565,12 +594,14 @@ Monitora o tamanho da viewport e o tipo de dispositivo de forma reativa.
 Controla o estado de navegação mobile (overview e app drawer).
 
 **Responsabilidades**:
+
 - Toggle/abrir/fechar o painel de overview mobile
 - Ação "Ir para Home" (minimiza todos os processos)
 - Abrir app e fechar o drawer em um único passo
 - Toggle do app drawer
 
 **Principais Métodos**:
+
 ```typescript
 toggleOverview(): void
 openOverview(): void
@@ -595,6 +626,7 @@ Um `shownIndexes` rastreia quais dicas já foram exibidas. Quando todas as dicas
 **Pool de dicas mobile** (11 dicas): swipe para overview, swipe para fechar, toque para retomar, grid de apps, comandos no Hermes, notificações, navegação no Arquivos, Ajustes, Terminal, letras sincronizadas.
 
 **Principais Métodos**:
+
 ```typescript
 startRandomTips(): void       // primeira dica após 15 s, depois a cada 7–10 min
 stopTips(): void              // limpa o timer pendente
@@ -691,12 +723,12 @@ interface Notification {
 
 ```typescript
 // Signals do serviço Settings
-dockSize: signal<number>           // Tamanho dos ícones da dock (px)
-desktopSize: signal<number>        // Tamanho dos ícones do desktop (px)
-systemMuted: signal<boolean>       // Sons do sistema silenciados
-autoHideDock: signal<boolean>      // Auto-hide da dock
-tipsEnabled: signal<boolean>       // Dicas do sistema on/off
-wallpaper: computed<string>        // Papel de parede ativo (desktop ou mobile)
+dockSize: signal<number>; // Tamanho dos ícones da dock (px)
+desktopSize: signal<number>; // Tamanho dos ícones do desktop (px)
+systemMuted: signal<boolean>; // Sons do sistema silenciados
+autoHideDock: signal<boolean>; // Auto-hide da dock
+tipsEnabled: signal<boolean>; // Dicas do sistema on/off
+wallpaper: computed<string>; // Papel de parede ativo (desktop ou mobile)
 ```
 
 > **Nota**: O papel de parede agora é separado internamente em `desktopWallpaper` e `mobileWallpaper`. `setWallpaper()` escreve automaticamente no signal correto com base em `ScreenService.isMobile()`.
@@ -737,6 +769,7 @@ O sistema oferece encaixe automático de janelas nas bordas e cantos da tela:
 #### Redimensionamento
 
 As janelas podem ser redimensionadas em 8 direções:
+
 - Norte (N)
 - Sul (S)
 - Leste (E)
@@ -778,6 +811,7 @@ Estrutura hierárquica completa com pastas e arquivos:
 ```
 
 **Operações Suportadas**:
+
 - Navegação (cd)
 - Listagem (ls)
 - Abertura de arquivos (open)
@@ -788,12 +822,14 @@ Estrutura hierárquica completa com pastas e arquivos:
 Terminal funcional com comandos Unix-like.
 
 **Recursos**:
+
 - Histórico de comandos (↑/↓)
 - Autocomplete
 - Colorização de output
 - Path atual
 
 **Exemplos de Uso**:
+
 ```bash
 $ ls
 documents  photos  music  certificates
@@ -811,6 +847,7 @@ Theme changed to dark
 ### 4. Centro de Notificações
 
 Sistema centralizado de notificações com:
+
 - Timestamp relativo (agora, há 5min, etc)
 - Marcação de lidas
 - Limpeza individual ou em massa
@@ -819,6 +856,7 @@ Sistema centralizado de notificações com:
 ### 5. App Switcher (Ctrl+`)
 
 Navegação rápida entre janelas abertas:
+
 - Ativado por `Ctrl+\``
 - Preview visual de cada janela
 - Navegação por teclado (Tab)
@@ -827,6 +865,7 @@ Navegação rápida entre janelas abertas:
 ### 6. Menu de Contexto
 
 Clique direito em ícones da dock:
+
 - Abrir aplicativo
 - Nova instância
 - Fechar aplicativo
@@ -839,6 +878,7 @@ Arrastar aplicativos do grid para a dock para fixá-los.
 ### 8. Navegação Mobile (feature/mobile)
 
 Em dispositivos com largura < 768px a interface desktop é substituída por uma experiência otimizada para mobile:
+
 - **MobileNavBar**: barra fixa inferior com botões Home, Overview e App Drawer
 - **MobileOverview**: grid de cards de janelas abertas em tela cheia; toque para focar, deslize para cima para fechar; fecha automaticamente quando o último processo é dispensado
 - **Papéis de Parede Adaptativos**: conjuntos separados em `public/wallpapers/desktop/` e `public/wallpapers/mobile/`
@@ -852,6 +892,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 1. Files (Gerenciador de Arquivos)
 
 **Funcionalidades**:
+
 - Navegação por pastas
 - Visualização em grade ou lista
 - Breadcrumbs
@@ -861,6 +902,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 - Informações de tamanho
 
 **Componentes**:
+
 - `FilesComponent`: Componente principal
 - `BreadcrumbsComponent`: Navegação de caminho
 - `SidebarComponent`: Sidebar de locais
@@ -870,6 +912,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 2. Firefox (Navegador Web)
 
 **Funcionalidades**:
+
 - Navegação por URL
 - Iframe para sites externos
 - Tratamento de erros (CORS)
@@ -881,6 +924,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 3. Terminal
 
 **Funcionalidades**:
+
 - Comandos Unix-like
 - Histórico de comandos
 - Path dinâmico
@@ -892,6 +936,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 4. Photos (Visualizador de Imagens)
 
 **Funcionalidades**:
+
 - Galeria de imagens
 - Visualização em tela cheia
 - Navegação entre imagens (anterior/próxima)
@@ -901,6 +946,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 5. Documents (Visualizador de Documentos)
 
 **Funcionalidades**:
+
 - Renderização de PDFs (carregamento lazy via dynamic import)
 - Renderização de Markdown (`.md`) com formatação completa — mesma engine do Hermes
 - Navegação entre páginas
@@ -909,7 +955,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 - Swipe horizontal para navegar entre documentos no mobile (bloqueado com zoom > 1)
 - Download
 - Lista de documentos disponíveis (ícone diferenciado para `.md`)
-- Layout responsivo ao container (`ResizeObserver`, breakpoint: 500 px)
+- Layout responsivo ao container (`ScreenService` / `window.resize`, breakpoint: 500 px)
 
 **Formatos Suportados**: PDF, TXT, MD e outros arquivos de texto.
 
@@ -918,6 +964,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 6. Musics (Player de Música)
 
 **Funcionalidades**:
+
 - Biblioteca de músicas com sidebar retrátil
 - Player com controles (Play/Pause, Anterior/Próxima)
 - Progress bar com seek por clique e arrastar
@@ -933,6 +980,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 - Debounce de seek (80 ms) para evitar glitches de rebuffer ao pular linhas de letra
 
 **Serviços**:
+
 - `AudioPlayer` (`player/audio-player.ts`): controle do `<audio>` nativo via Angular Signals
 - `LyricsService` (`player/lyrics.service.ts`): busca LRCLIB, parse LRC, linha ativa por busca binária
 
@@ -945,24 +993,30 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 **Seções**:
 
 #### Aparência
+
 - Esquema de cores (claro/escuro)
 - Papel de parede (conjuntos separados para desktop e mobile)
 
 #### Desktop
-- Ocultar dock automaticamente *(apenas desktop — oculto no mobile)*
-- Tamanho dos ícones do dock *(apenas desktop)*
+
+- Ocultar dock automaticamente _(apenas desktop — oculto no mobile)_
+- Tamanho dos ícones do dock _(apenas desktop)_
 - Tamanho dos ícones da área de trabalho
 
 #### Som
+
 - Sons do sistema (on/off)
 
 #### Sistema
+
 - Dicas do sistema (on/off)
 
 #### Idioma
+
 - Português/Inglês
 
 #### Sobre
+
 - Nome do sistema
 - Versão
 - Informações de hardware
@@ -971,6 +1025,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 8. System Monitor (Monitor do Sistema)
 
 **Funcionalidades**:
+
 - Lista de processos ativos
 - Ações (fechar processo)
 - Informações de rede
@@ -982,6 +1037,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 9. Hermes (Assistente IA)
 
 **Funcionalidades**:
+
 - Chat com IA (Google Gemini) — respostas em streaming
 - Análise de imagens (anexar imagem à mensagem)
 - Respostas contextualizadas com histórico de conversa
@@ -995,6 +1051,7 @@ Em dispositivos com largura < 768px a interface desktop é substituída por uma 
 ### 10. About Project (Sobre o Projeto)
 
 **Conteúdo**:
+
 - Visão do desenvolvedor
 - Funcionalidades do sistema
 - Descrição dos aplicativos
@@ -1033,12 +1090,13 @@ export const environment = {
   production: false,
   geminiApiKeys: [
     'SUA_API_KEY_AQUI',
-    'SUA_API_KEY_BACKUP' // Opcional
-  ]
+    'SUA_API_KEY_BACKUP', // Opcional
+  ],
 };
 ```
 
 **Obter API Key do Gemini**:
+
 1. Acesse [Google AI Studio](https://makersuite.google.com/app/apikey)
 2. Crie uma nova API key
 3. Cole no arquivo de environment
@@ -1050,7 +1108,7 @@ Edite `src/environments/environment.ts` para produção:
 ```typescript
 export const environment = {
   production: true,
-  geminiApiKeys: ['API_KEY_PRODUCAO']
+  geminiApiKeys: ['API_KEY_PRODUCAO'],
 };
 ```
 
@@ -1084,18 +1142,18 @@ ng generate service nome-servico
 
 ### Comandos do Terminal (dentro do app)
 
-| Comando    | Descrição                    | Exemplo               |
-|------------|------------------------------|-----------------------|
-| `help`     | Exibe lista de comandos      | `help`                |
-| `ls`       | Lista arquivos do diretório  | `ls`                  |
-| `cd`       | Navega entre diretórios      | `cd documents`        |
-| `open`     | Abre um arquivo              | `open curriculum.pdf` |
-| `date`     | Exibe data/hora atual        | `date`                |
-| `theme`    | Alterna tema claro/escuro    | `theme`               |
-| `clear`    | Limpa tela do terminal       | `clear`               |
-| `neofetch` | Info do sistema              | `neofetch`            |
-| `whoami`   | Info do desenvolvedor        | `whoami`              |
-| `about`    | Exibe versão do sistema      | `about`               |
+| Comando    | Descrição                   | Exemplo               |
+| ---------- | --------------------------- | --------------------- |
+| `help`     | Exibe lista de comandos     | `help`                |
+| `ls`       | Lista arquivos do diretório | `ls`                  |
+| `cd`       | Navega entre diretórios     | `cd documents`        |
+| `open`     | Abre um arquivo             | `open curriculum.pdf` |
+| `date`     | Exibe data/hora atual       | `date`                |
+| `theme`    | Alterna tema claro/escuro   | `theme`               |
+| `clear`    | Limpa tela do terminal      | `clear`               |
+| `neofetch` | Info do sistema             | `neofetch`            |
+| `whoami`   | Info do desenvolvedor       | `whoami`              |
+| `about`    | Exibe versão do sistema     | `about`               |
 
 ---
 
@@ -1122,6 +1180,7 @@ Edite `src/styles.scss`:
 ### Mudando Papel de Parede
 
 Os papéis de parede agora são separados por tipo de dispositivo:
+
 - **Desktop**: adicione imagens em `public/wallpapers/desktop/`
 - **Mobile**: adicione imagens em `public/wallpapers/mobile/`
 
@@ -1142,13 +1201,15 @@ Adicione arquivos de áudio em `public/sounds/` e configure no `SoundService`.
 ### Problema: Tema não muda
 
 **Solução**: Limpe o localStorage do navegador:
+
 ```javascript
-localStorage.clear()
+localStorage.clear();
 ```
 
 ### Problema: Hermes não responde
 
 **Solução**:
+
 1. Verifique se a API key do Gemini está configurada
 2. Verifique quota da API no Google Cloud Console
 3. Veja erros no console do navegador
@@ -1207,9 +1268,9 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 👤 Autor
 
-**Desenvolvedor**: Caio Souza Silva  
-**Contato**: caiosouzasilva13650@gmail.com  
-**Portfolio**: [caiossiva.com](https://caiossiva.com)  
+**Desenvolvedor**: Caio Souza Silva
+**Contato**: caiosouzasilva13650@gmail.com
+**Portfolio**: [caiossilva.com](https://caiossilva.com)
 **GitHub**: [github.com/CaioSSilva](https://github.com/CaioSSilva/)
 
 ---

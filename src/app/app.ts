@@ -8,7 +8,7 @@ import {
   untracked,
   viewChild,
   ElementRef,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { NotificationService } from './core/services/notification';
 import { ProcessManager } from './core/services/process-manager';
@@ -28,12 +28,13 @@ import { Shutdown } from './shared/ui/shutdown/shutdown';
 import { LanguageService } from './core/services/language';
 import { SystemTips } from './core/services/system-tips';
 import { DesktopIcons } from './features/desktop-icons/desktop-icons';
+import { ContextMenu } from './shared/ui/context-menu/context-menu';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   templateUrl: './app.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     AppsGrid,
     Dock,
@@ -45,24 +46,25 @@ import { DesktopIcons } from './features/desktop-icons/desktop-icons';
     Boot,
     Shutdown,
     DesktopIcons,
+    ContextMenu,
   ],
 })
 export class App {
-  processManager = inject(ProcessManager);
-  settingsService = inject(Settings);
-  sound = inject(Sound);
-  screen = inject(ScreenService);
-  lang = inject(LanguageService);
-  notifications = inject(NotificationService);
-  tipsService = inject(SystemTips);
-  private apps = inject(Apps);
+  private readonly sound = inject(Sound);
+  private readonly lang = inject(LanguageService);
+  private readonly notifications = inject(NotificationService);
+  private readonly tipsService = inject(SystemTips);
+  private readonly apps = inject(Apps);
+  readonly processManager = inject(ProcessManager);
+  readonly settingsService = inject(Settings);
+  readonly screen = inject(ScreenService);
 
-  systemReady = signal(false);
-  shutingDown = signal(false);
+  readonly systemReady = signal(false);
+  readonly isShuttingDown = signal(false);
 
-  videoPlayer = viewChild<ElementRef<HTMLVideoElement>>('bgVideo');
+  readonly videoPlayer = viewChild<ElementRef<HTMLVideoElement>>('bgVideo');
 
-  isAnimated = computed(() => {
+  readonly isAnimated = computed(() => {
     const wp = this.settingsService.wallpaper();
     return wp && (wp.endsWith('.mp4') || wp.endsWith('.webm'));
   });
@@ -93,17 +95,16 @@ export class App {
   }
 
   @HostListener('mousedown')
-  onClick() {
+  onClick(): void {
     if (this.systemReady() && !this.screen.isMobile()) {
       this.sound.play('mouse_down');
     }
   }
 
   @HostListener('mouseup')
-  onMouseUp() {
+  onMouseUp(): void {
     if (this.systemReady() && !this.screen.isMobile()) {
       this.sound.play('mouse_up');
     }
   }
-
 }

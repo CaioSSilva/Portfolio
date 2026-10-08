@@ -4,6 +4,7 @@ import { ProcessManager } from './process-manager';
 import { AppRegistry } from './app-registry';
 import { AppLauncher } from './app-launcher';
 import { ContextMenuService } from './context-menu';
+import { Apps } from './apps';
 import { AppBase } from '../models/base';
 import { DockItem } from '../models/dock';
 
@@ -75,6 +76,14 @@ describe('DockService', () => {
       service.handleAppClick(dockItem);
       expect(appLauncherSpy.launch).toHaveBeenCalledWith(dockItem);
     }
+  });
+
+  it('should close apps grid when handling app click', () => {
+    const appsService = TestBed.inject(Apps);
+    appsService.isAppsGridOpen.set(true);
+    const dockItem = service.dockItems().find((i) => i.id === 'firefox')!;
+    service.handleAppClick(dockItem);
+    expect(appsService.isAppsGridOpen()).toBe(false);
   });
 
   it('should pin app at a specific index', () => {
@@ -206,7 +215,7 @@ describe('DockService', () => {
     };
 
     service.handleAppClick(dockItem);
-    expect(processManager.processes().find(p => p.id === pids[1])?.isMinimized).toBe(false);
+    expect(processManager.processes().find((p) => p.id === pids[1])?.isMinimized).toBe(false);
   });
 
   it('should close active app via closeActiveApp', () => {

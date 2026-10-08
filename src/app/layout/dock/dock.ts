@@ -1,32 +1,30 @@
 import { Component, inject, NgZone, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DockService } from '../../core/services/dock';
-import { CommonModule } from '@angular/common';
 import { Apps } from '../../core/services/apps';
 import { ProcessManager } from '../../core/services/process-manager';
 import { Settings } from '../../core/services/settings';
 import { LanguageService } from '../../core/services/language';
 import { ContextMenuService } from '../../core/services/context-menu';
-import { ContextMenu } from '../../shared/ui/context-menu/context-menu';
 import { DockItem } from '../../core/models/dock';
 
 @Component({
   selector: 'app-dock',
   standalone: true,
-  imports: [CommonModule, ContextMenu],
+  imports: [],
   templateUrl: './dock.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './dock.scss',
 })
 export class Dock {
-  dock = inject(DockService);
-  apps = inject(Apps);
-  contextMenu = inject(ContextMenuService);
-  processManager = inject(ProcessManager);
-  lang = inject(LanguageService);
-  settings = inject(Settings);
-  private ngZone = inject(NgZone);
+  private readonly contextMenu = inject(ContextMenuService);
+  private readonly ngZone = inject(NgZone);
+  readonly dock = inject(DockService);
+  readonly apps = inject(Apps);
+  readonly processManager = inject(ProcessManager);
+  readonly lang = inject(LanguageService);
+  readonly settings = inject(Settings);
 
-  itemNewPinPos = signal<number | null>(null);
+  readonly itemNewPinPos = signal<number | null>(null);
 
   private touchStartX = 0;
   private touchStartY = 0;
@@ -46,9 +44,7 @@ export class Dock {
 
     const btn = event.currentTarget as HTMLElement;
     this.longPressTimer = setTimeout(() => {
-      this.ngZone.run(() =>
-        this.apps.openContextMenuAt(btn, appId),
-      );
+      this.ngZone.run(() => this.apps.openContextMenuAt(btn, appId));
     }, 500);
   }
 
@@ -76,30 +72,24 @@ export class Dock {
     this.dock.handleAppClick(item, event);
   }
 
-  onDragOver(event: DragEvent) {
+  onDragOver(event: DragEvent): void {
     event.preventDefault();
-    event.dataTransfer!.dropEffect = 'link';
-
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'link';
     const container = event.currentTarget as HTMLElement;
-
     const dockItems = container.querySelectorAll('.dock-item');
-
     let targetPos = dockItems.length;
-
     for (let i = 0; i < dockItems.length; i++) {
       const rect = dockItems[i].getBoundingClientRect();
       const itemCenter = rect.left + rect.width / 2;
-
       if (event.clientX < itemCenter) {
         targetPos = i;
         break;
       }
     }
-
     this.itemNewPinPos.set(targetPos);
   }
 
-  onDrop(event: DragEvent) {
+  onDrop(event: DragEvent): void {
     event.preventDefault();
     const appId = event.dataTransfer?.getData('appId');
     const position = this.itemNewPinPos();

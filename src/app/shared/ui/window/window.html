@@ -3,8 +3,8 @@
     class="fixed z-[99999] bg-gnome-bg/20 backdrop-blur-md rounded-lg border-2 border-white/40 transition-all duration-100 pointer-events-none"
     [style.top.px]="ghost.y"
     [style.left.px]="ghost.x"
-    [style.width.px]="ghost.w"
-    [style.height.px]="ghost.h"
+    [style.width.px]="ghost.width"
+    [style.height.px]="ghost.height"
   ></div>
 }
 
@@ -23,8 +23,12 @@
     class="w-full h-full flex flex-col overflow-hidden shadow-2xl bg-gnome-bg transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]"
     (mousedown)="windowService.focus()"
     [ngClass]="{
-      'rounded-xl border border-gnome-border/40': !windowService.isMaximized() && !windowService.isSnapped() && !windowService.screen.isMobile(),
-      'rounded-none border-none': windowService.isMaximized() || windowService.isSnapped() || windowService.screen.isMobile(),
+      'rounded-xl border border-gnome-border/40':
+        !windowService.isMaximized() &&
+        !windowService.isSnapped() &&
+        !windowService.screen.isMobile(),
+      'rounded-none border-none':
+        windowService.isMaximized() || windowService.isSnapped() || windowService.screen.isMobile(),
       'opacity-0 scale-[0.95]': process().isMinimized || !windowService.isVisible(),
       'opacity-100 scale-100': !process().isMinimized && windowService.isVisible(),
     }"
@@ -40,21 +44,23 @@
           class="font-bold text-sm tracking-wide text-gnome-text opacity-90 pl-2 flex items-center gap-2 pointer-events-none truncate"
         >
           <i [class]="process().icon" class="text-gnome-text-secondary"></i>
-          <span class="truncate">{{ $any(lang.t()).apps[process().appId] || process().title }}</span>
+          <span class="truncate">{{ lang.t().apps[process().appId] || process().title }}</span>
         </div>
 
         <div class="flex items-center gap-2" (mousedown)="$event.stopPropagation()">
           <button
             (click)="windowService.minimize()"
             class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-text/5 flex items-center justify-center transition-colors text-gnome-text-secondary"
-            title="Minimize"
+            [attr.aria-label]="lang.t().window.minimize"
           >
             <i class="fas fa-minus text-xs"></i>
           </button>
           <button
             (click)="windowService.toggleMaximize()"
             class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-text/5 flex items-center justify-center transition-colors text-gnome-text-secondary"
-            title="Maximize"
+            [attr.aria-label]="
+              windowService.isMaximized() ? lang.t().window.restore : lang.t().window.maximize
+            "
           >
             <i
               [class]="windowService.isMaximized() ? 'far fa-clone' : 'far fa-square'"
@@ -64,7 +70,7 @@
           <button
             (click)="windowService.close()"
             class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-red hover:text-white flex items-center justify-center transition-colors text-gnome-text-secondary group active:scale-95"
-            [attr.aria-label]="lang.t().window.close || 'Close'"
+            [attr.aria-label]="lang.t().window.close"
           >
             <i class="fas fa-xmark text-xs group-hover:text-white mb-[1px]"></i>
           </button>
@@ -83,7 +89,9 @@
     </div>
   </div>
 
-  @if (!windowService.isMaximized() && !windowService.isSnapped() && !windowService.screen.isMobile()) {
+  @if (
+    !windowService.isMaximized() && !windowService.isSnapped() && !windowService.screen.isMobile()
+  ) {
     <div
       (mousedown)="windowService.startResize($event)"
       class="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 z-50 opacity-0 hover:opacity-100 transition-opacity"

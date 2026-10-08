@@ -12,7 +12,7 @@
     [style.transform]="contextMenu.opensBelow() ? 'none' : 'translateY(-100%)'"
   >
     @if (screen.isMobile()) {
-      @if (process.hasActiveProcessesById(contextMenu.activeAppId()!)) {
+      @if (processManager.hasActiveProcessesById(contextMenu.activeAppId()!)) {
         <button
           (click)="dock.focusActiveApp()"
           class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"
@@ -36,7 +36,7 @@
       >
         <i class="fas fa-plus"></i>
         {{
-          process.hasActiveProcessesById(contextMenu.activeAppId()!)
+          processManager.hasActiveProcessesById(contextMenu.activeAppId()!)
             ? lang.t().common.newInstance
             : lang.t().common.openApp
         }}
@@ -87,7 +87,7 @@
       }}
     </button>
 
-    @if (process.hasActiveProcessesById(contextMenu.activeAppId()!)) {
+    @if (processManager.hasActiveProcessesById(contextMenu.activeAppId()!)) {
       <button
         (click)="dock.closeActiveApp()"
         class="w-full cursor-pointer flex items-center gap-3 px-3 py-2 text-sm text-gnome-text hover:bg-gnome-text/10 rounded-md transition-colors"

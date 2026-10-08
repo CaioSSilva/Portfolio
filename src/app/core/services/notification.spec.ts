@@ -10,10 +10,7 @@ describe('NotificationService', () => {
     soundSpy = { play: vi.fn().mockResolvedValue(undefined) };
 
     TestBed.configureTestingModule({
-      providers: [
-        NotificationService,
-        { provide: Sound, useValue: soundSpy },
-      ],
+      providers: [NotificationService, { provide: Sound, useValue: soundSpy }],
     });
     service = TestBed.inject(NotificationService);
   });

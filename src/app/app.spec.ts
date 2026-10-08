@@ -12,13 +12,30 @@ import { AppRegistry } from './core/services/app-registry';
 import { DockService } from './core/services/dock';
 import { ContextMenuService } from './core/services/context-menu';
 import { DesktopIconsService } from './core/services/desktop-icons';
-import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA, Type, WritableSignal, signal } from '@angular/core';
+import { AppDefinition } from './core/models/dock';
+import { Base } from './core/models/base';
 
 describe('App', () => {
   let soundMock: { play: ReturnType<typeof vi.fn> };
-  let settingsMock: any;
+  let settingsMock: {
+    wallpaper: WritableSignal<string>;
+    tipsEnabled: WritableSignal<boolean>;
+    dockSize: WritableSignal<number>;
+    desktopSize: WritableSignal<number>;
+    systemMuted: WritableSignal<boolean>;
+    autoHideDock: WritableSignal<boolean>;
+  };
   let tipsMock: { startRandomTips: ReturnType<typeof vi.fn> };
-  let appsMock: { isAppsGridOpen: ReturnType<typeof signal<boolean>>; appsRegistry: ReturnType<typeof signal<any>>; appsDefinition: ReturnType<typeof signal<any[]>>; appSearchResult: ReturnType<typeof signal<any[]>>; searchQuery: ReturnType<typeof signal<string>>; openApp: ReturnType<typeof vi.fn>; toggleGrid: ReturnType<typeof vi.fn> };
+  let appsMock: {
+    isAppsGridOpen: ReturnType<typeof signal<boolean>>;
+    appsRegistry: ReturnType<typeof signal<Record<string, AppDefinition | undefined>>>;
+    appsDefinition: ReturnType<typeof signal<AppDefinition[]>>;
+    appSearchResult: ReturnType<typeof signal<AppDefinition[]>>;
+    searchQuery: ReturnType<typeof signal<string>>;
+    openApp: ReturnType<typeof vi.fn>;
+    toggleGrid: ReturnType<typeof vi.fn>;
+  };
 
   function setup() {
     return TestBed.createComponent(App);
@@ -51,27 +68,46 @@ describe('App', () => {
         NotificationService,
         LanguageService,
         AppRegistry,
-        { provide: ProcessManager, useValue: {
-          processes: signal([]),
-          isTopBarHidden: signal(false),
-          isDockHidden: signal(false),
-          hasActiveProcesses: signal(false),
-          open: vi.fn(), focus: vi.fn(), close: vi.fn(), openFile: vi.fn()
-        } },
+        {
+          provide: ProcessManager,
+          useValue: {
+            processes: signal([]),
+            isTopBarHidden: signal(false),
+            isDockHidden: signal(false),
+            hasActiveProcesses: signal(false),
+            open: vi.fn(),
+            focus: vi.fn(),
+            close: vi.fn(),
+            openFile: vi.fn(),
+          },
+        },
         { provide: Settings, useValue: settingsMock },
         { provide: Sound, useValue: soundMock },
         { provide: SystemTips, useValue: tipsMock },
         { provide: Apps, useValue: appsMock },
         { provide: AppLauncher, useValue: { launch: vi.fn() } },
-        { provide: DockService, useValue: {
-          pinnedApps: signal([]),
-          forceShow: signal(false),
-          dockItems: signal([]),
-          pinnedAppIds: signal([]),
-          pinApp: vi.fn(),
-          handleAppClick: vi.fn(),
-        } },
-        { provide: ContextMenuService, useValue: { isOpen: signal(false), position: signal({ x: 0, y: 0 }), activeAppId: signal(null), activeItem: signal(null), close: vi.fn(), openApp: vi.fn() } },
+        {
+          provide: DockService,
+          useValue: {
+            pinnedApps: signal([]),
+            forceShow: signal(false),
+            dockItems: signal([]),
+            pinnedAppIds: signal([]),
+            pinApp: vi.fn(),
+            handleAppClick: vi.fn(),
+          },
+        },
+        {
+          provide: ContextMenuService,
+          useValue: {
+            isOpen: signal(false),
+            position: signal({ x: 0, y: 0 }),
+            activeAppId: signal(null),
+            activeItem: signal(null),
+            close: vi.fn(),
+            openApp: vi.fn(),
+          },
+        },
         { provide: DesktopIconsService, useValue: { onDesktopApps: signal([]) } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -88,9 +124,9 @@ describe('App', () => {
     expect(fixture.componentInstance.systemReady()).toBe(false);
   });
 
-  it('shutingDown defaults to false', () => {
+  it('isShuttingDown defaults to false', () => {
     const fixture = setup();
-    expect(fixture.componentInstance.shutingDown()).toBe(false);
+    expect(fixture.componentInstance.isShuttingDown()).toBe(false);
   });
 
   it('isAnimated returns false for non-video wallpaper', () => {
@@ -166,7 +202,13 @@ describe('App', () => {
 
   it('opens About app 1s after systemReady when about is in registry', () => {
     vi.useFakeTimers();
-    const aboutApp = { id: 'about', title: 'About', icon: 'i', color: '#fff', component: null as any };
+    const aboutApp: AppDefinition = {
+      id: 'about',
+      title: 'About',
+      icon: 'i',
+      color: '#fff',
+      component: Base as Type<Base>,
+    };
     appsMock.appsRegistry.set({ about: aboutApp });
 
     const fixture = setup();
@@ -182,7 +224,13 @@ describe('App', () => {
 
   it('does not open About app before systemReady fires', () => {
     vi.useFakeTimers();
-    const aboutApp = { id: 'about', title: 'About', icon: 'i', color: '#fff', component: null as any };
+    const aboutApp: AppDefinition = {
+      id: 'about',
+      title: 'About',
+      icon: 'i',
+      color: '#fff',
+      component: Base as Type<Base>,
+    };
     appsMock.appsRegistry.set({ about: aboutApp });
 
     const fixture = setup();

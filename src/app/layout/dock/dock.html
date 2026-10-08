@@ -53,6 +53,7 @@
         (touchend)="onItemTouchEnd()"
         [style.width.px]="settings.dockSize()"
         [style.height.px]="settings.dockSize()"
+        [attr.aria-label]="getAppLabel(item.id, item.title)"
         class="dock-item group relative flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10 active:scale-95 cursor-pointer shrink-0"
         [class.bg-gnome-text/10]="item.isActive"
       >
@@ -113,5 +114,3 @@
     }
   </div>
 </div>
-
-<app-context-menu></app-context-menu>

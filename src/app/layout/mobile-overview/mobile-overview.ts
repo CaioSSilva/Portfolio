@@ -1,5 +1,11 @@
-import { Component, inject, computed, NgZone, signal, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  inject,
+  computed,
+  NgZone,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ProcessManager } from '../../core/services/process-manager';
 import { MobileNavService } from '../../core/services/mobile-nav';
 import { LanguageService } from '../../core/services/language';
@@ -8,16 +14,16 @@ import { Process } from '../../core/models/process';
 @Component({
   selector: 'app-mobile-overview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './mobile-overview.html',
   styleUrl: './mobile-overview.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MobileOverview {
+  private readonly ngZone = inject(NgZone);
   readonly processManager = inject(ProcessManager);
   readonly nav = inject(MobileNavService);
   readonly lang = inject(LanguageService);
-  private readonly ngZone = inject(NgZone);
 
   private backdropTouchStartX = 0;
   private backdropTouchStartY = 0;
@@ -71,17 +77,12 @@ export class MobileOverview {
     const dx = Math.abs(event.changedTouches[0].clientX - this.touchStartX);
     const dy = event.changedTouches[0].clientY - this.touchStartY;
     const duration = Date.now() - this.touchStartTime;
-
-    const isSwipeUp = dy < -80 || (dy < -40 && duration < 300);
-
-    if (isSwipeUp) {
+    if (dy < -80 || (dy < -40 && duration < 300)) {
       event.stopPropagation();
       this.ngZone.run(() => this.dismissCard(proc));
       return;
     }
-
     this.setOffset(proc.id, 0);
-
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && duration < 400) {
       this.lastTapTime = Date.now();
       event.stopPropagation();
@@ -123,13 +124,17 @@ export class MobileOverview {
 
   closeAll(): void {
     const list = [...this.processes()];
-    list.forEach((p) => this.processManager.close(p.id));
+    list.forEach((proc) => this.processManager.close(proc.id));
     this.nav.closeOverview();
+  }
+
+  getAppLabel(appId: string, fallback: string): string {
+    return (this.lang.t().apps as Record<string, string>)[appId] || fallback;
   }
 
   private dismissCard(proc: Process): void {
     this.setOffset(proc.id, -600);
-    this.dismissing.update((d) => ({ ...d, [proc.id]: true }));
+    this.dismissing.update((map) => ({ ...map, [proc.id]: true }));
     setTimeout(() => {
       this.ngZone.run(() => {
         this.processManager.close(proc.id);
@@ -141,6 +146,6 @@ export class MobileOverview {
   }
 
   private setOffset(procId: string, value: number): void {
-    this.swipeOffsets.update((o) => ({ ...o, [procId]: value }));
+    this.swipeOffsets.update((map) => ({ ...map, [procId]: value }));
   }
 }

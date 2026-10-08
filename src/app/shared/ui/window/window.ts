@@ -5,13 +5,12 @@ import {
   input,
   viewChild,
   AfterViewInit,
-  HostListener,
   ChangeDetectionStrategy,
-  NgZone
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Process } from '../../../core/models/process';
-import { TOP_BAR_HEIGHT, WindowService } from '../../../core/services/window';
+import { WindowService } from '../../../core/services/window';
 import { LanguageService } from '../../../core/services/language';
 
 @Component({
@@ -24,24 +23,15 @@ import { LanguageService } from '../../../core/services/language';
   styleUrl: './window.scss',
 })
 export class Window implements AfterViewInit {
-  process = input.required<Process>();
-  lang = inject(LanguageService);
-  windowFrame = viewChild.required<ElementRef<HTMLElement>>('windowFrame');
-
-  protected windowService = inject(WindowService);
-  private ngZone = inject(NgZone);
-  TOP_BAR_HEIGHT: number = TOP_BAR_HEIGHT;
+  private readonly ngZone = inject(NgZone);
+  readonly lang = inject(LanguageService);
+  readonly windowService = inject(WindowService);
+  readonly process = input.required<Process>();
+  readonly windowFrame = viewChild.required<ElementRef<HTMLElement>>('windowFrame');
 
   ngAfterViewInit(): void {
     this.ngZone.run(() => {
       this.windowService.init(this.windowFrame().nativeElement, this.process());
     });
-  }
-
-  @HostListener('window:resize')
-  onWindowResize() {
-    if (this.windowService.isMaximized() && !this.windowService.screen.isMobile()) {
-      this.windowService.toggleMaximize();
-    }
   }
 }

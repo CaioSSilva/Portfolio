@@ -1,5 +1,12 @@
-import { Component, inject, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
-import { AudioPlayer } from '../../features/musics/player/audio-player';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  effect,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { AudioPlayer } from '../../core/services/audio-player';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
 import { NotificationService } from '../../core/services/notification';
@@ -12,12 +19,17 @@ import { NotificationService } from '../../core/services/notification';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MusicWidget {
+  private readonly apps = inject(Apps);
+  private readonly notifications = inject(NotificationService);
   readonly player = inject(AudioPlayer);
   readonly lang = inject(LanguageService);
-  private readonly apps = inject(Apps);
-  private readonly notifService = inject(NotificationService);
 
   readonly widgetThumbError = signal(false);
+  readonly isSeeking = signal(false);
+  readonly seekPreview = signal(0);
+  readonly displayTime = computed(() =>
+    this.isSeeking() ? this.seekPreview() : this.player.currentTime(),
+  );
 
   constructor() {
     effect(() => {
@@ -25,35 +37,30 @@ export class MusicWidget {
       this.widgetThumbError.set(false);
     });
   }
-  readonly isSeeking = signal(false);
-  readonly seekPreview = signal(0);
-  readonly displayTime = computed(() =>
-    this.isSeeking() ? this.seekPreview() : this.player.currentTime()
-  );
 
-  openPlayer() {
-    const app = this.apps.appsDefinition().find((a) => a.id === 'musics');
+  openPlayer(): void {
+    const app = this.apps.appsDefinition().find((appDef) => appDef.id === 'musics');
     if (app) {
       this.apps.openApp(app);
-      this.notifService.closePanel();
+      this.notifications.closePanel();
     }
   }
 
-  onSeekStart(e: Event) {
+  onSeekStart(event: Event): void {
     this.isSeeking.set(true);
-    this.seekPreview.set((e.target as HTMLInputElement).valueAsNumber);
+    this.seekPreview.set((event.target as HTMLInputElement).valueAsNumber);
   }
 
-  onSeekMove(e: Event) {
-    const val = (e.target as HTMLInputElement).valueAsNumber;
-    this.seekPreview.set(val);
-    this.player.updateSeekDirection(val);
+  onSeekMove(event: Event): void {
+    const seekTime = (event.target as HTMLInputElement).valueAsNumber;
+    this.seekPreview.set(seekTime);
+    this.player.updateSeekDirection(seekTime);
   }
 
-  onSeekEnd(e: Event) {
-    const val = (e.target as HTMLInputElement).valueAsNumber;
+  onSeekEnd(event: Event): void {
+    const seekTime = (event.target as HTMLInputElement).valueAsNumber;
     this.isSeeking.set(false);
-    this.player.seek(val);
+    this.player.seek(seekTime);
   }
 
   formatTime(time: number): string {

@@ -10,12 +10,12 @@ import { LanguageService } from '../../../../core/services/language';
   styleUrl: './grid.scss',
 })
 export class FilesGrid {
-  lang = inject(LanguageService);
-  files = input<FileItem[]>([]);
-  selectedId = input<string | null>(null);
-  gridSize = input<number>(110);
-  onSelect = output<string>();
-  onNavigate = output<FileItem>();
+  readonly lang = inject(LanguageService);
+  readonly files = input<FileItem[]>([]);
+  readonly selectedId = input<string | null>(null);
+  readonly gridSize = input<number>(110);
+  readonly onSelect = output<string>();
+  readonly onNavigate = output<FileItem>();
 
   readonly imageExtensions = IMAGE_EXTENSIONS;
 

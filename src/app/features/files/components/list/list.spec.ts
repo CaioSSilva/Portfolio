@@ -22,10 +22,7 @@ describe('FilesList', () => {
 
     await TestBed.configureTestingModule({
       imports: [FilesList],
-      providers: [
-        { provide: FileSystem, useValue: fsMock },
-        LanguageService,
-      ],
+      providers: [{ provide: FileSystem, useValue: fsMock }, LanguageService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FilesList);

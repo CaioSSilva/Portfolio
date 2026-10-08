@@ -66,11 +66,7 @@ describe('Gemini', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        Gemini,
-        LanguageService,
-        { provide: GENAI_FACTORY, useValue: makeFactory() },
-      ],
+      providers: [Gemini, LanguageService, { provide: GENAI_FACTORY, useValue: makeFactory() }],
     });
     service = TestBed.inject(Gemini);
     langService = TestBed.inject(LanguageService);
@@ -194,7 +190,7 @@ describe('Gemini', () => {
   });
 
   describe('fallback to geminiApiKey2', () => {
-    const apiError = new Error('API key exhausted');
+    const apiError = new Error('404 NOT_FOUND: model unavailable');
 
     beforeEach(() => {
       TestBed.resetTestingModule();
@@ -216,14 +212,16 @@ describe('Gemini', () => {
 
     it('generateResponseStream should retry with key2 and succeed', async () => {
       const chunks: string[] = [];
-      const response = await service.generateResponseStream('Stream', '', undefined, (t) => chunks.push(t));
+      const response = await service.generateResponseStream('Stream', '', undefined, (t) =>
+        chunks.push(t),
+      );
       expect(response).toBe('Fallback stream!');
       expect(generateContentStreamSpy).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('both keys fail', () => {
-    const apiError = new Error('All keys exhausted');
+    const apiError = new Error('404 NOT_FOUND: both keys exhausted');
 
     beforeEach(() => {
       TestBed.resetTestingModule();
@@ -238,13 +236,43 @@ describe('Gemini', () => {
     });
 
     it('generateResponse should throw after both keys fail', async () => {
-      await expect(service.generateResponse('Hello', '', undefined)).rejects.toThrow('All keys exhausted');
+      await expect(service.generateResponse('Hello', '', undefined)).rejects.toThrow('NOT_FOUND');
     });
 
     it('generateResponseStream should throw after both keys fail', async () => {
       await expect(
-        service.generateResponseStream('Stream', '', undefined, () => {})
-      ).rejects.toThrow('All keys exhausted');
+        service.generateResponseStream('Stream', '', undefined, () => {}),
+      ).rejects.toThrow('NOT_FOUND');
+    });
+  });
+
+  describe('non-404 errors are NOT retried', () => {
+    const networkError = new Error('Network request failed');
+
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          Gemini,
+          LanguageService,
+          { provide: GENAI_FACTORY, useValue: makeFactoryBothFail(networkError) },
+        ],
+      });
+      service = TestBed.inject(Gemini);
+    });
+
+    it('generateResponse should throw immediately without retrying on non-404 error', async () => {
+      await expect(service.generateResponse('Hello', '', undefined)).rejects.toThrow(
+        'Network request failed',
+      );
+      expect(generateContentSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('generateResponseStream should throw immediately without retrying on non-404 error', async () => {
+      await expect(
+        service.generateResponseStream('Stream', '', undefined, () => {}),
+      ).rejects.toThrow('Network request failed');
+      expect(generateContentStreamSpy).toHaveBeenCalledTimes(1);
     });
   });
 });

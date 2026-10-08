@@ -22,6 +22,7 @@
     >
       <button
         (click)="onToggle.emit(item.id)"
+        [attr.aria-label]="lang.t().files.toggleFolder"
         class="w-4 h-4 flex items-center justify-center transition-transform opacity-50 cursor-pointer"
         [class.rotate-90]="isExpanded(item.id)"
         [class.invisible]="item.type === 'file' || !item.children?.length"
@@ -39,12 +40,14 @@
         ></i>
 
         <span class="truncate">
-          {{ $any(lang.t().files)[item.id.toLowerCase()] || item.name }}
+          {{ getFileLabel(item.id, item.name) }}
         </span>
       </div>
     </div>
     @if (isExpanded(item.id) && item.children?.length) {
-      <div class="ml-3 border-l border-gnome-border/20 pl-1 mt-0.5 flex flex-col gap-0.5 min-w-0 overflow-hidden">
+      <div
+        class="ml-3 border-l border-gnome-border/20 pl-1 mt-0.5 flex flex-col gap-0.5 min-w-0 overflow-hidden"
+      >
         @for (child of item.children; track child.id) {
           <ng-container *ngTemplateOutlet="navTree; context: { $implicit: child }"></ng-container>
         }

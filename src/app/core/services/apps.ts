@@ -20,7 +20,7 @@ export class Apps {
 
   private readonly debouncedSearch$ = toObservable(this.searchQuery).pipe(
     debounceTime(200),
-    map((q) => q.toLowerCase().trim()),
+    map((query) => query.toLowerCase().trim()),
   );
 
   readonly debouncedQuery = toSignal(this.debouncedSearch$, { initialValue: '' });
@@ -30,31 +30,31 @@ export class Apps {
     return this.appRegistry.searchApps(query);
   });
 
-  toggleGrid() {
+  toggleGrid(): void {
     this.contextMenu.close();
-    this.isAppsGridOpen.update((v) => !v);
+    this.isAppsGridOpen.update((open) => !open);
     if (!this.isAppsGridOpen()) this.resetSearch();
   }
 
-  closeGrid() {
+  closeGrid(): void {
     this.contextMenu.close();
     this.isAppsGridOpen.set(false);
     this.resetSearch();
   }
 
-  openApp(app: AppDefinition) {
+  openApp(app: AppDefinition): void {
     this.appLauncher.launch(app, app.data);
     this.isAppsGridOpen.set(false);
     this.resetSearch();
   }
 
-  onRightClickApp(event: MouseEvent, appId: string) {
+  onRightClickApp(event: MouseEvent, appId: string): void {
     event.preventDefault();
     event.stopPropagation();
     this.openContextMenuAt(event.currentTarget as HTMLElement, appId);
   }
 
-  openContextMenuAt(anchor: HTMLElement, appId: string) {
+  openContextMenuAt(anchor: HTMLElement, appId: string): void {
     const menuWidth = 260;
     const menuHeight = 160;
     const vw = window.innerWidth;
@@ -64,16 +64,16 @@ export class Apps {
     const anchorCenterX = rect.left + rect.width / 2;
     const anchorCenterY = rect.top + rect.height / 2;
 
-    const x = Math.min(Math.max(anchorCenterX - menuWidth / 2, 8), vw - menuWidth - 8);
+    const menuX = Math.min(Math.max(anchorCenterX - menuWidth / 2, 8), vw - menuWidth - 8);
     const opensBelow = anchorCenterY < menuHeight + 8;
-    const y = opensBelow
+    const menuY = opensBelow
       ? Math.min(anchorCenterY + rect.height / 2 + 8, vh - menuHeight - 8)
       : Math.max(anchorCenterY - rect.height / 2 - 8, menuHeight + 8);
 
-    this.contextMenu.openApp(x, y, appId, opensBelow);
+    this.contextMenu.openApp(menuX, menuY, appId, opensBelow);
   }
 
-  private resetSearch() {
+  private resetSearch(): void {
     this.searchQuery.set('');
   }
 }

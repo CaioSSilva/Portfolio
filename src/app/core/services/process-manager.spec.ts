@@ -155,7 +155,13 @@ describe('ProcessManager', () => {
     appRegistrySpy.findHandlerForExtension.mockReturnValue(handler);
     fileSystemSpy.getFileExtension.mockReturnValue('pdf');
 
-    const node: FileItem = { id: 'doc1', name: 'file.pdf', type: 'file', icon: 'file', url: '/file.pdf' };
+    const node: FileItem = {
+      id: 'doc1',
+      name: 'file.pdf',
+      type: 'file',
+      icon: 'file',
+      url: '/file.pdf',
+    };
     service.openFile(node);
 
     expect(service.processes().length).toBe(1);
@@ -165,7 +171,13 @@ describe('ProcessManager', () => {
   it('should show notification when no handler found for file', () => {
     appRegistrySpy.findHandlerForExtension.mockReturnValue(null);
 
-    const node: FileItem = { id: 'unknown', name: 'file.xyz', type: 'file', icon: 'file', url: '/file.xyz' };
+    const node: FileItem = {
+      id: 'unknown',
+      name: 'file.xyz',
+      type: 'file',
+      icon: 'file',
+      url: '/file.xyz',
+    };
     service.openFile(node);
 
     expect(notificationSpy.show).toHaveBeenCalled();
@@ -182,11 +194,23 @@ describe('ProcessManager', () => {
     appRegistrySpy.findHandlerForExtension.mockReturnValue(musicHandler);
     fileSystemSpy.getFileExtension.mockReturnValue('mp3');
 
-    const node1: FileItem = { id: 'song1', name: 'song1.mp3', type: 'file', icon: 'file', url: '/song1.mp3' };
+    const node1: FileItem = {
+      id: 'song1',
+      name: 'song1.mp3',
+      type: 'file',
+      icon: 'file',
+      url: '/song1.mp3',
+    };
     service.openFile(node1);
     expect(service.processes().length).toBe(1);
 
-    const node2: FileItem = { id: 'song2', name: 'song2.mp3', type: 'file', icon: 'file', url: '/song2.mp3' };
+    const node2: FileItem = {
+      id: 'song2',
+      name: 'song2.mp3',
+      type: 'file',
+      icon: 'file',
+      url: '/song2.mp3',
+    };
     service.openFile(node2);
     expect(service.processes().length).toBe(1);
   });

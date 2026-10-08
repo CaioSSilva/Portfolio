@@ -18,12 +18,15 @@ describe('TopBar', () => {
       providers: [
         LanguageService,
         NotificationService,
-        { provide: ProcessManager, useValue: {
-          processes: signal([]),
-          isTopBarHidden: signal(false),
-          isDockHidden: signal(false),
-          hasActiveProcesses: signal(false),
-        } },
+        {
+          provide: ProcessManager,
+          useValue: {
+            processes: signal([]),
+            isTopBarHidden: signal(false),
+            isDockHidden: signal(false),
+            hasActiveProcesses: signal(false),
+          },
+        },
         { provide: Theme, useValue: { current: signal('dark'), toggle: vi.fn() } },
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
@@ -47,12 +50,14 @@ describe('TopBar', () => {
     expect(component.now()).toBeInstanceOf(Date);
   });
 
-  it('ngOnInit sets up interval that updates now signal', async () => {
+  it('now signal updates over time via constructor interval', async () => {
     vi.useFakeTimers();
-    const before = component.now().getTime();
-    component.ngOnInit();
+    const f2 = TestBed.createComponent(TopBar);
+    const c2 = f2.componentInstance;
+    f2.detectChanges();
+    const before = c2.now().getTime();
     vi.advanceTimersByTime(1100);
-    const after = component.now().getTime();
+    const after = c2.now().getTime();
     expect(after).toBeGreaterThan(before);
     vi.useRealTimers();
   });
@@ -65,23 +70,23 @@ describe('TopBar', () => {
   });
 
   it('onTouchEnd opens notification panel when swiped down on mobile', () => {
-    const notfService = TestBed.inject(NotificationService);
+    const notificationService = TestBed.inject(NotificationService);
     component.screen.width.set(400);
 
     component.onTouchStart({
       touches: [{ clientY: 10 }] as unknown as TouchList,
-    } as unknown as TouchEvent);
+    } as TouchEvent);
 
     component.onTouchMove({
       touches: [{ clientY: 60 }] as unknown as TouchList,
-    } as unknown as TouchEvent);
+    } as TouchEvent);
     expect(component.pullOffset()).toBeGreaterThan(0);
 
     component.onTouchEnd({
       changedTouches: [{ clientY: 60 }] as unknown as TouchList,
-    } as unknown as TouchEvent);
+    } as TouchEvent);
 
-    expect(notfService.isPanelOpen()).toBe(true);
+    expect(notificationService.isPanelOpen()).toBe(true);
     expect(component.pullOffset()).toBe(0);
   });
 });

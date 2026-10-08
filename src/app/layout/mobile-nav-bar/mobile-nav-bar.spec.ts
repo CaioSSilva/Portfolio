@@ -19,9 +19,9 @@ describe('MobileNavBar', () => {
 
     const navMock = {
       isOverviewOpen: signal(false),
-      toggleOverview: toggleOverviewSpy as unknown as () => void,
-      goHome: goHomeSpy as unknown as () => void,
-      toggleAppDrawer: toggleAppDrawerSpy as unknown as () => void,
+      toggleOverview: toggleOverviewSpy as () => void,
+      goHome: goHomeSpy as () => void,
+      toggleAppDrawer: toggleAppDrawerSpy as () => void,
     };
     const pmMock = { processes: signal([]) };
 
@@ -45,22 +45,22 @@ describe('MobileNavBar', () => {
 
   it('tap() executes the supplied action', () => {
     const fn = vi.fn();
-    component.tap(fn as unknown as () => void);
+    component.tap(fn as () => void);
     expect(fn).toHaveBeenCalled();
   });
 
   it('tap() with toggleOverview delegates to nav service', () => {
-    component.tap(toggleOverviewSpy as unknown as () => void);
+    component.tap(toggleOverviewSpy as () => void);
     expect(toggleOverviewSpy).toHaveBeenCalled();
   });
 
   it('tap() with goHome delegates to nav service', () => {
-    component.tap(goHomeSpy as unknown as () => void);
+    component.tap(goHomeSpy as () => void);
     expect(goHomeSpy).toHaveBeenCalled();
   });
 
   it('tap() with toggleAppDrawer delegates to nav service', () => {
-    component.tap(toggleAppDrawerSpy as unknown as () => void);
+    component.tap(toggleAppDrawerSpy as () => void);
     expect(toggleAppDrawerSpy).toHaveBeenCalled();
   });
 });

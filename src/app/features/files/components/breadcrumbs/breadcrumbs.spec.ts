@@ -26,7 +26,10 @@ describe('FilesBreadcrumbs', () => {
   });
 
   it('items input reflects provided value', () => {
-    fixture.componentRef.setInput('items', [{ id: 'root', name: 'Root' }, { id: 'home', name: 'Home' }]);
+    fixture.componentRef.setInput('items', [
+      { id: 'root', name: 'Root' },
+      { id: 'home', name: 'Home' },
+    ]);
     fixture.detectChanges();
     expect(component.items().length).toBe(2);
     expect(component.items()[0].id).toBe('root');

@@ -1,4 +1,3 @@
-
 @if (!screen.isMobile()) {
   <div
     class="fixed top-0 left-0 right-0 h-1 z-[8998] will-change-transform"
@@ -18,11 +17,17 @@
     class="fixed top-0 left-0 right-0 bg-gnome-bg/95 backdrop-blur-2xl border-b border-gnome-border/60 z-[8998] flex flex-col items-center justify-end pb-2 shadow-2xl pointer-events-none overflow-hidden"
     [style.height.px]="isReturning() ? 36 : 36 + pullOffset()"
     [style.opacity]="isReturning() ? 0 : 1"
-    [style.transition]="isReturning() ? 'height 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 280ms ease-out' : 'none'"
+    [style.transition]="
+      isReturning()
+        ? 'height 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 280ms ease-out'
+        : 'none'
+    "
   >
     <div class="w-10 h-1.5 rounded-full bg-white/30 mb-1"></div>
-    <span class="text-[10px] font-bold tracking-wider uppercase text-gnome-text-secondary opacity-70">
-      {{ pullOffset() > 40 ? lang.t().notifications.title : 'Pull down' }}
+    <span
+      class="text-[10px] font-bold tracking-wider uppercase text-gnome-text-secondary opacity-70"
+    >
+      {{ pullOffset() > 40 ? lang.t().notifications.title : lang.t().mobileNav.pullDown }}
     </span>
   </div>
 }
@@ -34,12 +39,13 @@
   (touchend)="onTouchEnd($event)"
   (touchcancel)="onTouchEnd($event)"
   [class.-translate-y-full]="
-    processManager.isTopBarHidden() && !forceShow() && !notfService.isPanelOpen() && !screen.isMobile()
+    processManager.isTopBarHidden() &&
+    !forceShow() &&
+    !notificationService.isPanelOpen() &&
+    !screen.isMobile()
   "
   [style.transform]="
-    screen.isMobile() && pullOffset() > 0
-      ? 'translate3d(0, ' + pullOffset() + 'px, 0)'
-      : ''
+    screen.isMobile() && pullOffset() > 0 ? 'translate3d(0, ' + pullOffset() + 'px, 0)' : ''
   "
   [style.transition]="
     screen.isMobile() && isReturning()
@@ -57,11 +63,11 @@
         <span>{{ now() | date: 'HH:mm' }}</span>
       </div>
     } @else {
-      @if (!notfService.isPanelOpen()) {
+      @if (!notificationService.isPanelOpen()) {
         <div class="relative">
           <app-now-playing-widget />
           <div
-            (click)="notfService.openPanel()"
+            (click)="notificationService.openPanel()"
             class="absolute inset-0 cursor-pointer"
           ></div>
         </div>
@@ -72,14 +78,12 @@
   <div class="flex items-center gap-2">
     @if (!screen.isMobile()) {
       <div
-        (click)="notfService.togglePanel()"
+        (click)="notificationService.togglePanel()"
         class="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 py-1 rounded-full hover:bg-gnome-text/20 transition-colors cursor-pointer text-[11px] font-bold"
-        [class.bg-gnome-text/10]="notfService.isPanelOpen()"
+        [class.bg-gnome-text/10]="notificationService.isPanelOpen()"
       >
         <span>
-          {{
-            now() | date: 'longDate' : '' : (languageService.currentLang() === 'pt' ? 'pt-BR' : 'en-US')
-          }}
+          {{ now() | date: 'longDate' : '' : (lang.currentLang() === 'pt' ? 'pt-BR' : 'en-US') }}
         </span>
         <span class="opacity-50 font-medium ml-1">{{ now() | date: 'HH:mm' }}</span>
       </div>
@@ -95,7 +99,7 @@
         <button
           (click)="handlePowerOff()"
           class="flex cursor-pointer items-center justify-center w-6 h-6 hover:bg-gnome-red/20 hover:text-gnome-red rounded-full transition-colors outline-none border-none active:scale-90"
-          title="Power"
+          [attr.aria-label]="lang.t().shutdown.powerOff"
         >
           <i class="fas fa-power-off" style="font-size: 10px"></i>
         </button>

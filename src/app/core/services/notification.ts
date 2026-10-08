@@ -1,34 +1,42 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { Notification } from '../models/notification';
 import { Sound } from './sound';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private readonly sound = inject(Sound);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly activeNotifications = signal<Notification[]>([]);
   readonly history = signal<Notification[]>([]);
   readonly isPanelOpen = signal(false);
 
-  togglePanel() {
+  private readonly dismissTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      this.dismissTimers.forEach(clearTimeout);
+      this.dismissTimers.clear();
+    });
+  }
+
+  togglePanel(): void {
     this.isPanelOpen.update((open) => !open);
   }
 
-  openPanel() {
+  openPanel(): void {
     this.isPanelOpen.set(true);
   }
 
-  closePanel() {
+  closePanel(): void {
     this.isPanelOpen.set(false);
   }
 
-  show(notif: Omit<Notification, 'id' | 'timestamp'>) {
+  show(notif: Omit<Notification, 'id' | 'timestamp'>): void {
     const newNotif = this.createNotification(notif);
 
     this.pushToState(newNotif);
     this.sound.play('bell');
-
-    this.scheduleDismissal(newNotif.id, newNotif.duration || 6000);
   }
 
   private createNotification(notif: Omit<Notification, 'id' | 'timestamp'>): Notification {
@@ -39,23 +47,30 @@ export class NotificationService {
     };
   }
 
-  private pushToState(notif: Notification) {
+  private pushToState(notif: Notification): void {
     this.activeNotifications.update((current) => [...current, notif]);
-    setTimeout(() => {
-      this.activeNotifications.update((items) => items.filter((n) => n.id !== notif.id));
+    const timer = setTimeout(() => {
+      this.dismissTimers.delete(notif.id);
+      this.activeNotifications.update((items) => items.filter((notif2) => notif2.id !== notif.id));
       this.history.update((current) => [notif, ...current]);
     }, notif.duration || 6000);
+    this.dismissTimers.set(notif.id, timer);
   }
 
-  private scheduleDismissal(id: string, duration: number) {
-    setTimeout(() => this.dismiss(id), duration);
+  dismiss(id: string): void {
+    const timer = this.dismissTimers.get(id);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      this.dismissTimers.delete(id);
+      this.history.update((current) => {
+        const notif = this.activeNotifications().find((item) => item.id === id);
+        return notif ? [notif, ...current] : current;
+      });
+    }
+    this.activeNotifications.update((items) => items.filter((item) => item.id !== id));
   }
 
-  dismiss(id: string) {
-    this.activeNotifications.update((items) => items.filter((n) => n.id !== id));
-  }
-
-  clearHistory() {
+  clearHistory(): void {
     this.history.set([]);
   }
 }

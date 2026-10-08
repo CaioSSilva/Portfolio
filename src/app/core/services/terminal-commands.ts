@@ -8,10 +8,10 @@ import { ProcessManager } from './process-manager';
 import { APP_VERSION } from '../version';
 
 @Injectable({ providedIn: 'root' })
-export class TerminalComands {
+export class TerminalCommands {
   private readonly lang = inject(LanguageService);
   private readonly theme = inject(Theme);
-  private readonly fs = inject(FileSystem);
+  private readonly fileSystem = inject(FileSystem);
   private readonly processManager = inject(ProcessManager);
 
   private readonly commandMap: Record<string, CommandHandler> = {
@@ -33,7 +33,7 @@ export class TerminalComands {
 
     if (!handler) return { output: `${this.lang.t().terminal.notFound} "${cmd}"`, action: 'NONE' };
 
-    if (!this.fs.isLoaded()) await this.fs.ensureLoaded();
+    if (!this.fileSystem.isLoaded()) await this.fileSystem.ensureLoaded();
 
     const result = handler(args, currentPath);
     return result instanceof Promise ? await result : result;
@@ -43,7 +43,7 @@ export class TerminalComands {
     if (pathStr === '/') return 'root';
     if (pathStr === '~') return 'home';
 
-    const segments = pathStr.split('/').filter((s) => s.length > 0);
+    const segments = pathStr.split('/').filter((segment) => segment.length > 0);
     let targetId = pathStr.startsWith('/') ? 'root' : currentPath;
 
     for (const segment of segments) {
@@ -53,25 +53,27 @@ export class TerminalComands {
         continue;
       }
       const found = this.findChildInDir(targetId, segment);
-      if (!found || found.type !== 'folder') return null;
+      if (!found) return null;
+      if (found.type !== 'folder') return `NOT_A_DIR:${found.id}`;
       targetId = found.id;
     }
     return targetId;
   }
 
-  private findChildInDir(dirId: string, name: string) {
-    return this.fs
+  private findChildInDir(dirId: string, name: string): FileItem | undefined {
+    return this.fileSystem
       .getChildren(dirId)
       .find(
-        (f) =>
-          f.id.toLowerCase() === name.toLowerCase() || f.name.toLowerCase() === name.toLowerCase(),
+        (file) =>
+          file.id.toLowerCase() === name.toLowerCase() ||
+          file.name.toLowerCase() === name.toLowerCase(),
       );
   }
 
   private findParentId(currentId: string): string {
     if (['home', 'root'].includes(currentId)) return 'root';
 
-    const tree = this.fs.tree();
+    const tree = this.fileSystem.tree();
     if (!tree) return 'root';
 
     const findParentRecursive = (node: FileItem, target: string): string | null => {
@@ -87,14 +89,14 @@ export class TerminalComands {
   }
 
   private handleLs(path: string): CommandResult {
-    const files = this.fs.getChildren(path);
+    const files = this.fileSystem.getChildren(path);
     if (files.length === 0) return { output: '', action: 'NONE' };
 
-    const trans = this.lang.t().files as Record<string, string>;
+    const fileTranslations = this.lang.t().files as Record<string, string>;
     const output = files
-      .map((f) => {
-        const prefix = f.type === 'folder' ? '[DIR] ' : '      ';
-        return `${prefix}${trans[f.id.toLowerCase()] || f.name}`;
+      .map((file) => {
+        const prefix = file.type === 'folder' ? '[DIR] ' : '      ';
+        return `${prefix}${fileTranslations[file.id.toLowerCase()] || file.name}`;
       })
       .join('\n');
 
@@ -106,42 +108,44 @@ export class TerminalComands {
     if (!pathArg || pathArg === '~') return { output: '', newPath: 'home', action: 'NONE' };
 
     const targetId = this.resolvePath(pathArg, currentPath);
-    return targetId
-      ? { output: '', newPath: targetId, action: 'NONE' }
-      : { output: `${this.lang.t().terminal.cdNotFound} ${pathArg}`, action: 'NONE' };
+    if (!targetId) {
+      return { output: `${this.lang.t().terminal.cdNotFound} ${pathArg}`, action: 'NONE' };
+    }
+    if (targetId.startsWith('NOT_A_DIR:')) {
+      return { output: `${this.lang.t().terminal.cdNotDirectory} ${pathArg}`, action: 'NONE' };
+    }
+    return { output: '', newPath: targetId, action: 'NONE' };
   }
 
   private handleOpen(args: string[], currentPath: string): CommandResult {
-    const t = this.lang.t().terminal;
-    if (!args.length) return { output: t.openMissingArg, action: 'NONE' };
-
+    const terminal = this.lang.t().terminal;
+    if (!args.length) return { output: terminal.openMissingArg, action: 'NONE' };
     const { dir, file } = this.parsePath(args.join(' '));
     const targetDir = dir ? this.resolvePath(dir, currentPath) : currentPath;
-
-    if (!targetDir) return { output: `${t.openNotFound} ${args.join(' ')}`, action: 'NONE' };
-
+    if (!targetDir) return { output: `${terminal.openNotFound} ${args.join(' ')}`, action: 'NONE' };
     const node = this.findChildInDir(targetDir, file);
     if (!node || node.type === 'folder') {
       return {
-        output: node ? `${t.openIsDirectory} ${node.name}` : `${t.openNotFound} ${file}`,
+        output: node
+          ? `${terminal.openIsDirectory} ${node.name}`
+          : `${terminal.openNotFound} ${file}`,
         action: 'NONE',
       };
     }
-
     this.processManager.openFile(node);
-    return { output: `${t.opening} ${node.name}...`, action: 'NONE' };
+    return { output: `${terminal.opening} ${node.name}...`, action: 'NONE' };
   }
 
-  private parsePath(fullPath: string) {
+  private parsePath(fullPath: string): { dir: string; file: string } {
     const parts = fullPath.split('/');
     const file = parts.pop() || '';
     return { dir: parts.join('/'), file };
   }
 
   private handleHelp(): CommandResult {
-    const t = this.lang.t().terminal;
-    const output = Object.entries(t.commands)
-      .map(([n, d]) => `${n.padEnd(12)} - ${d}`)
+    const terminal = this.lang.t().terminal;
+    const output = Object.entries(terminal.commands)
+      .map(([name, desc]) => `${name.padEnd(12)} - ${desc}`)
       .join('\n');
     return { output, action: 'NONE' };
   }
@@ -162,13 +166,13 @@ export class TerminalComands {
   }
 
   private handleWhoAmI(): CommandResult {
-    const t = this.lang.t().terminal.whoami;
+    const whoami = this.lang.t().terminal.whoami;
     const output = [
       `┌──────────────────────────────────────────`,
-      `│  ${t.name}: Caio Souza Silva`,
-      `│  ${t.role}: Frontend Developer`,
-      `│  ${t.stack}: Angular`,
-      `│  ${t.location}: ${this.lang.t().terminal.location}`,
+      `│  ${whoami.name}: Caio Souza Silva`,
+      `│  ${whoami.role}: Frontend Developer`,
+      `│  ${whoami.stack}: Angular`,
+      `│  ${whoami.location}: ${this.lang.t().terminal.location}`,
     ].join('\n');
     return { output, action: 'NONE' };
   }

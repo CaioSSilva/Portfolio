@@ -13,7 +13,9 @@
       >
         <span class="text-white text-3xl sm:text-4xl font-black italic">C</span>
       </div>
-      <h1 class="text-gnome-text text-xl sm:text-2xl font-light tracking-[0.5em] ml-[0.5em]">CAI_OS</h1>
+      <h1 class="text-gnome-text text-xl sm:text-2xl font-light tracking-[0.5em] ml-[0.5em]">
+        CAI_OS
+      </h1>
     </div>
 
     <div class="w-full h-[2px] bg-gnome-border rounded-full overflow-hidden relative">
@@ -25,27 +27,35 @@
 
     <div class="h-5 flex items-center justify-center">
       @if (waitingClick()) {
-        <div class="flex items-center gap-2 text-gnome-blue font-mono text-[10px] sm:text-[11px] tracking-widest">
-          <span>> {{ translate.t().boot.pressToStart }}</span>
+        <div
+          class="flex items-center gap-2 text-gnome-blue font-mono text-[10px] sm:text-[11px] tracking-widest"
+        >
+          <span>> {{ lang.t().boot.pressToStart }}</span>
           <span class="w-2 h-4 bg-gnome-blue animate-pulse"></span>
         </div>
       }
     </div>
   </div>
 
-  <div class="absolute bottom-[max(3rem,env(safe-area-inset-bottom,3rem))] flex flex-col items-center gap-2 sm:gap-3">
-    <div class="text-[9px] sm:text-[10px] uppercase tracking-[0.3em] text-gnome-text font-medium opacity-80 text-center">
-      {{ translate.t().boot.systemKernel }} "Tabby cat" - v{{ version }}
+  <div
+    class="absolute bottom-[max(3rem,env(safe-area-inset-bottom,3rem))] flex flex-col items-center gap-2 sm:gap-3"
+  >
+    <div
+      class="text-[9px] sm:text-[10px] uppercase tracking-[0.3em] text-gnome-text font-medium opacity-80 text-center"
+    >
+      {{ lang.t().boot.systemKernel }} "Tabby cat" - v{{ version }}
     </div>
 
     <div class="flex items-center gap-2 opacity-80">
       <i class="fab fa-angular text-gnome-text text-[11px] sm:text-[12px]"></i>
       <span class="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] text-gnome-text font-medium">
-        {{ translate.t().boot.poweredBy }} Angular
+        {{ lang.t().boot.poweredBy }} Angular
       </span>
     </div>
 
-    <span class="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] text-gnome-text font-medium opacity-80">
+    <span
+      class="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] text-gnome-text font-medium opacity-80"
+    >
       @CaioSSilva - 2026
     </span>
   </div>

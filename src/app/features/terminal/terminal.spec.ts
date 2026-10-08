@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Terminal } from './terminal';
-import { TerminalComands } from '../../core/services/terminal-comands';
+import { TerminalCommands } from '../../core/services/terminal-commands';
 import { LanguageService } from '../../core/services/language';
 import { FileSystem } from '../../core/services/file-system';
 import { Theme } from '../../core/services/theme';
@@ -62,7 +62,7 @@ describe('Terminal', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: TerminalComands, useValue: commandSpy },
+        { provide: TerminalCommands, useValue: commandSpy },
         LanguageService,
         { provide: FileSystem, useValue: fsSpy },
         Theme,

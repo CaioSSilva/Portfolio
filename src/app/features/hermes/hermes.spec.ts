@@ -4,8 +4,11 @@ import { Gemini, GENAI_FACTORY, GenAIFactory } from '../../core/services/gemini'
 import { LanguageService } from '../../core/services/language';
 import { NotificationService } from '../../core/services/notification';
 import { HermesActionService } from '../../core/services/hermes-action';
+import { HermesChatService } from '../../core/services/hermes-chat';
 import { Settings } from '../../core/services/settings';
 import { Sound } from '../../core/services/sound';
+import { Message } from '../../core/models/hermes';
+import { ParseActionResult } from '../../core/models/hermes-action';
 
 describe('Hermes', () => {
   let component: Hermes;
@@ -34,19 +37,33 @@ describe('Hermes', () => {
     }),
   });
 
-  let settingsSpy: { geminiModel: ReturnType<typeof vi.fn>; setGeminiModel: ReturnType<typeof vi.fn> };
+  let settingsSpy: {
+    geminiModel: ReturnType<typeof vi.fn>;
+    setGeminiModel: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
     geminiSpy = {
       generateResponse: vi.fn().mockResolvedValue('Mock AI response'),
-      generateResponseStream: vi.fn().mockImplementation(
-        async (_p: string, _h: string, _f: unknown, onChunk: (t: string) => void) => {
-          onChunk('Mock AI response');
-          return 'Mock AI response';
-        }
-      ),
+      generateResponseStream: vi
+        .fn()
+        .mockImplementation(
+          async (
+            _p: string,
+            _h: string,
+            _f: { mimeType: string; b64: string } | undefined,
+            onChunk: (text: string) => void,
+          ) => {
+            onChunk('Mock AI response');
+            return 'Mock AI response';
+          },
+        ),
       listModels: vi.fn().mockResolvedValue([
-        { name: 'gemini-2.0-flash-lite', displayName: 'Gemini 2.0 Flash Lite', description: 'Fast model' },
+        {
+          name: 'gemini-2.0-flash-lite',
+          displayName: 'Gemini 2.0 Flash Lite',
+          description: 'Fast model',
+        },
         { name: 'gemini-1.5-pro', displayName: 'Gemini 1.5 Pro', description: 'Pro model' },
       ]),
     };
@@ -59,7 +76,7 @@ describe('Hermes', () => {
       parseActions: vi.fn().mockReturnValue({
         cleanText: 'Mock AI response',
         actions: [],
-      }),
+      } satisfies ParseActionResult),
       execute: vi.fn(),
     };
 
@@ -67,6 +84,7 @@ describe('Hermes', () => {
       imports: [Hermes],
       providers: [
         LanguageService,
+        HermesChatService,
         { provide: Gemini, useValue: geminiSpy },
         { provide: GENAI_FACTORY, useValue: makeFactory() },
         { provide: NotificationService, useValue: notificationSpy },
@@ -86,8 +104,8 @@ describe('Hermes', () => {
   });
 
   it('should have empty messages on creation', () => {
-    expect(component.messages()).toEqual([]);
-    expect(component.isLoading()).toBe(false);
+    expect(component.chat.messages()).toEqual([]);
+    expect(component.chat.isLoading()).toBe(false);
     expect(component.userInput()).toBe('');
   });
 
@@ -103,7 +121,7 @@ describe('Hermes', () => {
 
   it('should isButtonDisabled be true while loading', () => {
     component.userInput.set('Hello');
-    component.isLoading.set(true);
+    component.chat.isLoading.set(true);
     expect(component.isButtonDisabled()).toBe(true);
   });
 
@@ -116,16 +134,19 @@ describe('Hermes', () => {
   it('should handleSendMessage add user message and call gemini generateResponseStream', async () => {
     component.userInput.set('Hello Hermes');
     await component.handleSendMessage();
-    expect(component.messages().some((m) => m.role === 'user' && m.text === 'Hello Hermes')).toBe(true);
+    const messages = component.chat.messages();
+    expect(messages.some((m: Message) => m.role === 'user' && m.text === 'Hello Hermes')).toBe(
+      true,
+    );
     expect(geminiSpy.generateResponseStream).toHaveBeenCalled();
-    expect(component.messages().some((m) => m.role === 'model')).toBe(true);
+    expect(messages.some((m: Message) => m.role === 'model')).toBe(true);
   });
 
   it('should execute actions parsed from response', async () => {
     actionServiceSpy.parseActions.mockReturnValue({
       cleanText: 'Aberto!',
       actions: [{ type: 'open_app', payload: { app: 'terminal' } }],
-    });
+    } satisfies ParseActionResult);
 
     component.userInput.set('Abra o terminal');
     await component.handleSendMessage();
@@ -164,10 +185,14 @@ describe('Hermes', () => {
   });
 
   it('should include history in generateResponseStream call for subsequent messages limited by MAX_HISTORY', async () => {
-    component.messages.set([{ role: 'user', text: 'First message' }]);
+    component.chat.messages.set([{ role: 'user', text: 'First message' }]);
     component.userInput.set('Follow up');
     await component.handleSendMessage();
-    const callArgs = geminiSpy.generateResponseStream.mock.calls[0];
+    const callArgs = geminiSpy.generateResponseStream.mock.calls[0] as [
+      string,
+      string,
+      ...string[],
+    ];
     expect(callArgs[1]).toContain('First message');
   });
 
@@ -192,8 +217,8 @@ describe('Hermes', () => {
 
     it('should not call listModels again if models already loaded', async () => {
       await component.toggleModelPicker();
-      await component.toggleModelPicker(); // close
-      await component.toggleModelPicker(); // reopen
+      await component.toggleModelPicker();
+      await component.toggleModelPicker();
       expect(geminiSpy.listModels).toHaveBeenCalledTimes(1);
     });
 

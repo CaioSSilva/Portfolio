@@ -1,5 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, inject, signal, linkedSignal, computed, HostListener, ChangeDetectionStrategy, OnDestroy, NgZone } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  signal,
+  linkedSignal,
+  computed,
+  HostListener,
+  ChangeDetectionStrategy,
+  NgZone,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Base } from '../../core/models/base';
 import { FileItem } from '../../core/models/file';
@@ -19,17 +31,19 @@ import { ProcessManager } from '../../core/services/process-manager';
   templateUrl: './files.html',
   styleUrl: './files.scss',
 })
-export class Files extends Base implements OnDestroy {
-  public fs = inject(FileSystem);
+export class Files extends Base {
+  private readonly processManager = inject(ProcessManager);
+  private readonly ngZone = inject(NgZone);
+  private readonly hostEl = inject(ElementRef<HTMLElement>);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly fileSystem = inject(FileSystem);
   readonly lang = inject(LanguageService);
-  private manager = inject(ProcessManager);
-  private ngZone = inject(NgZone);
-  private hostEl = inject(ElementRef<HTMLElement>);
 
-  /** True when the component's container is narrower than 680px */
-  readonly isNarrow = signal(false);
+  private isResizing = false;
+  private startX = 0;
   private resizeObserver: ResizeObserver | null = null;
 
+  readonly isNarrow = signal(false);
   readonly viewMode = signal<'grid' | 'list'>('list');
   readonly searchQuery = signal('');
   readonly pathIds = signal<string[]>(['root', 'home']);
@@ -37,9 +51,6 @@ export class Files extends Base implements OnDestroy {
   readonly sidebarWidth = signal(240);
   readonly gridSize = signal(110);
   readonly isMobileSidebarOpen = signal(false);
-
-  private isResizing = false;
-  private startX = 0;
 
   readonly selectedId = linkedSignal<string[], string | null>({
     source: this.pathIds,
@@ -52,19 +63,19 @@ export class Files extends Base implements OnDestroy {
   });
 
   readonly currentFiles = computed(() => {
-    if (!this.fs.isLoaded()) return [];
+    if (!this.fileSystem.isLoaded()) return [];
 
     const id = this.currentFolderId();
-    return this.fs.getChildren(id);
+    return this.fileSystem.getChildren(id);
   });
 
   readonly breadcrumbs = computed(() => {
-    if (!this.fs.isLoaded()) return [];
+    if (!this.fileSystem.isLoaded()) return [];
 
     const translations = this.lang.t().files as Record<string, string>;
 
     return this.pathIds().map((id) => {
-      const folderName = this.fs.getFolderName(id);
+      const folderName = this.fileSystem.getFolderName(id);
       const translatedName = translations[id.toLowerCase()];
       return { id, name: translatedName || folderName };
     });
@@ -82,24 +93,27 @@ export class Files extends Base implements OnDestroy {
   readonly totalSize = computed(() => {
     const files = this.filteredFiles();
     const total = files.reduce((acc: number, item: FileItem) => acc + (item.size || 0), 0);
-    return this.fs.formatFileSize(total);
+    return this.fileSystem.formatFileSize(total);
   });
 
   constructor() {
     super();
-    this.fs.ensureLoaded();
-
-    if (typeof ResizeObserver !== 'undefined') {
-      this.resizeObserver = new ResizeObserver((entries) => {
-        const w = entries[0]?.contentRect.width ?? 0;
-        this.ngZone.run(() => this.isNarrow.set(w > 0 && w < 680));
-      });
-      this.resizeObserver.observe(this.hostEl.nativeElement);
-    }
+    this.initResizeObserver();
+    effect(() => {
+      if (!this.fileSystem.isLoaded()) {
+        this.fileSystem.ensureLoaded();
+      }
+    });
   }
 
-  ngOnDestroy(): void {
-    this.resizeObserver?.disconnect();
+  private initResizeObserver(): void {
+    if (typeof ResizeObserver === 'undefined') return;
+    this.resizeObserver = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      this.ngZone.run(() => this.isNarrow.set(width > 0 && width < 680));
+    });
+    this.resizeObserver.observe(this.hostEl.nativeElement);
+    this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());
   }
 
   handleNavigate(item: FileItem): void {
@@ -145,11 +159,11 @@ export class Files extends Base implements OnDestroy {
 
   navigate(item: FileItem | string, isSidebar = false): void {
     const id = typeof item === 'string' ? item : item.id;
-    const node = typeof item === 'string' ? this.fs.getNode(id) : item;
+    const node = typeof item === 'string' ? this.fileSystem.getNode(id) : item;
 
     if (node?.type === 'file') {
       this.selectedId.set(id);
-      this.manager.openFile(node);
+      this.processManager.openFile(node);
       return;
     }
 

@@ -3,26 +3,27 @@
 ## 📋 Table of Contents
 
 1. [Overview](#-overview)
-2. [What's New in 2.0.0](#-whats-new-in-200--mobile-adaptation)
-3. [System Architecture](#️-system-architecture)
-4. [Technologies Used](#️-technologies-used)
-5. [Project Structure](#-project-structure)
-6. [Main Components](#-main-components)
-7. [Services](#️-services)
-8. [Data Models](#-data-models)
-9. [System Features](#-system-features)
-10. [Applications](#-applications)
-11. [Installation and Configuration](#-installation-and-configuration)
-12. [Available Commands](#-available-commands)
-13. [Customization](#-customization)
-14. [Troubleshooting](#-troubleshooting)
-15. [Additional Resources](#-additional-resources)
-16. [Contributing](#-contributing)
-17. [License](#-license)
-18. [Author](#-author)
-19. [Acknowledgments](#-acknowledgments)
-20. [Project Statistics](#-project-statistics)
-21. [Support](#-support)
+2. [What's New in 2.5.0](#-whats-new-in-250)
+3. [What's New in 2.0.0](#-whats-new-in-200--mobile-adaptation)
+4. [System Architecture](#️-system-architecture)
+5. [Technologies Used](#️-technologies-used)
+6. [Project Structure](#-project-structure)
+7. [Main Components](#-main-components)
+8. [Services](#️-services)
+9. [Data Models](#-data-models)
+10. [System Features](#-system-features)
+11. [Applications](#-applications)
+12. [Installation and Configuration](#-installation-and-configuration)
+13. [Available Commands](#-available-commands)
+14. [Customization](#-customization)
+15. [Troubleshooting](#-troubleshooting)
+16. [Additional Resources](#-additional-resources)
+17. [Contributing](#-contributing)
+18. [License](#-license)
+19. [Author](#-author)
+20. [Acknowledgments](#-acknowledgments)
+21. [Project Statistics](#-project-statistics)
+22. [Support](#-support)
 
 ---
 
@@ -58,6 +59,50 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 
 ---
 
+## 🆕 What's New in 2.5.0
+
+Version 2.5.0 brought major feature additions on top of the mobile foundation established in 2.0.0.
+
+### Hermes — Integrated AI Assistant
+
+A fully integrated AI assistant powered by Google Gemini. Hermes responds in Markdown, supports image attachments, and can control the system through structured action tags (`<!--caios:action ... -->`). Supported actions include opening/closing apps, changing the wallpaper, toggling the theme, playing sounds, switching language, and showing notifications.
+
+- **Model picker**: Users can browse and select from all available Gemini models via the Settings app.
+- **Model migration**: Deprecated model names are transparently remapped on load.
+- **Streaming responses**: Responses are streamed token-by-token for a live typing effect.
+- **Fallback key**: Falls back to a secondary API key if the selected model is unavailable (404/NOT_FOUND).
+
+### Synchronized Lyrics Player (`LyricsService`)
+
+The Musics app gained a real-time synchronized lyrics panel:
+
+- Fetches lyrics from **LRCLIB** using a fuzzy name + duration search.
+- Parses `.lrc` timestamp format with a binary-search `activeLine` computed signal.
+- Falls back to plain-text lyrics if no synced version is available.
+- Resets automatically when the track changes.
+
+### Desktop Icons
+
+Users can now pin app shortcuts directly to the desktop background. Right-clicking a desktop icon opens a context menu with open/remove actions. Icons persist across sessions via `DesktopIconsService`.
+
+### Mobile Wallpaper
+
+Separate wallpaper settings for desktop and mobile, stored independently in `localStorage` under `wallpaper` and `mobileWallpaper`. `Settings.wallpaper` is a computed signal that automatically returns the right one.
+
+### Context Menu — Desktop Icons & Apps Grid
+
+Right-click (desktop) or long-press (mobile) opens a context menu with contextual actions: open app, open new instance, pin/unpin from dock, pin/unpin from desktop, close app.
+
+### `HermesActionService`
+
+Extracted all AI action parsing and dispatching into a dedicated service. The `parseActions()` method strips action tags from the model response and returns clean Markdown alongside a typed array of `HermesAction` objects. Each action type maps to a typed handler.
+
+### App Registry — Computed Registry
+
+`AppRegistry` is now a fully computed service — the app list reacts to language changes, so app titles update live without a page reload.
+
+---
+
 ## 🆕 What's New in 2.0.0 — Mobile Adaptation
 
 A versão 2.0.0 marcou a migração completa do Cai_OS para suporte mobile nativo. Até então, o sistema assumia sempre um ambiente desktop com mouse e teclado. Esta versão introduziu uma camada de navegação mobile completa, detecção de breakpoints reativa, gestos de toque em todos os apps e re-arquitetura do sistema de janelas para funcionar em tela cheia no mobile.
@@ -73,11 +118,11 @@ readonly isDesktop = computed(() => this.width() >= 1024);
 readonly isCompact = computed(() => this.width() < 1024);
 ```
 
-| Range | Modo |
-|---|---|
-| `< 768 px` | Mobile — `MobileNavBar` + `MobileOverview` |
-| `768–1023 px` | Tablet (compacto) — layout mobile |
-| `≥ 1024 px` | Desktop — `Dock` + `WindowSwitcher` |
+| Range         | Modo                                       |
+| ------------- | ------------------------------------------ |
+| `< 768 px`    | Mobile — `MobileNavBar` + `MobileOverview` |
+| `768–1023 px` | Tablet (compacto) — layout mobile          |
+| `≥ 1024 px`   | Desktop — `Dock` + `WindowSwitcher`        |
 
 Todos os componentes passaram a depender de `ScreenService.isMobile()` em vez de `window.innerWidth` direto — garantindo reatividade total sem polling.
 
@@ -85,11 +130,11 @@ Todos os componentes passaram a depender de `ScreenService.isMobile()` em vez de
 
 Nova barra fixa na base da tela, visível apenas no mobile (`< 768 px`), substituindo o `Dock` que permanece exclusivo do desktop:
 
-| Botão | Ação |
-|---|---|
-| Ícone quadrado | Abre/fecha a tela de Overview (apps recentes) |
+| Botão          | Ação                                                     |
+| -------------- | -------------------------------------------------------- |
+| Ícone quadrado | Abre/fecha a tela de Overview (apps recentes)            |
 | Pílula central | Go Home — minimiza todos os processos e fecha os drawers |
-| Ícone de grade | Abre/fecha o App Drawer |
+| Ícone de grade | Abre/fecha o App Drawer                                  |
 
 ### MobileOverview — Carrossel de Processos
 
@@ -105,11 +150,11 @@ Tela completa de gestão de apps abertos, inspirada no recents do Android/iOS:
 
 Novo serviço que centraliza toda a lógica de navegação mobile, evitando comunicação direta entre componentes:
 
-| Método | Descrição |
-|---|---|
-| `toggleOverview()` | Alterna a tela de overview |
-| `goHome()` | Minimiza todos os processos, fecha drawers |
-| `toggleAppDrawer()` | Alterna o App Drawer |
+| Método                       | Descrição                                   |
+| ---------------------------- | ------------------------------------------- |
+| `toggleOverview()`           | Alterna a tela de overview                  |
+| `goHome()`                   | Minimiza todos os processos, fecha drawers  |
+| `toggleAppDrawer()`          | Alterna o App Drawer                        |
 | `openAppAndCloseDrawer(app)` | Abre um app e fecha o overview em sequência |
 
 ### Sistema de Janelas — Adaptação Mobile
@@ -160,11 +205,11 @@ private async spawn(app, data?): Promise<void> {
 }
 ```
 
-| Bundle | Antes (v1.x) | Depois (v2.0.0) |
-|---|---|---|
-| Bundle inicial | 995 kB | **492 kB** |
-| Lazy chunk | — | `document-viewer` ~507 kB |
-| Budget warning | ⚠ sim | **✓ nenhum** |
+| Bundle         | Antes (v1.x) | Depois (v2.0.0)           |
+| -------------- | ------------ | ------------------------- |
+| Bundle inicial | 995 kB       | **492 kB**                |
+| Lazy chunk     | —            | `document-viewer` ~507 kB |
+| Budget warning | ⚠ sim        | **✓ nenhum**              |
 
 ### Test Suite
 
@@ -354,13 +399,13 @@ effect(() => {
 
 Application window with full management for desktop; auto-maximized on mobile.
 
-| Feature | Desktop | Mobile |
-|---|---|---|
-| Drag | ✓ | blocked |
-| Resize | ✓ | blocked |
-| Maximize | ✓ | forced on |
-| Snap to edges | ✓ | — |
-| Title bar | ✓ | hidden |
+| Feature       | Desktop | Mobile    |
+| ------------- | ------- | --------- |
+| Drag          | ✓       | blocked   |
+| Resize        | ✓       | blocked   |
+| Maximize      | ✓       | forced on |
+| Snap to edges | ✓       | —         |
+| Title bar     | ✓       | hidden    |
 
 ### 3. Dock
 
@@ -368,19 +413,19 @@ Application window with full management for desktop; auto-maximized on mobile.
 
 Desktop taskbar (hidden on mobile). Supports pinning, drag-and-drop reorder, long-press context menu.
 
-### 4. MobileNavBar *(new)*
+### 4. MobileNavBar _(new)_
 
 **File**: `src/app/layout/mobile-nav-bar/mobile-nav-bar.ts`
 
 Bottom navigation bar — visible only on mobile (`< 768 px`).
 
-| Button | Action |
-|---|---|
+| Button      | Action                        |
+| ----------- | ----------------------------- |
 | Square icon | Toggle Overview (recent apps) |
-| Pill | Go Home (minimize all) |
-| Grid icon | Toggle App Drawer |
+| Pill        | Go Home (minimize all)        |
+| Grid icon   | Toggle App Drawer             |
 
-### 5. MobileOverview *(new)*
+### 5. MobileOverview _(new)_
 
 **File**: `src/app/layout/mobile-overview/mobile-overview.ts`
 
@@ -409,7 +454,7 @@ App launcher overlay with search. On mobile, apps open via `touchend` (no 300 ms
 
 ## ⚙️ Services
 
-### ScreenService *(new)*
+### ScreenService _(new)_
 
 **File**: `src/app/core/services/screen.ts`
 
@@ -422,20 +467,20 @@ readonly isDesktop = computed(() => this.width() >= 1024);
 readonly isCompact = computed(() => this.width() < 1024);
 ```
 
-### MobileNavService *(new)*
+### MobileNavService _(new)_
 
 **File**: `src/app/core/services/mobile-nav.ts`
 
 Central state for mobile navigation.
 
-| Method | Description |
-|---|---|
-| `toggleOverview()` | Toggle overview screen |
-| `openOverview()` | Open overview |
-| `closeOverview()` | Close overview |
-| `goHome()` | Minimize all processes, close drawers |
-| `toggleAppDrawer()` | Toggle apps grid |
-| `openAppAndCloseDrawer(app)` | Open app and close overview |
+| Method                       | Description                           |
+| ---------------------------- | ------------------------------------- |
+| `toggleOverview()`           | Toggle overview screen                |
+| `openOverview()`             | Open overview                         |
+| `closeOverview()`            | Close overview                        |
+| `goHome()`                   | Minimize all processes, close drawers |
+| `toggleAppDrawer()`          | Toggle apps grid                      |
+| `openAppAndCloseDrawer(app)` | Open app and close overview           |
 
 ### ProcessManager
 
@@ -459,7 +504,7 @@ private async spawn(app, data?): Promise<void> {
 Per-window service (non-root). Key constants:
 
 ```typescript
-export const TOP_BAR_HEIGHT = 32;        // px
+export const TOP_BAR_HEIGHT = 32; // px
 export const MOBILE_NAV_BAR_HEIGHT = 48; // px
 ```
 
@@ -467,23 +512,23 @@ An `effect()` listens to `ScreenService.isMobile()` — switching to mobile forc
 
 ### Other Services
 
-| Service | File | Responsibility |
-|---|---|---|
-| `Apps` | `services/apps.ts` | App grid state, search, context menu coords |
-| `AppLauncher` | `services/app-launcher.ts` | Launch orchestration |
-| `AppRegistry` | `services/app-registry.ts` | App catalog, extension handler lookup |
-| `DockService` | `services/dock.ts` | Pinned apps, dock items, click handling |
-| `FileSystem` | `services/file-system.ts` | Virtual hierarchical file system |
-| `Settings` | `services/settings.ts` | Persisted settings (`dockSize`, `wallpaper`, `geminiModel`, …) |
-| `NotificationService` | `services/notification.ts` | Notification queue and panel |
-| `Sound` | `services/sound.ts` | AudioContext-based sound playback |
-| `Theme` | `services/theme.ts` | Light/dark theme toggle |
-| `LanguageService` | `services/language.ts` | i18n (pt / en) |
-| `GeminiService` | `services/gemini.ts` | Google Gemini API — streaming, key fallback, model listing |
-| `TerminalCommands` | `services/terminal-comands.ts` | Unix-like command processing |
-| `SystemTips` | `services/system-tips.ts` | Platform-aware periodic tips (desktop / mobile pools, no-repeat cycle) |
-| `DesktopIconsService` | `services/desktop-icons.ts` | Desktop shortcut management |
-| `ContextMenuService` | `services/context-menu.ts` | Context menu state and positioning |
+| Service               | File                           | Responsibility                                                         |
+| --------------------- | ------------------------------ | ---------------------------------------------------------------------- |
+| `Apps`                | `services/apps.ts`             | App grid state, search, context menu coords                            |
+| `AppLauncher`         | `services/app-launcher.ts`     | Launch orchestration                                                   |
+| `AppRegistry`         | `services/app-registry.ts`     | App catalog, extension handler lookup                                  |
+| `DockService`         | `services/dock.ts`             | Pinned apps, dock items, click handling                                |
+| `FileSystem`          | `services/file-system.ts`      | Virtual hierarchical file system                                       |
+| `Settings`            | `services/settings.ts`         | Persisted settings (`dockSize`, `wallpaper`, `geminiModel`, …)         |
+| `NotificationService` | `services/notification.ts`     | Notification queue and panel                                           |
+| `Sound`               | `services/sound.ts`            | AudioContext-based sound playback                                      |
+| `Theme`               | `services/theme.ts`            | Light/dark theme toggle                                                |
+| `LanguageService`     | `services/language.ts`         | i18n (pt / en)                                                         |
+| `GeminiService`       | `services/gemini.ts`           | Google Gemini API — streaming, key fallback, model listing             |
+| `TerminalCommands`    | `services/terminal-comands.ts` | Unix-like command processing                                           |
+| `SystemTips`          | `services/system-tips.ts`      | Platform-aware periodic tips (desktop / mobile pools, no-repeat cycle) |
+| `DesktopIconsService` | `services/desktop-icons.ts`    | Desktop shortcut management                                            |
+| `ContextMenuService`  | `services/context-menu.ts`     | Context menu state and positioning                                     |
 
 ---
 
@@ -508,8 +553,8 @@ interface Process extends AppBase {
 ```typescript
 interface AppDefinition extends AppBase {
   data?: ProcessData;
-  handle?: string[];                              // file extensions
-  loadComponent?: () => Promise<Type<Base>>;      // lazy load
+  handle?: string[]; // file extensions
+  loadComponent?: () => Promise<Type<Base>>; // lazy load
 }
 ```
 
@@ -590,24 +635,25 @@ Drag apps from the grid to the dock to pin them at a specific position.
 
 ## 📱 Applications
 
-| App | ID | File extensions |
-|---|---|---|
-| Files | `files` | — |
-| Firefox | `firefox` | — |
-| Terminal | `terminal` | — |
-| Settings | `settings` | — |
-| About | `about` | — |
-| Photos | `photos` | jpg, jpeg, png, gif, webp, svg |
-| Documents | `documents` | pdf, txt, md *(lazy-loaded)* |
-| Musics | `musics` | mp3, wav, ogg, m4a, flac |
-| System Monitor | `systemMonitor` | — |
-| Hermes (AI) | `hermes` | — |
+| App            | ID              | File extensions                |
+| -------------- | --------------- | ------------------------------ |
+| Files          | `files`         | —                              |
+| Firefox        | `firefox`       | —                              |
+| Terminal       | `terminal`      | —                              |
+| Settings       | `settings`      | —                              |
+| About          | `about`         | —                              |
+| Photos         | `photos`        | jpg, jpeg, png, gif, webp, svg |
+| Documents      | `documents`     | pdf, txt, md _(lazy-loaded)_   |
+| Musics         | `musics`        | mp3, wav, ogg, m4a, flac       |
+| System Monitor | `systemMonitor` | —                              |
+| Hermes (AI)    | `hermes`        | —                              |
 
 ### Documents — Lazy Loading & Mobile UX
 
 The PDF viewer (`ng2-pdf-viewer` + `pdfjs-dist`) is only loaded when the Documents app is first opened, reducing the initial bundle by ~503 kB.
 
-On narrow windows (< 500 px, measured via `ResizeObserver` on the app container), the Documents viewer switches to a mobile-optimised layout:
+On narrow windows (< 500 px, detected via `ScreenService` / `window.resize`), the Documents viewer switches to a mobile-optimised layout:
+
 - Floating zoom pill at the bottom (identical to the image-viewer toolbar)
 - Header shows only the download icon (no label text)
 - Pinch-to-zoom gesture enabled on mobile devices; pinch icon replaces the zoom % for a one-tap reset
@@ -621,9 +667,9 @@ The Musics app fetches synchronized lyrics from [LRCLIB](https://lrclib.net) (fr
 - **Album thumbnails**: add covers to `public/data/root/home/musics/covers/<filename>.jpg`; the `fs.json` `thumb` field links them. Falls back to animated spinning disc if image is missing or fails to load
 - **Seek debounce**: 80 ms debounce on click-to-seek prevents audio rebuffer glitches
 
-| Service | File | Responsibility |
-|---|---|---|
-| `AudioPlayer` | `player/audio-player.ts` | Native `<audio>` via Angular Signals |
+| Service         | File                       | Responsibility                                       |
+| --------------- | -------------------------- | ---------------------------------------------------- |
+| `AudioPlayer`   | `player/audio-player.ts`   | Native `<audio>` via Angular Signals                 |
 | `LyricsService` | `player/lyrics.service.ts` | LRCLIB fetch · LRC parse · active-line binary search |
 
 ---
@@ -651,10 +697,7 @@ Edit `src/environments/environment.ts`:
 ```typescript
 export const environment = {
   production: false,
-  geminiApiKeys: [
-    'YOUR_API_KEY_HERE',
-    'YOUR_BACKUP_API_KEY',
-  ],
+  geminiApiKeys: ['YOUR_API_KEY_HERE', 'YOUR_BACKUP_API_KEY'],
 };
 ```
 
@@ -675,18 +718,18 @@ npm test         # Run test suite (Vitest)
 
 ### Terminal Commands (inside the app)
 
-| Command | Description |
-|---|---|
-| `help` | List all commands |
-| `ls` | List current directory |
-| `cd <dir>` | Change directory |
-| `open <file>` | Open file with associated app |
-| `date` | Show current date/time |
-| `theme` | Toggle light/dark theme |
-| `clear` | Clear terminal |
-| `neofetch` | System info (ASCII art) |
-| `whoami` | Developer info |
-| `about` | System version (Cai_OS v2.0.0) |
+| Command       | Description                    |
+| ------------- | ------------------------------ |
+| `help`        | List all commands              |
+| `ls`          | List current directory         |
+| `cd <dir>`    | Change directory               |
+| `open <file>` | Open file with associated app  |
+| `date`        | Show current date/time         |
+| `theme`       | Toggle light/dark theme        |
+| `clear`       | Clear terminal                 |
+| `neofetch`    | System info (ASCII art)        |
+| `whoami`      | Developer info                 |
+| `about`       | System version (Cai_OS v2.5.0) |
 
 ---
 
@@ -722,14 +765,14 @@ myApp: {
 
 ## 🐛 Troubleshooting
 
-| Problem | Solution |
-|---|---|
-| App doesn't open | Check registration in `apps.ts` and `AppRegistry` |
-| Theme doesn't persist | `localStorage.clear()` in the browser console |
-| Hermes doesn't respond | Check Gemini API key in `environment.ts` and quota in Google Cloud Console |
-| Files don't appear | Check for errors in the browser console (FileSystem HTTP request) |
-| About doesn't open on mobile | Ensure `systemReady` fires; logic is in `App.effect()`, not `Dock` |
-| PDF doesn't load | The `document-viewer` chunk loads lazily; check network tab for the chunk request |
+| Problem                      | Solution                                                                          |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| App doesn't open             | Check registration in `apps.ts` and `AppRegistry`                                 |
+| Theme doesn't persist        | `localStorage.clear()` in the browser console                                     |
+| Hermes doesn't respond       | Check Gemini API key in `environment.ts` and quota in Google Cloud Console        |
+| Files don't appear           | Check for errors in the browser console (FileSystem HTTP request)                 |
+| About doesn't open on mobile | Ensure `systemReady` fires; logic is in `App.effect()`, not `Dock`                |
+| PDF doesn't load             | The `document-viewer` chunk loads lazily; check network tab for the chunk request |
 
 ---
 
@@ -765,7 +808,7 @@ Personal portfolio project. All rights reserved.
 
 **Caio Souza Silva**  
 caiosouzasilva13650@gmail.com  
-[caiossiva.com](https://caiossiva.com) · [github.com/CaioSSilva](https://github.com/CaioSSilva/)
+[caiossilva.com](https://caiossilva.com) · [github.com/CaioSSilva](https://github.com/CaioSSilva/)
 
 ---
 
@@ -777,17 +820,17 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 ## 📊 Project Statistics
 
-| Metric | Value |
-|---|---|
-| Version | **2.5.0** |
-| Test files | **52** |
-| Tests passing | **614 / 614** |
+| Metric         | Value                    |
+| -------------- | ------------------------ |
+| Version        | **2.5.0**                |
+| Test files     | **52**                   |
+| Tests passing  | **614 / 614**            |
 | Initial bundle | **492 kB** (−50% vs 1.x) |
-| Components | 29+ |
-| Services | 19 |
-| Applications | 10 |
-| Languages | 2 (pt / en) |
-| Platforms | Desktop + Mobile |
+| Components     | 29+                      |
+| Services       | 19                       |
+| Applications   | 10                       |
+| Languages      | 2 (pt / en)              |
+| Platforms      | Desktop + Mobile         |
 
 ---
 

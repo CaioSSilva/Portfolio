@@ -130,8 +130,8 @@ describe('WindowService', () => {
   it('should minimize process via minimize()', () => {
     processManager.open(proc);
     const pid = processManager.processes()[0].id;
-    const p = makeProcess({ id: pid });
-    service.init(el, p);
+    const process = makeProcess({ id: pid });
+    service.init(el, process);
 
     service.minimize();
     expect(processManager.processes()[0].isMinimized).toBe(true);
@@ -140,8 +140,8 @@ describe('WindowService', () => {
   it('should focus process via focus()', () => {
     processManager.open(proc);
     const pid = processManager.processes()[0].id;
-    const p = makeProcess({ id: pid });
-    service.init(el, p);
+    const process = makeProcess({ id: pid });
+    service.init(el, process);
 
     service.focus();
     expect(processManager.activeProcessId()).toBe(pid);

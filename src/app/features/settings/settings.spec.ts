@@ -36,7 +36,7 @@ describe('SettingsComponent', () => {
   });
 
   it('should menuItems include all sections', () => {
-    const ids = component.menuItems().map(m => m.id);
+    const ids = component.menuItems().map((m) => m.id);
     expect(ids).toContain('appearance');
     expect(ids).toContain('desktop');
     expect(ids).toContain('sound');
@@ -71,35 +71,35 @@ describe('SettingsComponent', () => {
   it('dock size slider --slider-pct is 0% at minimum value', () => {
     const settings = TestBed.inject(Settings);
     settings.setDockSize(28);
-    const pct = (settings.dockSize() - 28) / (64 - 28) * 100;
+    const pct = ((settings.dockSize() - 28) / (64 - 28)) * 100;
     expect(pct).toBe(0);
   });
 
   it('dock size slider --slider-pct is 100% at maximum value', () => {
     const settings = TestBed.inject(Settings);
     settings.setDockSize(64);
-    const pct = (settings.dockSize() - 28) / (64 - 28) * 100;
+    const pct = ((settings.dockSize() - 28) / (64 - 28)) * 100;
     expect(pct).toBe(100);
   });
 
   it('dock size slider --slider-pct is proportional mid-range', () => {
     const settings = TestBed.inject(Settings);
     settings.setDockSize(46);
-    const pct = (settings.dockSize() - 28) / (64 - 28) * 100;
+    const pct = ((settings.dockSize() - 28) / (64 - 28)) * 100;
     expect(pct).toBeCloseTo(50, 0);
   });
 
   it('desktop size slider --slider-pct is 0% at minimum value', () => {
     const settings = TestBed.inject(Settings);
     settings.setDesktopSize(32);
-    const pct = (settings.desktopSize() - 32) / (80 - 32) * 100;
+    const pct = ((settings.desktopSize() - 32) / (80 - 32)) * 100;
     expect(pct).toBe(0);
   });
 
   it('desktop size slider --slider-pct is 100% at maximum value', () => {
     const settings = TestBed.inject(Settings);
     settings.setDesktopSize(80);
-    const pct = (settings.desktopSize() - 32) / (80 - 32) * 100;
+    const pct = ((settings.desktopSize() - 32) / (80 - 32)) * 100;
     expect(pct).toBe(100);
   });
 });

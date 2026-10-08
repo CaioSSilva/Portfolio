@@ -5,6 +5,7 @@ import { DocumentViewer } from './document-viewer';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
 import { FileSystem } from '../../core/services/file-system';
+import { DocumentLoaderService } from '../../core/services/document-loader';
 import { ScreenService } from '../../core/services/screen';
 import { Sound } from '../../core/services/sound';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -14,7 +15,11 @@ import { AppLauncher } from '../../core/services/app-launcher';
 import { ContextMenuService } from '../../core/services/context-menu';
 
 const makeDoc = (id: string, name: string, url: string): FileItem => ({
-  id, name, type: 'file', icon: 'file', url,
+  id,
+  name,
+  type: 'file',
+  icon: 'file',
+  url,
 });
 
 describe('DocumentViewer', () => {
@@ -45,9 +50,34 @@ describe('DocumentViewer', () => {
     makeDoc('doc2', 'notes.txt', '/notes.txt'),
   ];
 
+  let loaderIsLoading: { (): boolean; set: ReturnType<typeof vi.fn> };
+  let loaderHasError: { (): boolean; set: ReturnType<typeof vi.fn> };
+  let loaderSpy: {
+    isLoading: typeof loaderIsLoading;
+    hasError: typeof loaderHasError;
+    loadAllDocs: ReturnType<typeof vi.fn>;
+    loadLibraryForUrl: ReturnType<typeof vi.fn>;
+    processFile: ReturnType<typeof vi.fn>;
+    resetState: ReturnType<typeof vi.fn>;
+  };
   let screenSpy: { isMobile: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    const makeSignalMock = (v: boolean) => {
+      const fn = Object.assign(vi.fn().mockReturnValue(v), { set: vi.fn() });
+      return fn as typeof loaderIsLoading;
+    };
+
+    loaderSpy = {
+      isLoading: makeSignalMock(false),
+      hasError: makeSignalMock(false),
+      loadAllDocs: vi.fn().mockReturnValue(mockDocs),
+      loadLibraryForUrl: vi.fn().mockReturnValue(mockDocs),
+      processFile: vi
+        .fn()
+        .mockResolvedValue({ fileType: 'pdf', fileName: 'resume.pdf', textContent: '' }),
+      resetState: vi.fn(),
+    };
     fsSpy = {
       isLoaded: vi.fn().mockReturnValue(true),
       ensureLoaded: vi.fn().mockResolvedValue(undefined),
@@ -80,6 +110,7 @@ describe('DocumentViewer', () => {
         AppLauncher,
         ContextMenuService,
         { provide: FileSystem, useValue: fsSpy },
+        { provide: DocumentLoaderService, useValue: loaderSpy },
         { provide: ScreenService, useValue: screenSpy },
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
@@ -106,23 +137,29 @@ describe('DocumentViewer', () => {
     expect(component.selectedFile()?.id).toBe('doc1');
   });
 
-  it('should openSelectedDocument set isViewingDocument and detect PDF', () => {
-    component.selectFile(mockDocs[0]); // resume.pdf
+  it('should openSelectedDocument set isViewingDocument and detect PDF', async () => {
+    loaderSpy.processFile.mockResolvedValue({
+      fileType: 'pdf',
+      fileName: 'resume.pdf',
+      textContent: '',
+    });
+    component.selectFile(mockDocs[0]);
     component.openSelectedDocument();
+    await fixture.whenStable();
     expect(component.isViewingDocument()).toBe(true);
     expect(component.fileType()).toBe('pdf');
   });
 
   it('should openSelectedDocument detect text file', async () => {
-    const origFetch = globalThis.fetch;
-    globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, text: async () => 'hello' });
-
-    component.selectFile(mockDocs[1]); // notes.txt
+    loaderSpy.processFile.mockResolvedValue({
+      fileType: 'text',
+      fileName: 'notes.txt',
+      textContent: 'hello',
+    });
+    component.selectFile(mockDocs[1]);
     component.openSelectedDocument();
     await fixture.whenStable();
-
     expect(component.fileType()).toBe('text');
-    globalThis.fetch = origFetch;
   });
 
   it('should closeDocumentView reset state', () => {
@@ -150,17 +187,15 @@ describe('DocumentViewer', () => {
   });
 
   it('should onPdfLoadSuccess clear loading and error', () => {
-    component.isLoading.set(true);
-    component.hasError.set(true);
     component.onPdfLoadSuccess();
-    expect(component.isLoading()).toBe(false);
-    expect(component.hasError()).toBe(false);
+    expect(loaderSpy.isLoading.set).toHaveBeenCalledWith(false);
+    expect(loaderSpy.hasError.set).toHaveBeenCalledWith(false);
   });
 
   it('should onPdfLoadError set hasError', () => {
     component.onPdfLoadError();
-    expect(component.hasError()).toBe(true);
-    expect(component.isLoading()).toBe(false);
+    expect(loaderSpy.hasError.set).toHaveBeenCalledWith(true);
+    expect(loaderSpy.isLoading.set).toHaveBeenCalledWith(false);
   });
 
   it('should getFileIcon return pdf icon for pdf type', () => {
@@ -214,19 +249,24 @@ describe('DocumentViewer', () => {
     expect(() => component.handleChangeDocument(1)).not.toThrow();
   });
 
-  it('should load all docs via getFilesByExtensions when opened without data', () => {
-    expect(fsSpy.getFilesByExtensions).toHaveBeenCalled();
+  it('should load all docs via loadAllDocs when opened without data', () => {
+    expect(loaderSpy.loadAllDocs).toHaveBeenCalled();
     expect(component.availableDocs().length).toBe(2);
   });
 
-  it('should load siblings via getSiblingsByUrl when opened with a file url', async () => {
+  it('should load siblings via loadLibraryForUrl when opened with a file url', async () => {
     const siblingDocs = [makeDoc('doc1', 'resume.pdf', '/resume.pdf')];
-    fsSpy.getSiblingsByUrl.mockReturnValue(siblingDocs);
+    loaderSpy.loadLibraryForUrl.mockReturnValue(siblingDocs);
+    loaderSpy.processFile.mockResolvedValue({
+      fileType: 'pdf',
+      fileName: 'resume.pdf',
+      textContent: '',
+    });
 
     component.data.set('/resume.pdf');
     await fixture.whenStable();
 
-    expect(fsSpy.getSiblingsByUrl).toHaveBeenCalledWith('/resume.pdf', expect.any(Array));
+    expect(loaderSpy.loadLibraryForUrl).toHaveBeenCalledWith('/resume.pdf');
     expect(component.availableDocs().length).toBe(1);
     expect(component.isViewingDocument()).toBe(true);
   });
@@ -266,31 +306,37 @@ describe('DocumentViewer', () => {
     it('should not change zoom when not mobile', () => {
       screenSpy.isMobile.mockReturnValue(false);
       component.zoom.set(1.0);
-      component.onTouchMove({ touches: makeTouches(200) } as TouchEvent);
+      component.onTouchMove({ touches: makeTouches(200) } as unknown as TouchEvent);
       expect(component.zoom()).toBe(1.0);
     });
 
     it('should change zoom when mobile and pinch distance diff > 18', () => {
       screenSpy.isMobile.mockReturnValue(true);
       component.zoom.set(1.0);
-      // bootstrap start distance
-      component.onTouchStart({ touches: makeTouches(100) } as TouchEvent);
-      // simulate a large open pinch
-      component.onTouchMove({ touches: makeTouches(200), preventDefault: vi.fn() } as unknown as TouchEvent);
+      component.onTouchStart({ touches: makeTouches(100) } as unknown as TouchEvent);
+      component.onTouchMove({
+        touches: makeTouches(200),
+        preventDefault: vi.fn(),
+      } as unknown as TouchEvent);
       expect(component.zoom()).toBeGreaterThan(1.0);
     });
 
     it('should set isPinchZoomed when zoom changes via pinch', () => {
       screenSpy.isMobile.mockReturnValue(true);
-      component.onTouchStart({ touches: makeTouches(100) } as TouchEvent);
-      component.onTouchMove({ touches: makeTouches(200), preventDefault: vi.fn() } as unknown as TouchEvent);
+      component.onTouchStart({ touches: makeTouches(100) } as unknown as TouchEvent);
+      component.onTouchMove({
+        touches: makeTouches(200),
+        preventDefault: vi.fn(),
+      } as unknown as TouchEvent);
       expect(component.isPinchZoomed()).toBe(true);
     });
 
     it('should not react if only 1 touch point in onTouchStart', () => {
       screenSpy.isMobile.mockReturnValue(true);
       component.zoom.set(1.0);
-      component.onTouchStart({ touches: { 0: { clientX: 10, clientY: 20 }, length: 1 } } as unknown as TouchEvent);
+      component.onTouchStart({
+        touches: { 0: { clientX: 10, clientY: 20 }, length: 1 },
+      } as unknown as TouchEvent);
       expect(component.zoom()).toBe(1.0);
     });
   });
@@ -300,7 +346,7 @@ describe('DocumentViewer', () => {
       ({
         touches: { length: 0 },
         changedTouches: { 0: { clientX: 100 + dx, clientY: 50 } },
-      } as unknown as TouchEvent);
+      }) as unknown as TouchEvent;
 
     const makeSwipeStart = (target: EventTarget): TouchEvent =>
       ({
@@ -308,7 +354,7 @@ describe('DocumentViewer', () => {
           length: 1,
           0: { clientX: 100, clientY: 50, target },
         },
-      } as unknown as TouchEvent);
+      }) as unknown as TouchEvent;
 
     const makeScrollableEl = (scrollWidth: number, clientWidth: number): HTMLElement => {
       const el = document.createElement('pre');
@@ -351,7 +397,7 @@ describe('DocumentViewer', () => {
     });
 
     it('should navigate when swipe starts inside a scrollable element that does NOT overflow', () => {
-      const pre = makeScrollableEl(200, 300); // scrollWidth < clientWidth — não overflow
+      const pre = makeScrollableEl(200, 300);
       document.body.appendChild(pre);
 
       component.onTouchStart(makeSwipeStart(pre));

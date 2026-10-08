@@ -13,10 +13,7 @@ describe('Boot', () => {
 
     await TestBed.configureTestingModule({
       imports: [Boot],
-      providers: [
-        LanguageService,
-        { provide: Sound, useValue: soundMock },
-      ],
+      providers: [LanguageService, { provide: Sound, useValue: soundMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Boot);
@@ -28,12 +25,14 @@ describe('Boot', () => {
     expect(component).toBeTruthy();
   });
 
-  it('simulates loading and enables waitingClick upon completion', () => {
+  it('simulates loading and enables waitingClick upon completion', async () => {
     vi.useFakeTimers();
-    fixture.detectChanges();
+    const f2 = TestBed.createComponent(Boot);
+    const c2 = f2.componentInstance;
+    f2.detectChanges();
     vi.advanceTimersByTime(3500);
-    expect(component.progress()).toBe(100);
-    expect(component.waitingClick()).toBe(true);
+    expect(c2.progress()).toBe(100);
+    expect(c2.waitingClick()).toBe(true);
     vi.useRealTimers();
   });
 

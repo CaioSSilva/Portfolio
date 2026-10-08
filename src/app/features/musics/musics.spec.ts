@@ -6,7 +6,7 @@ import { LanguageService } from '../../core/services/language';
 import { FileSystem } from '../../core/services/file-system';
 import { Apps } from '../../core/services/apps';
 import { Sound } from '../../core/services/sound';
-import { AudioPlayer } from './player/audio-player';
+import { AudioPlayer } from '../../core/services/audio-player';
 import { FileItem } from '../../core/models/file';
 import { ScreenService } from '../../core/services/screen';
 
@@ -109,9 +109,9 @@ describe('Musics', () => {
     expect(component.formatTime(Infinity)).toBe('0:00');
   });
 
-  it('should call player.stop() on ngOnDestroy', () => {
+  it('should call player.stop() when component is destroyed', () => {
     const stopSpy = vi.spyOn(audioPlayer, 'stop');
-    component.ngOnDestroy();
+    fixture.destroy();
     expect(stopSpy).toHaveBeenCalled();
   });
 
@@ -155,9 +155,8 @@ describe('Musics', () => {
     audioPlayer.currentTrack.set(mockFiles[0]);
     audioPlayer.isPlaying.set(true);
     fixture.detectChanges();
-    const pct = audioPlayer.duration() > 0
-      ? (audioPlayer.currentTime() / audioPlayer.duration()) * 100
-      : 0;
+    const pct =
+      audioPlayer.duration() > 0 ? (audioPlayer.currentTime() / audioPlayer.duration()) * 100 : 0;
     expect(pct).toBe(0);
   });
 

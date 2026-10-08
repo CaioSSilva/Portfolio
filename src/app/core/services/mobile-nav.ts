@@ -1,6 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { ProcessManager } from './process-manager';
 import { Apps } from './apps';
+import { AppDefinition } from '../models/dock';
 
 @Injectable({ providedIn: 'root' })
 export class MobileNavService {
@@ -11,7 +12,7 @@ export class MobileNavService {
 
   toggleOverview(): void {
     this.apps.isAppsGridOpen.set(false);
-    this.isOverviewOpen.update((v) => !v);
+    this.isOverviewOpen.update((open) => !open);
   }
 
   openOverview(): void {
@@ -27,14 +28,14 @@ export class MobileNavService {
     this.isOverviewOpen.set(false);
     this.apps.isAppsGridOpen.set(false);
     const processes = this.processManager.processes();
-    processes.forEach((p) => {
-      if (!p.isMinimized) {
-        this.processManager.toggleMinimize(p.id);
+    processes.forEach((process) => {
+      if (!process.isMinimized) {
+        this.processManager.toggleMinimize(process.id);
       }
     });
   }
 
-  openAppAndCloseDrawer(app: any): void {
+  openAppAndCloseDrawer(app: AppDefinition): void {
     this.isOverviewOpen.set(false);
     this.apps.openApp(app);
   }

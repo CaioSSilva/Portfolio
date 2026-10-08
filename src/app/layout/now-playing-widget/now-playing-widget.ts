@@ -1,5 +1,5 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { AudioPlayer } from '../../features/musics/player/audio-player';
+import { AudioPlayer } from '../../core/services/audio-player';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
 
@@ -12,12 +12,12 @@ import { Apps } from '../../core/services/apps';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NowPlayingWidget {
+  private readonly apps = inject(Apps);
   readonly player = inject(AudioPlayer);
   readonly lang = inject(LanguageService);
-  private readonly apps = inject(Apps);
 
-  openPlayer() {
-    const app = this.apps.appsDefinition().find((a) => a.id === 'musics');
+  openPlayer(): void {
+    const app = this.apps.appsDefinition().find((appDef) => appDef.id === 'musics');
     if (app) this.apps.openApp(app);
   }
 }

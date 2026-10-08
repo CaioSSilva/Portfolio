@@ -13,7 +13,11 @@ import { FileItem } from '../../core/models/file';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 const makeImage = (id: string, url: string): FileItem => ({
-  id, name: `${id}.jpg`, type: 'file', icon: 'image', url,
+  id,
+  name: `${id}.jpg`,
+  type: 'file',
+  icon: 'image',
+  url,
 });
 
 describe('ImageViewer', () => {
@@ -167,7 +171,7 @@ describe('ImageViewer', () => {
   it('should onMouseMove update position when dragging', () => {
     component.zoom.set(2);
     component.isDragging.set(true);
-    const moveEvent = { clientX: 50, clientY: 60 } as MouseEvent;
+    const moveEvent = { clientX: 50, clientY: 60 } as unknown as MouseEvent;
     component.onMouseMove(moveEvent);
     const pos = component.position();
     expect(typeof pos.x).toBe('number');
@@ -177,7 +181,7 @@ describe('ImageViewer', () => {
   it('should onMouseMove do nothing when not dragging', () => {
     component.isDragging.set(false);
     component.position.set({ x: 0, y: 0 });
-    component.onMouseMove({ clientX: 100, clientY: 100 } as MouseEvent);
+    component.onMouseMove({ clientX: 100, clientY: 100 } as unknown as MouseEvent);
     expect(component.position()).toEqual({ x: 0, y: 0 });
   });
 

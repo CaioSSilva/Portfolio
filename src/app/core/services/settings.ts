@@ -10,33 +10,33 @@ export class Settings {
   readonly systemMuted = signal<boolean>(this.load('soundMuted', false));
   readonly autoHideDock = signal<boolean>(this.load('autoHideDock', true));
   readonly tipsEnabled = signal<boolean>(this.load('tipsEnabled', true));
-  readonly geminiModel = signal<string>(this.migrateModel(this.load('geminiModel', 'gemini-flash-lite-latest')));
+  readonly geminiModel = signal<string>(
+    this.migrateModel(this.load('geminiModel', 'gemini-flash-lite-latest')),
+  );
 
   private readonly desktopWallpaper = signal<string>(
-    this.load('wallpaper', '/wallpapers/desktop/default.webp')
+    this.load('wallpaper', '/wallpapers/desktop/default.webp'),
   );
   private readonly mobileWallpaper = signal<string>(
-    this.load('mobileWallpaper', '/wallpapers/mobile/default.webp')
+    this.load('mobileWallpaper', '/wallpapers/mobile/default.webp'),
   );
 
   readonly wallpaper = computed(() =>
-    this.screen.isMobile() ? this.mobileWallpaper() : this.desktopWallpaper()
+    this.screen.isMobile() ? this.mobileWallpaper() : this.desktopWallpaper(),
   );
 
   constructor() {
-    effect(() => {
-      this.save('dockSize', this.dockSize());
-      this.save('desktopSize', this.desktopSize());
-      this.save('wallpaper', this.desktopWallpaper());
-      this.save('mobileWallpaper', this.mobileWallpaper());
-      this.save('autoHideDock', this.autoHideDock());
-      this.save('soundMuted', this.systemMuted());
-      this.save('tipsEnabled', this.tipsEnabled());
-      this.save('geminiModel', this.geminiModel());
-    });
+    effect(() => this.save('dockSize', this.dockSize()));
+    effect(() => this.save('desktopSize', this.desktopSize()));
+    effect(() => this.save('wallpaper', this.desktopWallpaper()));
+    effect(() => this.save('mobileWallpaper', this.mobileWallpaper()));
+    effect(() => this.save('autoHideDock', this.autoHideDock()));
+    effect(() => this.save('soundMuted', this.systemMuted()));
+    effect(() => this.save('tipsEnabled', this.tipsEnabled()));
+    effect(() => this.save('geminiModel', this.geminiModel()));
   }
 
-  setWallpaper(path: string) {
+  setWallpaper(path: string): void {
     if (this.screen.isMobile()) {
       this.mobileWallpaper.set(path);
     } else {
@@ -44,28 +44,28 @@ export class Settings {
     }
   }
 
-  setDockSize(size: number) {
+  setDockSize(size: number): void {
     this.dockSize.set(size);
   }
 
-  setDesktopSize(size: number) {
+  setDesktopSize(size: number): void {
     this.desktopSize.set(size);
   }
 
-  toggleAutoHideDock() {
-    this.autoHideDock.update((v) => !v);
+  toggleAutoHideDock(): void {
+    this.autoHideDock.update((value) => !value);
   }
 
-  setGeminiModel(model: string) {
+  setGeminiModel(model: string): void {
     this.geminiModel.set(model);
   }
 
-  toggleSystemTips() {
-    this.tipsEnabled.update((v) => !v);
+  toggleSystemTips(): void {
+    this.tipsEnabled.update((value) => !value);
   }
 
-  toggleSystemSounds() {
-    this.systemMuted.update((v) => !v);
+  toggleSystemSounds(): void {
+    this.systemMuted.update((value) => !value);
   }
 
   private migrateModel(model: string): string {
@@ -79,15 +79,19 @@ export class Settings {
   }
 
   private load<T>(key: string, defaultValue: T): T {
-    const value = localStorage.getItem(key);
-    if (value === null) return defaultValue;
+    try {
+      const value = localStorage.getItem(key);
+      if (value === null) return defaultValue;
 
-    if (typeof defaultValue === 'boolean') return (value === 'true') as T;
-    if (typeof defaultValue === 'number') return Number(value) as T;
-    return value as T;
+      if (typeof defaultValue === 'boolean') return (value === 'true') as T;
+      if (typeof defaultValue === 'number') return Number(value) as T;
+      return value as T;
+    } catch {
+      return defaultValue;
+    }
   }
 
-  private save(key: string, value: string | number | boolean) {
+  private save(key: string, value: string | number | boolean): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(key, value.toString());
     }

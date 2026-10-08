@@ -8,8 +8,8 @@ export interface LrcLine {
 }
 
 export interface LrclibResponse {
-  syncedLyrics?: string;
-  plainLyrics?: string;
+  syncedLyrics?: string | null;
+  plainLyrics?: string | null;
 }
 
 export interface MusicPlayerState {

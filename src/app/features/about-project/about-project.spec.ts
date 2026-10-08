@@ -14,11 +14,9 @@ describe('AboutProject', () => {
   let component: AboutProject;
   let fixture: ComponentFixture<AboutProject>;
   let appLauncherSpy: { launch: ReturnType<typeof vi.fn> };
-  let downloadSpy: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
     appLauncherSpy = { launch: vi.fn() };
-    downloadSpy = vi.fn();
 
     await TestBed.configureTestingModule({
       imports: [AboutProject],
@@ -52,7 +50,8 @@ describe('AboutProject', () => {
   });
 
   it('should handleOpenApp launch the app', () => {
-    const app = component.apps.appsDefinition()[0];
+    const appsService = TestBed.inject(Apps);
+    const app = appsService.appsDefinition()[0];
     component.handleOpenApp(app);
     expect(appLauncherSpy.launch).toHaveBeenCalledWith(app, app.data);
   });
@@ -68,9 +67,10 @@ describe('AboutProject', () => {
   });
 
   it('should downloadResume call fs.downloadFile with correct path and name', () => {
-    const fsSpy = vi.spyOn(component.fs, 'downloadFile').mockImplementation(
-      (_path: string, _name: string) => {}
-    );
+    const fileSystem = TestBed.inject(FileSystem);
+    const fsSpy = vi
+      .spyOn(fileSystem, 'downloadFile')
+      .mockImplementation((_path: string, _name: string) => {});
     component.lang.setLanguage('en');
     component.downloadResume();
     expect(fsSpy).toHaveBeenCalled();

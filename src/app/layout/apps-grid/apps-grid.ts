@@ -2,23 +2,22 @@ import { Component, inject, NgZone, ChangeDetectionStrategy } from '@angular/cor
 import { AppDefinition } from '../../core/models/dock';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
-import { ContextMenu } from '../../shared/ui/context-menu/context-menu';
 import { ContextMenuService } from '../../core/services/context-menu';
 import { ScreenService } from '../../core/services/screen';
 
 @Component({
   selector: 'app-apps-grid',
-  imports: [ContextMenu],
+  imports: [],
   templateUrl: './apps-grid.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './apps-grid.scss',
 })
 export class AppsGrid {
-  appsService = inject(Apps);
-  contextMenu = inject(ContextMenuService);
-  lang = inject(LanguageService);
-  screen = inject(ScreenService);
-  private ngZone = inject(NgZone);
+  private readonly ngZone = inject(NgZone);
+  readonly appsService = inject(Apps);
+  readonly contextMenu = inject(ContextMenuService);
+  readonly lang = inject(LanguageService);
+  readonly screen = inject(ScreenService);
 
   private touchStartX = 0;
   private touchStartY = 0;
@@ -31,7 +30,7 @@ export class AppsGrid {
     this.appsService.searchQuery.set(input.value);
   }
 
-  ondragStart(event: DragEvent, data: AppDefinition): void {
+  onDragStart(event: DragEvent, data: AppDefinition): void {
     event.dataTransfer?.setData('appId', data.id);
     if (event.dataTransfer) {
       event.dataTransfer.effectAllowed = 'link';
@@ -49,9 +48,7 @@ export class AppsGrid {
 
     const btn = event.currentTarget as HTMLElement;
     this.longPressTimer = setTimeout(() => {
-      this.ngZone.run(() =>
-        this.appsService.openContextMenuAt(btn, app.id),
-      );
+      this.ngZone.run(() => this.appsService.openContextMenuAt(btn, app.id));
     }, 500);
   }
 
@@ -94,5 +91,9 @@ export class AppsGrid {
   onAppClick(event: MouseEvent, app: AppDefinition): void {
     event.stopPropagation();
     this.appsService.openApp(app);
+  }
+
+  getAppLabel(appId: string, fallback: string): string {
+    return (this.lang.t().apps as Record<string, string>)[appId] || fallback;
   }
 }

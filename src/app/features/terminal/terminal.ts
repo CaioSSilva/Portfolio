@@ -1,6 +1,14 @@
-import { Component, inject, signal, viewChild, ElementRef, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  viewChild,
+  ElementRef,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { LanguageService } from '../../core/services/language';
-import { TerminalComands } from '../../core/services/terminal-comands';
+import { TerminalCommands } from '../../core/services/terminal-commands';
 import { Base } from '../../core/models/base';
 import { CommandResult, TerminalLine } from '../../core/models/terminal';
 import { FileSystem } from '../../core/services/file-system';
@@ -12,9 +20,9 @@ import { FileSystem } from '../../core/services/file-system';
   templateUrl: './terminal.html',
 })
 export class Terminal extends Base {
-  protected readonly lang = inject(LanguageService);
-  private readonly commandService = inject(TerminalComands);
-  private readonly fs = inject(FileSystem);
+  private readonly commandService = inject(TerminalCommands);
+  private readonly fileSystem = inject(FileSystem);
+  readonly lang = inject(LanguageService);
 
   readonly currentPath = signal('home');
   readonly history = signal<TerminalLine[]>([]);
@@ -33,7 +41,7 @@ export class Terminal extends Base {
     if (!value) return;
 
     this.updateCommandHistory(value);
-    const result = (await this.commandService.execute(value, this.currentPath())) as CommandResult;
+    const result = await this.commandService.execute(value, this.currentPath());
 
     this.processCommandResult(result, value);
 
@@ -41,7 +49,7 @@ export class Terminal extends Base {
     this.scrollToBottom();
   }
 
-  private processCommandResult(result: CommandResult, command: string) {
+  private processCommandResult(result: CommandResult, command: string): void {
     if (result.action === 'CLEAR_ACTION') {
       this.history.set([]);
       return;
@@ -53,7 +61,7 @@ export class Terminal extends Base {
     this.addHistoryLine(command, result.output || '', oldPath);
   }
 
-  private updateCommandHistory(value: string) {
+  private updateCommandHistory(value: string): void {
     this.commandHistory.update((prev) => [value, ...prev]);
     this.historyIndex.set(-1);
   }
@@ -96,14 +104,18 @@ export class Terminal extends Base {
       : this.autocompleteFile(input, parts, lastPart);
   }
 
-  private autocompleteCommand(input: HTMLInputElement, parts: string[], lastPart: string) {
-    const matches = Object.keys(this.lang.t().terminal.commands).filter((c) =>
-      c.startsWith(lastPart.toLowerCase()),
+  private autocompleteCommand(input: HTMLInputElement, parts: string[], lastPart: string): void {
+    const matches = Object.keys(this.lang.t().terminal.commands).filter((cmd) =>
+      cmd.startsWith(lastPart.toLowerCase()),
     );
     this.applyMatch(input, parts, matches);
   }
 
-  private async autocompleteFile(input: HTMLInputElement, parts: string[], lastPart: string) {
+  private async autocompleteFile(
+    input: HTMLInputElement,
+    parts: string[],
+    lastPart: string,
+  ): Promise<void> {
     const segments = lastPart.split('/');
     const prefix = segments.pop()?.toLowerCase() || '';
     const dirPath = segments.join('/');
@@ -111,19 +123,19 @@ export class Terminal extends Base {
     const searchDir = await this.resolveSearchDir(dirPath);
     if (!searchDir) return;
 
-    const matches = this.fs
+    const matches = this.fileSystem
       .getChildren(searchDir)
-      .map((f) => ({ name: this.getTranslatedName(f.id), isFolder: f.type === 'folder' }))
-      .filter((f) => f.name.toLowerCase().startsWith(prefix))
-      .map((f) => (f.isFolder ? `${f.name}/` : f.name));
+      .map((file) => ({ name: this.getTranslatedName(file.id), isFolder: file.type === 'folder' }))
+      .filter((file) => file.name.toLowerCase().startsWith(prefix))
+      .map((file) => (file.isFolder ? `${file.name}/` : file.name));
 
     this.applyMatch(input, parts, matches, dirPath);
   }
 
   private async resolveSearchDir(dirPath: string): Promise<string | null> {
     if (!dirPath) return this.currentPath();
-    const res = await this.commandService.execute(`cd ${dirPath}`, this.currentPath());
-    return res.newPath || null;
+    const result = await this.commandService.execute(`cd ${dirPath}`, this.currentPath());
+    return result.newPath || null;
   }
 
   private applyMatch(input: HTMLInputElement, parts: string[], matches: string[], path = ''): void {
@@ -145,8 +157,8 @@ export class Terminal extends Base {
 
   private scrollToBottom(): void {
     setTimeout(() => {
-      const el = this.scrollContainer().nativeElement;
-      el.scrollTop = el.scrollHeight;
+      const container = this.scrollContainer().nativeElement;
+      container.scrollTop = container.scrollHeight;
     });
   }
 
@@ -159,7 +171,7 @@ export class Terminal extends Base {
   }
 
   getTranslatedName(id: string): string {
-    const trans = this.lang.t().files as Record<string, string>;
-    return trans[id.toLowerCase()] || this.fs.getNode(id)?.name || id;
+    const fileTranslations = this.lang.t().files as Record<string, string>;
+    return fileTranslations[id.toLowerCase()] || this.fileSystem.getNode(id)?.name || id;
   }
 }
