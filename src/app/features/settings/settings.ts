@@ -74,7 +74,6 @@ export class SettingsComponent extends Base implements OnDestroy {
 
   wallpapers = [
     '/wallpapers/desktop/default.webp',
-    '/wallpapers/desktop/waves.webp',
     '/wallpapers/desktop/nebula.webp',
     '/wallpapers/desktop/sunset.webp',
   ];
@@ -88,8 +87,8 @@ export class SettingsComponent extends Base implements OnDestroy {
 
   wallpapersMobile = [
     '/wallpapers/mobile/default.webp',
-    '/wallpapers/mobile/ballon.webp',
-    '/wallpapers/mobile/road.webp',
+    '/wallpapers/mobile/nebula.webp',
+    '/wallpapers/mobile/sunset.webp',
   ];
 
   systemInfo = {
