@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, signal, Type, untracked } from '@angular/core';
+import { uuid } from '../utils/uuid';
 import { AppBase, Base, ProcessData } from '../models/base';
 import { AppDefinition } from '../models/dock';
 import { Process } from '../models/process';
@@ -168,7 +169,7 @@ export class ProcessManager {
   }
 
   private generateId(): string {
-    return crypto.randomUUID();
+    return uuid();
   }
 
   private showNoHandlerError(): void {

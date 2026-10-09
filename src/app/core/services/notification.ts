@@ -1,4 +1,5 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { uuid } from '../utils/uuid';
 import { Notification } from '../models/notification';
 import { Sound } from './sound';
 
@@ -42,7 +43,7 @@ export class NotificationService {
   private createNotification(notif: Omit<Notification, 'id' | 'timestamp'>): Notification {
     return {
       ...notif,
-      id: crypto.randomUUID(),
+      id: uuid(),
       timestamp: new Date(),
     };
   }

@@ -1,4 +1,4 @@
-# Complete Documentation — Cai_OS 2.5.0
+# Complete Documentation — Cai_OS 2.5.1
 
 ## 📋 Table of Contents
 
@@ -59,9 +59,9 @@ Cai_OS was developed as an interactive portfolio that demonstrates:
 
 ---
 
-## 🆕 What's New in 2.5.0
+## 🆕 What's New in 2.5.1
 
-Version 2.5.0 brought major feature additions on top of the mobile foundation established in 2.0.0.
+Version 2.5.1 brought major feature additions on top of the mobile foundation established in 2.0.0.
 
 ### Hermes — Integrated AI Assistant
 
@@ -729,7 +729,7 @@ npm test         # Run test suite (Vitest)
 | `clear`       | Clear terminal                 |
 | `neofetch`    | System info (ASCII art)        |
 | `whoami`      | Developer info                 |
-| `about`       | System version (Cai_OS v2.5.0) |
+| `about`       | System version (Cai_OS v2.5.1) |
 
 ---
 
@@ -822,7 +822,7 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 | Metric         | Value                    |
 | -------------- | ------------------------ |
-| Version        | **2.5.0**                |
+| Version        | **2.5.1**                |
 | Test files     | **52**                   |
 | Tests passing  | **614 / 614**            |
 | Initial bundle | **492 kB** (−50% vs 1.x) |
@@ -841,4 +841,4 @@ Angular Team · GNOME Design Team · Open Source Community · Google Gemini Team
 
 ---
 
-**Developed with ❤️ using Angular 22 — Last Update: January 2027 · v2.5.0**
+**Developed with ❤️ using Angular 22 — Last Update: October 2026 · v2.5.1**

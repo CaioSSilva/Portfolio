@@ -1,4 +1,4 @@
-# Documentação Completa - Cai_OS 2.5.0
+# Documentação Completa - Cai_OS 2.5.1
 
 ## 📋 Sumário
 
@@ -1288,7 +1288,7 @@ Este projeto é um portfólio pessoal. Todos os direitos reservados.
 
 ## 📊 Estatísticas do Projeto
 
-- **Versão**: 2.5.0
+- **Versão**: 2.5.1
 - **Linhas de Código**: ~19.000+
 - **Componentes**: 29+
 - **Serviços**: 19+
@@ -1311,4 +1311,4 @@ Para dúvidas, sugestões ou reportar bugs:
 
 **Desenvolvido com ❤️ usando Angular 22**
 
-**Última Atualização**: Janeiro 2027 · v2.5.0
+**Última Atualização**: Outubro 2026 · v2.5.1
