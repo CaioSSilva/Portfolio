@@ -12,7 +12,13 @@ import {
 } from '../models/hermes-action';
 
 const ACTION_REGEX = /<!--\s*caios:action\s*([\s\S]*?)\s*-->/g;
-const APP_ACTION_TYPES: HermesActionType[] = ['open_app', 'close_app', 'open_file'];
+const APP_ACTION_TYPES: HermesActionType[] = [
+  'open_app',
+  'close_app',
+  'open_file',
+  'photos_open_photo',
+  'docs_open_document',
+];
 const SYSTEM_ACTION_TYPES: HermesActionType[] = [
   'set_theme',
   'toggle_theme',
@@ -24,6 +30,11 @@ const SYSTEM_ACTION_TYPES: HermesActionType[] = [
   'toggle_auto_hide_dock',
   'toggle_tips',
   'toggle_agent_mode',
+  'music_play_pause',
+  'music_next',
+  'music_prev',
+  'music_stop',
+  'music_play_track',
 ];
 
 @Injectable({ providedIn: 'root' })

@@ -1,4 +1,5 @@
 export type AgentModeState = 'off' | 'listening' | 'awake' | 'processing' | 'speaking';
+export type AgentUnsupportedReason = 'browser' | 'insecure-context' | 'mobile' | null;
 
 export interface SpeechRecognitionLike extends EventTarget {
   continuous: boolean;

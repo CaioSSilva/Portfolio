@@ -1,6 +1,6 @@
 # Cai_OS — Documentation
 
-**Version:** 3.0.0 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
+**Version:** 3.0.1 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
 
 ---
 
@@ -263,7 +263,7 @@ Clicking the tray icon disables Agent Mode.
 
 **Privacy note:** Agent Mode uses the browser's Web Speech API. In Chrome, audio is sent to Google's servers for transcription — not only the audio after the wake phrase. Enable only on trusted networks. The feature is opt-in and off by default.
 
-**Browser support:** Chrome / Chromium (full), Safari (partial), Firefox (not supported — toggle is disabled automatically).
+**Browser support:** Chrome / Chromium on desktop (full). Firefox (not supported). Mobile devices (not supported — continuous recognition is unreliable on mobile; the toggle is disabled automatically with a clear message).
 
 ---
 
@@ -295,6 +295,13 @@ This tag is invisible to you — the system processes it automatically. You can 
 | `toggle_auto_hide_dock` | `{}` | Toggles dock auto-hide |
 | `toggle_tips` | `{}` | Enables/disables system tips |
 | `toggle_agent_mode` | `{}` | Enables/disables Agent Mode |
+| `music_play_pause` | `{}` | Play/pause the current track |
+| `music_next` | `{}` | Skip to next track |
+| `music_prev` | `{}` | Go to previous track |
+| `music_stop` | `{}` | Stop playback |
+| `music_play_track` | `{"query": "song name or artist"}` | Search and play a track by name |
+| `photos_open_photo` | `{"query": "photo name"}` | Search and open a photo by name |
+| `docs_open_document` | `{"query": "document name"}` | Search and open a document by name |
 
 **Example requests to Hermes:**
 - "Open the terminal"

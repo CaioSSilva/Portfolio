@@ -39,6 +39,13 @@ Ações suportadas:
 - toggle_auto_hide_dock: {}
 - toggle_tips: {}
 - toggle_agent_mode: {}
+- music_play_pause: {}
+- music_next: {}
+- music_prev: {}
+- music_stop: {}
+- music_play_track: {"query": "nome da música ou artista"}
+- photos_open_photo: {"query": "nome da foto"}
+- docs_open_document: {"query": "nome do documento"}
 
 ## Modo Agente
 Quando o modo agente está ativo, o usuário pode dizer "Oi Hermes" ou "Hello Hermes" para te acordar. Você receberá o comando de voz como uma mensagem de texto normal. Após sua resposta, o reconhecimento é retomado automaticamente. O comando de voz "para de ouvir" ou "stop listening" desativa o modo agente.
@@ -84,6 +91,13 @@ Supported actions:
 - toggle_auto_hide_dock: {}
 - toggle_tips: {}
 - toggle_agent_mode: {}
+- music_play_pause: {}
+- music_next: {}
+- music_prev: {}
+- music_stop: {}
+- music_play_track: {"query": "song name or artist"}
+- photos_open_photo: {"query": "photo name"}
+- docs_open_document: {"query": "document name"}
 
 ## Agent Mode
 When agent mode is active, the user can say "Hello Hermes" or "Oi Hermes" to wake you. You will receive the voice command as a normal text message. After you reply, recognition resumes automatically. A voice command "stop listening" or "para de ouvir" disables agent mode.

@@ -177,6 +177,7 @@ export const pt = {
       agentSpeakRepliesDesc: 'O Hermes lerá suas respostas em voz alta usando o motor de fala do navegador',
       agentUnsupported: 'Seu navegador não suporta a Web Speech API',
       agentInsecureContext: 'O Modo Agente requer uma conexão segura (HTTPS)',
+      agentMobileUnsupported: 'O Modo Agente não é suportado em dispositivos móveis',
       agentPrivacyNote: 'O Modo Agente usa o reconhecimento de fala do navegador. No Chrome, o áudio é processado pelos servidores do Google. Ative apenas em redes confiáveis.',
       agentWakePhrases: 'Frases de ativação',
       agentPermissionDenied: 'O acesso ao microfone foi negado. Permita nas configurações do navegador e tente novamente.',

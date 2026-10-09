@@ -19,6 +19,7 @@ export class AgentModeService {
   readonly state = signal<AgentModeState>('off');
   readonly isSupported = this.recognition.isSupported;
   readonly isSecureContext = this.recognition.isSecureContext;
+  readonly unsupportedReason = this.recognition.unsupportedReason;
 
   private awakeTimer = 0;
 

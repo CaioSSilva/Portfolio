@@ -418,12 +418,19 @@
               <div class="min-w-0">
                 <div class="font-medium">{{ lang.t().settings.hermes.agentMode }}</div>
                 <div class="text-sm text-gnome-text-secondary">
-                  @if (!agentMode.isSecureContext()) {
-                    {{ lang.t().settings.hermes.agentInsecureContext }}
-                  } @else if (!agentMode.isSupported()) {
-                    {{ lang.t().settings.hermes.agentUnsupported }}
-                  } @else {
-                    {{ lang.t().settings.hermes.agentModeDesc }}
+                  @switch (agentMode.unsupportedReason()) {
+                    @case ('insecure-context') {
+                      {{ lang.t().settings.hermes.agentInsecureContext }}
+                    }
+                    @case ('mobile') {
+                      {{ lang.t().settings.hermes.agentMobileUnsupported }}
+                    }
+                    @case ('browser') {
+                      {{ lang.t().settings.hermes.agentUnsupported }}
+                    }
+                    @default {
+                      {{ lang.t().settings.hermes.agentModeDesc }}
+                    }
                   }
                 </div>
               </div>

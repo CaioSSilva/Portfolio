@@ -14,7 +14,14 @@ export type HermesActionType =
   | 'set_language'
   | 'toggle_auto_hide_dock'
   | 'toggle_tips'
-  | 'toggle_agent_mode';
+  | 'toggle_agent_mode'
+  | 'music_play_pause'
+  | 'music_next'
+  | 'music_prev'
+  | 'music_stop'
+  | 'music_play_track'
+  | 'photos_open_photo'
+  | 'docs_open_document';
 
 export interface OpenAppPayload {
   app: string;
@@ -55,6 +62,14 @@ export interface SetLanguagePayload {
   lang: 'pt' | 'en';
 }
 
+export interface MusicPlayTrackPayload {
+  query: string;
+}
+
+export interface MediaSearchPayload {
+  query: string;
+}
+
 export type HermesPayload =
   | OpenAppPayload
   | CloseAppPayload
@@ -65,6 +80,7 @@ export type HermesPayload =
   | PlaySoundPayload
   | ShowNotificationPayload
   | SetLanguagePayload
+  | MusicPlayTrackPayload
   | Record<string, never>;
 
 export type JsonPrimitive = string | number | boolean | null;

@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { HermesAppActionsService } from './hermes-app-actions';
 import { AppRegistry } from './app-registry';
 import { ProcessManager } from './process-manager';
+import { FileSystem } from './file-system';
+import { FileItem } from '../models/file';
 
 describe('HermesAppActionsService', () => {
   let service: HermesAppActionsService;
@@ -11,6 +13,27 @@ describe('HermesAppActionsService', () => {
     closeAllInstancesById: ReturnType<typeof vi.fn>;
     openFile: ReturnType<typeof vi.fn>;
   };
+  let fileSystemSpy: {
+    ensureLoaded: ReturnType<typeof vi.fn>;
+    searchFiles: ReturnType<typeof vi.fn>;
+    getFileExtension: ReturnType<typeof vi.fn>;
+  };
+
+  const mockPhoto: FileItem = {
+    id: 'photo1',
+    name: 'sunset.webp',
+    type: 'file',
+    icon: 'fas fa-image',
+    url: '/data/photos/sunset.webp',
+  };
+
+  const mockDoc: FileItem = {
+    id: 'doc1',
+    name: 'resume.pdf',
+    type: 'file',
+    icon: 'fas fa-file',
+    url: '/data/documents/resume.pdf',
+  };
 
   beforeEach(() => {
     appRegistrySpy = { getAppById: vi.fn() };
@@ -19,12 +42,18 @@ describe('HermesAppActionsService', () => {
       closeAllInstancesById: vi.fn(),
       openFile: vi.fn(),
     };
+    fileSystemSpy = {
+      ensureLoaded: vi.fn().mockResolvedValue(undefined),
+      searchFiles: vi.fn(),
+      getFileExtension: vi.fn(),
+    };
 
     TestBed.configureTestingModule({
       providers: [
         HermesAppActionsService,
         { provide: AppRegistry, useValue: appRegistrySpy },
         { provide: ProcessManager, useValue: processManagerSpy },
+        { provide: FileSystem, useValue: fileSystemSpy },
       ],
     });
 
@@ -91,6 +120,42 @@ describe('HermesAppActionsService', () => {
       );
       expect(() => service.execute({ type: 'open_file', payload: { url: '/x' } })).toThrow(
         'Missing file info',
+      );
+    });
+  });
+
+  describe('photos_open_photo', () => {
+    it('finds and opens the photo via processManager', async () => {
+      fileSystemSpy.searchFiles.mockReturnValue([mockPhoto]);
+      fileSystemSpy.getFileExtension.mockReturnValue('webp');
+
+      service.execute({ type: 'photos_open_photo', payload: { query: 'sunset' } });
+      await vi.waitFor(() =>
+        expect(processManagerSpy.openFile).toHaveBeenCalledWith(mockPhoto),
+      );
+    });
+
+    it('throws when query is missing', () => {
+      expect(() => service.execute({ type: 'photos_open_photo', payload: {} })).toThrow(
+        'Missing search query',
+      );
+    });
+  });
+
+  describe('docs_open_document', () => {
+    it('finds and opens the document via processManager', async () => {
+      fileSystemSpy.searchFiles.mockReturnValue([mockDoc]);
+      fileSystemSpy.getFileExtension.mockReturnValue('pdf');
+
+      service.execute({ type: 'docs_open_document', payload: { query: 'resume' } });
+      await vi.waitFor(() =>
+        expect(processManagerSpy.openFile).toHaveBeenCalledWith(mockDoc),
+      );
+    });
+
+    it('throws when query is missing', () => {
+      expect(() => service.execute({ type: 'docs_open_document', payload: {} })).toThrow(
+        'Missing search query',
       );
     });
   });

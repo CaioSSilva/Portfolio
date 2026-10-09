@@ -1,6 +1,6 @@
 # Cai_OS
 
-![Version](https://img.shields.io/badge/version-3.0.0-blue)
+![Version](https://img.shields.io/badge/version-3.0.1-blue)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
 ![Vitest](https://img.shields.io/badge/tests-Vitest-brightgreen)
@@ -44,7 +44,18 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 
 ---
 
-## What's New — v3.0.0
+## What's New — v3.0.1
+
+- **Mobile detection for Agent Mode**: `SpeechRecognitionService` now detects mobile devices (Android, iPhone, iPad) via `navigator.maxTouchPoints` + User-Agent and returns `unsupportedReason: 'mobile'` — the toggle is disabled with a clear message instead of silently misbehaving
+- **`AgentUnsupportedReason` type**: replaces the two separate `isSupported`/`isSecureContext` booleans with a single discriminated reason (`'browser' | 'insecure-context' | 'mobile' | null`), exposed on both `SpeechRecognitionService` and `AgentModeService`
+- **`SPEECH_RECOGNITION_UNSUPPORTED_REASON` token**: injectable reason for testing and DI override
+- **Settings → Hermes**: description under the Agent Mode toggle now uses `@switch` on `unsupportedReason()`, showing a distinct message per failure case
+- **Media actions for Hermes**: `music_play_pause`, `music_next`, `music_prev`, `music_stop`, `music_play_track` — control the music player by voice or text
+- **Photo & document search actions**: `photos_open_photo {"query"}` and `docs_open_document {"query"}` — Hermes searches the virtual file system and opens the matching file directly
+- **`spoken replies` dependency**: disabling Agent Mode now automatically resets Spoken Replies to off; the toggle is visually dimmed and non-interactive when Agent Mode is off
+
+<details>
+<summary>Previous release — v3.0.0</summary>
 
 - **Agent Mode**: always-on voice service for Hermes — say "Hello Hermes" or "Oi Hermes" to wake it without opening any app. Inline commands supported (e.g. *"Hey Hermes, open the terminal"*)
 - **Tray icon**: microphone icon in the top-bar right cluster reflects live agent state (listening / awake / processing / speaking)
@@ -53,6 +64,8 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 - **4 new core services**: `AgentModeService` (state machine), `SpeechRecognitionService` (Web Speech wrapper + backoff), `SpeechSynthesisService` (TTS), `WakeWordService` (fuzzy wake-phrase detection, Levenshtein ≤ 1)
 - **`toggle_agent_mode` action**: Hermes can now enable/disable Agent Mode via the action tag pipeline
 - **`notifyAgentReply()`** on `HermesChatService`: shows a system notification when Agent Mode replies while the Hermes window is closed and spoken replies are off
+
+</details>
 
 <details>
 <summary>Previous release — v2.5.1</summary>
@@ -518,18 +531,20 @@ Loads and processes documents for the DocumentViewer. Detects PDF, Markdown, tex
 ### `AgentModeService` — `core/services/agent-mode.ts`
 State machine orchestrating the full Agent Mode lifecycle: off → listening → awake → processing → speaking. Coordinates `SpeechRecognitionService`, `WakeWordService`, `HermesChatService`, and `SpeechSynthesisService`.
 
-**Signals:** `state` (`AgentModeState`)
+**Signals:** `state` (`AgentModeState`), `isSupported`, `isSecureContext`, `unsupportedReason` (`AgentUnsupportedReason`)
 
-**Public API:** `enable()`, `disable()`
+**Public API:** `toggleAgentMode()`
 
 ---
 
 ### `SpeechRecognitionService` — `core/services/speech-recognition.ts`
-Wraps the browser Web Speech API with continuous restart and exponential backoff. Exposes support detection and secure-context checks.
+Wraps the browser Web Speech API with continuous restart and exponential backoff. Detects mobile devices (`navigator.maxTouchPoints` + UA) and marks them as unsupported.
 
-**Signals:** `transcript`, `error`, `isSupported`, `isSecureContext`
+**Tokens:** `SPEECH_RECOGNITION_FACTORY`, `SPEECH_RECOGNITION_UNSUPPORTED_REASON`
 
-**Public API:** `start()`, `stop()`
+**Signals:** `transcript`, `isListening`, `isSupported`, `isSecureContext`, `unsupportedReason` (`AgentUnsupportedReason`)
+
+**Public API:** `start(onTranscript, onError)`, `stop()`
 
 ---
 
@@ -769,6 +784,13 @@ Hermes can trigger OS actions by appending structured tags to its response:
 | `toggle_auto_hide_dock` | `{}` | Toggles dock auto-hide |
 | `toggle_tips` | `{}` | Enables/disables system tips |
 | `toggle_agent_mode` | `{}` | Enables/disables Agent Mode |
+| `music_play_pause` | `{}` | Play/pause the current track |
+| `music_next` | `{}` | Skip to next track |
+| `music_prev` | `{}` | Go to previous track |
+| `music_stop` | `{}` | Stop playback |
+| `music_play_track` | `{"query": "song name or artist"}` | Search and play a track by name |
+| `photos_open_photo` | `{"query": "photo name"}` | Search and open a photo by name |
+| `docs_open_document` | `{"query": "document name"}` | Search and open a document by name |
 
 ---
 
@@ -942,7 +964,7 @@ This project is private (`"private": true` in `package.json`). All rights reserv
 
 | Metric | Value |
 |---|---|
-| Version | 3.0.0 |
+| Version | 3.0.1 |
 | Angular version | 22.2.1 |
 | TypeScript version | 6.0.3 |
 | Applications | 10 |

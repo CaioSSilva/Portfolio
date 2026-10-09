@@ -1,6 +1,6 @@
 # Cai_OS — Documentação
 
-**Versão:** 3.0.0 · **Plataforma:** Web (Angular 22) · **Autor:** Caio Souza Silva
+**Versão:** 3.0.1 · **Plataforma:** Web (Angular 22) · **Autor:** Caio Souza Silva
 
 ---
 
@@ -263,7 +263,7 @@ Clicar no ícone desativa o Modo Agente.
 
 **Privacidade:** o Modo Agente usa a Web Speech API do navegador. No Chrome, o áudio é enviado para os servidores do Google — e não apenas o áudio após a palavra-chave. Ative somente em redes confiáveis. A funcionalidade é opt-in e desativada por padrão.
 
-**Suporte:** Chrome/Chromium (completo), Safari (parcial), Firefox (não suportado — o botão é desativado automaticamente).
+**Suporte:** Chrome/Chromium no desktop (completo). Firefox (não suportado). Dispositivos móveis (não suportado — o reconhecimento contínuo é instável no mobile; o botão é desativado automaticamente com uma mensagem clara).
 
 ---
 
@@ -295,6 +295,13 @@ Essa tag é invisível para você — o sistema a processa automaticamente. Voc�
 | `toggle_auto_hide_dock` | `{}` | Ativa/desativa o auto-ocultamento do dock |
 | `toggle_tips` | `{}` | Ativa/desativa as dicas do sistema |
 | `toggle_agent_mode` | `{}` | Ativa/desativa o Modo Agente |
+| `music_play_pause` | `{}` | Pausar/retomar a música atual |
+| `music_next` | `{}` | Próxima faixa |
+| `music_prev` | `{}` | Faixa anterior |
+| `music_stop` | `{}` | Parar a reprodução |
+| `music_play_track` | `{"query": "nome da música ou artista"}` | Buscar e tocar uma faixa pelo nome |
+| `photos_open_photo` | `{"query": "nome da foto"}` | Buscar e abrir uma foto pelo nome |
+| `docs_open_document` | `{"query": "nome do documento"}` | Buscar e abrir um documento pelo nome |
 
 **Exemplos de pedidos ao Hermes:**
 - "Abra o terminal"

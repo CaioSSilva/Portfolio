@@ -1,6 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
-import { SpeechRecognitionService, SPEECH_RECOGNITION_FACTORY } from './speech-recognition';
+import {
+  SpeechRecognitionService,
+  SPEECH_RECOGNITION_FACTORY,
+  SPEECH_RECOGNITION_UNSUPPORTED_REASON,
+} from './speech-recognition';
 import { SpeechRecognitionLike, SpeechRecognitionEventLike } from '../models/agent-mode';
 
 function buildMockRecognition(): SpeechRecognitionLike {
@@ -30,10 +34,8 @@ describe('SpeechRecognitionService', () => {
     mockRecognition = buildMockRecognition();
     TestBed.configureTestingModule({
       providers: [
-        {
-          provide: SPEECH_RECOGNITION_FACTORY,
-          useValue: () => mockRecognition,
-        },
+        { provide: SPEECH_RECOGNITION_FACTORY, useValue: () => mockRecognition },
+        { provide: SPEECH_RECOGNITION_UNSUPPORTED_REASON, useValue: null },
       ],
     });
     service = TestBed.inject(SpeechRecognitionService);
@@ -79,9 +81,44 @@ describe('SpeechRecognitionService', () => {
   it('isSupported is false when factory returns null', () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [{ provide: SPEECH_RECOGNITION_FACTORY, useValue: null }],
+      providers: [
+        { provide: SPEECH_RECOGNITION_FACTORY, useValue: null },
+        { provide: SPEECH_RECOGNITION_UNSUPPORTED_REASON, useValue: 'browser' },
+      ],
     });
     const svc = TestBed.inject(SpeechRecognitionService);
     expect(svc.isSupported()).toBe(false);
+    expect(svc.unsupportedReason()).toBe('browser');
+  });
+
+  it('unsupportedReason is null when supported', () => {
+    expect(service.unsupportedReason()).toBe(null);
+  });
+
+  it('unsupportedReason is mobile when provided as mobile', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: SPEECH_RECOGNITION_FACTORY, useValue: null },
+        { provide: SPEECH_RECOGNITION_UNSUPPORTED_REASON, useValue: 'mobile' },
+      ],
+    });
+    const svc = TestBed.inject(SpeechRecognitionService);
+    expect(svc.isSupported()).toBe(false);
+    expect(svc.isSecureContext()).toBe(true);
+    expect(svc.unsupportedReason()).toBe('mobile');
+  });
+
+  it('isSecureContext is false when reason is insecure-context', () => {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: SPEECH_RECOGNITION_FACTORY, useValue: null },
+        { provide: SPEECH_RECOGNITION_UNSUPPORTED_REASON, useValue: 'insecure-context' },
+      ],
+    });
+    const svc = TestBed.inject(SpeechRecognitionService);
+    expect(svc.isSecureContext()).toBe(false);
+    expect(svc.unsupportedReason()).toBe('insecure-context');
   });
 });

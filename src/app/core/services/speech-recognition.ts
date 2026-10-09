@@ -1,6 +1,7 @@
 import { DestroyRef, inject, Injectable, InjectionToken, signal } from '@angular/core';
 import { LanguageService } from './language';
 import {
+  AgentUnsupportedReason,
   SpeechRecognitionConstructor,
   SpeechRecognitionLike,
   SpeechRecognitionWindow,
@@ -8,17 +9,36 @@ import {
   SpeechRecognitionErrorEventLike,
 } from '../models/agent-mode';
 
+function isMobileDevice(): boolean {
+  return (
+    navigator.maxTouchPoints > 1 ||
+    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+  );
+}
+
+function resolveUnsupportedReason(): AgentUnsupportedReason {
+  if (typeof window === 'undefined') return 'browser';
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost') return 'insecure-context';
+  if (isMobileDevice()) return 'mobile';
+  const win = window as SpeechRecognitionWindow;
+  const hasApi = !!(win.SpeechRecognition ?? win.webkitSpeechRecognition);
+  return hasApi ? null : 'browser';
+}
+
+export const SPEECH_RECOGNITION_UNSUPPORTED_REASON =
+  new InjectionToken<AgentUnsupportedReason>('SPEECH_RECOGNITION_UNSUPPORTED_REASON', {
+    providedIn: 'root',
+    factory: () => resolveUnsupportedReason(),
+  });
+
 export const SPEECH_RECOGNITION_FACTORY = new InjectionToken<
   (() => SpeechRecognitionLike) | null
 >('SPEECH_RECOGNITION_FACTORY', {
   providedIn: 'root',
   factory: () => {
-    if (typeof window === 'undefined') return null;
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost') return null;
+    if (resolveUnsupportedReason() !== null) return null;
     const win = window as SpeechRecognitionWindow;
-    const Constructor: SpeechRecognitionConstructor | undefined =
-      win.SpeechRecognition ?? win.webkitSpeechRecognition;
-    if (!Constructor) return null;
+    const Constructor = (win.SpeechRecognition ?? win.webkitSpeechRecognition) as SpeechRecognitionConstructor;
     return () => new Constructor();
   },
 });
@@ -32,15 +52,13 @@ export class SpeechRecognitionService {
   private readonly lang = inject(LanguageService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly factory = inject(SPEECH_RECOGNITION_FACTORY);
+  private readonly reason = inject(SPEECH_RECOGNITION_UNSUPPORTED_REASON);
 
   readonly transcript = signal('');
   readonly isListening = signal(false);
   readonly isSupported = signal(this.factory !== null);
-  readonly isSecureContext = signal(
-    typeof window === 'undefined' ||
-      location.protocol === 'https:' ||
-      location.hostname === 'localhost',
-  );
+  readonly isSecureContext = signal(this.reason !== 'insecure-context');
+  readonly unsupportedReason = signal<AgentUnsupportedReason>(this.reason);
 
   private recognition: SpeechRecognitionLike | null = null;
   private restartCount = 0;

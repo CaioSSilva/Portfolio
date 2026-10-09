@@ -3,6 +3,9 @@ import { HermesSystemActionsService } from './hermes-system-actions';
 import { Theme } from './theme';
 import { Settings } from './settings';
 import { Sound } from './sound';
+import { AudioPlayer } from './audio-player';
+import { FileSystem } from './file-system';
+import { FileItem } from '../models/file';
 
 describe('HermesSystemActionsService', () => {
   let service: HermesSystemActionsService;
@@ -16,6 +19,27 @@ describe('HermesSystemActionsService', () => {
     toggleSystemTips: ReturnType<typeof vi.fn>;
   };
   let soundSpy: { play: ReturnType<typeof vi.fn> };
+  let audioPlayerSpy: {
+    togglePlay: ReturnType<typeof vi.fn>;
+    nextTrack: ReturnType<typeof vi.fn>;
+    prevTrack: ReturnType<typeof vi.fn>;
+    stop: ReturnType<typeof vi.fn>;
+    play: ReturnType<typeof vi.fn>;
+  };
+  let fileSystemSpy: {
+    ensureLoaded: ReturnType<typeof vi.fn>;
+    searchFiles: ReturnType<typeof vi.fn>;
+    getFileExtension: ReturnType<typeof vi.fn>;
+    getFilesByExtensions: ReturnType<typeof vi.fn>;
+  };
+
+  const mockTrack: FileItem = {
+    id: 'song1',
+    name: 'bohemian.mp3',
+    type: 'file',
+    icon: 'fas fa-music',
+    url: '/data/music/bohemian.mp3',
+  };
 
   beforeEach(() => {
     themeSpy = { setDark: vi.fn(), toggle: vi.fn() };
@@ -28,6 +52,19 @@ describe('HermesSystemActionsService', () => {
       toggleSystemTips: vi.fn(),
     };
     soundSpy = { play: vi.fn() };
+    audioPlayerSpy = {
+      togglePlay: vi.fn(),
+      nextTrack: vi.fn(),
+      prevTrack: vi.fn(),
+      stop: vi.fn(),
+      play: vi.fn(),
+    };
+    fileSystemSpy = {
+      ensureLoaded: vi.fn().mockResolvedValue(undefined),
+      searchFiles: vi.fn().mockReturnValue([mockTrack]),
+      getFileExtension: vi.fn().mockReturnValue('mp3'),
+      getFilesByExtensions: vi.fn().mockReturnValue([mockTrack]),
+    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -35,6 +72,8 @@ describe('HermesSystemActionsService', () => {
         { provide: Theme, useValue: themeSpy },
         { provide: Settings, useValue: settingsSpy },
         { provide: Sound, useValue: soundSpy },
+        { provide: AudioPlayer, useValue: audioPlayerSpy },
+        { provide: FileSystem, useValue: fileSystemSpy },
       ],
     });
 
@@ -122,6 +161,39 @@ describe('HermesSystemActionsService', () => {
     it('play_sound throws when sound name is missing', () => {
       expect(() => service.execute({ type: 'play_sound', payload: {} })).toThrow(
         'Missing sound name',
+      );
+    });
+  });
+
+  describe('music actions', () => {
+    it('music_play_pause calls togglePlay', () => {
+      service.execute({ type: 'music_play_pause' });
+      expect(audioPlayerSpy.togglePlay).toHaveBeenCalled();
+    });
+
+    it('music_next calls nextTrack', () => {
+      service.execute({ type: 'music_next' });
+      expect(audioPlayerSpy.nextTrack).toHaveBeenCalled();
+    });
+
+    it('music_prev calls prevTrack', () => {
+      service.execute({ type: 'music_prev' });
+      expect(audioPlayerSpy.prevTrack).toHaveBeenCalled();
+    });
+
+    it('music_stop calls stop', () => {
+      service.execute({ type: 'music_stop' });
+      expect(audioPlayerSpy.stop).toHaveBeenCalled();
+    });
+
+    it('music_play_track searches and plays the found track', async () => {
+      service.execute({ type: 'music_play_track', payload: { query: 'bohemian' } });
+      await vi.waitFor(() => expect(audioPlayerSpy.play).toHaveBeenCalledWith(mockTrack, [mockTrack]));
+    });
+
+    it('music_play_track throws when query is missing', () => {
+      expect(() => service.execute({ type: 'music_play_track', payload: {} })).toThrow(
+        'Missing music query',
       );
     });
   });
