@@ -14,6 +14,8 @@ import { ScreenService } from '../../core/services/screen';
 import localePtBr from '@angular/common/locales/pt';
 import { LanguageService } from '../../core/services/language';
 import { NowPlayingWidget } from '../now-playing-widget/now-playing-widget';
+import { AgentModeService } from '../../core/services/agent-mode';
+import { Settings } from '../../core/services/settings';
 
 registerLocaleData(localePtBr, 'pt-BR');
 
@@ -31,6 +33,8 @@ export class TopBar {
   readonly notificationService = inject(NotificationService);
   readonly screen = inject(ScreenService);
   readonly lang = inject(LanguageService);
+  readonly agentMode = inject(AgentModeService);
+  readonly settings = inject(Settings);
 
   readonly forceShow = signal(false);
   readonly now = signal(new Date());

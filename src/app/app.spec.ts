@@ -25,6 +25,8 @@ describe('App', () => {
     desktopSize: WritableSignal<number>;
     systemMuted: WritableSignal<boolean>;
     autoHideDock: WritableSignal<boolean>;
+    agentModeEnabled: WritableSignal<boolean>;
+    agentSpeakReplies: WritableSignal<boolean>;
   };
   let tipsMock: { startRandomTips: ReturnType<typeof vi.fn> };
   let appsMock: {
@@ -50,6 +52,8 @@ describe('App', () => {
       desktopSize: signal(40),
       systemMuted: signal(false),
       autoHideDock: signal(true),
+      agentModeEnabled: signal(false),
+      agentSpeakReplies: signal(false),
     };
     tipsMock = { startRandomTips: vi.fn() };
     appsMock = {

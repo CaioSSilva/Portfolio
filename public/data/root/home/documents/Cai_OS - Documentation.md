@@ -226,11 +226,42 @@ Hermes is the intelligent assistant integrated into Cai_OS, powered by Google Ge
 - Gemini model picker (click the model name shown above the input field to open the selector)
 - Conversation history (keeps the last 6 messages as context)
 - Automatic fallback to a secondary API key on 404/429 errors
+- **Agent Mode** — always-on voice activation via wake phrase (see below)
 
 **How to use:**
 1. Open the **Hermes** application from the dock or app grid
 2. Type a message or ask a question
 3. Optionally attach an image by clicking the image icon on the left of the input field
+
+### Agent Mode
+
+Agent Mode allows Hermes to listen passively and be activated by voice at any time — without opening the Hermes window.
+
+**Enabling:**
+Settings → Hermes → Agent Mode toggle (requires microphone permission).
+
+**Wake phrases:** "Hello Hermes", "Oi Hermes", "Hey Hermes"
+
+**Inline commands:** Say the wake phrase immediately followed by a command, e.g. *"Hey Hermes, open the terminal"* — no need to wait for a second utterance.
+
+**Spoken replies (opt-in):** Enable Settings → Hermes → Spoken replies to have Hermes read its answers aloud.
+
+**Stop:** Say *"stop listening"* or *"para de ouvir"* at any time, or click the microphone icon in the top bar to disable Agent Mode.
+
+**Tray icon (top bar, right side):**
+
+| State | Icon | Visual |
+|---|---|---|
+| Listening | Microphone | Dim blue background |
+| Awake (waiting for command) | Microphone | Solid blue, pulsing |
+| Processing | Spinning circle | Solid blue |
+| Speaking | Speaker | Solid blue |
+
+Clicking the tray icon disables Agent Mode.
+
+**Privacy note:** Agent Mode uses the browser's Web Speech API. In Chrome, audio is sent to Google's servers for transcription — not only the audio after the wake phrase. Enable only on trusted networks. The feature is opt-in and off by default.
+
+**Browser support:** Chrome / Chromium (full), Safari (partial), Firefox (not supported — toggle is disabled automatically).
 
 ---
 
@@ -261,6 +292,7 @@ This tag is invisible to you — the system processes it automatically. You can 
 | `set_language` | `{"lang": "pt"\|"en"}` | Changes the system language |
 | `toggle_auto_hide_dock` | `{}` | Toggles dock auto-hide |
 | `toggle_tips` | `{}` | Enables/disables system tips |
+| `toggle_agent_mode` | `{}` | Enables/disables Agent Mode |
 
 **Example requests to Hermes:**
 - "Open the terminal"
@@ -322,6 +354,12 @@ The **Settings** application has the following sections:
 
 ### Language
 - **Language & Region**: Portuguese (Brazil) or English (United States). Changes are applied instantly.
+
+### Hermes
+- **AI Model**: select the Gemini model Hermes uses
+- **Agent Mode**: enable always-on voice activation (requires microphone permission)
+- **Spoken replies**: have Hermes read its responses aloud (opt-in)
+- **Wake phrases**: "Hello Hermes", "Oi Hermes", "Hey Hermes"
 
 ### System
 - **System Tips**: enable/disable system tip notifications
@@ -496,6 +534,10 @@ interface LoadedDoc {
 | `Gemini` | Google Generative AI wrapper with API key fallback |
 | `HermesChatService` | Chat state, history, send with streaming |
 | `HermesActionService` | Parse and dispatch `<!--caios:action -->` tags |
+| `AgentModeService` | Agent Mode state machine: listening → awake → processing → speaking |
+| `SpeechRecognitionService` | Web Speech API wrapper with auto-restart and backoff |
+| `SpeechSynthesisService` | Browser TTS wrapper, Markdown stripping |
+| `WakeWordService` | Wake phrase detection with fuzzy matching (Levenshtein ≤ 1) |
 | `AudioPlayer` | HTML `<audio>` wrapper with seek, playlist, and state |
 | `LyricsService` | LRCLIB lyrics fetch, LRC parse, active line tracking |
 | `TerminalCommands` | Terminal command implementations |
@@ -568,6 +610,8 @@ Environment variables are read from `src/.env` by the `mynode.js` script and wri
 | `autoHideDock` | `true` | Dock auto-hide enabled |
 | `tipsEnabled` | `true` | System tips enabled |
 | `geminiModel` | `gemini-flash-lite-latest` | Selected Gemini model |
+| `agentModeEnabled` | `false` | Agent Mode enabled |
+| `agentSpeakReplies` | `false` | Spoken replies enabled |
 | `pinnedAppIds` | `['firefox','files','terminal']` | Apps pinned to dock |
 | `desktopIcons` | `[]` | Apps pinned to desktop |
 

@@ -13,7 +13,8 @@ export type HermesActionType =
   | 'toggle_notification_panel'
   | 'set_language'
   | 'toggle_auto_hide_dock'
-  | 'toggle_tips';
+  | 'toggle_tips'
+  | 'toggle_agent_mode';
 
 export interface OpenAppPayload {
   app: string;

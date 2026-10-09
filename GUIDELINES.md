@@ -247,6 +247,26 @@ This is the only valid command for running tests in this project. It uses `@angu
 
 ---
 
+## 23. Async scheduling
+
+`setTimeout` and `setInterval` are forbidden for deferred-but-immediate work (e.g. deferring a call to the next microtask or the next frame). Use platform APIs that integrate cleanly with Angular's rendering model:
+
+- **`queueMicrotask(fn)`** — defer work to the next microtask checkpoint (replaces `setTimeout(fn, 0)` for same-tick ordering issues, e.g. browser API sequencing bugs)
+- **`window.setTimeout(fn, delay)`** — allowed only for real time-based delays (backoff timers, awake timeouts, countdowns). Must use `window.setTimeout` explicitly so the return type is `number`.
+
+```ts
+// ❌
+setTimeout(() => this.doWork(), 0);
+
+// ✅
+queueMicrotask(() => this.doWork());
+
+// ✅ — real delay, not a scheduling workaround
+this.timer = window.setTimeout(() => this.expire(), TIMEOUT_MS);
+```
+
+---
+
 ## General rules
 
 - No code comments of any kind (inline `//`, block `/* */`, JSDoc `/** */`)

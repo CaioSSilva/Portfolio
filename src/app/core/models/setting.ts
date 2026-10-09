@@ -9,7 +9,7 @@ export interface SystemInfo {
   browser: string;
 }
 
-export type SettingSection = 'appearance' | 'desktop' | 'sound' | 'about' | 'language' | 'system';
+export type SettingSection = 'appearance' | 'desktop' | 'sound' | 'about' | 'language' | 'system' | 'hermes';
 
 export interface SettingConfiguration {
   section: SettingSection;

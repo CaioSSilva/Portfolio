@@ -217,4 +217,30 @@ describe('HermesChatService', () => {
       });
     });
   });
+
+  describe('notifyAgentReply()', () => {
+    it('shows a notification with the reply text', () => {
+      service.notifyAgentReply('Hello from Hermes');
+      expect(notificationsSpy.show).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Hello from Hermes', icon: 'fas fa-robot' }),
+      );
+    });
+
+    it('truncates text longer than 120 characters', () => {
+      const long = 'a'.repeat(130);
+      service.notifyAgentReply(long);
+      const call = (notificationsSpy.show as ReturnType<typeof vi.fn>).mock
+        .calls[0][0] as { message: string };
+      expect(call.message.length).toBeLessThanOrEqual(122);
+      expect(call.message.endsWith('…')).toBe(true);
+    });
+
+    it('does not truncate text of exactly 120 characters', () => {
+      const exact = 'b'.repeat(120);
+      service.notifyAgentReply(exact);
+      const call = (notificationsSpy.show as ReturnType<typeof vi.fn>).mock
+        .calls[0][0] as { message: string };
+      expect(call.message).toBe(exact);
+    });
+  });
 });

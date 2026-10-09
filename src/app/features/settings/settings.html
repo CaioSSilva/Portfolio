@@ -406,6 +406,101 @@
         </div>
       }
 
+      @if (activeSection() === 'hermes') {
+        <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">
+          {{ lang.t().settings.hermes.title }}
+        </h2>
+        <div class="space-y-6">
+          <div
+            class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border"
+          >
+            <div class="p-4 flex items-center justify-between gap-4">
+              <div class="min-w-0">
+                <div class="font-medium">{{ lang.t().settings.hermes.agentMode }}</div>
+                <div class="text-sm text-gnome-text-secondary">
+                  @if (!agentMode.isSecureContext()) {
+                    {{ lang.t().settings.hermes.agentInsecureContext }}
+                  } @else if (!agentMode.isSupported()) {
+                    {{ lang.t().settings.hermes.agentUnsupported }}
+                  } @else {
+                    {{ lang.t().settings.hermes.agentModeDesc }}
+                  }
+                </div>
+              </div>
+              <button
+                (click)="settings.toggleAgentMode()"
+                [disabled]="!agentMode.isSupported()"
+                [attr.aria-label]="lang.t().settings.hermes.agentMode"
+                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                [class.bg-gnome-blue]="settings.agentModeEnabled()"
+                [class.bg-zinc-400]="!settings.agentModeEnabled()"
+              >
+                <div
+                  class="w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm"
+                  [class.translate-x-6]="settings.agentModeEnabled()"
+                  [class.translate-x-0]="!settings.agentModeEnabled()"
+                ></div>
+              </button>
+            </div>
+
+            @if (agentMode.isSupported()) {
+              <div class="p-4 flex items-center justify-between gap-4">
+                <div class="min-w-0">
+                  <div class="font-medium">{{ lang.t().settings.hermes.agentSpeakReplies }}</div>
+                  <div class="text-sm text-gnome-text-secondary">
+                    {{ lang.t().settings.hermes.agentSpeakRepliesDesc }}
+                  </div>
+                </div>
+                <button
+                  (click)="settings.toggleAgentSpeakReplies()"
+                  [attr.aria-label]="lang.t().settings.hermes.agentSpeakReplies"
+                  class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer shrink-0"
+                  [class.bg-gnome-blue]="settings.agentSpeakReplies()"
+                  [class.bg-zinc-400]="!settings.agentSpeakReplies()"
+                >
+                  <div
+                    class="w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm"
+                    [class.translate-x-6]="settings.agentSpeakReplies()"
+                    [class.translate-x-0]="!settings.agentSpeakReplies()"
+                  ></div>
+                </button>
+              </div>
+            }
+          </div>
+
+          @if (agentMode.isSupported()) {
+            <div class="bg-gnome-surface rounded-xl border border-gnome-border p-4">
+              <div
+                class="text-xs uppercase tracking-[0.2em] text-gnome-text-secondary mb-3 font-bold"
+              >
+                {{ lang.t().settings.hermes.agentWakePhrases }}
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="px-3 py-1 rounded-full bg-gnome-blue/10 text-gnome-blue text-xs font-semibold border border-gnome-blue/20"
+                  >"Hello Hermes"</span
+                >
+                <span
+                  class="px-3 py-1 rounded-full bg-gnome-blue/10 text-gnome-blue text-xs font-semibold border border-gnome-blue/20"
+                  >"Oi Hermes"</span
+                >
+                <span
+                  class="px-3 py-1 rounded-full bg-gnome-blue/10 text-gnome-blue text-xs font-semibold border border-gnome-blue/20"
+                  >"Hey Hermes"</span
+                >
+              </div>
+            </div>
+
+            <div class="flex gap-2 items-start px-1 opacity-70">
+              <i class="fas fa-shield-halved text-[11px] mt-0.5 text-gnome-blue shrink-0"></i>
+              <p class="text-[11px] text-gnome-text-secondary leading-snug">
+                {{ lang.t().settings.hermes.agentPrivacyNote }}
+              </p>
+            </div>
+          }
+        </div>
+      }
+
       @if (activeSection() === 'about') {
         <h2 class="text-2xl @min-[680px]:text-3xl font-bold mb-6 @min-[680px]:mb-8">
           {{ lang.t().settings.about.title }}
