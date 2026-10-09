@@ -20,6 +20,8 @@ export class Settings {
   readonly geminiModel = signal<string>(
     this.migrateModel(this.load('geminiModel', 'gemini-flash-lite-latest')),
   );
+  readonly agentModeEnabled = signal<boolean>(this.load('agentModeEnabled', false));
+  readonly agentSpeakReplies = signal<boolean>(this.load('agentSpeakReplies', false));
 
   private readonly desktopWallpaper = signal<string>(
     this.load('wallpaper', '/wallpapers/desktop/default.webp'),
@@ -41,6 +43,8 @@ export class Settings {
     effect(() => this.save('soundMuted', this.systemMuted()));
     effect(() => this.save('tipsEnabled', this.tipsEnabled()));
     effect(() => this.save('geminiModel', this.geminiModel()));
+    effect(() => this.save('agentModeEnabled', this.agentModeEnabled()));
+    effect(() => this.save('agentSpeakReplies', this.agentSpeakReplies()));
   }
 
   setWallpaper(path: string): void {
@@ -73,6 +77,18 @@ export class Settings {
 
   toggleSystemSounds(): void {
     this.systemMuted.update((value) => !value);
+  }
+
+  toggleAgentMode(): void {
+    this.agentModeEnabled.update((value) => !value);
+  }
+
+  disableAgentMode(): void {
+    this.agentModeEnabled.set(false);
+  }
+
+  toggleAgentSpeakReplies(): void {
+    this.agentSpeakReplies.update((value) => !value);
   }
 
   private migrateModel(model: string): string {

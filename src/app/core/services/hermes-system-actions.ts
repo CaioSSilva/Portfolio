@@ -45,6 +45,9 @@ export class HermesSystemActionsService {
       case 'toggle_tips':
         this.settings.toggleSystemTips();
         break;
+      case 'toggle_agent_mode':
+        this.settings.toggleAgentMode();
+        break;
     }
   }
 

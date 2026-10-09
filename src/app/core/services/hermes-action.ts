@@ -23,6 +23,7 @@ const SYSTEM_ACTION_TYPES: HermesActionType[] = [
   'play_sound',
   'toggle_auto_hide_dock',
   'toggle_tips',
+  'toggle_agent_mode',
 ];
 
 @Injectable({ providedIn: 'root' })

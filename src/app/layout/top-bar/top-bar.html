@@ -92,6 +92,26 @@
     }
   </div>
   <div class="flex items-center gap-2">
+    @if (settings.agentModeEnabled() && agentMode.isSupported()) {
+      <button
+        (click)="agentMode.toggleAgentMode()"
+        [attr.aria-label]="lang.t().settings.hermes.agentActive"
+        class="flex items-center justify-center w-7 h-7 rounded-full transition-colors outline-none border-none cursor-pointer active:scale-90"
+        [class.bg-gnome-blue/20]="agentMode.state() === 'listening'"
+        [class.bg-gnome-blue]="agentMode.state() === 'awake' || agentMode.state() === 'processing' || agentMode.state() === 'speaking'"
+        [class.text-white]="agentMode.state() === 'awake' || agentMode.state() === 'processing' || agentMode.state() === 'speaking'"
+        [class.text-gnome-blue]="agentMode.state() === 'listening'"
+        [class.animate-pulse]="agentMode.state() === 'awake'"
+      >
+        @if (agentMode.state() === 'processing') {
+          <i class="fas fa-circle-notch fa-spin" style="font-size: 10px"></i>
+        } @else if (agentMode.state() === 'speaking') {
+          <i class="fas fa-volume-high" style="font-size: 10px"></i>
+        } @else {
+          <i class="fas fa-microphone" style="font-size: 10px"></i>
+        }
+      </button>
+    }
     <div
       class="flex items-center gap-1 bg-gnome-text/5 p-0.5 rounded-full border border-gnome-border/10"
     >

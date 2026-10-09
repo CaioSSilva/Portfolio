@@ -226,11 +226,42 @@ O Hermes é o assistente inteligente integrado ao Cai_OS, alimentado pelo Google
 - Seletor de modelo Gemini (clique no nome do modelo exibido acima do campo de texto para abrir o seletor)
 - Histórico de conversa (mantém as últimas 6 mensagens como contexto)
 - Fallback automático para chave API secundária em caso de erro 404/429
+- **Modo Agente** — ativação por voz com palavra-chave (veja abaixo)
 
 **Como usar:**
 1. Abra o aplicativo **Hermes** pelo dock ou pela grade de apps
 2. Digite uma mensagem ou faça uma pergunta
 3. Opcionalmente, anexe uma imagem clicando no ícone de imagem à esquerda do campo de texto
+
+### Modo Agente
+
+O Modo Agente permite que o Hermes escute passivamente e seja ativado por voz a qualquer momento — sem precisar abrir a janela do Hermes.
+
+**Como ativar:**
+Ajustes → Hermes → Ativar Modo Agente (requer permissão de microfone).
+
+**Frases de ativação:** "Oi Hermes", "Hello Hermes", "Hey Hermes"
+
+**Comandos inline:** diga a frase de ativação seguida do comando, ex.: *"Oi Hermes, abre o terminal"* — sem precisar aguardar uma segunda fala.
+
+**Respostas em voz (opt-in):** ative Ajustes → Hermes → Respostas em voz para que o Hermes leia suas respostas em voz alta.
+
+**Desativar:** diga *"para de ouvir"* ou *"stop listening"* a qualquer momento, ou clique no ícone de microfone na barra superior.
+
+**Ícone na barra superior (direita):**
+
+| Estado | Ícone | Visual |
+|---|---|---|
+| Ouvindo | Microfone | Fundo azul discreto |
+| Acordado (aguardando comando) | Microfone | Azul sólido, pulsando |
+| Processando | Círculo girando | Azul sólido |
+| Falando | Alto-falante | Azul sólido |
+
+Clicar no ícone desativa o Modo Agente.
+
+**Privacidade:** o Modo Agente usa a Web Speech API do navegador. No Chrome, o áudio é enviado para os servidores do Google — e não apenas o áudio após a palavra-chave. Ative somente em redes confiáveis. A funcionalidade é opt-in e desativada por padrão.
+
+**Suporte:** Chrome/Chromium (completo), Safari (parcial), Firefox (não suportado — o botão é desativado automaticamente).
 
 ---
 
@@ -261,6 +292,7 @@ Essa tag é invisível para você — o sistema a processa automaticamente. Voc�
 | `set_language` | `{"lang": "pt"\|"en"}` | Muda o idioma do sistema |
 | `toggle_auto_hide_dock` | `{}` | Ativa/desativa o auto-ocultamento do dock |
 | `toggle_tips` | `{}` | Ativa/desativa as dicas do sistema |
+| `toggle_agent_mode` | `{}` | Ativa/desativa o Modo Agente |
 
 **Exemplos de pedidos ao Hermes:**
 - "Abra o terminal"
@@ -322,6 +354,12 @@ O aplicativo **Ajustes** possui as seguintes seções:
 
 ### Idioma
 - **Idioma & Região**: Português (Brasil) ou English (United States). A mudança é aplicada instantaneamente.
+
+### Hermes
+- **Modelo de IA**: selecione o modelo Gemini que o Hermes utiliza
+- **Modo Agente**: ativa ativação por voz (requer permissão de microfone)
+- **Respostas em voz**: o Hermes lê suas respostas em voz alta (opt-in)
+- **Frases de ativação**: "Oi Hermes", "Hello Hermes", "Hey Hermes"
 
 ### Sistema
 - **Dicas do sistema**: ativa/desativa as notificações de dicas
@@ -496,6 +534,10 @@ interface LoadedDoc {
 | `Gemini` | Wrapper da API Google Generative AI com fallback de chave |
 | `HermesChatService` | Estado do chat, histórico, envio com streaming |
 | `HermesActionService` | Parse e dispatch de tags `<!--caios:action -->` |
+| `AgentModeService` | Máquina de estados do Modo Agente: ouvindo → acordado → processando → falando |
+| `SpeechRecognitionService` | Wrapper da Web Speech API com reinício automático e backoff |
+| `SpeechSynthesisService` | Wrapper de TTS do navegador com remoção de Markdown |
+| `WakeWordService` | Detecção de palavra-chave com correspondência fuzzy (Levenshtein ≤ 1) |
 | `AudioPlayer` | Wrapper do `<audio>` HTML com seek, playlist e estado |
 | `LyricsService` | Busca de letras no LRCLIB, parse LRC, linha ativa |
 | `TerminalCommands` | Implementação dos comandos do terminal |
@@ -568,6 +610,8 @@ As variáveis de ambiente são lidas de `src/.env` pelo script `mynode.js` e esc
 | `autoHideDock` | `true` | Auto-ocultar dock |
 | `tipsEnabled` | `true` | Dicas do sistema ativas |
 | `geminiModel` | `gemini-flash-lite-latest` | Modelo Gemini selecionado |
+| `agentModeEnabled` | `false` | Modo Agente ativo |
+| `agentSpeakReplies` | `false` | Respostas em voz ativas |
 | `pinnedAppIds` | `['firefox','files','terminal']` | Apps fixados no dock |
 | `desktopIcons` | `[]` | Apps fixados no desktop |
 

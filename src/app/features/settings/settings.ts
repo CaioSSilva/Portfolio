@@ -15,6 +15,7 @@ import { LanguageService } from '../../core/services/language';
 import { ScreenService } from '../../core/services/screen';
 import { SystemInfoService } from '../../core/services/system-info';
 import { APP_VERSION } from '../../core/version';
+import { AgentModeService } from '../../core/services/agent-mode';
 
 @Component({
   selector: 'app-settings',
@@ -32,6 +33,7 @@ export class SettingsComponent extends Base {
   readonly settings = inject(Settings);
   readonly lang = inject(LanguageService);
   readonly screen = inject(ScreenService);
+  readonly agentMode = inject(AgentModeService);
 
   readonly version = APP_VERSION;
 
@@ -54,6 +56,11 @@ export class SettingsComponent extends Base {
         id: 'sound' as SettingSection,
         icon: 'fas fa-volume-up',
         label: this.lang.t().settings.sound.title,
+      },
+      {
+        id: 'hermes' as SettingSection,
+        icon: 'fas fa-robot',
+        label: this.lang.t().settings.hermes.title,
       },
       {
         id: 'language' as SettingSection,
