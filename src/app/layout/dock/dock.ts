@@ -1,4 +1,4 @@
-import { Component, inject, NgZone, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DockService } from '../../core/services/dock';
 import { Apps } from '../../core/services/apps';
 import { ProcessManager } from '../../core/services/process-manager';
@@ -17,7 +17,6 @@ import { DockItem } from '../../core/models/dock';
 })
 export class Dock {
   private readonly contextMenu = inject(ContextMenuService);
-  private readonly ngZone = inject(NgZone);
   readonly dock = inject(DockService);
   readonly apps = inject(Apps);
   readonly processManager = inject(ProcessManager);
@@ -44,7 +43,7 @@ export class Dock {
 
     const btn = event.currentTarget as HTMLElement;
     this.longPressTimer = setTimeout(() => {
-      this.ngZone.run(() => this.apps.openContextMenuAt(btn, appId));
+      this.apps.openContextMenuAt(btn, appId);
     }, 500);
   }
 

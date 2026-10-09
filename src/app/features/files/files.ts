@@ -10,7 +10,6 @@ import {
   computed,
   HostListener,
   ChangeDetectionStrategy,
-  NgZone,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Base } from '../../core/models/base';
@@ -33,7 +32,6 @@ import { ProcessManager } from '../../core/services/process-manager';
 })
 export class Files extends Base {
   private readonly processManager = inject(ProcessManager);
-  private readonly ngZone = inject(NgZone);
   private readonly hostEl = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
   readonly fileSystem = inject(FileSystem);
@@ -110,7 +108,7 @@ export class Files extends Base {
     if (typeof ResizeObserver === 'undefined') return;
     this.resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0]?.contentRect.width ?? 0;
-      this.ngZone.run(() => this.isNarrow.set(width > 0 && width < 680));
+      this.isNarrow.set(width > 0 && width < 680);
     });
     this.resizeObserver.observe(this.hostEl.nativeElement);
     this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());

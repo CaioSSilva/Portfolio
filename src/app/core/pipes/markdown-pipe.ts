@@ -90,66 +90,47 @@ export class MarkdownPipe implements PipeTransform {
     const out: string[] = [];
     let inList = false;
     let inOl = false;
+
     for (const line of lines) {
-      this.processListLine(
-        line,
-        out,
-        (v) => {
-          inList = v;
-        },
-        (v) => {
-          inOl = v;
-        },
-        inList,
-        inOl,
-      );
+      const ulMatch = line.match(/^[-*] (.+)/);
+      const olMatch = line.match(/^\d+\. (.+)/);
+
+      if (ulMatch) {
+        if (inOl) {
+          out.push('</ol>');
+          inOl = false;
+        }
+        if (!inList) {
+          out.push('<ul>');
+          inList = true;
+        }
+        out.push(`<li>${ulMatch[1]}</li>`);
+      } else if (olMatch) {
+        if (inList) {
+          out.push('</ul>');
+          inList = false;
+        }
+        if (!inOl) {
+          out.push('<ol>');
+          inOl = true;
+        }
+        out.push(`<li>${olMatch[1]}</li>`);
+      } else {
+        if (inList) {
+          out.push('</ul>');
+          inList = false;
+        }
+        if (inOl) {
+          out.push('</ol>');
+          inOl = false;
+        }
+        out.push(line);
+      }
     }
+
     if (inList) out.push('</ul>');
     if (inOl) out.push('</ol>');
     return out.join('\n');
-  }
-
-  private processListLine(
-    line: string,
-    out: string[],
-    setList: (v: boolean) => void,
-    setOl: (v: boolean) => void,
-    inList: boolean,
-    inOl: boolean,
-  ): void {
-    const ulMatch = line.match(/^[-*] (.+)/);
-    const olMatch = line.match(/^\d+\. (.+)/);
-    if (ulMatch) {
-      if (inOl) {
-        out.push('</ol>');
-        setOl(false);
-      }
-      if (!inList) {
-        out.push('<ul>');
-        setList(true);
-      }
-      out.push(`<li>${ulMatch[1]}</li>`);
-    } else if (olMatch) {
-      if (inList) {
-        out.push('</ul>');
-        setList(false);
-      }
-      if (!inOl) {
-        out.push('<ol>');
-        setOl(true);
-      }
-      out.push(`<li>${olMatch[1]}</li>`);
-    } else {
-      if (inList) {
-        out.push('</ul>');
-        setList(false);
-      }
-      if (inOl) {
-        out.push('</ol>');
-        setOl(false);
-      }
-      out.push(line);
-    }
   }
 
   private collapseLineBreaks(html: string): string {

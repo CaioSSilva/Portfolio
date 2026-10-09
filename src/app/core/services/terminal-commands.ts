@@ -71,28 +71,15 @@ export class TerminalCommands {
   }
 
   private findParentId(currentId: string): string {
-    if (['home', 'root'].includes(currentId)) return 'root';
-
-    const tree = this.fileSystem.tree();
-    if (!tree) return 'root';
-
-    const findParentRecursive = (node: FileItem, target: string): string | null => {
-      for (const child of node.children || []) {
-        if (child.id === target) return node.id;
-        const found = findParentRecursive(child, target);
-        if (found) return found;
-      }
-      return null;
-    };
-
-    return findParentRecursive(tree, currentId) || 'root';
+    if (currentId === 'home' || currentId === 'root') return 'root';
+    return this.fileSystem.getParentId(currentId) ?? 'root';
   }
 
   private handleLs(path: string): CommandResult {
     const files = this.fileSystem.getChildren(path);
     if (files.length === 0) return { output: '', action: 'NONE' };
 
-    const fileTranslations = this.lang.t().files as Record<string, string>;
+    const fileTranslations = this.lang.t().files;
     const output = files
       .map((file) => {
         const prefix = file.type === 'folder' ? '[DIR] ' : '      ';
@@ -108,11 +95,12 @@ export class TerminalCommands {
     if (!pathArg || pathArg === '~') return { output: '', newPath: 'home', action: 'NONE' };
 
     const targetId = this.resolvePath(pathArg, currentPath);
+    const terminal = this.lang.t().terminal;
     if (!targetId) {
-      return { output: `${this.lang.t().terminal.cdNotFound} ${pathArg}`, action: 'NONE' };
+      return { output: `${terminal.cdNotFound} ${pathArg}`, action: 'NONE' };
     }
     if (targetId.startsWith('NOT_A_DIR:')) {
-      return { output: `${this.lang.t().terminal.cdNotDirectory} ${pathArg}`, action: 'NONE' };
+      return { output: `${terminal.cdNotDirectory} ${pathArg}`, action: 'NONE' };
     }
     return { output: '', newPath: targetId, action: 'NONE' };
   }
@@ -166,13 +154,13 @@ export class TerminalCommands {
   }
 
   private handleWhoAmI(): CommandResult {
-    const whoami = this.lang.t().terminal.whoami;
+    const terminal = this.lang.t().terminal;
     const output = [
       `┌──────────────────────────────────────────`,
-      `│  ${whoami.name}: Caio Souza Silva`,
-      `│  ${whoami.role}: Frontend Developer`,
-      `│  ${whoami.stack}: Angular`,
-      `│  ${whoami.location}: ${this.lang.t().terminal.location}`,
+      `│  ${terminal.whoami.name}: Caio Souza Silva`,
+      `│  ${terminal.whoami.role}: Frontend Developer`,
+      `│  ${terminal.whoami.stack}: Angular`,
+      `│  ${terminal.whoami.location}: ${terminal.location}`,
     ].join('\n');
     return { output, action: 'NONE' };
   }

@@ -62,10 +62,8 @@ export class NotificationService {
     if (timer !== undefined) {
       clearTimeout(timer);
       this.dismissTimers.delete(id);
-      this.history.update((current) => {
-        const notif = this.activeNotifications().find((item) => item.id === id);
-        return notif ? [notif, ...current] : current;
-      });
+      const notif = this.activeNotifications().find((item) => item.id === id);
+      this.history.update((current) => (notif ? [notif, ...current] : current));
     }
     this.activeNotifications.update((items) => items.filter((item) => item.id !== id));
   }

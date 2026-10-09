@@ -3,7 +3,7 @@ import { FileItem } from '../models/file';
 import { LrcLine, LrclibResponse } from '../models/music';
 import { AudioPlayer } from './audio-player';
 
-const LRCLIB_BASE = 'https://lrclib.net/api/get';
+const LRCLIB_SEARCH = 'https://lrclib.net/api/search';
 
 @Injectable({ providedIn: 'root' })
 export class LyricsService {
@@ -119,7 +119,7 @@ export class LyricsService {
     if (duration && isFinite(duration) && duration > 0) {
       params.set('duration', Math.round(duration).toString());
     }
-    const response = await fetch(`${LRCLIB_BASE.replace('/get', '/search')}?${params}`, { signal });
+    const response = await fetch(`${LRCLIB_SEARCH}?${params}`, { signal });
     if (!response.ok) return null;
     const results: LrclibResponse[] = await response.json();
     return (

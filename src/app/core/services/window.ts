@@ -1,22 +1,17 @@
 import { Injectable, NgZone, inject, signal, effect, untracked } from '@angular/core';
 import { Process } from '../models/process';
+import { Rect } from '../models/desktop';
 import { ProcessManager } from './process-manager';
 import { Settings } from './settings';
 import { DockService } from './dock';
 import { ScreenService } from './screen';
 
+export type { Rect };
 export const TOP_BAR_HEIGHT = 32;
 export const MOBILE_NAV_BAR_HEIGHT = 48;
 const MIN_W = 320;
 const MIN_H = 240;
 const SNAP_EDGE = 32;
-
-export interface Rect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 
 @Injectable()
 export class WindowService {
@@ -41,7 +36,7 @@ export class WindowService {
 
   private mouseOffset = { x: 0, y: 0 };
   private rafId: number | null = null;
-  private lastSnapGhost: string | null = null;
+  private lastSnapGhost: Rect | null = null;
   private isBottomOverlapping = false;
 
   constructor() {
@@ -144,14 +139,21 @@ export class WindowService {
 
   private updateSnapGhost(mouseX: number, mouseY: number): void {
     const ghost = this.calculateSnap(mouseX, mouseY);
-    const ghostStr = JSON.stringify(ghost);
+    if (!this.snapGhostChanged(ghost)) return;
+    this.lastSnapGhost = ghost;
+    this.ngZone.run(() => this.snapGhost.set(ghost));
+  }
 
-    if (ghostStr !== this.lastSnapGhost) {
-      this.lastSnapGhost = ghostStr;
-      this.ngZone.run(() => {
-        this.snapGhost.set(ghost);
-      });
-    }
+  private snapGhostChanged(ghost: Rect | null): boolean {
+    const prev = this.lastSnapGhost;
+    if (prev === null && ghost === null) return false;
+    if (prev === null || ghost === null) return true;
+    return (
+      prev.x !== ghost.x ||
+      prev.y !== ghost.y ||
+      prev.width !== ghost.width ||
+      prev.height !== ghost.height
+    );
   }
 
   startResize(event: MouseEvent): void {
@@ -381,9 +383,7 @@ export class WindowService {
   private constrainAndPositionWindow(): void {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-
-    this.rect.width = Math.min(this.rect.width, Math.max(MIN_W, vw - 40));
-    this.rect.height = Math.min(this.rect.height, Math.max(MIN_H, vh - TOP_BAR_HEIGHT - 60));
+    this.clampRectToViewport(vw, vh);
 
     const maxX = Math.max(0, vw - this.rect.width);
     const maxY = Math.max(TOP_BAR_HEIGHT, vh - this.rect.height);

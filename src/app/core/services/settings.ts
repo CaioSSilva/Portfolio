@@ -1,6 +1,13 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { ScreenService } from './screen';
 
+const DEPRECATED_MODELS: Record<string, string> = {
+  'gemini-2.5-flash': 'gemini-flash-lite-latest',
+  'gemini-2.0-flash-lite': 'gemini-flash-lite-latest',
+  'gemini-2.0-flash-lite-latest': 'gemini-flash-lite-latest',
+  'gemini-2.0-flash': 'gemini-flash-lite-latest',
+};
+
 @Injectable({ providedIn: 'root' })
 export class Settings {
   private readonly screen = inject(ScreenService);
@@ -69,13 +76,7 @@ export class Settings {
   }
 
   private migrateModel(model: string): string {
-    const deprecated: Record<string, string> = {
-      'gemini-2.5-flash': 'gemini-flash-lite-latest',
-      'gemini-2.0-flash-lite': 'gemini-flash-lite-latest',
-      'gemini-2.0-flash-lite-latest': 'gemini-flash-lite-latest',
-      'gemini-2.0-flash': 'gemini-flash-lite-latest',
-    };
-    return deprecated[model] ?? model;
+    return DEPRECATED_MODELS[model] ?? model;
   }
 
   private load<T>(key: string, defaultValue: T): T {

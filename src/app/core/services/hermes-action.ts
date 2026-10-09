@@ -12,6 +12,18 @@ import {
 } from '../models/hermes-action';
 
 const ACTION_REGEX = /<!--\s*caios:action\s*([\s\S]*?)\s*-->/g;
+const APP_ACTION_TYPES: HermesActionType[] = ['open_app', 'close_app', 'open_file'];
+const SYSTEM_ACTION_TYPES: HermesActionType[] = [
+  'set_theme',
+  'toggle_theme',
+  'set_wallpaper',
+  'set_dock_size',
+  'set_desktop_size',
+  'toggle_sounds',
+  'play_sound',
+  'toggle_auto_hide_dock',
+  'toggle_tips',
+];
 
 @Injectable({ providedIn: 'root' })
 export class HermesActionService {
@@ -43,33 +55,21 @@ export class HermesActionService {
     try {
       this.dispatchAction(action);
     } catch {
+      const errors = this.lang.t().errors;
       this.notifications.show({
-        title: this.lang.t().errors.systemError,
-        message: this.lang.t().errors.actionExecutionFailed,
+        title: errors.systemError,
+        message: errors.actionExecutionFailed,
         icon: 'fas fa-circle-exclamation',
       });
     }
   }
 
   private dispatchAction(action: HermesAction): void {
-    const appTypes: HermesActionType[] = ['open_app', 'close_app', 'open_file'];
-    const systemTypes: HermesActionType[] = [
-      'set_theme',
-      'toggle_theme',
-      'set_wallpaper',
-      'set_dock_size',
-      'set_desktop_size',
-      'toggle_sounds',
-      'play_sound',
-      'toggle_auto_hide_dock',
-      'toggle_tips',
-    ];
-
-    if (appTypes.includes(action.type)) {
+    if (APP_ACTION_TYPES.includes(action.type)) {
       this.appActions.execute(action);
       return;
     }
-    if (systemTypes.includes(action.type)) {
+    if (SYSTEM_ACTION_TYPES.includes(action.type)) {
       this.systemActions.execute(action);
       return;
     }
@@ -97,9 +97,9 @@ export class HermesActionService {
     const payload = action.payload as ShowNotificationPayload | undefined;
     if (!payload?.title || !payload?.message) throw new Error('Missing notification content');
     this.notifications.show({
-      title: payload.title as string,
-      message: payload.message as string,
-      icon: (payload.icon as string | undefined) || 'fas fa-info-circle',
+      title: payload.title,
+      message: payload.message,
+      icon: payload.icon || 'fas fa-info-circle',
     });
   }
 

@@ -4,14 +4,9 @@ import { environment } from '../../../environments/environment';
 import { LanguageService } from './language';
 import { Settings } from './settings';
 import { HERMES_DOCS } from './hermes-docs';
+import { GenAIFactory, GeminiModel, GeminiModelRaw } from '../models/gemini';
 
-export interface GeminiModel {
-  name: string;
-  displayName: string;
-  description: string;
-}
-
-export type GenAIFactory = (apiKey: string) => Pick<GoogleGenerativeAI, 'getGenerativeModel'>;
+export type { GeminiModel, GenAIFactory };
 
 export const GENAI_FACTORY = new InjectionToken<GenAIFactory>('GENAI_FACTORY', {
   providedIn: 'root',
@@ -58,12 +53,7 @@ export class Gemini {
     );
     if (!response.ok) throw new Error(`Failed to list models: ${response.status}`);
     const data = await response.json();
-    const all: Array<{
-      name: string;
-      displayName: string;
-      description: string;
-      supportedGenerationMethods?: string[];
-    }> = data.models ?? [];
+    const all: GeminiModelRaw[] = data.models ?? [];
     return all
       .filter((model) => model.supportedGenerationMethods?.includes('generateContent'))
       .map((model) => ({

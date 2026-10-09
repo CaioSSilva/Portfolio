@@ -1,16 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { ScreenService } from './screen';
+import { SystemInfo } from '../models/setting';
 
-export interface SystemInfo {
-  os: string;
-  kernel: string;
-  arch: string;
-  cpu: number | string;
-  ram: string;
-  resolution: string;
-  language: string;
-  browser: string;
-}
+export type { SystemInfo };
 
 @Injectable({ providedIn: 'root' })
 export class SystemInfoService {

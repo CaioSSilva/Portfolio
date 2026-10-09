@@ -123,13 +123,15 @@ export class AudioPlayer {
 
   nextTrack(): void {
     const list = this.trackList();
-    const trackIndex = list.findIndex((track) => track.url === this.currentTrack()?.url);
+    const currentUrl = this.currentTrack()?.url;
+    const trackIndex = list.findIndex((track) => track.url === currentUrl);
     if (trackIndex !== -1 && trackIndex < list.length - 1) this.play(list[trackIndex + 1]);
   }
 
   prevTrack(): void {
     const list = this.trackList();
-    const trackIndex = list.findIndex((track) => track.url === this.currentTrack()?.url);
+    const currentUrl = this.currentTrack()?.url;
+    const trackIndex = list.findIndex((track) => track.url === currentUrl);
     trackIndex > 0 ? this.play(list[trackIndex - 1]) : (this.audio.currentTime = 0);
   }
 

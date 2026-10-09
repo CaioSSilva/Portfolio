@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   HostListener,
   inject,
@@ -8,14 +9,13 @@ import {
   untracked,
   viewChild,
   ElementRef,
-  ChangeDetectionStrategy,
 } from '@angular/core';
-import { NotificationService } from './core/services/notification';
 import { ProcessManager } from './core/services/process-manager';
 import { Settings } from './core/services/settings';
 import { Sound } from './core/services/sound';
 import { ScreenService } from './core/services/screen';
 import { Apps } from './core/services/apps';
+import { SystemTips } from './core/services/system-tips';
 import { AppsGrid } from './layout/apps-grid/apps-grid';
 import { Dock } from './layout/dock/dock';
 import { WindowSwitcher } from './layout/window-switcher/window-switcher';
@@ -25,8 +25,6 @@ import { Window } from './shared/ui/window/window';
 import { TopBar } from './layout/top-bar/top-bar';
 import { Boot } from './shared/ui/boot/boot';
 import { Shutdown } from './shared/ui/shutdown/shutdown';
-import { LanguageService } from './core/services/language';
-import { SystemTips } from './core/services/system-tips';
 import { DesktopIcons } from './features/desktop-icons/desktop-icons';
 import { ContextMenu } from './shared/ui/context-menu/context-menu';
 
@@ -34,7 +32,7 @@ import { ContextMenu } from './shared/ui/context-menu/context-menu';
   selector: 'app-root',
   standalone: true,
   templateUrl: './app.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [
     AppsGrid,
     Dock,
@@ -51,8 +49,6 @@ import { ContextMenu } from './shared/ui/context-menu/context-menu';
 })
 export class App {
   private readonly sound = inject(Sound);
-  private readonly lang = inject(LanguageService);
-  private readonly notifications = inject(NotificationService);
   private readonly tipsService = inject(SystemTips);
   private readonly apps = inject(Apps);
   readonly processManager = inject(ProcessManager);

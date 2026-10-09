@@ -161,7 +161,7 @@ describe('FileSystem', () => {
 
   it('should get file extension', () => {
     expect(service.getFileExtension('file.PDF')).toBe('pdf');
-    expect(service.getFileExtension('noextension')).toBe('noextension');
+    expect(service.getFileExtension('noextension')).toBe('');
   });
 
   it('should get folder name by id', async () => {

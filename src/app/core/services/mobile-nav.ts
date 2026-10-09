@@ -27,12 +27,11 @@ export class MobileNavService {
   goHome(): void {
     this.isOverviewOpen.set(false);
     this.apps.isAppsGridOpen.set(false);
-    const processes = this.processManager.processes();
-    processes.forEach((process) => {
-      if (!process.isMinimized) {
-        this.processManager.toggleMinimize(process.id);
-      }
-    });
+    this.minimizeAllVisible();
+  }
+
+  private minimizeAllVisible(): void {
+    this.processManager.minimizeAllVisible();
   }
 
   openAppAndCloseDrawer(app: AppDefinition): void {

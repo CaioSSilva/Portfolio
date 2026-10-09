@@ -52,7 +52,8 @@ export class DocumentLoaderService {
   }
 
   private async resolveFileContent(file: FileItem): Promise<LoadedDoc> {
-    const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+    const dot = file.name.lastIndexOf('.');
+    const ext = dot === -1 ? '' : file.name.slice(dot + 1).toLowerCase();
     if (ext === 'pdf') return { fileType: 'pdf', fileName: file.name, textContent: '' };
     if (ext === 'md' && file.url) {
       const text = await this.fetchText(file.url);

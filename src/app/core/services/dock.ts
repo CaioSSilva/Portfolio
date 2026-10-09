@@ -48,7 +48,7 @@ export class DockService {
     const activeId = this.processManager.activeProcessId();
 
     const itemsMap = this.initializePinnedItems(apps);
-    this.mergeProcessesIntoItems(itemsMap, processes, activeId);
+    this.mergeProcessesIntoItems(itemsMap, processes, activeId, apps);
 
     return Array.from(itemsMap.values());
   });
@@ -68,9 +68,10 @@ export class DockService {
     map: Map<string, DockItem>,
     processes: Process[],
     activeId: string | null,
+    apps: Record<string, AppDefinition | undefined>,
   ): void {
     processes.forEach((process) => {
-      const appDef = this.appRegistry.getAppById(process.appId);
+      const appDef = apps[process.appId];
       if (!appDef) return;
 
       const item = map.get(process.appId) || this.createDockItem(appDef, false);

@@ -6,7 +6,6 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
-  NgZone,
 } from '@angular/core';
 import { Theme } from '../../core/services/theme';
 import { SettingSection } from '../../core/models/setting';
@@ -26,7 +25,6 @@ import { APP_VERSION } from '../../core/version';
   styleUrl: './settings.scss',
 })
 export class SettingsComponent extends Base {
-  private readonly ngZone = inject(NgZone);
   private readonly hostEl = inject(ElementRef<HTMLElement>);
   private readonly destroyRef = inject(DestroyRef);
   private readonly systemInfoService = inject(SystemInfoService);
@@ -101,7 +99,7 @@ export class SettingsComponent extends Base {
     if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver((entries) => {
       const width = entries[0]?.contentRect.width ?? 0;
-      this.ngZone.run(() => this.isNarrow.set(width > 0 && width < 680));
+      this.isNarrow.set(width > 0 && width < 680);
     });
     observer.observe(this.hostEl.nativeElement);
     this.destroyRef.onDestroy(() => observer.disconnect());

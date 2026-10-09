@@ -8,7 +8,6 @@ import {
   effect,
   untracked,
   ChangeDetectionStrategy,
-  NgZone,
 } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { Base, ProcessData } from '../../core/models/base';
@@ -29,7 +28,6 @@ import { ScreenService } from '../../core/services/screen';
 })
 export class Musics extends Base {
   private readonly fileSystem = inject(FileSystem);
-  private readonly ngZone = inject(NgZone);
   private readonly hostEl = inject(ElementRef<HTMLElement>);
   private readonly screen = inject(ScreenService);
   private readonly destroyRef = inject(DestroyRef);
@@ -121,12 +119,10 @@ export class Musics extends Base {
   private handleResize(entries: ResizeObserverEntry[]): void {
     const width = entries[0]?.contentRect.width ?? 0;
     const narrow = width > 0 && width < 680;
-    this.ngZone.run(() => {
-      this.isNarrow.set(narrow);
-      if (narrow && !this.screen.isMobile()) {
-        this.isSidebarOpen.set(false);
-      }
-    });
+    this.isNarrow.set(narrow);
+    if (narrow && !this.screen.isMobile()) {
+      this.isSidebarOpen.set(false);
+    }
   }
 
   private playExternalTrack(external: ProcessData | string): void {

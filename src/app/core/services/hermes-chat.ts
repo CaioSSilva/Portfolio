@@ -21,9 +21,11 @@ export class HermesChatService {
     const recentMessages = this.messages().slice(-MAX_HISTORY_MESSAGES);
     if (recentMessages.length === 0) return '';
 
-    const hermes = this.lang.t().hermes;
+    const t = this.lang.t();
     const formatted = recentMessages
-      .map((msg) => `${msg.role === 'user' ? hermes.roleUser : hermes.roleAssistant}: ${msg.text}`)
+      .map(
+        (msg) => `${msg.role === 'user' ? t.hermes.roleUser : t.hermes.roleAssistant}: ${msg.text}`,
+      )
       .join('\n');
     const header = this.lang.currentLang() === 'pt' ? 'Histórico recente:\n' : 'Recent history:\n';
     return header + formatted;
@@ -66,11 +68,10 @@ export class HermesChatService {
       error.message.includes('429') ||
       error.message.includes('RESOURCE_EXHAUSTED');
 
+    const errors = this.lang.t().errors;
     this.notifications.show({
-      title: this.lang.t().errors.systemError,
-      message: isModelError
-        ? this.lang.t().errors.modelUnavailable
-        : this.lang.t().errors.serviceUnavailable,
+      title: errors.systemError,
+      message: isModelError ? errors.modelUnavailable : errors.serviceUnavailable,
       icon: isModelError ? 'fas fa-robot' : 'fas fa-circle-exclamation',
       duration: isModelError ? 10000 : 6000,
     });

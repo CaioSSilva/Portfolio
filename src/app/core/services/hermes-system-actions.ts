@@ -57,7 +57,7 @@ export class HermesSystemActionsService {
   private setWallpaper(action: HermesAction): void {
     const payload = action.payload as SetWallpaperPayload | undefined;
     if (!payload?.path) throw new Error('Missing wallpaper path');
-    this.settings.setWallpaper(payload.path as string);
+    this.settings.setWallpaper(payload.path);
   }
 
   private setDockSize(action: HermesAction): void {
@@ -75,6 +75,6 @@ export class HermesSystemActionsService {
   private playSound(action: HermesAction): void {
     const payload = action.payload as PlaySoundPayload | undefined;
     if (!payload?.sound) throw new Error('Missing sound name');
-    this.sound.play(payload.sound as string);
+    this.sound.play(payload.sound);
   }
 }

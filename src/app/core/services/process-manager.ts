@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, NgZone, signal, Type } from '@angular/core';
+import { computed, inject, Injectable, signal, Type, untracked } from '@angular/core';
 import { AppBase, Base, ProcessData } from '../models/base';
 import { AppDefinition } from '../models/dock';
 import { Process } from '../models/process';
@@ -14,7 +14,6 @@ export class ProcessManager {
   private readonly fileSystem = inject(FileSystem);
   private readonly notifications = inject(NotificationService);
   private readonly appRegistry = inject(AppRegistry);
-  private readonly ngZone = inject(NgZone);
 
   readonly processes = signal<Process[]>([]);
   private readonly topOverlapCounter = signal<number>(0);
@@ -26,43 +25,57 @@ export class ProcessManager {
   readonly hasActiveProcesses = computed(() => this.processes().length > 0);
 
   readonly activeProcessId = computed(() => {
-    const visible = this.processes()
-      .filter((proc) => !proc.isMinimized)
-      .sort((a, b) => b.zIndex - a.zIndex);
-    return visible[0]?.id || null;
+    let topId: string | null = null;
+    let topZ = -1;
+    for (const proc of this.processes()) {
+      if (!proc.isMinimized && proc.zIndex > topZ) {
+        topZ = proc.zIndex;
+        topId = proc.id;
+      }
+    }
+    return topId;
   });
 
-  open(app: AppBase, data?: ProcessData): void {
-    this.ngZone.run(() => {
-      const existing = this.processes().find((proc) => proc.appId === app.id);
-      if (existing) {
-        if (data) {
-          this.processes.update((current) =>
-            current.map((proc) => (proc.id === existing.id ? { ...proc, data } : proc)),
-          );
-        }
-        this.focus(existing.id);
-        return;
+  open(app: AppDefinition, data?: ProcessData): void {
+    const existing = untracked(() => this.processes().find((proc) => proc.appId === app.id));
+    if (existing) {
+      if (data) {
+        this.processes.update((current) =>
+          current.map((proc) => (proc.id === existing.id ? { ...proc, data } : proc)),
+        );
       }
-      this.spawn(app, data);
-    });
+      this.focus(existing.id);
+      return;
+    }
+    if (app.loadComponent) {
+      app.loadComponent().then((resolved) => {
+        this.addProcess(app, resolved as AppBase['component'], data);
+      });
+    } else {
+      this.addProcess(app, app.component, data);
+    }
   }
 
-  forceOpen(app: AppBase, data?: ProcessData): void {
-    this.ngZone.run(() => this.spawn(app, data));
+  forceOpen(app: AppDefinition, data?: ProcessData): void {
+    if (app.loadComponent) {
+      app.loadComponent().then((resolved) => {
+        this.addProcess(app, resolved as AppBase['component'], data);
+      });
+    } else {
+      this.addProcess(app, app.component, data);
+    }
   }
 
-  private async spawn(
-    app: AppBase & { loadComponent?: () => Promise<AppBase['component']> },
-    data?: ProcessData,
-  ): Promise<void> {
-    const component = app.loadComponent
-      ? ((await app.loadComponent()) as AppBase['component'])
-      : app.component;
+  private addProcess(app: AppBase, component: AppBase['component'], data?: ProcessData): void {
     const id = this.generateId();
-    this.ngZone.run(() => {
-      const maxZ = this.processes().reduce((max, item) => Math.max(max, item.zIndex), 100);
-      const newProcess: Process = {
+    const current = untracked(() => this.processes());
+    let maxZ = 100;
+    for (const item of current) {
+      if (item.zIndex > maxZ) maxZ = item.zIndex;
+    }
+    this.processes.update((list) => [
+      ...list,
+      {
         ...app,
         component,
         appId: app.id,
@@ -72,35 +85,27 @@ export class ProcessManager {
         zIndex: maxZ + 1,
         cascadeIndex: this.globalCascadeIndex++,
         data: data || { id },
-      };
-      this.processes.update((current) => [...current, newProcess]);
-    });
+      },
+    ]);
   }
 
   openFile(node: FileItem): void {
     if (!node.url) return;
 
-    const handler = this.findHandlerForFile(node.name);
+    const extension = this.fileSystem.getFileExtension(node.name);
+    const handler = this.appRegistry.findHandlerForExtension(extension);
 
     if (handler) {
-      this.handleAudioSingleton(node.name, handler.id);
+      this.handleAudioSingleton(extension, handler.id);
       this.open(handler, { url: node.url, title: node.name });
     } else {
       this.showNoHandlerError();
     }
   }
 
-  private findHandlerForFile(fileName: string): AppDefinition | undefined {
-    const extension = this.fileSystem.getFileExtension(fileName);
-    return this.appRegistry.findHandlerForExtension(extension);
-  }
-
-  private handleAudioSingleton(fileName: string, musicAppId: string): void {
-    const ext = this.fileSystem.getFileExtension(fileName);
-    const isAudio = AUDIO_EXTENSIONS.includes(ext);
-    if (!isAudio) return;
-
-    const existing = this.processes().find((proc) => proc.appId === musicAppId);
+  private handleAudioSingleton(extension: string, musicAppId: string): void {
+    if (!AUDIO_EXTENSIONS.includes(extension)) return;
+    const existing = untracked(() => this.processes().find((proc) => proc.appId === musicAppId));
     if (existing) this.close(existing.id);
   }
 
@@ -114,8 +119,12 @@ export class ProcessManager {
 
   focus(processId: string): void {
     this.processes.update((current) => {
-      const target = current.find((item) => item.id === processId);
-      const maxZ = current.reduce((max, item) => Math.max(max, item.zIndex), 0);
+      let maxZ = 0;
+      let target: Process | undefined;
+      for (const item of current) {
+        if (item.zIndex > maxZ) maxZ = item.zIndex;
+        if (item.id === processId) target = item;
+      }
       if (target && target.zIndex === maxZ && !target.isMinimized) return current;
 
       return current.map((item) =>
@@ -126,7 +135,10 @@ export class ProcessManager {
 
   toggleMinimize(processId: string): void {
     this.processes.update((current) => {
-      const maxZ = current.reduce((max, item) => Math.max(max, item.zIndex), 0);
+      let maxZ = 0;
+      for (const item of current) {
+        if (item.zIndex > maxZ) maxZ = item.zIndex;
+      }
       return current.map((proc) => {
         if (proc.id !== processId) return proc;
         const willMinimize = !proc.isMinimized;
@@ -137,6 +149,12 @@ export class ProcessManager {
         };
       });
     });
+  }
+
+  minimizeAllVisible(): void {
+    this.processes.update((current) =>
+      current.map((proc) => (proc.isMinimized ? proc : { ...proc, isMinimized: true })),
+    );
   }
 
   updateTopOverlap(isOverlapping: boolean): void {
@@ -150,19 +168,14 @@ export class ProcessManager {
   }
 
   private generateId(): string {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-      return crypto.randomUUID();
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
-      const nibble = (Math.random() * 16) | 0;
-      return (char === 'x' ? nibble : (nibble & 0x3) | 0x8).toString(16);
-    });
+    return crypto.randomUUID();
   }
 
   private showNoHandlerError(): void {
+    const errors = this.lang.t().errors;
     this.notifications.show({
-      title: this.lang.t().errors.systemError,
-      message: this.lang.t().errors.noFileHandler,
+      title: errors.systemError,
+      message: errors.noFileHandler,
       icon: 'fas fa-circle-exclamation',
     });
   }
@@ -174,7 +187,6 @@ export class ProcessManager {
   isActiveComponent(component: Type<Base>): boolean {
     const activeId = this.activeProcessId();
     if (!activeId) return false;
-    const active = this.processes().find((proc) => proc.id === activeId);
-    return active?.component === component;
+    return this.processes().some((proc) => proc.id === activeId && proc.component === component);
   }
 }

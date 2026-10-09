@@ -1,11 +1,4 @@
-import {
-  Component,
-  inject,
-  computed,
-  NgZone,
-  signal,
-  ChangeDetectionStrategy,
-} from '@angular/core';
+import { Component, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ProcessManager } from '../../core/services/process-manager';
 import { MobileNavService } from '../../core/services/mobile-nav';
 import { LanguageService } from '../../core/services/language';
@@ -20,25 +13,22 @@ import { Process } from '../../core/models/process';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MobileOverview {
-  private readonly ngZone = inject(NgZone);
   readonly processManager = inject(ProcessManager);
   readonly nav = inject(MobileNavService);
   readonly lang = inject(LanguageService);
 
+  readonly swipeOffsets = signal<Record<string, number>>({});
+  readonly dismissing = signal<Record<string, boolean>>({});
+  readonly processes = computed(() =>
+    [...this.processManager.processes()].sort((a, b) => b.zIndex - a.zIndex),
+  );
+
   private backdropTouchStartX = 0;
   private backdropTouchStartY = 0;
-
   private touchStartX = 0;
   private touchStartY = 0;
   private touchStartTime = 0;
   private lastTapTime = 0;
-
-  readonly swipeOffsets = signal<Record<string, number>>({});
-  readonly dismissing = signal<Record<string, boolean>>({});
-
-  readonly processes = computed(() => {
-    return [...this.processManager.processes()].sort((a, b) => b.zIndex - a.zIndex);
-  });
 
   onBackdropTouchStart(event: TouchEvent): void {
     this.backdropTouchStartX = event.touches[0].clientX;
@@ -50,12 +40,12 @@ export class MobileOverview {
     const dy = Math.abs(event.changedTouches[0].clientY - this.backdropTouchStartY);
     if (dx < 10 && dy < 10) {
       event.stopPropagation();
-      this.ngZone.run(() => this.nav.closeOverview());
+      this.nav.closeOverview();
     }
   }
 
-  onBackdropClick(event: MouseEvent): void {
-    this.ngZone.run(() => this.nav.closeOverview());
+  onBackdropClick(_event: MouseEvent): void {
+    this.nav.closeOverview();
   }
 
   onCardTouchStart(event: TouchEvent, proc: Process): void {
@@ -79,17 +69,15 @@ export class MobileOverview {
     const duration = Date.now() - this.touchStartTime;
     if (dy < -80 || (dy < -40 && duration < 300)) {
       event.stopPropagation();
-      this.ngZone.run(() => this.dismissCard(proc));
+      this.dismissCard(proc);
       return;
     }
     this.setOffset(proc.id, 0);
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && duration < 400) {
       this.lastTapTime = Date.now();
       event.stopPropagation();
-      this.ngZone.run(() => {
-        this.processManager.focus(proc.id);
-        this.nav.closeOverview();
-      });
+      this.processManager.focus(proc.id);
+      this.nav.closeOverview();
     }
   }
 
@@ -136,12 +124,10 @@ export class MobileOverview {
     this.setOffset(proc.id, -600);
     this.dismissing.update((map) => ({ ...map, [proc.id]: true }));
     setTimeout(() => {
-      this.ngZone.run(() => {
-        this.processManager.close(proc.id);
-        if (this.processManager.processes().length === 0) {
-          this.nav.closeOverview();
-        }
-      });
+      this.processManager.close(proc.id);
+      if (this.processManager.processes().length === 0) {
+        this.nav.closeOverview();
+      }
     }, 280);
   }
 

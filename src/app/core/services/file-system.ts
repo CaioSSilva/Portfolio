@@ -21,6 +21,7 @@ export class FileSystem {
 
   private readonly nodeMap = new Map<string, FileItem>();
   private readonly parentMap = new Map<string, string>();
+  private readonly urlMap = new Map<string, FileItem>();
   private readonly searchIndex = new Map<string, Set<FileItem>>();
   private readonly sizeFormatCache = new Map<string, string>();
   private loadPromise?: Promise<void>;
@@ -48,6 +49,7 @@ export class FileSystem {
 
   private processNodeRecursively(node: FileItem): void {
     this.nodeMap.set(node.id, node);
+    if (node.url) this.urlMap.set(node.url, node);
     this.updateSearchIndex(node);
     node.children?.forEach((child) => {
       this.parentMap.set(child.id, node.id);
@@ -62,8 +64,12 @@ export class FileSystem {
       .filter((term) => term.length > 1);
 
     terms.forEach((term) => {
-      if (!this.searchIndex.has(term)) this.searchIndex.set(term, new Set());
-      this.searchIndex.get(term)!.add(node);
+      const existing = this.searchIndex.get(term);
+      if (existing) {
+        existing.add(node);
+      } else {
+        this.searchIndex.set(term, new Set<FileItem>([node]));
+      }
     });
   }
 
@@ -132,13 +138,9 @@ export class FileSystem {
     const units = this.lang.t().units;
     if (bytes === 0) return `0 ${units.bytes}`;
 
-    const kilobyte = 1024;
     const unitList = [units.bytes, units.kb, units.mb, units.gb];
-    const unitIndex = Math.min(
-      Math.floor(Math.log(bytes) / Math.log(kilobyte)),
-      unitList.length - 1,
-    );
-    const size = (bytes / Math.pow(kilobyte, unitIndex)).toFixed(1);
+    const unitIndex = Math.min(Math.floor(Math.log2(bytes) / 10), unitList.length - 1);
+    const size = (bytes / (1 << (unitIndex * 10))).toFixed(1);
 
     return `${size} ${unitList[unitIndex]}`;
   }
@@ -156,6 +158,10 @@ export class FileSystem {
       : (node.children || []).reduce((acc, child) => acc + this.countFiles(child), 0);
   }
 
+  getParentId(childId: string): string | undefined {
+    return this.parentMap.get(childId);
+  }
+
   private findParent(childId: string): FileItem | undefined {
     const parentId = this.parentMap.get(childId);
     return parentId ? this.nodeMap.get(parentId) : undefined;
@@ -169,9 +175,10 @@ export class FileSystem {
   private handleLoadError(): void {
     this.error.set('load_failed');
     this.loadPromise = undefined;
+    const errors = this.lang.t().errors;
     this.notifications.show({
-      title: this.lang.t().errors.systemError,
-      message: this.lang.t().errors.enableToLoadFs,
+      title: errors.systemError,
+      message: errors.enableToLoadFs,
       icon: 'fas fa-circle-exclamation',
     });
   }
@@ -185,7 +192,8 @@ export class FileSystem {
   }
 
   getFileExtension(fileName: string): string {
-    return fileName.split('.').pop()?.toLowerCase() || '';
+    const dot = fileName.lastIndexOf('.');
+    return dot === -1 ? '' : fileName.slice(dot + 1).toLowerCase();
   }
 
   getFilesByExtensions(extensions: string[]): FileItem[] {
@@ -198,7 +206,7 @@ export class FileSystem {
 
   getSiblingsByUrl(url: string, extensions: string[]): FileItem[] {
     const targetExts = new Set(extensions.map((ext) => ext.toLowerCase()));
-    const targetNode = Array.from(this.nodeMap.values()).find((node) => node.url === url);
+    const targetNode = this.urlMap.get(url);
     if (!targetNode) return this.getFilesByExtensions(extensions);
 
     const parent = this.findParent(targetNode.id);

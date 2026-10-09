@@ -1,4 +1,4 @@
-import { Component, inject, NgZone, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { AppDefinition } from '../../core/models/dock';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
@@ -13,7 +13,6 @@ import { ScreenService } from '../../core/services/screen';
   styleUrl: './apps-grid.scss',
 })
 export class AppsGrid {
-  private readonly ngZone = inject(NgZone);
   readonly appsService = inject(Apps);
   readonly contextMenu = inject(ContextMenuService);
   readonly lang = inject(LanguageService);
@@ -23,7 +22,6 @@ export class AppsGrid {
   private touchStartY = 0;
   private touchStartTime = 0;
   private longPressTimer: ReturnType<typeof setTimeout> | null = null;
-  private longPressApp: AppDefinition | null = null;
 
   onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -44,11 +42,10 @@ export class AppsGrid {
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
     this.touchStartTime = Date.now();
-    this.longPressApp = app;
 
     const btn = event.currentTarget as HTMLElement;
     this.longPressTimer = setTimeout(() => {
-      this.ngZone.run(() => this.appsService.openContextMenuAt(btn, app.id));
+      this.appsService.openContextMenuAt(btn, app.id);
     }, 500);
   }
 
@@ -67,7 +64,7 @@ export class AppsGrid {
     if (dx < 10 && dy < 10 && duration < 400) {
       event.stopPropagation();
       event.preventDefault();
-      this.ngZone.run(() => this.appsService.openApp(app));
+      this.appsService.openApp(app);
     }
   }
 

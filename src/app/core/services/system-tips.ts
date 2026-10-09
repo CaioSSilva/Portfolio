@@ -12,8 +12,8 @@ export class SystemTips {
   private readonly screen = inject(ScreenService);
 
   private timeoutId: ReturnType<typeof setTimeout> | null = null;
-  private shownDesktopIndexes: Set<number> = new Set();
-  private shownMobileIndexes: Set<number> = new Set();
+  private readonly shownDesktopIndexes: Set<number> = new Set();
+  private readonly shownMobileIndexes: Set<number> = new Set();
 
   constructor() {
     effect(() => {
@@ -53,10 +53,9 @@ export class SystemTips {
 
   private showRandomTip(): void {
     const translations = this.lang.t();
-    const pool = this.screen.isMobile()
-      ? translations.systemTips.mobile
-      : translations.systemTips.desktop;
-    const message = this.getNextTipMessage(pool);
+    const isMobile = this.screen.isMobile();
+    const pool = isMobile ? translations.systemTips.mobile : translations.systemTips.desktop;
+    const message = this.getNextTipMessage(pool, isMobile);
 
     if (!message) return;
 
@@ -67,24 +66,21 @@ export class SystemTips {
     });
   }
 
-  private getNextTipMessage(pool: Record<string, string>): string | null {
+  private getNextTipMessage(pool: Record<string, string>, isMobile: boolean): string | null {
     const values = Object.values(pool);
     if (values.length === 0) return null;
 
-    const seen = this.screen.isMobile() ? this.shownMobileIndexes : this.shownDesktopIndexes;
+    const seen = isMobile ? this.shownMobileIndexes : this.shownDesktopIndexes;
+    if (seen.size >= values.length) seen.clear();
 
-    if (seen.size >= values.length) {
-      seen.clear();
+    const unseenIndices: number[] = [];
+    for (let i = 0; i < values.length; i++) {
+      if (!seen.has(i)) unseenIndices.push(i);
     }
 
-    const remaining = values
-      .map((value, index) => ({ value, index }))
-      .filter(({ index }) => !seen.has(index));
-
-    const pick = remaining[Math.floor(Math.random() * remaining.length)];
-    seen.add(pick.index);
-
-    return pick.value;
+    const pick = unseenIndices[Math.floor(Math.random() * unseenIndices.length)];
+    seen.add(pick);
+    return values[pick];
   }
 
   private calculateNextDelay(isFirst: boolean): number {
