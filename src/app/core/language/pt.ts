@@ -371,7 +371,8 @@ export const pt = {
       snapTop: 'Arraste uma janela até o topo da tela para maximizá-la instantaneamente.',
       contextMenu:
         'Clique com o botão direito na Dock ou nos ícones da área de trabalho para ver ações rápidas.',
-      dockDrag: 'Arraste um app diretamente do menu de aplicativos para a Dock para fixá-lo.',
+      dockDrag:
+        'Clique com o botão direito em qualquer app na Dock ou na grade de apps para fixá-lo ou desafixá-lo.',
       terminal:
         'No Terminal, use "neofetch" para ver informações do sistema ou "whoami" para saber sobre o criador.',
       terminalOpen:
@@ -383,7 +384,7 @@ export const pt = {
         'Pergunte ao Hermes para ele abrir apps, mudar o tema ou tocar sons — ele controla o sistema.',
       hermesWallpaper: 'Peça ao Hermes para trocar o wallpaper descrevendo o que você quer.',
       desktopIcons:
-        'Clique com o botão direito na área de trabalho para adicionar ou remover atalhos.',
+        'Clique com o botão direito em qualquer app na Dock ou na grade de apps para adicionar ou remover atalhos na área de trabalho.',
       windowResize:
         'Arraste o canto inferior direito de qualquer janela para redimensioná-la livremente.',
       multiWindow:
@@ -400,13 +401,13 @@ export const pt = {
     },
     mobile: {
       swipeOverview:
-        'Deslize de baixo para cima na barra de navegação para ver todos os apps abertos.',
+        'Toque no botão quadrado na barra de navegação inferior para ver todos os apps abertos.',
       swipeClose: 'Na visão geral de apps, deslize um card para cima para fechá-lo rapidamente.',
       tapResume: 'Toque em qualquer card na visão geral para retomar o app de onde parou.',
       allApps:
         'Toque em "Todos os Apps" na barra inferior para acessar a grade completa de aplicativos.',
       hermes:
-        'Peça ao Hermes para abrir apps, mudar o tema ou exibir notificações — tudo por voz ou texto.',
+        'Peça ao Hermes para abrir apps, mudar o tema ou exibir notificações — basta digitar sua solicitação.',
       hermesControl:
         'O Hermes pode controlar o sistema: diga "mude para o tema escuro" e ele fará isso.',
       notifications:

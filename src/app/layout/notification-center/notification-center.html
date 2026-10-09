@@ -1,22 +1,22 @@
 <div
-  class="fixed top-12 left-1/2 -translate-x-1/2 z-[50000] flex flex-col gap-2 pointer-events-none px-4 w-full max-w-sm max-h-[40vh] overflow-hidden"
+  class="fixed top-12 left-1/2 -translate-x-1/2 z-[50000] flex flex-col gap-2.5 pointer-events-none px-4 w-full max-w-md max-h-[40vh] overflow-hidden"
 >
   @if (!notifications.isPanelOpen()) {
     @for (n of notifications.activeNotifications().slice(-4); track n.id) {
       <div
         (click)="n.action?.()"
         [style.cursor]="n.action ? 'pointer' : 'default'"
-        class="flex items-center gap-3 p-3 w-full bg-gnome-bg/95 backdrop-blur-xl border border-gnome-border/40 rounded-2xl shadow-2xl animate-in slide-in-from-top-4 pointer-events-auto"
+        class="flex items-center gap-4 p-4 w-full bg-gnome-bg/95 backdrop-blur-xl border border-gnome-border/40 rounded-2xl shadow-2xl animate-in slide-in-from-top-4 pointer-events-auto"
       >
         <div
-          class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+          class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
           [style.background-color]="n.color"
         >
-          <i [class]="n.icon" class="text-white text-sm"></i>
+          <i [class]="n.icon" class="text-white text-base"></i>
         </div>
-        <div class="flex-1 text-[13px] min-w-0">
-          <div class="font-bold text-gnome-text truncate">{{ n.title }}</div>
-          <div class="text-gnome-text-secondary leading-tight text-xs truncate">
+        <div class="flex-1 min-w-0">
+          <div class="text-[13px] font-bold text-gnome-text truncate">{{ n.title }}</div>
+          <div class="text-[12px] text-gnome-text-secondary leading-tight truncate">
             {{ n.message }}
           </div>
         </div>
@@ -43,7 +43,7 @@
         <div class="w-12 h-1.5 rounded-full bg-white/25 mb-3"></div>
         <div class="w-full flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-gnome-text">
+            <span class="text-[13px] font-bold uppercase tracking-wider text-gnome-text">
               {{ lang.t().notifications.title }}
             </span>
             <span
@@ -57,7 +57,7 @@
             @if (notifications.history().length > 0) {
               <button
                 (click)="notifications.clearHistory()"
-                class="text-xs font-semibold px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gnome-text transition-all cursor-pointer"
+                class="text-[12px] font-semibold px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-gnome-text transition-all cursor-pointer"
               >
                 {{ lang.t().notifications.clearAll }}
               </button>
@@ -72,13 +72,14 @@
           </div>
         </div>
       </div>
+
       <div
         class="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2.5 custom-scrollbar min-h-[160px] max-h-[58vh]"
       >
         @if (notifications.history().length === 0) {
           <div class="flex flex-col items-center justify-center py-12 text-gnome-text-secondary/50">
             <i class="far fa-bell-slash text-3xl mb-2.5 opacity-60"></i>
-            <p class="text-xs font-medium">{{ lang.t().notifications.noNotifications }}</p>
+            <p class="text-[12px] font-medium">{{ lang.t().notifications.noNotifications }}</p>
           </div>
         }
         @for (n of notifications.history(); track n.id) {
@@ -86,28 +87,29 @@
             (click)="n.action?.(); notifications.closePanel()"
             [attr.aria-label]="n.title"
             [disabled]="!n.action"
-            class="w-full text-left bg-gnome-surface/70 active:bg-gnome-surface p-3.5 rounded-2xl flex items-center gap-3.5 border border-gnome-border/40 shadow-xs disabled:cursor-default"
+            class="w-full text-left bg-gnome-surface/70 active:bg-gnome-surface p-3.5 rounded-2xl flex items-center gap-4 border border-gnome-border/40 shadow-xs disabled:cursor-default"
           >
             <div
-              class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+              class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
               [style.background-color]="n.color"
             >
               <i [class]="n.icon" class="text-white text-base"></i>
             </div>
             <div class="flex-1 min-w-0">
               <div class="flex justify-between items-baseline mb-0.5">
-                <span class="text-xs font-bold text-gnome-text truncate">{{ n.title }}</span>
-                <span class="text-[10px] text-gnome-text-secondary font-mono shrink-0 ml-2">
+                <span class="text-[13px] font-bold text-gnome-text truncate">{{ n.title }}</span>
+                <span class="text-[11px] text-gnome-text-secondary font-mono shrink-0 ml-2">
                   {{ formatTimestamp(n.timestamp) }}
                 </span>
               </div>
-              <p class="text-xs text-gnome-text-secondary leading-snug line-clamp-2">
+              <p class="text-[12px] text-gnome-text-secondary leading-snug line-clamp-2">
                 {{ n.message }}
               </p>
             </div>
           </button>
         }
       </div>
+
       <div
         class="pt-2 px-6 flex items-center justify-between text-[11px] text-gnome-text-secondary opacity-70"
       >
@@ -125,14 +127,14 @@
       (click)="$event.stopPropagation()"
     >
       <div
-        class="p-3.5 sm:p-4 border-b border-gnome-border flex justify-between items-center bg-gnome-surface/50"
+        class="px-4 py-3 border-b border-gnome-border flex justify-between items-center bg-gnome-surface/50"
       >
-        <span class="text-[11px] font-bold uppercase tracking-[0.1em] text-gnome-text-secondary">{{
+        <span class="text-[13px] font-bold uppercase tracking-[0.1em] text-gnome-text-secondary">{{
           lang.t().notifications.title
         }}</span>
         <button
           (click)="notifications.clearHistory()"
-          class="text-[11px] cursor-pointer font-medium bg-gnome-surface hover:bg-gnome-border text-gnome-text px-3.5 py-1 rounded-full transition-all active:scale-95 border border-gnome-border/50"
+          class="text-[12px] cursor-pointer font-medium bg-gnome-surface hover:bg-gnome-border text-gnome-text px-3.5 py-1 rounded-full transition-all active:scale-95 border border-gnome-border/50"
         >
           {{ lang.t().notifications.clearAll }}
         </button>
@@ -142,11 +144,9 @@
         class="flex-1 overflow-y-auto p-3 flex flex-col gap-2.5 custom-scrollbar bg-transparent max-h-[300px]"
       >
         @if (notifications.history().length === 0) {
-          <div
-            class="flex flex-col items-center justify-center py-16 sm:py-20 text-gnome-text-secondary/40"
-          >
+          <div class="flex flex-col items-center justify-center py-16 text-gnome-text-secondary/40">
             <i class="fas fa-bell-slash text-4xl mb-3"></i>
-            <p class="text-xs sm:text-sm font-medium">
+            <p class="text-[12px] font-medium">
               {{ lang.t().notifications.noNotifications }}
             </p>
           </div>
@@ -156,26 +156,22 @@
             (click)="n.action?.()"
             [attr.aria-label]="n.title"
             [disabled]="!n.action"
-            class="w-full text-left bg-gnome-surface/60 hover:bg-gnome-surface p-3.5 rounded-2xl flex gap-3.5 transition-all group items-center border border-gnome-border/30 shrink-0 disabled:cursor-default"
+            class="w-full text-left bg-gnome-surface/60 hover:bg-gnome-surface p-3.5 rounded-2xl flex items-center gap-4 transition-all border border-gnome-border/30 shrink-0 disabled:cursor-default"
           >
             <div
-              class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
               [style.background-color]="n.color"
             >
-              <i [class]="n.icon" class="text-white text-sm"></i>
+              <i [class]="n.icon" class="text-white text-base"></i>
             </div>
             <div class="flex-1 min-w-0">
-              <div class="flex justify-between items-start mb-0.5">
-                <span class="text-[12px] sm:text-[13px] font-bold text-gnome-text truncate">{{
-                  n.title
-                }}</span>
-                <span class="text-[10px] text-gnome-text-secondary font-medium shrink-0 ml-2">
+              <div class="flex justify-between items-baseline mb-0.5">
+                <span class="text-[13px] font-bold text-gnome-text truncate">{{ n.title }}</span>
+                <span class="text-[11px] text-gnome-text-secondary font-medium shrink-0 ml-2">
                   {{ formatTimestamp(n.timestamp) }}
                 </span>
               </div>
-              <p
-                class="text-[11px] sm:text-[12px] text-gnome-text-secondary leading-snug line-clamp-2"
-              >
+              <p class="text-[12px] text-gnome-text-secondary leading-snug line-clamp-2">
                 {{ n.message }}
               </p>
             </div>

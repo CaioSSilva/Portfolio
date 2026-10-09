@@ -6,7 +6,9 @@ describe('uuid', () => {
   describe('secure context (randomUUID available)', () => {
     it('delegates to crypto.randomUUID', () => {
       const expected = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee';
-      const spy = vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(expected as ReturnType<typeof crypto.randomUUID>);
+      const spy = vi
+        .spyOn(globalThis.crypto, 'randomUUID')
+        .mockReturnValue(expected as ReturnType<typeof crypto.randomUUID>);
 
       expect(uuid()).toBe(expected);
       expect(spy).toHaveBeenCalledOnce();

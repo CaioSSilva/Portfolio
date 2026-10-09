@@ -367,15 +367,17 @@ export const en = {
       snapCorner: 'Drag a window to any corner to snap it into a 25% quadrant.',
       snapTop: 'Drag a window to the top of the screen to maximize it instantly.',
       contextMenu: 'Right-click the Dock or desktop icons to see quick actions.',
-      dockDrag: 'Drag an app from the app menu directly to the Dock to pin it.',
+      dockDrag: 'Right-click any app in the Dock or app grid to pin or unpin it from the Dock.',
       terminal:
         'In the Terminal, run "neofetch" for system info or "whoami" to learn about the creator.',
       terminalOpen: 'Run "open FileName" in the Terminal to open any file in the system.',
       theme: 'Type "theme" in the Terminal to toggle between light and dark mode instantly.',
       fullscreen: 'Press F11 to enter fullscreen mode for a fully immersive experience.',
-      hermes: 'Ask Hermes to open apps, change the theme, or play sounds — it controls the system.',
+      hermes:
+        'Ask Hermes to open apps, change the theme, or play sounds. It can control the whole system.',
       hermesWallpaper: 'Ask Hermes to change the wallpaper by describing what you want.',
-      desktopIcons: 'Right-click the desktop to add or remove app shortcuts.',
+      desktopIcons:
+        'Right-click any app in the Dock or app grid to add or remove its desktop shortcut.',
       windowResize: 'Drag the bottom-right corner of any window to resize it freely.',
       multiWindow:
         'Open multiple windows of the same app using "New instance" in the context menu.',
@@ -383,20 +385,22 @@ export const en = {
       settings: 'In Settings, you can customize icon size, wallpaper, theme, and much more.',
       settingsSound: 'Enable or disable system sounds in Settings → Sound.',
       files: 'In the Files app, switch between grid and list view using the button at the top.',
-      browser: 'The built-in Firefox supports any URL — try visiting wikipedia.com or github.com.',
+      browser: 'The built-in Firefox supports any URL. Try visiting wikipedia.com or github.com.',
     },
     mobile: {
-      swipeOverview: 'Swipe up from the bottom navigation bar to see all open apps.',
+      swipeOverview: 'Tap the square button in the bottom navigation bar to see all open apps.',
       swipeClose: 'In the app overview, swipe a card upward to close it quickly.',
       tapResume: 'Tap any card in the overview to resume the app right where you left off.',
       allApps: 'Tap "All Apps" in the bottom bar to access the full app grid.',
-      hermes: 'Ask Hermes to open apps, change the theme, or show notifications — all by text.',
-      hermesControl: 'Hermes can control the system: say "switch to dark mode" and it will.',
+      hermes:
+        'Ask Hermes to open apps, change the theme, or show notifications. Just type your request.',
+      hermesControl:
+        'Hermes can control the system. Try saying "switch to dark mode" and watch it happen.',
       notifications: 'Tap the bell icon to see the full notification history of the system.',
       files: 'In the Files app, tap folders to navigate and use the search bar to filter.',
       settings: 'In Settings you can change the wallpaper, language, and toggle sounds.',
-      terminal: 'The Terminal is available on mobile — try "ls", "cd", and "whoami".',
-      music: 'The music player supports synced lyrics — tap "Lyrics" while a song is playing.',
+      terminal: 'The Terminal is available on mobile. Try running "ls", "cd", or "whoami".',
+      music: 'The music player supports synced lyrics. Tap "Lyrics" while a song is playing.',
     },
   },
 
