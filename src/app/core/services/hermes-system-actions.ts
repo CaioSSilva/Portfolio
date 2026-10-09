@@ -4,6 +4,7 @@ import { Settings } from './settings';
 import { Sound } from './sound';
 import { AudioPlayer } from './audio-player';
 import { FileSystem } from './file-system';
+import { ProcessManager } from './process-manager';
 import {
   HermesAction,
   SetThemePayload,
@@ -21,6 +22,7 @@ export class HermesSystemActionsService {
   private readonly sound = inject(Sound);
   private readonly audioPlayer = inject(AudioPlayer);
   private readonly fileSystem = inject(FileSystem);
+  private readonly processManager = inject(ProcessManager);
 
   execute(action: HermesAction): void {
     switch (action.type) {
@@ -125,8 +127,7 @@ export class HermesSystemActionsService {
         this.fileSystem.getFileExtension(fileItem.name),
       ));
       if (!track) throw new Error(`No track found for: ${payload.query}`);
-      const playlist = this.fileSystem.getFilesByExtensions(AUDIO_EXTENSIONS);
-      this.audioPlayer.play(track, playlist);
+      this.processManager.openFile(track);
     });
   }
 }

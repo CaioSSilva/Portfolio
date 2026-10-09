@@ -5,6 +5,7 @@ import { Settings } from './settings';
 import { Sound } from './sound';
 import { AudioPlayer } from './audio-player';
 import { FileSystem } from './file-system';
+import { ProcessManager } from './process-manager';
 import { FileItem } from '../models/file';
 
 describe('HermesSystemActionsService', () => {
@@ -32,6 +33,7 @@ describe('HermesSystemActionsService', () => {
     getFileExtension: ReturnType<typeof vi.fn>;
     getFilesByExtensions: ReturnType<typeof vi.fn>;
   };
+  let processManagerSpy: { openFile: ReturnType<typeof vi.fn> };
 
   const mockTrack: FileItem = {
     id: 'song1',
@@ -65,6 +67,7 @@ describe('HermesSystemActionsService', () => {
       getFileExtension: vi.fn().mockReturnValue('mp3'),
       getFilesByExtensions: vi.fn().mockReturnValue([mockTrack]),
     };
+    processManagerSpy = { openFile: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -74,6 +77,7 @@ describe('HermesSystemActionsService', () => {
         { provide: Sound, useValue: soundSpy },
         { provide: AudioPlayer, useValue: audioPlayerSpy },
         { provide: FileSystem, useValue: fileSystemSpy },
+        { provide: ProcessManager, useValue: processManagerSpy },
       ],
     });
 
@@ -186,9 +190,9 @@ describe('HermesSystemActionsService', () => {
       expect(audioPlayerSpy.stop).toHaveBeenCalled();
     });
 
-    it('music_play_track searches and plays the found track', async () => {
+    it('music_play_track searches and opens the found track via process manager', async () => {
       service.execute({ type: 'music_play_track', payload: { query: 'bohemian' } });
-      await vi.waitFor(() => expect(audioPlayerSpy.play).toHaveBeenCalledWith(mockTrack, [mockTrack]));
+      await vi.waitFor(() => expect(processManagerSpy.openFile).toHaveBeenCalledWith(mockTrack));
     });
 
     it('music_play_track throws when query is missing', () => {
