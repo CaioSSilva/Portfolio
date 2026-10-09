@@ -136,7 +136,7 @@ Navegador embutido com iframe. Suporta qualquer URL, histórico de navegação e
 Emulador de terminal Unix-like com histórico de comandos (teclas ↑/↓), autocomplete por Tab, navegação no sistema de arquivos virtual e comandos embutidos. Veja a seção [Terminal](#terminal) para a lista completa.
 
 **Ajustes (`settings`)**
-Painel de configurações com seções: Aparência (tema, papel de parede), Desktop (dock, tamanho de ícones), Som, Idioma, Sistema (informações de hardware) e Hermes (modelo de IA).
+Painel de configurações com seções: Aparência (tema, papel de parede), Desktop (dock, tamanho de ícones), Som, Idioma e Sistema (informações de hardware).
 
 **Sobre o projeto (`about`)**
 Página de apresentação do projeto com galeria dos aplicativos, funcionalidades do sistema e download do currículo.
@@ -223,14 +223,14 @@ O Hermes é o assistente inteligente integrado ao Cai_OS, alimentado pelo Google
 **Funcionalidades:**
 - Respostas em streaming (efeito de digitação ao vivo)
 - Suporte a anexo de imagem
-- Seletor de modelo Gemini (abra o Hermes e clique no ícone de engrenagem)
+- Seletor de modelo Gemini (clique no nome do modelo exibido acima do campo de texto para abrir o seletor)
 - Histórico de conversa (mantém as últimas 6 mensagens como contexto)
 - Fallback automático para chave API secundária em caso de erro 404/429
 
 **Como usar:**
 1. Abra o aplicativo **Hermes** pelo dock ou pela grade de apps
 2. Digite uma mensagem ou faça uma pergunta
-3. Opcionalmente, anexe uma imagem clicando no ícone de clipe
+3. Opcionalmente, anexe uma imagem clicando no ícone de imagem à esquerda do campo de texto
 
 ---
 
@@ -252,8 +252,8 @@ Essa tag é invisível para você — o sistema a processa automaticamente. Voc�
 | `set_theme` | `{"dark": true\|false}` | Define o modo escuro ou claro |
 | `toggle_theme` | `{}` | Alterna o tema atual |
 | `set_wallpaper` | `{"path": "/wallpapers/desktop/sunset.webp"\|"…/nebula.webp"\|"…/default.webp"}` | Muda o papel de parede |
-| `set_dock_size` | `{"size": 32..64}` | Define o tamanho dos ícones do dock |
-| `set_desktop_size` | `{"size": 32..56}` | Define o tamanho dos ícones do desktop |
+| `set_dock_size` | `{"size": 28..64}` | Define o tamanho dos ícones do dock |
+| `set_desktop_size` | `{"size": 32..80}` | Define o tamanho dos ícones do desktop |
 | `toggle_sounds` | `{}` | Ativa/desativa sons do sistema |
 | `play_sound` | `{"sound": "bell"\|"click"\|"startup"\|"office"}` | Toca um som do sistema |
 | `show_notification` | `{"title": "…", "message": "…"}` | Exibe uma notificação |
@@ -314,8 +314,8 @@ O aplicativo **Ajustes** possui as seguintes seções:
 
 ### Desktop
 - **Auto-ocultar Dock**: oculta o dock automaticamente quando janelas estão sobre ele
-- **Tamanho do ícone do Dock**: ajusta o tamanho dos ícones (padrão: 48)
-- **Tamanho dos itens do desktop**: ajusta o tamanho dos ícones fixados no desktop (padrão: 40)
+- **Tamanho do ícone do Dock**: ajusta o tamanho dos ícones (padrão: 48, intervalo 28–64)
+- **Tamanho dos itens do desktop**: ajusta o tamanho dos ícones fixados no desktop (padrão: 40, intervalo 32–80)
 
 ### Som
 - **Sons do sistema**: ativa/desativa os sons de interação (mouse, boot, notificações)
@@ -325,9 +325,6 @@ O aplicativo **Ajustes** possui as seguintes seções:
 
 ### Sistema
 - **Dicas do sistema**: ativa/desativa as notificações de dicas
-
-### Hermes
-- **Modelo de IA**: seleciona qual modelo Gemini o Hermes utilizará. Clique em "Tentar novamente" se os modelos não carregarem (verifique a chave de API).
 
 **Persistência:** todas as configurações são salvas no `localStorage` do navegador e restauradas automaticamente no próximo acesso.
 

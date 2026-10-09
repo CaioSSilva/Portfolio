@@ -136,7 +136,7 @@ Embedded iframe browser. Supports any URL, navigation history, and back button. 
 Unix-like terminal emulator with command history (↑/↓ keys), Tab autocomplete, virtual file system navigation, and built-in commands. See the [Terminal](#terminal) section for the full command list.
 
 **Settings (`settings`)**
-Settings panel with sections: Appearance (theme, wallpaper), Desktop (dock, icon sizes), Sound, Language, System (hardware info), and Hermes (AI model selection).
+Settings panel with sections: Appearance (theme, wallpaper), Desktop (dock, icon sizes), Sound, Language, and System (hardware info).
 
 **About the project (`about`)**
 Project presentation page with an app gallery, system feature showcase, and resume download.
@@ -223,14 +223,14 @@ Hermes is the intelligent assistant integrated into Cai_OS, powered by Google Ge
 **Features:**
 - Streaming responses (live typing effect)
 - Image attachment support
-- Gemini model picker (open Hermes and click the gear icon)
+- Gemini model picker (click the model name shown above the input field to open the selector)
 - Conversation history (keeps the last 6 messages as context)
 - Automatic fallback to a secondary API key on 404/429 errors
 
 **How to use:**
 1. Open the **Hermes** application from the dock or app grid
 2. Type a message or ask a question
-3. Optionally attach an image by clicking the clip icon
+3. Optionally attach an image by clicking the image icon on the left of the input field
 
 ---
 
@@ -252,8 +252,8 @@ This tag is invisible to you — the system processes it automatically. You can 
 | `set_theme` | `{"dark": true\|false}` | Sets dark or light mode |
 | `toggle_theme` | `{}` | Toggles the current theme |
 | `set_wallpaper` | `{"path": "/wallpapers/desktop/sunset.webp"\|"…/nebula.webp"\|"…/default.webp"}` | Changes the wallpaper |
-| `set_dock_size` | `{"size": 32..64}` | Sets the dock icon size |
-| `set_desktop_size` | `{"size": 32..56}` | Sets the desktop icon size |
+| `set_dock_size` | `{"size": 28..64}` | Sets the dock icon size |
+| `set_desktop_size` | `{"size": 32..80}` | Sets the desktop icon size |
 | `toggle_sounds` | `{}` | Enables/disables system sounds |
 | `play_sound` | `{"sound": "bell"\|"click"\|"startup"\|"office"}` | Plays a system sound |
 | `show_notification` | `{"title": "…", "message": "…"}` | Shows a system notification |
@@ -314,8 +314,8 @@ The **Settings** application has the following sections:
 
 ### Desktop
 - **Auto-hide Dock**: hides the dock automatically when windows are over it
-- **Dock Icon Size**: adjusts icon size (default: 48)
-- **Desktop Items Size**: adjusts the size of icons pinned to the desktop (default: 40)
+- **Dock Icon Size**: adjusts icon size (default: 48, range 28–64)
+- **Desktop Items Size**: adjusts the size of icons pinned to the desktop (default: 40, range 32–80)
 
 ### Sound
 - **System Sounds**: enable/disable interaction sounds (mouse, boot, notifications)
@@ -325,9 +325,6 @@ The **Settings** application has the following sections:
 
 ### System
 - **System Tips**: enable/disable system tip notifications
-
-### Hermes
-- **AI Model**: select which Gemini model Hermes will use. Click "Try again" if models fail to load (verify your API key).
 
 **Persistence:** all settings are saved in the browser's `localStorage` and automatically restored on the next visit.
 

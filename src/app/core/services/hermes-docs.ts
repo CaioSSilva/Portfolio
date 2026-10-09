@@ -29,8 +29,8 @@ Ações suportadas:
 - set_theme: {"dark": true|false}
 - toggle_theme: {}
 - set_wallpaper: {"path": "/wallpapers/desktop/sunset.webp"|"/wallpapers/desktop/nebula.webp"|"/wallpapers/desktop/default.webp"}
-- set_dock_size: {"size": 32..64}
-- set_desktop_size: {"size": 32..56}
+- set_dock_size: {"size": 28..64}
+- set_desktop_size: {"size": 32..80}
 - toggle_sounds: {}
 - play_sound: {"sound": "bell"|"click"|"startup"|"office"}
 - show_notification: {"title": "Título", "message": "Mensagem"}
@@ -70,8 +70,8 @@ Supported actions:
 - set_theme: {"dark": true|false}
 - toggle_theme: {}
 - set_wallpaper: {"path": "/wallpapers/desktop/sunset.webp"|"/wallpapers/desktop/nebula.webp"|"/wallpapers/desktop/default.webp"}
-- set_dock_size: {"size": 32..64}
-- set_desktop_size: {"size": 32..56}
+- set_dock_size: {"size": 28..64}
+- set_desktop_size: {"size": 32..80}
 - toggle_sounds: {}
 - play_sound: {"sound": "bell"|"click"|"startup"|"office"}
 - show_notification: {"title": "Title", "message": "Message"}

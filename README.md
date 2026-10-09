@@ -386,7 +386,7 @@ Loads `/data/fs.json`, builds node/parent/URL maps and a search index.
 ### `Settings` — `core/services/settings.ts`
 Persisted user settings via `localStorage`.
 
-**Signals:** `dockSize` (default 48), `desktopSize` (default 40), `systemMuted` (default false), `autoHideDock` (default true), `tipsEnabled` (default true), `geminiModel` (default `gemini-flash-lite-latest`), `wallpaper` (computed from desktop/mobile)
+**Signals:** `dockSize` (default 48, range 28–64), `desktopSize` (default 40, range 32–80), `systemMuted` (default false), `autoHideDock` (default true), `tipsEnabled` (default true), `geminiModel` (default `gemini-flash-lite-latest`), `wallpaper` (computed from desktop/mobile)
 
 **Public API:** `setWallpaper(path)`, `setDockSize(size)`, `setDesktopSize(size)`, `toggleAutoHideDock()`, `setGeminiModel(model)`, `toggleSystemTips()`, `toggleSystemSounds()`
 
@@ -706,8 +706,8 @@ Hermes can trigger OS actions by appending structured tags to its response:
 | `set_theme` | `{"dark": true\|false}` | Sets dark or light mode |
 | `toggle_theme` | `{}` | Toggles current theme |
 | `set_wallpaper` | `{"path": "/wallpapers/desktop/sunset.webp"\|"/wallpapers/desktop/nebula.webp"\|"/wallpapers/desktop/default.webp"}` | Changes the wallpaper |
-| `set_dock_size` | `{"size": 32..64}` | Sets dock icon size |
-| `set_desktop_size` | `{"size": 32..56}` | Sets desktop icon size |
+| `set_dock_size` | `{"size": 28..64}` | Sets dock icon size |
+| `set_desktop_size` | `{"size": 32..80}` | Sets desktop icon size |
 | `toggle_sounds` | `{}` | Enables/disables system sounds |
 | `play_sound` | `{"sound": "bell"\|"click"\|"startup"\|"office"}` | Plays a system sound |
 | `show_notification` | `{"title": "…", "message": "…", "icon?": "fas fa-…"}` | Shows a system notification |
@@ -844,7 +844,7 @@ Edit `public/data/fs.json` to add nodes to the tree. Files referenced by `url` m
 |---|---|
 | `src/environments/environment.ts` not found | Run `npm start` (not `ng serve` directly) — `mynode.js` generates this file |
 | Hermes returns no response | Verify `geminiApiKey` in `src/.env`; check browser console for 400/403 errors |
-| Hermes model error notification | The saved model may be deprecated; go to Settings → Hermes and select a new model, or clear `localStorage` key `geminiModel` |
+| Hermes model error notification | The saved model may be deprecated; open the Hermes app, click the model name above the input field, and select a new model — or clear `localStorage` key `geminiModel` |
 | File system not loading | Check that `public/data/fs.json` is present and valid JSON |
 | Sounds not playing | Sounds require a user interaction first (browser AudioContext policy). Click anywhere to unlock |
 | Videos not playing as wallpaper | Some browsers block autoplay; try a static wallpaper as fallback |
