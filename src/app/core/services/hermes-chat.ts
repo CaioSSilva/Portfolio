@@ -87,17 +87,7 @@ export class HermesChatService {
     this.isLoading.set(true);
     const modelIndex = this.appendModelPlaceholder();
     try {
-      const rawResponse = await this.gemini.generateResponseStream(
-        text,
-        history,
-        fileData ?? undefined,
-        (streamedText) => this.handleStreamChunk(modelIndex, streamedText),
-      );
-      const { cleanText, actions } = this.actionService.parseActions(rawResponse);
-      this.updateModelMessage(modelIndex, cleanText);
-      for (const action of actions) {
-        this.actionService.execute(action);
-      }
+      await this.handleStreamResponse(text, history, fileData, modelIndex);
     } catch (error) {
       this.handleSendError(error as Error, modelIndex);
     } finally {
@@ -105,7 +95,36 @@ export class HermesChatService {
     }
   }
 
+  notifyAgentReply(text: string): void {
+    const preview = text.length > 120 ? `${text.slice(0, 120)}…` : text;
+    this.notifications.show({
+      title: this.lang.t().hermes.roleAssistant,
+      message: preview,
+      icon: 'fas fa-robot',
+      duration: 8000,
+    });
+  }
+
   clearMessages(): void {
     this.messages.set([]);
+  }
+
+  private async handleStreamResponse(
+    text: string,
+    history: string,
+    fileData: { mimeType: string; b64: string } | null,
+    modelIndex: number,
+  ): Promise<void> {
+    const rawResponse = await this.gemini.generateResponseStream(
+      text,
+      history,
+      fileData ?? undefined,
+      (streamedText) => this.handleStreamChunk(modelIndex, streamedText),
+    );
+    const { cleanText, actions } = this.actionService.parseActions(rawResponse);
+    this.updateModelMessage(modelIndex, cleanText);
+    for (const action of actions) {
+      this.actionService.execute(action);
+    }
   }
 }

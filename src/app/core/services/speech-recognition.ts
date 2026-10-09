@@ -13,6 +13,8 @@ export const SPEECH_RECOGNITION_FACTORY = new InjectionToken<
 >('SPEECH_RECOGNITION_FACTORY', {
   providedIn: 'root',
   factory: () => {
+    if (typeof window === 'undefined') return null;
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') return null;
     const win = window as SpeechRecognitionWindow;
     const Constructor: SpeechRecognitionConstructor | undefined =
       win.SpeechRecognition ?? win.webkitSpeechRecognition;
@@ -34,6 +36,11 @@ export class SpeechRecognitionService {
   readonly transcript = signal('');
   readonly isListening = signal(false);
   readonly isSupported = signal(this.factory !== null);
+  readonly isSecureContext = signal(
+    typeof window === 'undefined' ||
+      location.protocol === 'https:' ||
+      location.hostname === 'localhost',
+  );
 
   private recognition: SpeechRecognitionLike | null = null;
   private restartCount = 0;

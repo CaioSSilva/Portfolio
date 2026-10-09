@@ -7,7 +7,6 @@ import { HermesChatService } from './hermes-chat';
 import { AgentModeState } from '../models/agent-mode';
 
 const AWAKE_TIMEOUT_MS = 8000;
-const WAKE_CHIME_DELAY_MS = 200;
 
 @Injectable({ providedIn: 'root' })
 export class AgentModeService {
@@ -19,6 +18,7 @@ export class AgentModeService {
 
   readonly state = signal<AgentModeState>('off');
   readonly isSupported = this.recognition.isSupported;
+  readonly isSecureContext = this.recognition.isSecureContext;
 
   private awakeTimer = 0;
 
@@ -88,7 +88,7 @@ export class AgentModeService {
 
   private enterAwakeState(): void {
     this.state.set('awake');
-    setTimeout(() => this.playChime(), WAKE_CHIME_DELAY_MS);
+    queueMicrotask(() => this.playChime());
     this.awakeTimer = window.setTimeout(() => {
       if (this.state() === 'awake') {
         this.state.set('listening');
@@ -111,9 +111,12 @@ export class AgentModeService {
     if (shouldSpeak && replyText) {
       this.state.set('speaking');
       this.synthesis.speak(replyText, () => this.resumeListening());
-    } else {
-      this.resumeListening();
+      return;
     }
+    if (replyText) {
+      this.chat.notifyAgentReply(replyText);
+    }
+    this.resumeListening();
   }
 
   private resumeListening(): void {

@@ -418,7 +418,9 @@
               <div class="min-w-0">
                 <div class="font-medium">{{ lang.t().settings.hermes.agentMode }}</div>
                 <div class="text-sm text-gnome-text-secondary">
-                  @if (!agentMode.isSupported()) {
+                  @if (!agentMode.isSecureContext()) {
+                    {{ lang.t().settings.hermes.agentInsecureContext }}
+                  } @else if (!agentMode.isSupported()) {
                     {{ lang.t().settings.hermes.agentUnsupported }}
                   } @else {
                     {{ lang.t().settings.hermes.agentModeDesc }}

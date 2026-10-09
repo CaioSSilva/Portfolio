@@ -1,4 +1,4 @@
 export const environment = {
-  geminiApiKey: 'undefined',
-  geminiApiKey2: 'undefined',
+  geminiApiKey: 'YOUR_GEMINI_API_KEY',
+  geminiApiKey2: 'YOUR_GEMINI_API_KEY_2',
 };

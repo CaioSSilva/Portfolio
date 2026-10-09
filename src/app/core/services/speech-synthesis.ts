@@ -17,13 +17,15 @@ export class SpeechSynthesisService {
       onEnd();
       return;
     }
-    this.cancel();
     const cleaned = this.stripMarkdown(text);
     if (!cleaned.trim()) {
       onEnd();
       return;
     }
-    speechSynthesis.speak(this.buildUtterance(cleaned, onEnd));
+    if (this.isSpeaking()) {
+      speechSynthesis.cancel();
+    }
+    queueMicrotask(() => speechSynthesis.speak(this.buildUtterance(cleaned, onEnd)));
   }
 
   private buildUtterance(text: string, onEnd: () => void): SpeechSynthesisUtterance {
@@ -48,7 +50,9 @@ export class SpeechSynthesisService {
   }
 
   isSupported(): boolean {
-    return typeof speechSynthesis !== 'undefined';
+    if (typeof speechSynthesis === 'undefined') return false;
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') return false;
+    return true;
   }
 
   private stripMarkdown(text: string): string {

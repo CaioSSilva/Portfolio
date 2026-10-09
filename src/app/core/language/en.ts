@@ -176,6 +176,7 @@ export const en = {
       agentSpeakReplies: 'Spoken replies',
       agentSpeakRepliesDesc: 'Hermes will read its responses aloud using the browser speech engine',
       agentUnsupported: 'Your browser does not support the Web Speech API',
+      agentInsecureContext: 'Agent Mode requires a secure connection (HTTPS)',
       agentPrivacyNote: 'Agent Mode uses your browser\'s speech recognition. In Chrome, audio is processed by Google\'s servers. Enable only on trusted networks.',
       agentWakePhrases: 'Wake phrases',
       agentPermissionDenied: 'Microphone access was denied. Allow it in your browser settings and try again.',
