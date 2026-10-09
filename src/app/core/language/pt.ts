@@ -381,7 +381,7 @@ export const pt = {
       fullscreen:
         'Pressione F11 para alternar para o modo de tela cheia e ter uma experiência imersiva.',
       hermes:
-        'Pergunte ao Hermes para ele abrir apps, mudar o tema ou tocar sons — ele controla o sistema.',
+        'Pergunte ao Hermes para abrir apps, mudar o tema ou tocar sons. Ele consegue controlar o sistema inteiro.',
       hermesWallpaper: 'Peça ao Hermes para trocar o wallpaper descrevendo o que você quer.',
       desktopIcons:
         'Clique com o botão direito em qualquer app na Dock ou na grade de apps para adicionar ou remover atalhos na área de trabalho.',
@@ -397,7 +397,7 @@ export const pt = {
       files:
         'No gerenciador de Arquivos, alterne entre visualização em grade e lista pelo botão no topo.',
       browser:
-        'O Firefox integrado suporta qualquer URL — tente acessar wikipedia.com ou github.com.',
+        'O Firefox integrado suporta qualquer URL. Tente acessar wikipedia.com ou github.com.',
     },
     mobile: {
       swipeOverview:
@@ -407,17 +407,17 @@ export const pt = {
       allApps:
         'Toque em "Todos os Apps" na barra inferior para acessar a grade completa de aplicativos.',
       hermes:
-        'Peça ao Hermes para abrir apps, mudar o tema ou exibir notificações — basta digitar sua solicitação.',
+        'Peça ao Hermes para abrir apps, mudar o tema ou exibir notificações. Basta digitar o que você quer.',
       hermesControl:
-        'O Hermes pode controlar o sistema: diga "mude para o tema escuro" e ele fará isso.',
+        'O Hermes pode controlar o sistema. Tente dizer "mude para o tema escuro" e veja acontecer.',
       notifications:
         'Toque no ícone de sino para ver o histórico completo de notificações do sistema.',
       files:
         'No app Arquivos, navegue pelas pastas tocando nelas e use a barra de busca para filtrar.',
       settings: 'Em Ajustes você pode trocar o wallpaper, idioma e ativar ou desativar sons.',
-      terminal: 'O Terminal está disponível no mobile — experimente "ls", "cd" e "whoami".',
+      terminal: 'O Terminal está disponível no mobile. Experimente rodar "ls", "cd" ou "whoami".',
       music:
-        'O player de músicas suporta letras sincronizadas — toque em "Letra" enquanto uma música toca.',
+        'O player de músicas suporta letras sincronizadas. Toque em "Letra" enquanto uma música toca.',
     },
   },
 
