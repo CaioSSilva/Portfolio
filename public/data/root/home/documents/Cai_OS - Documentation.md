@@ -1,1276 +1,584 @@
-# Complete Documentation - Cai_OS 2.5.1
+# Cai_OS — Documentation
 
-## 📋 Table of Contents
-
-1. [Overview](#-overview)
-2. [System Architecture](#️-system-architecture)
-3. [Technologies Used](#️-technologies-used)
-4. [Project Structure](#-project-structure)
-5. [Main Components](#-main-components)
-6. [Services](#️-services)
-7. [Data Models](#-data-models)
-8. [System Features](#-system-features)
-9. [Applications](#-applications)
-10. [Installation and Configuration](#-installation-and-configuration)
-11. [Available Commands](#-available-commands)
-12. [Customization](#-customization)
-13. [Troubleshooting](#-troubleshooting)
-14. [Additional Resources](#-additional-resources)
-15. [Contributing](#-contributing)
-16. [License](#-license)
-17. [Author](#-author)
-18. [Acknowledgments](#-acknowledgments)
-19. [Project Statistics](#-project-statistics)
-20. [Support](#-support)
+**Version:** 2.5.1 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
 
 ---
 
-## 🌟 Overview
+## Table of Contents
 
-**Cai_OS** is an interactive web operating system built with Angular 22, inspired by the GNOME desktop environment. The project simulates a complete operating system experience directly in the browser, including window management, applications, terminal, virtual file system, and AI integration.
-
-### Project Goal
-
-Cai_OS was developed as an interactive portfolio that demonstrates:
-
-- Advanced mastery of Angular and TypeScript
-- Scalable software architecture
-- Interface design inspired by modern operating systems
-- Integration with external APIs (Google Gemini)
-- Complex state management
-- Professional user experience (UX/UI)
-
-### Key Features
-
-- **Modern Desktop Interface**: GNOME-inspired with dock, top bar, and app grid
-- **Responsive Mobile Interface**: Native mobile experience with bottom nav bar and app overview
-- **Window Management**: Support for dragging, resizing, maximizing, minimizing, and snapping
-- **Virtual File System**: Hierarchical structure of folders and files
-- **Interactive Terminal**: Unix-like commands for navigation and system control
-- **Integrated Applications**: Browser, image viewer, music player, document editor
-- **Integrated AI**: Virtual assistant "Hermes" using Google Gemini with model selection and error notifications
-- **Themes**: Support for light and dark modes
-- **Multilingual**: Portuguese and English
-- **Notification System**: Notification center with history and model-unavailable alerts
-- **Sound Effects**: System sounds for interactions
-- **Version constant**: Single source of truth (`APP_VERSION`) used across Boot, Settings, and Terminal
+1. [What is Cai_OS?](#what-is-caios)
+2. [Getting Started](#getting-started)
+3. [System Architecture](#system-architecture)
+4. [Installed Applications](#installed-applications)
+5. [Window Management](#window-management)
+6. [Terminal](#terminal)
+7. [Hermes — AI Assistant](#hermes--ai-assistant)
+8. [Hermes Actions](#hermes-actions)
+9. [Virtual File System](#virtual-file-system)
+10. [Settings](#settings)
+11. [Notifications & Tips](#notifications--tips)
+12. [Mobile Navigation](#mobile-navigation)
+13. [Data Models](#data-models)
+14. [Core Services](#core-services)
+15. [Internationalization (i18n)](#internationalization-i18n)
+16. [Environment Variables](#environment-variables)
+17. [Technical Reference](#technical-reference)
 
 ---
 
-## 🏗️ System Architecture
+## What is Cai_OS?
 
-### Architecture Overview
+**Cai_OS** is a simulated operating system that runs entirely in the browser. It is an interactive portfolio built as a GNOME-inspired desktop environment using Angular 22 with Signals-based reactivity.
 
-Cai_OS follows a modular architecture based on Angular components, with clear separation between:
+Instead of a traditional portfolio page, visitors interact with real windowed applications, a Unix-like terminal, a virtual file system, an AI assistant (Hermes), and full system settings — all inside the browser.
 
-```
-┌─────────────────────────────────────────┐
-│        Presentation Layer               │
-│  (Components, Templates, Styles)        │
-├─────────────────────────────────────────┤
-│          Services Layer                 │
-│  (Business Logic, State Management)     │
-├─────────────────────────────────────────┤
-│          Models Layer                   │
-│  (Data Models, Interfaces, Types)       │
-├─────────────────────────────────────────┤
-│       Infrastructure Layer              │
-│  (APIs, Storage, External Services)     │
-└─────────────────────────────────────────┘
-```
-
-### Design Patterns Used
-
-1. **Singleton**: Services with `providedIn: 'root'`
-2. **Observer**: RxJS Signals for reactive state management
-3. **Strategy**: Terminal command system
-4. **Factory**: Dynamic creation of application components
-5. **Dependency Injection**: Angular native injection
-
-### Data Flow
-
-```
-User Interaction
-      ↓
-  Component
-      ↓
-   Service
-      ↓
-  State Update (Signal)
-      ↓
-  UI Re-render
-```
+**Technical highlights:**
+- Standalone Angular 22 application with no routing — the OS is the application
+- 100% Signals-based reactivity (`signal`, `computed`, `effect`)
+- Full desktop window management: drag, resize, snap, maximize, minimize, cascade
+- Responsive layout: full desktop and dedicated mobile layout with touch gestures
+- Hermes AI assistant powered by `@google/generative-ai`, capable of controlling the OS via structured action tags
+- Virtual file system loaded from a static JSON manifest (`/data/fs.json`)
+- Synchronized lyrics for the music player via the public LRCLIB API
+- Deployed on Vercel with Analytics and Speed Insights integrated at startup
 
 ---
 
-## 🛠️ Technologies Used
+## Getting Started
 
-### Styling
+When you first access the system, you will see the **boot screen** with a simulated progress bar. Click "Press to Start" when it appears. The startup sound will play and the system will be ready.
 
-- **Tailwind CSS 4.1.18**: Utility-first CSS framework
-- **SCSS**: CSS preprocessor
-- **PostCSS 8.5.6**: CSS processing
-- **Font Awesome 7.1.0**: Icon library
-
-### External Libraries
-
-- **@google/generative-ai 0.24.1**: Google Gemini integration
-- **ng2-pdf-viewer 10.4.0**: PDF viewing
-- **@vercel/analytics 1.6.1**: Analytics
-- **@vercel/speed-insights 1.3.1**: Performance metrics
-
-### Development Tools
-
-- **Angular CLI 22.0.4**: Angular CLI
-- **TypeScript 6.0.3**: Type-safe superset of JavaScript
-- **Vitest 4.0.18**: Testing framework
-- **jsdom 28.0.0**: DOM environment for testing
-- **Prettier**: Code formatting
+After booting, the **About the project** application opens automatically with developer information.
 
 ---
 
-## 📁 Project Structure
+## System Architecture
 
 ```
-Portfolio-main/
-├── src/
-│   ├── app/
-│   │   ├── core/                    # System core
-│   │   │   ├── language/            # Internationalization
-│   │   │   │   ├── en.ts
-│   │   │   │   ├── pt.ts
-│   │   │   │   └── i18n.types.ts
-│   │   │   ├── models/              # Data models
-│   │   │   │   ├── app-launcher.ts
-│   │   │   │   ├── app-registry.ts
-│   │   │   │   ├── apps.ts
-│   │   │   │   ├── base.ts
-│   │   │   │   ├── dock.ts
-│   │   │   │   ├── file.ts
-│   │   │   │   ├── hermes.ts
-│   │   │   │   ├── notification.ts
-│   │   │   │   ├── process.ts
-│   │   │   │   ├── setting.ts
-│   │   │   │   └── terminal.ts
-│   │   │   ├── pipes/               # Custom pipes
-│   │   │   │   └── markdown-pipe.ts
-│   │   │   └── services/            # System services
-│   │   │       ├── apps.ts
-│   │   │       ├── context-menu.ts
-│   │   │       ├── desktop-icons.ts
-│   │   │       ├── dock.ts
-│   │   │       ├── file-system.ts
-│   │   │       ├── gemini.ts
-│   │   │       ├── language.ts
-│   │   │       ├── mobile-nav.ts
-│   │   │       ├── notification.ts
-│   │   │       ├── process-manager.ts
-│   │   │       ├── screen.ts
-│   │   │       ├── settings.ts
-│   │   │       ├── sound.ts
-│   │   │       ├── system-tips.ts
-│   │   │       ├── terminal-comands.ts
-│   │   │       ├── theme.ts
-│   │   │       └── window.ts
-│   │   ├── features/                # System applications
-│   │   │   ├── about-project/       # About the project
-│   │   │   ├── browser/             # Web browser
-│   │   │   ├── document-viewer/     # PDF viewer
-│   │   │   ├── files/               # File manager
-│   │   │   │   └── components/
-│   │   │   │       ├── breadcrumbs/
-│   │   │   │       ├── grid/
-│   │   │   │       ├── list/
-│   │   │   │       └── sidebar/
-│   │   │   ├── hermes/              # AI assistant
-│   │   │   ├── image-viewer/        # Image viewer
-│   │   │   ├── musics/              # Music player
-│   │   │   │   └── player/
-│   │   │   ├── settings/            # System settings
-│   │   │   ├── system-monitor/      # System monitor
-│   │   │   └── terminal/            # Terminal
-│   │   ├── layout/                  # Layout components
-│   │   │   ├── apps-grid/           # Application grid
-│   │   │   ├── dock/                # Taskbar
-│   │   │   ├── mobile-nav-bar/      # Mobile bottom navigation bar
-│   │   │   ├── mobile-overview/     # Mobile open-windows overview
-│   │   │   ├── notification-center/ # Notification center
-│   │   │   ├── top-bar/             # Top bar
-│   │   │   └── window-switcher/     # Window switcher
-│   │   ├── shared/                  # Shared components
-│   │   │   └── ui/
-│   │   │       ├── boot/            # Boot screen
-│   │   │       ├── shutdown/        # Shutdown screen
-│   │   │       ├── context-menu/    # Context menu
-│   │   │       └── window/          # Window component
-│   │   ├── app.config.ts
-│   │   ├── app.html
-│   │   ├── app.routes.ts
-│   │   ├── app.scss
-│   │   └── app.ts
-│   ├── environments/                # Environment settings
-│   │   ├── environment.ts
-│   │   └── environment.development.ts
-│   ├── index.html
-│   ├── main.ts
-│   └── styles.scss
-├── public/                          # Public assets
-├── angular.json                     # Angular configuration
-├── package.json                     # Dependencies
-├── tsconfig.json                    # TypeScript configuration
-└── README.md
+┌─────────────────────────────────────────────────────────┐
+│                     Browser / Vercel                    │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │                  Angular App (SPA)               │   │
+│  │                                                  │   │
+│  │  ┌─────────────┐  ┌──────────────────────────┐  │   │
+│  │  │  Layout     │  │   Shared UI              │  │   │
+│  │  │  TopBar     │  │   Window (per process)   │  │   │
+│  │  │  Dock       │  │   Boot / Shutdown        │  │   │
+│  │  │  AppsGrid   │  │   ContextMenu            │  │   │
+│  │  │  MobileNav  │  └──────────────────────────┘  │   │
+│  │  └─────────────┘                                │   │
+│  │                                                  │   │
+│  │  ┌────────────────────────────────────────────┐  │   │
+│  │  │              Feature Apps                  │  │   │
+│  │  │  Files  Terminal  Browser  Hermes  Musics  │  │   │
+│  │  │  Photos  Documents  Settings  SystemMonitor│  │   │
+│  │  │  AboutProject  DesktopIcons               │  │   │
+│  │  └────────────────────────────────────────────┘  │   │
+│  │                                                  │   │
+│  │  ┌────────────────────────────────────────────┐  │   │
+│  │  │               Core Services               │  │   │
+│  │  │  ProcessManager  WindowService  FileSystem │  │   │
+│  │  │  Settings  Theme  Language  Notification   │  │   │
+│  │  │  DockService  AppRegistry  AppLauncher     │  │   │
+│  │  │  Gemini  HermesChat  HermesAction          │  │   │
+│  │  │  AudioPlayer  LyricsService  Sound         │  │   │
+│  │  └────────────────────────────────────────────┘  │   │
+│  └──────────────────────────────────────────────────┘   │
+│                                                         │
+│  Static assets: /data/fs.json  /sounds/*.ogg            │
+│                 /wallpapers/   /videos/wallpapers/       │
+└─────────────────────────────────────────────────────────┘
 ```
+
+**Data flow:**
+
+```
+User interaction
+  → Component (signal mutation)
+    → Service (signal update / effect)
+      → Other services (computed derivation)
+        → Template re-render (signal read)
+```
+
+**Design patterns:**
+- **Service-per-concern**: each domain (process, file, audio, AI) is an isolated `providedIn: 'root'` service
+- **Signals everywhere**: `signal()`, `computed()`, `effect()` — no direct template subscriptions
+- **Base class inheritance**: all feature apps extend `Base<T>`, providing `data` and `handle`
+- **Process model**: every open window is a `Process` object managed by `ProcessManager`; `WindowService` is provided per window instance
+- **Hermes action pipeline**: raw AI text → regex parse `<!--caios:action {...} -->` → typed dispatch → execution
 
 ---
 
-## 🧩 Main Components
+## Installed Applications
 
-### 1. App Component (Root)
+| ID | Name | Icon | Color | Handled extensions | Lazy-loaded |
+|---|---|---|---|---|---|
+| `files` | Files | `fas fa-folder` | `#3584e4` | — | No |
+| `firefox` | Firefox | `fab fa-firefox-browser` | `#ff7139` | — | No |
+| `terminal` | Terminal | `fas fa-terminal` | `#77767b` | — | No |
+| `settings` | Settings | `fas fa-cog` | `#FE6F5E` | — | No |
+| `about` | About the project | `fas fa-user` | `#6f42c1` | — | No |
+| `photos` | Photos | `fas fa-image` | `#4a90e2` | jpg, jpeg, png, svg, webp, gif | No |
+| `documents` | Documents | `fas fa-file` | `#e01b24` | txt, log, md, json, ts, js, css, scss, pdf, text | **Yes** |
+| `musics` | Musics | `fas fa-music` | `#0077b6` | mp3, wav, ogg, m4a, flac | No |
+| `systemMonitor` | System monitor | `fas fa-chart-pie` | `#9AB973` | — | No |
+| `hermes` | Hermes | `fas fa-square-h` | `#00916E` | — | No |
 
-**File**: `src/app/app.ts`
+### Application descriptions
 
-Root component of the application that manages the global system state.
+**Files (`files`)**
+File manager with collapsible sidebar, grid and list view modes, search bar, and resizable sidebar (desktop). Clicking a file detects the extension and opens the corresponding application automatically.
 
-**Responsibilities**:
+**Firefox (`firefox`)**
+Embedded iframe browser. Supports any URL, navigation history, and back button. Some URLs may not load due to X-Frame-Options embedding policies.
 
-- System initialization
-- Management of interaction sounds
-- Boot and shutdown control
-- Coordination between main services
+**Terminal (`terminal`)**
+Unix-like terminal emulator with command history (↑/↓ keys), Tab autocomplete, virtual file system navigation, and built-in commands. See the [Terminal](#terminal) section for the full command list.
 
-**Main Code**:
+**Settings (`settings`)**
+Settings panel with sections: Appearance (theme, wallpaper), Desktop (dock, icon sizes), Sound, Language, System (hardware info), and Hermes (AI model selection).
 
-```typescript
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.html',
-  imports: [AppsGrid, Dock, WindowSwitcher, Window, TopBar, Boot, Shutdown],
-})
-export class App {
-  processManager = inject(ProcessManager);
-  settingsService = inject(Settings);
-  sound = inject(Sound);
-  lang = inject(LanguageService);
-  notifications = inject(NotificationService);
-  tipsService = inject(SystemTips);
-  systemReady = signal(false);
-  shutingDown = signal(false);
-}
-```
+**About the project (`about`)**
+Project presentation page with an app gallery, system feature showcase, and resume download.
 
-### 2. Window Component
+**Photos (`photos`)**
+Image gallery with viewer. Supports zoom (scroll / pinch), rotation, pan, keyboard navigation (← →), and horizontal swipe on mobile.
 
-**File**: `src/app/shared/ui/window/window.ts`
+**Documents (`documents`)**
+PDF, Markdown, and plain text viewer. Supports zoom, anchor scroll in Markdown, keyboard navigation, and horizontal swipe on mobile. Lazy-loaded to keep the `ng2-pdf-viewer` bundle separate.
 
-Component that represents an application window with full management features.
+**Musics (`musics`)**
+Music player with library, playback controls, seek, volume, mute, and synchronized lyrics (LRC) via LRCLIB. The active lyric line auto-scrolls.
 
-**Features**:
+**System Monitor (`systemMonitor`)**
+CPU and RAM graphs (simulated), network stats (real or simulated), active process list with kill action.
 
-- Drag
-- Resize
-- Maximize/Restore
-- Minimize
-- Auto-snap to edges
-- Transition animations
-- Dynamic focus and z-index
+**Hermes (`hermes`)**
+AI chat using Google Gemini. Supports image attachment, streaming response, model picker, and full OS control via action tags.
 
-**Main Methods**:
-
-- `startDrag()`: Starts window dragging
-- `startResize()`: Starts resizing
-- `maximize()`: Maximizes the window
-- `minimize()`: Minimizes the window
-- `close()`: Closes the window
-
-### 3. Dock Component
-
-**File**: `src/app/layout/dock/dock.ts`
-
-Bottom taskbar that displays pinned and running applications.
-
-**Features**:
-
-- Display of pinned apps
-- Running app indicators
-- Context menu (right-click)
-- Drag and drop to add apps
-- Animated hover effect
-- Optional auto-hide
-
-### 4. TopBar Component
-
-**File**: `src/app/layout/top-bar/top-bar.ts`
-
-System top bar with clock, app menu, and power button.
-
-**Features**:
-
-- Real-time clock
-- Access to app grid
-- Notification center
-- Power menu (shutdown/restart)
-- Active window title display
-
-### 5. Apps Grid Component
-
-**File**: `src/app/layout/apps-grid/apps-grid.ts`
-
-Application grid with search and categorization.
-
-**Features**:
-
-- Display of all installed apps
-- Search by name
-- Drag to dock
-- Quick app opening
-
-### 6. Window Switcher Component
-
-**File**: `src/app/layout/window-switcher/window-switcher.ts`
-
-Window switcher activated by `Ctrl+\``.
-
-**Features**:
-
-- List of open windows
-- Keyboard navigation
-- Visual window preview
-- Quick focus
-
-### 7. MobileNavBar Component
-
-**File**: `src/app/layout/mobile-nav-bar/mobile-nav-bar.ts`
-
-Bottom navigation bar shown exclusively on mobile devices.
-
-**Features**:
-
-- Home button (minimizes all open windows)
-- Overview button (opens the app overview)
-- App drawer button (opens the apps grid)
-- Running-process indicator badge
-
-### 8. MobileOverview Component
-
-**File**: `src/app/layout/mobile-overview/mobile-overview.ts`
-
-Overlay that displays all open application windows as cards for quick switching on mobile.
-
-**Features**:
-
-- Sorted card list (by z-index)
-- Tap to focus and close overview
-- Swipe-up gesture to dismiss a process (auto-closes overview when the last process is dismissed)
-- "Close all" button
-- Tap on backdrop to dismiss
+**Desktop Icons (`desktop-icons`)**
+App shortcuts pinned directly on the wallpaper. Right-click to add/remove.
 
 ---
 
-## ⚙️ Services
+## Window Management
 
-### 1. ProcessManager Service
+### Desktop
 
-**File**: `src/app/core/services/process-manager.ts`
+Every open window corresponds to a `Process` managed by `ProcessManager`. Windows support:
 
-Manages all running processes (applications).
+- **Drag**: hold the title bar and drag
+- **Resize**: drag the bottom-right corner (minimum: 320×240 px)
+- **Maximize**: click the maximize button or double-click the title bar
+- **Minimize**: click the minimize button; the window disappears and can be restored from the Dock
+- **Close**: click the close (X) button
+- **Snap**: drag a window to screen edges/corners to snap into halves or quadrants
+  - Left/right edge → 50% of the screen
+  - Top edge (center) → full screen
+  - Top corner → 25% quadrant (top corner)
+  - Bottom edge → bottom half of the screen
+- **Cascade**: new windows open with automatic offset to avoid stacking
 
-**Responsibilities**:
+### App Switcher (desktop)
 
-- Create new processes
-- Close processes
-- Manage focus (z-index)
-- Minimize/Maximize windows
-- Maintain list of active processes
+Press `Ctrl + \`` (backtick) to open the window switcher. Press again to cycle. Release `Ctrl` to confirm.
 
-**Main Methods**:
+### Mobile
 
-```typescript
-start(app: AppDefinition, args?: any[]): void
-kill(processId: string): void
-focus(processId: string): void
-minimize(processId: string): void
-toggleMaximize(processId: string): void
-```
-
-### 2. FileSystem Service
-
-**File**: `src/app/core/services/file-system.ts`
-
-Hierarchical virtual file system.
-
-**Structure**:
-
-```typescript
-interface FileNode {
-  name: string;
-  type: 'file' | 'folder';
-  path: string;
-  content?: string;
-  children?: FileNode[];
-  size?: number;
-  extension?: string;
-}
-```
-
-**Main Methods**:
-
-- `getNodeByPath()`: Search file/folder by path
-- `listDirectory()`: List directory contents
-- `createFile()`: Create new file
-- `deleteNode()`: Remove file/folder
-- `moveNode()`: Move file/folder
-
-### 3. Settings Service
-
-**File**: `src/app/core/services/settings.ts`
-
-Manages system settings.
-
-**Available Settings**:
-
-- Theme (light/dark)
-- Wallpaper
-- Dock icon size
-- Auto-hide dock
-- System sounds
-- System tips
-- Language
-
-**Persistence**: Uses `localStorage` to save preferences.
-
-### 4. LanguageService
-
-**File**: `src/app/core/services/language.ts`
-
-Internationalization system (i18n).
-
-**Supported Languages**:
-
-- Portuguese (pt)
-- English (en)
-
-**Usage**:
-
-```typescript
-lang.t().apps.files; // Returns translation
-lang.setLanguage('pt'); // Changes language
-```
-
-### 5. NotificationService
-
-**File**: `src/app/core/services/notification.ts`
-
-Manages system notifications.
-
-**Notification Types**:
-
-- Info
-- Success
-- Warning
-- Error
-
-**Main Methods**:
-
-```typescript
-show(title: string, message: string, type: NotificationType): void
-clear(id: string): void
-clearAll(): void
-```
-
-### 6. Sound Service
-
-**File**: `src/app/core/services/sound.ts`
-
-Plays system sound effects.
-
-**Available Sounds**:
-
-- `mouse_down`: Mouse click
-- `mouse_up`: Mouse release
-- `notification`: Notification sound
-- `error`: Error sound
-
-### 7. Theme Service
-
-**File**: `src/app/core/services/theme.ts`
-
-Manages the visual theme of the system.
-
-**Themes**:
-
-- `light`: Light theme
-- `dark`: Dark theme
-
-**Main Method**:
-
-```typescript
-setTheme(theme: 'light' | 'dark'): void
-toggleTheme(): void
-```
-
-### 8. Gemini Service
-
-**File**: `src/app/core/services/gemini.ts`
-
-Google Gemini AI integration.
-
-**Features**:
-
-- Text generation (streaming)
-- Image analysis
-- Dual API key with automatic fallback (`geminiApiKey` → `geminiApiKey2`)
-- Dynamic model listing via REST (`GET /v1beta/models`)
-- Active model driven by `Settings.geminiModel` (persisted)
-
-**Main Methods**:
-
-```typescript
-async generateResponse(prompt: string, history: string, fileData?: { mimeType: string; b64: string }): Promise<string>
-async generateResponseStream(prompt: string, history: string, fileData: ..., onChunk: (text: string) => void): Promise<string>
-async listModels(): Promise<GeminiModel[]>
-```
-
-### 9. TerminalCommands Service
-
-**File**: `src/app/core/services/terminal-comands.ts`
-
-Implements Unix-like commands for the terminal.
-
-**Available Commands**:
-
-- `ls`: List files
-- `cd`: Navigate between directories
-- `open`: Open files
-- `date`: Display date/time
-- `theme`: Toggle theme
-- `clear`: Clear terminal
-- `help`: Display help
-- `neofetch`: System info
-- `whoami`: Developer info
-- `about`: System version info
-
-### 10. ScreenService
-
-**File**: `src/app/core/services/screen.ts`
-
-Tracks the current viewport size and device type reactively.
-
-**Breakpoints**:
-
-- `isMobile`: width < 768px
-- `isTablet`: 768px ≤ width < 1024px
-- `isDesktop`: width ≥ 1024px
-- `isCompact`: width < 1024px
-- `isTouchDevice`: detected by touch events
-
-**Main Signals**: `width`, `height`, `isTouchDevice`, `isMobile`, `isTablet`, `isDesktop`, `isCompact`.
-
-### 11. MobileNavService
-
-**File**: `src/app/core/services/mobile-nav.ts`
-
-Controls the mobile navigation state (overview and app drawer).
-
-**Responsibilities**:
-
-- Toggle/open/close the mobile overview panel
-- "Go home" action (minimizes all processes)
-- Open app and close the drawer in one step
-- Toggle the app drawer
-
-**Main Methods**:
-
-```typescript
-toggleOverview(): void
-openOverview(): void
-closeOverview(): void
-goHome(): void
-openAppAndCloseDrawer(app: AppDefinition): void
-toggleAppDrawer(): void
-```
-
-### 12. SystemTips Service
-
-**File**: `src/app/core/services/system-tips.ts`
-
-Displays context-aware system tips periodically via the notification center.
-
-Tips are **platform-specific**: the service reads `ScreenService.isMobile()` at runtime and selects from the `desktop` or `mobile` pool in the i18n translations, ensuring every tip is relevant to the user's current device.
-
-A `shownIndexes` set tracks which tips have been displayed. Once all tips in the current pool are shown, the set resets so the cycle starts again without immediate repetition.
-
-**Desktop tip pool** (19 tips): snap zones, Ctrl+`, context menu, dock drag-and-drop, Terminal commands (`neofetch`, `whoami`, `open`), Hermes system control, desktop icons, window resize, multi-instance, notifications, Settings, Files view toggle, Firefox.
-
-**Mobile tip pool** (11 tips): swipe-to-overview, swipe-to-close, tap-to-resume, All Apps grid, Hermes commands, notifications, Files navigation, Settings, Terminal, synced lyrics.
-
-**Main Methods**:
-
-```typescript
-startRandomTips(): void       // first tip after 15 s, then every 7–10 min
-stopTips(): void              // clears pending timer
-```
-
-#### 13. DesktopIcons Service
-
-**File**: `src/app/core/services/desktop-icons.ts`
-
-Manages icons pinned directly to the desktop area.
-
-**Responsibilities**: Pin/unpin apps from the desktop and manage the reactive list of shortcuts.
-
-**Main Methods**: `pinApp()`, `unPinActiveApp()`.
-
-#### 14. AppLauncher Service
-
-**File**: `src/app/core/services/app-launcher.ts`
-
-Orchestrator responsible for triggering application launches and managing UI state.
-
-**Responsibilities**: Close context menus and trigger processes via `ProcessManager`.
-
-**Main Methods**: `launch()`, `launchAndCloseContext()`.
-
-#### 15. AppRegistry Service
-
-**File**: `src/app/core/services/app-registry.ts`
-
-Central registry and search hub for all applications installed in the system.
-
-**Responsibilities**: Manage the reactive list of apps, search by name/ID, and associate file extensions.
-
-**Main Methods**: `getAppById()`, `findHandlerForExtension()`, `searchApps()`.
+On mobile, all windows are automatically maximized to full screen. Drag and resize are disabled.
 
 ---
 
-## 📊 Data Models
+## Terminal
 
-### 1. Process Model
+The terminal emulates a Unix shell navigating the virtual file system.
+
+**Prompt:** `user@caios:folder$`
+
+### Available commands
+
+| Command | Description |
+|---|---|
+| `help` | Display the command list |
+| `ls` | List files and folders in the current directory |
+| `cd <path>` | Change working directory (supports `.`, `..`, `/`, `~`, absolute and relative paths) |
+| `open <file>` | Open a file with the associated application |
+| `date` | Display current date and time (locale-aware) |
+| `theme` | Toggle between light and dark mode |
+| `clear` | Clear the terminal screen |
+| `about` | Display Cai_OS version and kernel info |
+| `neofetch` | Display ASCII logo with system information |
+| `whoami` | Display developer information |
+
+**Autocomplete:** press `Tab` to complete command and file names.
+
+**History:** use ↑ and ↓ to navigate previous commands.
+
+---
+
+## Hermes — AI Assistant
+
+Hermes is the intelligent assistant integrated into Cai_OS, powered by Google Gemini. It responds using Markdown formatting and can control the system in real time.
+
+**Features:**
+- Streaming responses (live typing effect)
+- Image attachment support
+- Gemini model picker (open Hermes and click the gear icon)
+- Conversation history (keeps the last 6 messages as context)
+- Automatic fallback to a secondary API key on 404/429 errors
+
+**How to use:**
+1. Open the **Hermes** application from the dock or app grid
+2. Type a message or ask a question
+3. Optionally attach an image by clicking the clip icon
+
+---
+
+## Hermes Actions
+
+Hermes can execute OS actions. When it decides to trigger an action, it appends a special tag to its response:
+
+```
+<!--caios:action {"type": "<action>", "payload": { ... }} -->
+```
+
+This tag is invisible to you — the system processes it automatically. You can ask Hermes to perform any of the actions below:
+
+| Action | Payload | What it does |
+|---|---|---|
+| `open_app` | `{"app": "terminal"\|"files"\|"firefox"\|"photos"\|"documents"\|"musics"\|"settings"\|"systemMonitor"\|"about"}` | Opens an application |
+| `close_app` | `{"app": "<app_id>"}` | Closes all instances of an app |
+| `open_file` | `{"name": "file.ext", "url": "/data/root/…"}` | Opens a file with its associated handler |
+| `set_theme` | `{"dark": true\|false}` | Sets dark or light mode |
+| `toggle_theme` | `{}` | Toggles the current theme |
+| `set_wallpaper` | `{"path": "/wallpapers/desktop/sunset.webp"\|"…/nebula.webp"\|"…/default.webp"}` | Changes the wallpaper |
+| `set_dock_size` | `{"size": 32..64}` | Sets the dock icon size |
+| `set_desktop_size` | `{"size": 32..56}` | Sets the desktop icon size |
+| `toggle_sounds` | `{}` | Enables/disables system sounds |
+| `play_sound` | `{"sound": "bell"\|"click"\|"startup"\|"office"}` | Plays a system sound |
+| `show_notification` | `{"title": "…", "message": "…"}` | Shows a system notification |
+| `toggle_notification_panel` | `{}` | Opens/closes the notification panel |
+| `set_language` | `{"lang": "pt"\|"en"}` | Changes the system language |
+| `toggle_auto_hide_dock` | `{}` | Toggles dock auto-hide |
+| `toggle_tips` | `{}` | Enables/disables system tips |
+
+**Example requests to Hermes:**
+- "Open the terminal"
+- "Switch to dark mode"
+- "Change the wallpaper to the sunset"
+- "Show a notification with the message 'Hello!'"
+- "Change the language to Portuguese"
+
+---
+
+## Virtual File System
+
+The file system is loaded from `/data/fs.json` the first time an application needs it. The file describes a hierarchical tree of folders and files (`FileItem`).
+
+**Node structure:**
 
 ```typescript
-interface Process {
+interface FileItem {
   id: string;
-  app: AppDefinition;
-  args?: any[];
+  name: string;
+  type: 'folder' | 'file' | 'drive';
+  icon: string;
+  color?: string;
+  size?: number;
+  modified?: string;
+  children?: FileItem[];
+  url?: string;
+  thumb?: string;
+}
+```
+
+**Recognized extensions:**
+
+| Type | Extensions |
+|---|---|
+| Images | jpg, jpeg, png, svg, webp, gif |
+| Audio | mp3, wav, ogg, m4a, flac |
+| Documents | txt, log, md, json, ts, js, css, scss, pdf, text |
+
+When you click a file in the file manager or use the terminal command `open`, `ProcessManager` queries `AppRegistry` to find the application that supports the extension and opens it automatically.
+
+---
+
+## Settings
+
+The **Settings** application has the following sections:
+
+### Appearance
+- **Color scheme**: Light / Dark
+- **Wallpaper**: Choose between static (`.webp`) or animated (`.mp4`) wallpapers for desktop; separate wallpaper for mobile
+
+### Desktop
+- **Auto-hide Dock**: hides the dock automatically when windows are over it
+- **Dock Icon Size**: adjusts icon size (default: 48)
+- **Desktop Items Size**: adjusts the size of icons pinned to the desktop (default: 40)
+
+### Sound
+- **System Sounds**: enable/disable interaction sounds (mouse, boot, notifications)
+
+### Language
+- **Language & Region**: Portuguese (Brazil) or English (United States). Changes are applied instantly.
+
+### System
+- **System Tips**: enable/disable system tip notifications
+
+### Hermes
+- **AI Model**: select which Gemini model Hermes will use. Click "Try again" if models fail to load (verify your API key).
+
+**Persistence:** all settings are saved in the browser's `localStorage` and automatically restored on the next visit.
+
+---
+
+## Notifications & Tips
+
+### Notification Center
+
+Click the bell icon in the top bar (or swipe down on mobile) to open the notification panel. The panel shows:
+- Active notifications (auto-dismissed after ~6 seconds by default)
+- Full notification history for the session
+- Music player widget (if a track is playing)
+
+### System Tips
+
+The system displays periodic tips as notifications:
+- First tip: 15 seconds after boot
+- Subsequent tips: every 7–10 minutes
+- Separate pools for desktop and mobile (no repetition until the cycle is exhausted)
+- Can be disabled in Settings → System
+
+---
+
+## Mobile Navigation
+
+On devices with screen width less than 768 px, Cai_OS uses a dedicated mobile layout:
+
+### Bottom navigation bar
+
+| Button | Action |
+|---|---|
+| Square icon | Toggle Overview (recent apps) |
+| Center pill | Home — minimizes all processes and closes drawers |
+| Grid icon | Toggle App Drawer |
+
+### Overview (recent apps)
+
+- **Swipe up** on a card → closes the process with animation
+- **Tap** a card → resumes the app and closes the overview
+- **Individual close button** per card
+- **Close all** → terminates all processes
+
+### In-app gestures
+
+| App | Gesture | Action |
+|---|---|---|
+| Photos | Horizontal swipe | Navigate between images |
+| Photos | Pinch | Zoom |
+| Documents | Horizontal swipe | Navigate between documents |
+| Documents | Pinch | Zoom |
+| TopBar | Swipe down | Opens the notification panel |
+| Dock | Long-press (500 ms) | Opens the app context menu |
+
+---
+
+## Data Models
+
+TypeScript interfaces copied verbatim from source:
+
+```typescript
+// Open process data
+interface Process extends AppBase {
+  id: string;
+  appId: string;
   isMinimized: boolean;
   isMaximized: boolean;
   zIndex: number;
-  createdAt: Date;
+  cascadeIndex: number;
+  data?: ProcessData;
 }
-```
 
-### 2. AppDefinition Model
+// Installed app definition
+interface AppDefinition extends AppBase {
+  data?: ProcessData;
+  handle?: string[];                             // supported file extensions
+  loadComponent?: () => Promise<Type<Base>>;     // lazy loading
+}
 
-```typescript
-interface AppDefinition {
+// Dock item (app + runtime state)
+interface DockItem extends AppDefinition {
+  pinned: boolean;
+  isOpen: boolean;
+  isActive: boolean;
+  count: number;
+  pids: string[];
+}
+
+// Virtual file system node
+interface FileItem {
   id: string;
-  title: string;
-  icon: string;
-  color: string;
-  component: Type<any>;
-  handle?: string[]; // File extensions the app can open
-}
-```
-
-### 3. FileNode Model
-
-```typescript
-interface FileNode {
   name: string;
-  type: 'file' | 'folder';
-  path: string;
-  content?: string;
-  children?: FileNode[];
+  type: 'folder' | 'file' | 'drive';
+  icon: string;
+  color?: string;
   size?: number;
-  extension?: string;
-  mimeType?: string;
+  modified?: string;
+  children?: FileItem[];
+  url?: string;
+  thumb?: string;
 }
-```
 
-### 4. Notification Model
-
-```typescript
+// Notification
 interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  icon?: string;
+  color?: string;
+  appId?: string;
+  type?: 'info' | 'success' | 'warning' | 'error';
   timestamp: Date;
-  read: boolean;
+  duration?: number;
+  action?: () => void;
+}
+
+// Music player state
+interface MusicPlayerState {
+  currentTrack: FileItem | null;
+  isPlaying: boolean;
+  isLoading: boolean;
+  hasError: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  isMuted: boolean;
+  discSpinState: DiscSpinState;
+}
+
+// Hermes message
+interface Message {
+  role: 'user' | 'model';
+  text: string;
+  image?: string;
+}
+
+// Hermes action
+interface HermesAction {
+  type: HermesActionType;
+  payload?: Record<string, JsonValue>;
+}
+
+// Loaded document
+interface LoadedDoc {
+  fileType: 'pdf' | 'text' | 'markdown' | 'unsupported';
+  fileName: string;
+  textContent: string;
 }
 ```
 
-### 5. Setting Model
+---
 
-```typescript
-// Settings signals (from Settings service)
-dockSize: signal<number>; // Dock icon size (px)
-desktopSize: signal<number>; // Desktop icon size (px)
-systemMuted: signal<boolean>; // System sounds muted
-autoHideDock: signal<boolean>; // Auto-hide the dock
-tipsEnabled: signal<boolean>; // System tips on/off
-wallpaper: computed<string>; // Active wallpaper (desktop or mobile)
-```
+## Core Services
 
-> **Note**: Wallpaper is now split into `desktopWallpaper` and `mobileWallpaper` internally. `setWallpaper()` automatically writes to the correct signal based on `ScreenService.isMobile()`.
+| Service | Responsibility |
+|---|---|
+| `ProcessManager` | Window/process lifecycle (open, close, focus, minimize) |
+| `WindowService` | Drag, resize, snap per window instance (provided locally) |
+| `ScreenService` | Viewport width/height, `isMobile` and `isDesktop` signals |
+| `AppRegistry` | Reactive app catalog, lookup by ID and file extension |
+| `AppLauncher` | App launch orchestration |
+| `DockService` | Dock items, pin/unpin, `localStorage` persistence |
+| `FileSystem` | Virtual file system (HTTP → JSON → node maps) |
+| `Settings` | Persisted preferences (wallpaper, dockSize, geminiModel, …) |
+| `Theme` | Dark/light mode, syncs with `prefers-color-scheme` |
+| `LanguageService` | Language switching (pt/en), `localStorage` persistence |
+| `NotificationService` | Active notification queue and history |
+| `Sound` | `AudioContext` sound player with buffer cache |
+| `Gemini` | Google Generative AI wrapper with API key fallback |
+| `HermesChatService` | Chat state, history, send with streaming |
+| `HermesActionService` | Parse and dispatch `<!--caios:action -->` tags |
+| `AudioPlayer` | HTML `<audio>` wrapper with seek, playlist, and state |
+| `LyricsService` | LRCLIB lyrics fetch, LRC parse, active line tracking |
+| `TerminalCommands` | Terminal command implementations |
+| `DesktopIconsService` | Desktop-pinned app shortcuts, `localStorage` persistence |
+| `DocumentLoaderService` | Document loading and type detection |
+| `SystemTips` | Periodic tip scheduling |
 
 ---
 
-## 🚀 System Features
+## Internationalization (i18n)
 
-### 1. Window Management
+**Supported languages:** Portuguese (`pt`) and English (`en`).
 
-#### Snap (Auto-Docking)
+The active language is determined in order:
+1. `lang` key in `localStorage`
+2. `navigator.language` prefix (`pt` or `en`)
+3. Default: `pt`
 
-The system offers automatic window snapping to screen edges and corners:
+To change the language: Settings → Language, or ask Hermes: *"Change the language to Portuguese"*.
 
-- **Left Edge**: 50% of screen on the left
-- **Right Edge**: 50% of screen on the right
-- **Top Left Corner**: 25% (1/4 top left)
-- **Top Right Corner**: 25% (1/4 top right)
-- **Bottom Left Corner**: 25% (1/4 bottom left)
-- **Bottom Right Corner**: 25% (1/4 bottom right)
-
-**Implementation**: When dragging a window near edges (15px), a visual "ghost" shows the snap area.
-
-#### Resizing
-
-Windows can be resized in 8 directions:
-
-- North (N)
-- South (S)
-- East (E)
-- West (W)
-- Northeast (NE)
-- Northwest (NW)
-- Southeast (SE)
-- Southwest (SW)
-
-**Limits**: Minimum width of 320px and minimum height of 240px.
-
-#### Maximize/Restore
-
-Double-click on the title bar to maximize/restore the window.
-
-#### Minimize
-
-Minimizes the window to the dock, keeping the process active.
-
-### 2. Virtual File System
-
-Complete hierarchical structure with folders and files:
-
-```
-/home/
-  ├── documents/
-  │   ├── curriculum.pdf
-  │   └── project-docs.pdf
-  ├── photos/
-  │   ├── feedback1.png
-  │   ├── feedback2.png
-  │   └── dog.jpg
-  ├── music/
-  │   ├── song1.mp3
-  │   └── song2.mp3
-  └── certificates/
-      ├── cert1.pdf
-      └── cert2.pdf
-```
-
-**Supported Operations**:
-
-- Navigation (cd)
-- Listing (ls)
-- File opening (open)
-- Search
-
-### 3. Interactive Terminal
-
-Functional terminal with Unix-like commands.
-
-**Features**:
-
-- Command history (↑/↓)
-- Autocomplete
-- Output colorization
-- Current path
-
-**Usage Examples**:
-
-```bash
-$ ls
-documents  photos  music  certificates
-$ cd documents
-/home/documents
-$ open curriculum.pdf
-Opening curriculum.pdf...
-$ theme
-Theme changed to dark
-```
-
-### 4. Notification Center
-
-Centralized notification system with:
-
-- Relative timestamp (now, 5min ago, etc)
-- Read marking
-- Individual or bulk clearing
-- Visual types (info, success, warning, error)
-
-### 5. App Switcher (Ctrl+`)
-
-Quick navigation between open windows:
-
-- Activated by `Ctrl+\``
-- Visual preview of each window
-- Keyboard navigation (Tab)
-- Instant focus
-
-### 6. Context Menu
-
-Right-click on dock icons:
-
-- Open application
-- New instance
-- Close application
-- Remove from dock
-
-### 7. Drag and Drop
-
-Drag applications from the grid to the dock to pin them.
-
-### 8. Mobile Navigation (feature/mobile)
-
-On devices with width < 768px the desktop layout is replaced by a mobile-optimised experience:
-
-- **MobileNavBar**: fixed bottom bar with Home, Overview, and App Drawer buttons
-- **MobileOverview**: fullscreen card grid of open windows; tap to focus, swipe-up to close; auto-closes when the last process is dismissed
-- **Adaptive Wallpapers**: separate wallpaper sets for `public/wallpapers/desktop/` and `public/wallpapers/mobile/`
-- **Adaptive Videos**: desktop live-wallpaper videos in `public/videos/wallpapers/desktop/`; no video wallpapers on mobile
-- **Touch Gestures**: tap, swipe-up dismiss, and backdrop-tap implemented natively without third-party libraries
+`LanguageService` exposes `currentLang` (signal) and `t` (computed with all translations). Every user-visible string comes from `lang.t().section.key`.
 
 ---
 
-## 📱 Applications
+## Environment Variables
 
-### 1. Files (File Manager)
+Environment variables are read from `src/.env` by the `mynode.js` script and written to `src/environments/environment.ts` (git-ignored).
 
-**Features**:
-
-- Folder navigation
-- Grid or list view
-- Breadcrumbs
-- Sidebar with favorite locations
-- Real-time search
-- File opening with associated apps
-- Size information
-
-**Components**:
-
-- `FilesComponent`: Main component
-- `BreadcrumbsComponent`: Path navigation
-- `SidebarComponent`: Location sidebar
-- `GridComponent`: Grid view
-- `ListComponent`: List view
-
-### 2. Firefox (Web Browser)
-
-**Features**:
-
-- URL navigation
-- Iframe for external sites
-- Error handling (CORS)
-- Back/refresh buttons
-- Loading indicator
-
-**Limitations**: Some sites block iframe due to CORS policy.
-
-### 3. Terminal
-
-**Features**:
-
-- Unix-like commands
-- Command history
-- Dynamic path
-- FileSystem integration
-- File opening
-- Theme change
-- System info
-
-### 4. Photos (Image Viewer)
-
-**Features**:
-
-- Image gallery
-- Full-screen viewing
-- Image navigation (previous/next)
-- Zoom
-- Support for JPG, PNG, GIF, WebP
-
-### 5. Documents (Document Viewer)
-
-**Features**:
-
-- PDF rendering (lazy-loaded via dynamic import)
-- Markdown (`.md`) rendering with full formatting — same engine as Hermes
-- Page navigation
-- Zoom (header controls on desktop; floating pill bar on narrow windows)
-- Pinch-to-zoom on mobile with reset button
-- Horizontal swipe to navigate between documents on mobile (blocked when zoom > 1)
-- Download
-- List of available documents (differentiated icon for `.md` files)
-- Container-aware responsive layout (`ScreenService` / `window.resize`, breakpoint: 500 px)
-
-**Supported Formats**: PDF, TXT, MD and other text files.
-
-**Library**: Uses `ng2-pdf-viewer` for PDFs.
-
-### 6. Musics (Music Player)
-
-**Features**:
-
-- Music library with collapsible sidebar
-- Player controls (Play/Pause, Previous/Next)
-- Seek bar with click and drag
-- Volume control and mute
-- **Synchronized lyrics** via [LRCLIB](https://lrclib.net) API
-  - Fullscreen overlay with auto-scroll on active line
-  - Click any line to jump to that position in the track
-  - Fallback to plain (unsynchronized) lyrics
-  - Attribution: "Lyrics provided by LRCLIB"
-- **Album thumbnails**: `thumb` field in `fs.json`; falls back to animated spinning disc when missing or invalid
-- **Music Widget** in the notification bar: thumbnail, controls, and inline progress bar
-- **Now Playing Widget** in the top bar: animated disc icon with track name
-- Seek debounce (80 ms) to avoid rebuffer glitches when jumping lyrics lines
-
-**Services**:
-
-- `AudioPlayer` (`player/audio-player.ts`): controls native `<audio>` via Angular Signals
-- `LyricsService` (`player/lyrics.service.ts`): fetches LRCLIB, parses LRC, active line via binary search
-
-**Covers**: place images in `public/data/root/home/musics/covers/` with the same base name as the audio file (`.jpg`).
-
-**Supported Formats**: MP3, WAV, OGG, M4A, FLAC.
-
-### 7. Settings
-
-**Sections**:
-
-#### Appearance
-
-- Color scheme (light/dark)
-- Wallpaper (separate sets for desktop and mobile)
-
-#### Desktop
-
-- Auto-hide dock _(desktop only — hidden on mobile)_
-- Dock icon size _(desktop only)_
-- Desktop icon size
-
-#### Sound
-
-- System sounds (on/off)
-
-#### System
-
-- System tips (on/off)
-
-#### Language
-
-- Portuguese/English
-
-#### About
-
-- System name
-- Version
-- Hardware information
-- Engine
-
-### 8. System Monitor
-
-**Features**:
-
-- List of active processes
-- Actions (close process)
-- Network information
-- Latency
-- Connection type
-
-**Note**: CPU/RAM data is simulated due to browser limitations.
-
-### 9. Hermes (AI Assistant)
-
-**Features**:
-
-- Chat with AI (Google Gemini) — streaming responses
-- Image analysis (attach image to message)
-- Contextualized responses with conversation history
-- Multilingual support
-- Model selector dropdown — lists all available Gemini models live from the API
-- System actions (open apps, change theme, show notifications, etc.)
-- Model-unavailable notification: when the API returns 404/NOT_FOUND, a specific notification guides the user to change the model
-
-**Configuration**: Requires Google Gemini API key (`geminiApiKey` + optional `geminiApiKey2`) in `environment.ts`.
-
-### 10. About Project
-
-**Content**:
-
-- Developer's vision
-- System features
-- Application descriptions
-- Project motivation
-- Technologies used
+| Variable | Type | Purpose |
+|---|---|---|
+| `geminiApiKey` | `string` | Primary Google Generative AI API key (used by Hermes) |
+| `geminiApiKey2` | `string` | Fallback key — used when the primary returns 404 or 429 |
 
 ---
 
-## 🔧 Installation and Configuration
+## Technical Reference
 
-### Prerequisites
+### Stack
 
-- Node.js 18+ and npm 11+
-- Angular CLI 21+
+| Technology | Version |
+|---|---|
+| Angular | 22.2.1 |
+| TypeScript | 6.0.3 |
+| Tailwind CSS | 4.1.18 |
+| `@google/generative-ai` | 0.24.1 |
+| `ng2-pdf-viewer` | 10.4.0 |
+| Vitest | 4.0.18 |
+| Node.js (build) | ≥ 20 |
 
-### Installation
+### npm Scripts
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd Portfolio-main
+| Script | Description |
+|---|---|
+| `npm start` | Generates `environment.ts` and starts the development server |
+| `npm run build` | Production build |
+| `npm test` | Runs the test suite (Vitest) |
+| `npm run watch` | Incremental development build |
 
-# Install dependencies
-npm install
+### localStorage Persistence
 
-# Start development server
-npm start
-```
-
-### Environment Configuration
-
-Edit `src/environments/environment.ts`:
-
-```typescript
-export const environment = {
-  production: false,
-  geminiApiKeys: [
-    'YOUR_API_KEY_HERE',
-    'YOUR_BACKUP_API_KEY', // Optional
-  ],
-};
-```
-
-**Get Gemini API Key**:
-
-1. Access [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Create a new API key
-3. Paste into environment file
-
-### Production Environment
-
-Edit `src/environments/environment.ts` for production:
-
-```typescript
-export const environment = {
-  production: true,
-  geminiApiKeys: ['PRODUCTION_API_KEY'],
-};
-```
+| Key | Default | Description |
+|---|---|---|
+| `lang` | `pt` | Current language |
+| `theme` | — (system) | `dark` or `light` |
+| `wallpaper` | `/wallpapers/desktop/default.webp` | Desktop wallpaper |
+| `mobileWallpaper` | `/wallpapers/mobile/default.webp` | Mobile wallpaper |
+| `dockSize` | `48` | Dock icon size |
+| `desktopSize` | `40` | Desktop icon size |
+| `soundMuted` | `false` | System sounds muted |
+| `autoHideDock` | `true` | Dock auto-hide enabled |
+| `tipsEnabled` | `true` | System tips enabled |
+| `geminiModel` | `gemini-flash-lite-latest` | Selected Gemini model |
+| `pinnedAppIds` | `['firefox','files','terminal']` | Apps pinned to dock |
+| `desktopIcons` | `[]` | Apps pinned to desktop |
 
 ---
 
-## 📜 Available Commands
-
-### NPM Scripts
-
-```bash
-# Start development server
-npm start
-# or
-npm run start
-
-# Production build
-npm run build
-
-# Build with watch
-npm run watch
-
-# Run tests
-npm test
-
-# Generate component
-ng generate component component-name
-
-# Generate service
-ng generate service service-name
-```
-
-### Terminal Commands (inside the app)
-
-| Command    | Description                  | Example               |
-| ---------- | ---------------------------- | --------------------- |
-| `help`     | Display command list         | `help`                |
-| `ls`       | List directory files         | `ls`                  |
-| `cd`       | Navigate between directories | `cd documents`        |
-| `open`     | Open a file                  | `open curriculum.pdf` |
-| `date`     | Display current date/time    | `date`                |
-| `theme`    | Toggle light/dark theme      | `theme`               |
-| `clear`    | Clear terminal screen        | `clear`               |
-| `neofetch` | System info                  | `neofetch`            |
-| `whoami`   | Developer info               | `whoami`              |
-| `about`    | Display system version       | `about`               |
-
----
-
-## 🎨 Customization
-
-### Changing Theme Colors
-
-Edit `src/styles.scss`:
-
-```scss
-:root {
-  --primary-color: #3584e4;
-  --secondary-color: #ff7139;
-  --background: #ffffff;
-  --text-color: #000000;
-}
-.dark {
-  --background: #1e1e1e;
-  --text-color: #ffffff;
-}
-```
-
-### Changing Wallpaper
-
-Wallpapers are now split by device type:
-
-- **Desktop**: add images to `public/wallpapers/desktop/`
-- **Mobile**: add images to `public/wallpapers/mobile/`
-
-The `Settings` service automatically picks the correct set via `ScreenService.isMobile()`.
-
-### Changing Sounds
-
-Add audio files to `public/sounds/` and configure in `SoundService`.
-
----
-
-## 🐛 Troubleshooting
-
-### Problem: Application doesn't open
-
-**Solution**: Check if the app is registered in `apps.ts` and if the component is imported correctly.
-
-### Problem: Theme doesn't change
-
-**Solution**: Clear browser localStorage:
-
-```javascript
-localStorage.clear();
-```
-
-### Problem: Hermes doesn't respond
-
-**Solution**:
-
-1. Check if Gemini API key is configured
-2. Check API quota in Google Cloud Console
-3. See errors in browser console
-
-### Problem: Files don't appear
-
-**Solution**: FileSystem is initialized in `file-system.service.ts`. Check for console errors.
-
-### Problem: Terminal doesn't execute commands
-
-**Solution**: Check if the command exists in `terminal-comands.ts` and if syntax is correct.
-
----
-
-## 📚 Additional Resources
-
-### Documentation
-
-- [Angular](https://angular.dev)
-- [Tailwind CSS](https://tailwindcss.com)
-- [TypeScript](https://www.typescriptlang.org)
-- [Google Gemini](https://ai.google.dev)
-
-### Design Inspiration
-
-- [GNOME Desktop](https://www.gnome.org)
-- [Elementary OS](https://elementary.io)
-- [Ubuntu](https://ubuntu.com)
-
----
-
-## 🤝 Contributing
-
-### How to Contribute
-
-1. Fork the project
-2. Create a branch for your feature `git checkout -b feature/AmazingFeature`
-3. Commit your changes `git commit -m 'Add some AmazingFeature'`
-4. Push to the branch `git push origin feature/AmazingFeature`
-5. Open a Pull Request
-
-### Guidelines
-
-- Follow existing code style
-- Add tests for new features
-- Update documentation
-- Use descriptive commits
-
----
-
-## 📄 License
-
-This project is a personal portfolio. All rights reserved.
-
----
-
-## 👤 Author
-
-**Developer**: Caio Souza Silva
-**Contact**: caiosouzasilva13650@gmail.com
-**Portfolio**: [caiossilva.com](https://caiossilva.com)
-**GitHub**: [github.com/CaioSSilva](https://github.com/CaioSSilva/)
-
----
-
-## 🙏 Acknowledgments
-
-- Angular Team
-- GNOME Design Team
-- Open Source Community
-- Google Gemini Team
-- Font Awesome
-- Tailwind CSS Team
-
----
-
-## 📊 Project Statistics
-
-- **Version**: 2.5.1
-- **Lines of Code**: ~19,000+
-- **Components**: 29+
-- **Services**: 19+
-- **Applications**: 10
-- **Languages**: 2
-- **Test Files**: 52
-- **Tests**: 614 (100% passing)
-- **Performance Score**: 90+
-
----
-
-## 📞 Support
-
-For questions, suggestions, or to report bugs:
-
-- **Issues**: Open an issue on GitHub
-- **Discussions**: Use the Discussions tab on GitHub
-
----
-
-**Developed with ❤️ using Angular 22**
-
-**Last Update**: October 2026 · v2.5.1
+## Contact
+
+**Caio Souza Silva**
+- Portfolio: [caiossilva.com](https://caiossilva.com)
+- GitHub: [github.com/CaioSSilva](https://github.com/CaioSSilva)
+- Email: caiosouzasilva13650@gmail.com
