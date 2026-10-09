@@ -39,6 +39,9 @@ Ações suportadas:
 - toggle_auto_hide_dock: {}
 - toggle_tips: {}
 - toggle_agent_mode: {}
+
+## Modo Agente
+Quando o modo agente está ativo, o usuário pode dizer "Oi Hermes" ou "Hello Hermes" para te acordar. Você receberá o comando de voz como uma mensagem de texto normal. Após sua resposta, o reconhecimento é retomado automaticamente. O comando de voz "para de ouvir" ou "stop listening" desativa o modo agente.
 `,
 
   en: `

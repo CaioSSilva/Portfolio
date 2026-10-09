@@ -444,7 +444,10 @@
             </div>
 
             @if (agentMode.isSupported()) {
-              <div class="p-4 flex items-center justify-between gap-4">
+              <div
+                class="p-4 flex items-center justify-between gap-4"
+                [class.opacity-40]="!settings.agentModeEnabled()"
+              >
                 <div class="min-w-0">
                   <div class="font-medium">{{ lang.t().settings.hermes.agentSpeakReplies }}</div>
                   <div class="text-sm text-gnome-text-secondary">
@@ -453,8 +456,9 @@
                 </div>
                 <button
                   (click)="settings.toggleAgentSpeakReplies()"
+                  [disabled]="!settings.agentModeEnabled()"
                   [attr.aria-label]="lang.t().settings.hermes.agentSpeakReplies"
-                  class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer shrink-0"
+                  class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer shrink-0 disabled:cursor-not-allowed"
                   [class.bg-gnome-blue]="settings.agentSpeakReplies()"
                   [class.bg-zinc-400]="!settings.agentSpeakReplies()"
                 >

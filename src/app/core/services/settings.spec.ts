@@ -56,4 +56,23 @@ describe('Settings', () => {
     service.setGeminiModel('gemini-nano');
     expect(service.geminiModel()).toBe('gemini-nano');
   });
+
+  it('should reset agentSpeakReplies when agent mode is toggled off', () => {
+    service.toggleAgentMode();
+    service.toggleAgentSpeakReplies();
+    expect(service.agentSpeakReplies()).toBe(true);
+
+    service.toggleAgentMode();
+    expect(service.agentModeEnabled()).toBe(false);
+    expect(service.agentSpeakReplies()).toBe(false);
+  });
+
+  it('should reset agentSpeakReplies when disableAgentMode is called', () => {
+    service.toggleAgentMode();
+    service.toggleAgentSpeakReplies();
+
+    service.disableAgentMode();
+    expect(service.agentModeEnabled()).toBe(false);
+    expect(service.agentSpeakReplies()).toBe(false);
+  });
 });

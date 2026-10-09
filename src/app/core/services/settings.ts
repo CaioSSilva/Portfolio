@@ -80,11 +80,14 @@ export class Settings {
   }
 
   toggleAgentMode(): void {
-    this.agentModeEnabled.update((value) => !value);
+    const next = !this.agentModeEnabled();
+    this.agentModeEnabled.set(next);
+    if (!next) this.agentSpeakReplies.set(false);
   }
 
   disableAgentMode(): void {
     this.agentModeEnabled.set(false);
+    this.agentSpeakReplies.set(false);
   }
 
   toggleAgentSpeakReplies(): void {

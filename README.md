@@ -1,6 +1,6 @@
 # Cai_OS
 
-![Version](https://img.shields.io/badge/version-2.5.1-blue)
+![Version](https://img.shields.io/badge/version-3.0.0-blue)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
 ![Vitest](https://img.shields.io/badge/tests-Vitest-brightgreen)
@@ -20,6 +20,7 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 - Full desktop window management: drag, resize, snap, maximize, minimize, cascade
 - Mobile-responsive: dedicated mobile layout with swipe navigation and overview
 - Hermes AI assistant powered by `@google/generative-ai`, capable of controlling the OS via structured action tags
+- **Agent Mode** — always-on voice activation via wake phrase ("Hello Hermes" / "Oi Hermes"), powered by the Web Speech API
 - Virtual file system loaded from a static JSON manifest (`/data/fs.json`)
 - Synced lyrics for the music player via the public LRCLIB API
 - Vercel Analytics and Speed Insights integrated at startup
@@ -43,19 +44,30 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 
 ---
 
-## What's New — v2.5.1
+## What's New — v3.0.0
 
-Based on source code evidence:
+- **Agent Mode**: always-on voice service for Hermes — say "Hello Hermes" or "Oi Hermes" to wake it without opening any app. Inline commands supported (e.g. *"Hey Hermes, open the terminal"*)
+- **Tray icon**: microphone icon in the top-bar right cluster reflects live agent state (listening / awake / processing / speaking)
+- **Spoken replies**: opt-in TTS via Web Speech API — Hermes reads its answers aloud; Markdown is stripped before synthesis
+- **Settings → Hermes section**: agent mode toggle, spoken replies toggle, wake phrase reference, privacy notice, per-browser support detection
+- **4 new core services**: `AgentModeService` (state machine), `SpeechRecognitionService` (Web Speech wrapper + backoff), `SpeechSynthesisService` (TTS), `WakeWordService` (fuzzy wake-phrase detection, Levenshtein ≤ 1)
+- **`toggle_agent_mode` action**: Hermes can now enable/disable Agent Mode via the action tag pipeline
+- **`notifyAgentReply()`** on `HermesChatService`: shows a system notification when Agent Mode replies while the Hermes window is closed and spoken replies are off
 
-- **Hermes model migration**: Deprecated model IDs (`gemini-2.5-flash`, `gemini-2.0-flash-lite`, etc.) are automatically migrated to `gemini-flash-lite-latest` on startup
-- **Dual API key fallback**: Gemini service retries with a secondary key on 404/429 errors, both for standard and streaming responses
-- **Window snap system**: Drag-to-snap to left, right, top-full, and four corner quadrants with a ghost preview overlay
+<details>
+<summary>Previous release — v2.5.1</summary>
+
+- **Hermes model migration**: Deprecated model IDs auto-migrated to `gemini-flash-lite-latest` on startup
+- **Dual API key fallback**: Gemini retries with a secondary key on 404/429 errors
+- **Window snap system**: Drag-to-snap with ghost preview overlay (left, right, top-full, four corners)
 - **Pinch-to-zoom** in ImageViewer and DocumentViewer (mobile)
-- **Swipe-to-navigate** documents and images on mobile (horizontal swipe)
-- **Anchor scroll in DocumentViewer**: clicking `#id` links in Markdown scrolls the document panel
+- **Swipe-to-navigate** documents and images on mobile
+- **Anchor scroll in DocumentViewer**: clicking `#id` links in Markdown scrolls the panel
 - **Lyrics**: synced (LRC) and plain-text lyrics from LRCLIB with active-line tracking
 - **Desktop icons**: pinnable shortcuts on the desktop, persisted to `localStorage`
-- **Dock drag-and-drop**: drag apps from the grid directly onto the dock to pin them at a specific position
+- **Dock drag-and-drop**: drag apps from the grid onto the dock to pin at a specific position
+
+</details>
 
 ---
 
@@ -88,6 +100,7 @@ Based on source code evidence:
 │  │  │  Settings  Theme  Language  Notification   │  │   │
 │  │  │  DockService  AppRegistry  AppLauncher     │  │   │
 │  │  │  Gemini  HermesChat  HermesAction          │  │   │
+│  │  │  AgentMode  SpeechRecognition  WakeWord    │  │   │
 │  │  │  AudioPlayer  LyricsService  Sound         │  │   │
 │  │  └────────────────────────────────────────────┘  │   │
 │  └──────────────────────────────────────────────────┘   │
@@ -175,6 +188,7 @@ src/
 │   ├── core/
 │   │   ├── version.ts               # APP_VERSION constant
 │   │   ├── models/                  # TypeScript interfaces & type aliases
+│   │   │   ├── agent-mode.ts        # AgentModeState, Web Speech API interfaces, WakeWordMatch
 │   │   │   ├── apps.ts              # AppRegistry + getInstalledApps()
 │   │   │   ├── base.ts              # Base directive, AppBase, ProcessData
 │   │   │   ├── desktop.ts           # Rect, pinnedDesktopItem
@@ -212,6 +226,10 @@ src/
 │   │   │   ├── hermes-app-actions.ts  # open_app / close_app / open_file
 │   │   │   ├── hermes-system-actions.ts # set_theme / set_wallpaper / etc.
 │   │   │   ├── hermes-docs.ts       # System prompt + action reference (PT/EN)
+│   │   │   ├── agent-mode.ts        # Agent Mode state machine orchestrator
+│   │   │   ├── speech-recognition.ts  # Web Speech API wrapper + backoff
+│   │   │   ├── speech-synthesis.ts  # Browser TTS wrapper, Markdown stripping
+│   │   │   ├── wake-word.ts         # Wake phrase normalisation + fuzzy match
 │   │   │   ├── terminal-commands.ts # Built-in terminal commands
 │   │   │   ├── audio-player.ts      # HTML Audio element wrapper
 │   │   │   ├── lyrics.service.ts    # LRCLIB fetch + LRC parsing
@@ -313,7 +331,7 @@ public/
 | `ImageViewer` | `features/image-viewer/image-viewer.ts` | Image gallery with zoom, rotate, pan, pinch-to-zoom, keyboard arrow navigation | Windowed | Windowed |
 | `DocumentViewer` | `features/document-viewer/document-viewer.ts` | PDF, Markdown, and text viewer with zoom, anchor scroll, keyboard navigation | Windowed (lazy-loaded) | Windowed |
 | `Musics` | `features/musics/musics.ts` | Music player with library, playback controls, seek, synced lyrics | Windowed | Windowed (compact) |
-| `SettingsComponent` | `features/settings/settings.ts` | Settings: appearance, desktop, sound, language, system info | Windowed | Windowed (narrow layout) |
+| `SettingsComponent` | `features/settings/settings.ts` | Settings: appearance, desktop, sound, language, Hermes (agent mode, model, spoken replies), system info | Windowed | Windowed (narrow layout) |
 | `SystemMonitor` | `features/system-monitor/system-monitor.ts` | CPU/RAM graph (simulated), network stats, process list with kill | Windowed | Windowed |
 | `Hermes` | `features/hermes/hermes.ts` | AI chat with Gemini, image attachment, model picker, streaming response | Windowed | Windowed |
 | `DesktopIcons` | `features/desktop-icons/desktop-icons.ts` | Desktop icon overlay rendered directly on the wallpaper | Visible | N/A |
@@ -386,9 +404,9 @@ Loads `/data/fs.json`, builds node/parent/URL maps and a search index.
 ### `Settings` — `core/services/settings.ts`
 Persisted user settings via `localStorage`.
 
-**Signals:** `dockSize` (default 48, range 28–64), `desktopSize` (default 40, range 32–80), `systemMuted` (default false), `autoHideDock` (default true), `tipsEnabled` (default true), `geminiModel` (default `gemini-flash-lite-latest`), `wallpaper` (computed from desktop/mobile)
+**Signals:** `dockSize` (default 48, range 28–64), `desktopSize` (default 40, range 32–80), `systemMuted` (default false), `autoHideDock` (default true), `tipsEnabled` (default true), `geminiModel` (default `gemini-flash-lite-latest`), `agentModeEnabled` (default false), `agentSpeakReplies` (default false), `wallpaper` (computed from desktop/mobile)
 
-**Public API:** `setWallpaper(path)`, `setDockSize(size)`, `setDesktopSize(size)`, `toggleAutoHideDock()`, `setGeminiModel(model)`, `toggleSystemTips()`, `toggleSystemSounds()`
+**Public API:** `setWallpaper(path)`, `setDockSize(size)`, `setDesktopSize(size)`, `toggleAutoHideDock()`, `setGeminiModel(model)`, `toggleSystemTips()`, `toggleSystemSounds()`, `toggleAgentMode()`, `disableAgentMode()`, `toggleAgentSpeakReplies()`
 
 ---
 
@@ -438,7 +456,7 @@ Chat message state. Keeps the last 6 messages as context history. Streams respon
 
 **Signals:** `messages`, `isLoading`
 
-**Public API:** `send(text, fileData, previewUrl)`, `clearMessages()`
+**Public API:** `send(text, fileData, previewUrl)`, `clearMessages()`, `notifyAgentReply(text)`
 
 ---
 
@@ -494,6 +512,40 @@ Loads and processes documents for the DocumentViewer. Detects PDF, Markdown, tex
 **Signals:** `isLoading`, `hasError`
 
 **Public API:** `loadAllDocs()`, `loadLibraryForUrl(url)`, `processFile(file)`, `resetState()`
+
+---
+
+### `AgentModeService` — `core/services/agent-mode.ts`
+State machine orchestrating the full Agent Mode lifecycle: off → listening → awake → processing → speaking. Coordinates `SpeechRecognitionService`, `WakeWordService`, `HermesChatService`, and `SpeechSynthesisService`.
+
+**Signals:** `state` (`AgentModeState`)
+
+**Public API:** `enable()`, `disable()`
+
+---
+
+### `SpeechRecognitionService` — `core/services/speech-recognition.ts`
+Wraps the browser Web Speech API with continuous restart and exponential backoff. Exposes support detection and secure-context checks.
+
+**Signals:** `transcript`, `error`, `isSupported`, `isSecureContext`
+
+**Public API:** `start()`, `stop()`
+
+---
+
+### `SpeechSynthesisService` — `core/services/speech-synthesis.ts`
+Browser TTS wrapper. Strips Markdown before speaking. Uses `queueMicrotask` to work around a Chrome `cancel()`→`speak()` bug.
+
+**Signals:** `isSpeaking`
+
+**Public API:** `speak(text)`, `cancel()`, `isSupported()`
+
+---
+
+### `WakeWordService` — `core/services/wake-word.ts`
+Normalises transcripts and matches wake phrases ("Hello/Oi/Hey Hermes") using exact match plus Levenshtein ≤ 1 fuzzy fallback. Returns the extracted inline command if present.
+
+**Public API:** `match(transcript): WakeWordMatch | null`
 
 ---
 
@@ -614,7 +666,8 @@ export type HermesActionType =
   | 'set_dock_size' | 'set_desktop_size'
   | 'toggle_sounds' | 'play_sound'
   | 'show_notification' | 'toggle_notification_panel'
-  | 'set_language' | 'toggle_auto_hide_dock' | 'toggle_tips';
+  | 'set_language' | 'toggle_auto_hide_dock' | 'toggle_tips'
+  | 'toggle_agent_mode';
 
 export interface HermesAction {
   type: HermesActionType;
@@ -635,7 +688,7 @@ export interface SystemInfo {
   browser: string;
 }
 
-export type SettingSection = 'appearance' | 'desktop' | 'sound' | 'about' | 'language' | 'system';
+export type SettingSection = 'appearance' | 'desktop' | 'sound' | 'about' | 'language' | 'hermes' | 'system';
 ```
 
 ```typescript
@@ -715,6 +768,7 @@ Hermes can trigger OS actions by appending structured tags to its response:
 | `set_language` | `{"lang": "pt"\|"en"}` | Changes the system language |
 | `toggle_auto_hide_dock` | `{}` | Toggles dock auto-hide |
 | `toggle_tips` | `{}` | Enables/disables system tips |
+| `toggle_agent_mode` | `{}` | Enables/disables Agent Mode |
 
 ---
 
@@ -780,7 +834,7 @@ Environment variables are read from `src/.env` by `mynode.js` and written to `sr
 | `geminiApiKey` | `string` | Primary Google Generative AI API key used by Hermes |
 | `geminiApiKey2` | `string` | Fallback API key — used when the primary returns 404 or 429 |
 
-The `environment.ts` file is git-ignored and generated at startup. Do not commit it.
+Both `environment.ts` and `environment.development.ts` are git-ignored. Never commit either file. Use `src/.env` as the source of truth for local keys.
 
 ---
 
@@ -845,6 +899,8 @@ Edit `public/data/fs.json` to add nodes to the tree. Files referenced by `url` m
 | `src/environments/environment.ts` not found | Run `npm start` (not `ng serve` directly) — `mynode.js` generates this file |
 | Hermes returns no response | Verify `geminiApiKey` in `src/.env`; check browser console for 400/403 errors |
 | Hermes model error notification | The saved model may be deprecated; open the Hermes app, click the model name above the input field, and select a new model — or clear `localStorage` key `geminiModel` |
+| Agent Mode toggle disabled in Settings | Browser does not support the Web Speech API (Firefox), or the page is served over HTTP — HTTPS is required. Use Chrome/Chromium on a secure origin |
+| Agent Mode enabled but not responding | Microphone permission was denied; click the lock icon in the browser address bar and allow microphone access, then re-enable Agent Mode |
 | File system not loading | Check that `public/data/fs.json` is present and valid JSON |
 | Sounds not playing | Sounds require a user interaction first (browser AudioContext policy). Click anywhere to unlock |
 | Videos not playing as wallpaper | Some browsers block autoplay; try a static wallpaper as fallback |
@@ -886,14 +942,14 @@ This project is private (`"private": true` in `package.json`). All rights reserv
 
 | Metric | Value |
 |---|---|
-| Version | 2.5.1 |
+| Version | 3.0.0 |
 | Angular version | 22.2.1 |
 | TypeScript version | 6.0.3 |
 | Applications | 10 |
 | Layout components | 9 |
 | Shared UI components | 4 |
-| Core services | 25 |
-| Data models | 13 files |
+| Core services | 29 |
+| Data models | 14 files |
 | Languages supported | 2 (PT, EN) |
 | Platforms | Desktop, Mobile |
 | Test runner | Vitest 4.0.18 |

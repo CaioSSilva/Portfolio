@@ -1,6 +1,6 @@
 # Cai_OS — Documentation
 
-**Version:** 2.5.1 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
+**Version:** 3.0.0 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
 
 ---
 
@@ -38,6 +38,7 @@ Instead of a traditional portfolio page, visitors interact with real windowed ap
 - Full desktop window management: drag, resize, snap, maximize, minimize, cascade
 - Responsive layout: full desktop and dedicated mobile layout with touch gestures
 - Hermes AI assistant powered by `@google/generative-ai`, capable of controlling the OS via structured action tags
+- **Agent Mode** — always-on voice activation via wake phrase ("Hello Hermes" / "Oi Hermes"), powered by the Web Speech API
 - Virtual file system loaded from a static JSON manifest (`/data/fs.json`)
 - Synchronized lyrics for the music player via the public LRCLIB API
 - Deployed on Vercel with Analytics and Speed Insights integrated at startup
@@ -81,6 +82,7 @@ After booting, the **About the project** application opens automatically with de
 │  │  │  Settings  Theme  Language  Notification   │  │   │
 │  │  │  DockService  AppRegistry  AppLauncher     │  │   │
 │  │  │  Gemini  HermesChat  HermesAction          │  │   │
+│  │  │  AgentMode  SpeechRecognition  WakeWord    │  │   │
 │  │  │  AudioPlayer  LyricsService  Sound         │  │   │
 │  │  └────────────────────────────────────────────┘  │   │
 │  └──────────────────────────────────────────────────┘   │
