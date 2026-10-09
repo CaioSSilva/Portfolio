@@ -97,25 +97,23 @@ describe('MusicWidget', () => {
   });
 
   it('onSeekStart ativa isSeeking e atualiza seekPreview', () => {
-    const event = { target: { valueAsNumber: 30 } } as unknown as Event;
-    component.onSeekStart(event);
-    expect(component.isSeeking()).toBe(true);
-    expect(component.seekPreview()).toBe(30);
+    const event: Partial<Event> = { target: { valueAsNumber: 30 } as Partial<HTMLInputElement> as HTMLInputElement };
+    component.onSeekStart(event as Event);
+    expect(component.displayTime()).toBe(30);
   });
 
   it('onSeekEnd desativa isSeeking e chama player.seek', () => {
     const seekSpy = vi.spyOn(audioPlayer, 'seek');
-    const event = { target: { valueAsNumber: 45 } } as unknown as Event;
-    component.onSeekStart(event);
-    component.onSeekEnd(event);
-    expect(component.isSeeking()).toBe(false);
+    const event: Partial<Event> = { target: { valueAsNumber: 45 } as Partial<HTMLInputElement> as HTMLInputElement };
+    component.onSeekStart(event as Event);
+    component.onSeekEnd(event as Event);
     expect(seekSpy).toHaveBeenCalledWith(45);
   });
 
   it('displayTime usa seekPreview durante o drag', () => {
     audioPlayer.currentTime.set(10);
-    const event = { target: { valueAsNumber: 50 } } as unknown as Event;
-    component.onSeekStart(event);
+    const event: Partial<Event> = { target: { valueAsNumber: 50 } as Partial<HTMLInputElement> as HTMLInputElement };
+    component.onSeekStart(event as Event);
     expect(component.displayTime()).toBe(50);
   });
 

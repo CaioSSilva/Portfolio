@@ -21,7 +21,7 @@ export class MarkdownPipe implements PipeTransform {
 
   private sanitizeAndNormalise(value: string): string {
     const codeBlocks: string[] = [];
-    let html = value.replace(/```[\w]*\n?([\s\S]*?)```/g, (_, code) => {
+    let html = value.replace(/```[\w]*\n?([\s\S]*?)```/g, (match, code) => {
       const placeholder = `\x00CODEBLOCK${codeBlocks.length}\x00`;
       codeBlocks.push(`<pre><code>${this.escapeHtml(code.trim())}</code></pre>`);
       return placeholder;
@@ -34,45 +34,52 @@ export class MarkdownPipe implements PipeTransform {
     html = html.replace(/<em>([\s\S]*?)<\/em>/gi, '*$1*');
     html = html.replace(/<[^>]+>/g, '');
 
-    codeBlocks.forEach((block, i) => {
-      html = html.replace(`\x00CODEBLOCK${i}\x00`, block);
+    codeBlocks.forEach((block, index) => {
+      html = html.replace(`\x00CODEBLOCK${index}\x00`, block);
     });
     return html;
   }
 
   private applyHeadingsAndInlines(html: string): string {
-    html = html.replace(
+    let text = this.applyHeadings(html);
+    text = this.applyInlineStyles(text);
+    return this.applyLinks(text);
+  }
+
+  private applyHeadings(html: string): string {
+    let text = html.replace(
       /^#### (.+)$/gm,
-      (_, title) => `<h4 id="${this.slugify(title)}">${title}</h4>`,
+      (match, title) => `<h4 id="${this.slugify(title)}">${title}</h4>`,
     );
-    html = html.replace(
+    text = text.replace(
       /^### (.+)$/gm,
-      (_, title) => `<h3 id="${this.slugify(title)}">${title}</h3>`,
+      (match, title) => `<h3 id="${this.slugify(title)}">${title}</h3>`,
     );
-    html = html.replace(
+    text = text.replace(
       /^## (.+)$/gm,
-      (_, title) => `<h2 id="${this.slugify(title)}">${title}</h2>`,
+      (match, title) => `<h2 id="${this.slugify(title)}">${title}</h2>`,
     );
-    html = html.replace(
+    text = text.replace(
       /^# (.+)$/gm,
-      (_, title) => `<h1 id="${this.slugify(title)}">${title}</h1>`,
+      (match, title) => `<h1 id="${this.slugify(title)}">${title}</h1>`,
     );
-    html = html.replace(/^---+$/gm, '<hr>');
-    html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
-    html = html.replace(/(?<!`)``([^`\n]+)``(?!`)/g, '<code>$1</code>');
-    html = html.replace(/(?<!`)(`(?!`))([^`\n]+)`(?!`)/g, '<code>$2</code>');
-    html = this.applyLinks(html);
-    return html;
+    text = text.replace(/^---+$/gm, '<hr>');
+    return text.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+  }
+
+  private applyInlineStyles(html: string): string {
+    let text = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+    text = text.replace(/(?<!`)``([^`\n]+)``(?!`)/g, '<code>$1</code>');
+    return text.replace(/(?<!`)(`(?!`))([^`\n]+)`(?!`)/g, '<code>$2</code>');
   }
 
   private applyLinks(html: string): string {
-    html = html.replace(
+    const linked = html.replace(
       /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
       '<a href="$2" target="_blank" rel="noopener">$1</a>',
     );
-    return html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, href) => {
+    return linked.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, href) => {
       const lower = href.toLowerCase().trim();
       if (
         lower.startsWith('javascript:') ||
@@ -88,49 +95,41 @@ export class MarkdownPipe implements PipeTransform {
   private renderLists(html: string): string {
     const lines = html.split('\n');
     const out: string[] = [];
-    let inList = false;
-    let inOl = false;
+    let state = { inList: false, inOl: false };
 
     for (const line of lines) {
-      const ulMatch = line.match(/^[-*] (.+)/);
-      const olMatch = line.match(/^\d+\. (.+)/);
-
-      if (ulMatch) {
-        if (inOl) {
-          out.push('</ol>');
-          inOl = false;
-        }
-        if (!inList) {
-          out.push('<ul>');
-          inList = true;
-        }
-        out.push(`<li>${ulMatch[1]}</li>`);
-      } else if (olMatch) {
-        if (inList) {
-          out.push('</ul>');
-          inList = false;
-        }
-        if (!inOl) {
-          out.push('<ol>');
-          inOl = true;
-        }
-        out.push(`<li>${olMatch[1]}</li>`);
-      } else {
-        if (inList) {
-          out.push('</ul>');
-          inList = false;
-        }
-        if (inOl) {
-          out.push('</ol>');
-          inOl = false;
-        }
-        out.push(line);
-      }
+      state = this.processListLine(line, out, state);
     }
 
-    if (inList) out.push('</ul>');
-    if (inOl) out.push('</ol>');
+    if (state.inList) out.push('</ul>');
+    if (state.inOl) out.push('</ol>');
     return out.join('\n');
+  }
+
+  private processListLine(
+    line: string,
+    out: string[],
+    state: { inList: boolean; inOl: boolean },
+  ): { inList: boolean; inOl: boolean } {
+    const ulMatch = line.match(/^[-*] (.+)/);
+    const olMatch = line.match(/^\d+\. (.+)/);
+
+    if (ulMatch) {
+      if (state.inOl) out.push('</ol>');
+      if (!state.inList) out.push('<ul>');
+      out.push(`<li>${ulMatch[1]}</li>`);
+      return { inList: true, inOl: false };
+    }
+    if (olMatch) {
+      if (state.inList) out.push('</ul>');
+      if (!state.inOl) out.push('<ol>');
+      out.push(`<li>${olMatch[1]}</li>`);
+      return { inList: false, inOl: true };
+    }
+    if (state.inList) out.push('</ul>');
+    if (state.inOl) out.push('</ol>');
+    out.push(line);
+    return { inList: false, inOl: false };
   }
 
   private collapseLineBreaks(html: string): string {

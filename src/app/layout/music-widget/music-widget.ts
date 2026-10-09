@@ -25,8 +25,8 @@ export class MusicWidget {
   readonly lang = inject(LanguageService);
 
   readonly widgetThumbError = signal(false);
-  readonly isSeeking = signal(false);
-  readonly seekPreview = signal(0);
+  private readonly isSeeking = signal(false);
+  private readonly seekPreview = signal(0);
   readonly displayTime = computed(() =>
     this.isSeeking() ? this.seekPreview() : this.player.currentTime(),
   );

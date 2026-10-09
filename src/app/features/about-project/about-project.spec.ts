@@ -70,7 +70,7 @@ describe('AboutProject', () => {
     const fileSystem = TestBed.inject(FileSystem);
     const fsSpy = vi
       .spyOn(fileSystem, 'downloadFile')
-      .mockImplementation((_path: string, _name: string) => {});
+      .mockImplementation(() => {});
     component.lang.setLanguage('en');
     component.downloadResume();
     expect(fsSpy).toHaveBeenCalled();

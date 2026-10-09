@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { LyricsService } from './lyrics.service';
+import { LyricsService } from './lyrics';
 import { AudioPlayer } from './audio-player';
 import { FileItem } from '../models/file';
 import { LrclibResponse } from '../models/music';
@@ -24,8 +24,8 @@ const setupFetch = (body: LrclibResponse[] | null, ok = true) => {
 
 const flush = async () => {
   TestBed.flushEffects();
-  await new Promise((r) => setTimeout(r, 0));
-  await new Promise((r) => setTimeout(r, 0));
+  await vi.advanceTimersByTimeAsync(0);
+  await vi.advanceTimersByTimeAsync(0);
 };
 
 describe('LyricsService', () => {
@@ -33,12 +33,14 @@ describe('LyricsService', () => {
   let player: AudioPlayer;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     TestBed.configureTestingModule({});
     player = TestBed.inject(AudioPlayer);
     service = TestBed.inject(LyricsService);
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -113,7 +115,7 @@ describe('LyricsService', () => {
     player.currentTrack.set(mockTrack('/song6.mp3'));
     player.duration.set(0);
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
+    await vi.advanceTimersByTimeAsync(0);
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });
@@ -133,7 +135,7 @@ describe('LyricsService', () => {
 
     player.duration.set(201);
     TestBed.flushEffects();
-    await new Promise((r) => setTimeout(r, 0));
+    await vi.advanceTimersByTimeAsync(0);
 
     expect(fetchSpy).not.toHaveBeenCalled();
   });

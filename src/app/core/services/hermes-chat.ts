@@ -17,66 +17,6 @@ export class HermesChatService {
   readonly messages = signal<Message[]>([]);
   readonly isLoading = signal(false);
 
-  private buildHistory(): string {
-    const recentMessages = this.messages().slice(-MAX_HISTORY_MESSAGES);
-    if (recentMessages.length === 0) return '';
-
-    const t = this.lang.t();
-    const formatted = recentMessages
-      .map(
-        (msg) => `${msg.role === 'user' ? t.hermes.roleUser : t.hermes.roleAssistant}: ${msg.text}`,
-      )
-      .join('\n');
-    const header = this.lang.currentLang() === 'pt' ? 'Histórico recente:\n' : 'Recent history:\n';
-    return header + formatted;
-  }
-
-  private appendUserMessage(text: string, image?: string): void {
-    this.messages.update((prev) => [...prev, { role: 'user', text, image }]);
-  }
-
-  private appendModelPlaceholder(): number {
-    const index = this.messages().length;
-    this.messages.update((prev) => [...prev, { role: 'model', text: '' }]);
-    return index;
-  }
-
-  private updateModelMessage(index: number, text: string): void {
-    this.messages.update((prev) => {
-      const next = [...prev];
-      if (next[index]) {
-        next[index] = { ...next[index], text };
-      }
-      return next;
-    });
-  }
-
-  private removeMessageAt(index: number): void {
-    this.messages.update((prev) => prev.filter((_, i) => i !== index));
-  }
-
-  private handleStreamChunk(modelIndex: number, streamedText: string): void {
-    const { cleanText } = this.actionService.parseActions(streamedText);
-    this.updateModelMessage(modelIndex, cleanText);
-  }
-
-  private handleSendError(error: Error, modelIndex: number): void {
-    this.removeMessageAt(modelIndex);
-    const isModelError =
-      error.message.includes('404') ||
-      error.message.includes('NOT_FOUND') ||
-      error.message.includes('429') ||
-      error.message.includes('RESOURCE_EXHAUSTED');
-
-    const errors = this.lang.t().errors;
-    this.notifications.show({
-      title: errors.systemError,
-      message: isModelError ? errors.modelUnavailable : errors.serviceUnavailable,
-      icon: isModelError ? 'fas fa-robot' : 'fas fa-circle-exclamation',
-      duration: isModelError ? 10000 : 6000,
-    });
-  }
-
   async send(
     text: string,
     fileData: { mimeType: string; b64: string } | null,
@@ -107,6 +47,66 @@ export class HermesChatService {
 
   clearMessages(): void {
     this.messages.set([]);
+  }
+
+  private buildHistory(): string {
+    const recentMessages = this.messages().slice(-MAX_HISTORY_MESSAGES);
+    if (recentMessages.length === 0) return '';
+
+    const translations = this.lang.t();
+    const formatted = recentMessages
+      .map(
+        (msg) => `${msg.role === 'user' ? translations.hermes.roleUser : translations.hermes.roleAssistant}: ${msg.text}`,
+      )
+      .join('\n');
+    const header = this.lang.currentLang() === 'pt' ? 'Histórico recente:\n' : 'Recent history:\n';
+    return header + formatted;
+  }
+
+  private appendUserMessage(text: string, image?: string): void {
+    this.messages.update((prev) => [...prev, { role: 'user', text, image }]);
+  }
+
+  private appendModelPlaceholder(): number {
+    const index = this.messages().length;
+    this.messages.update((prev) => [...prev, { role: 'model', text: '' }]);
+    return index;
+  }
+
+  private updateModelMessage(index: number, text: string): void {
+    this.messages.update((prev) => {
+      const next = [...prev];
+      if (next[index]) {
+        next[index] = { ...next[index], text };
+      }
+      return next;
+    });
+  }
+
+  private removeMessageAt(index: number): void {
+    this.messages.update((prev) => prev.filter((item, itemIndex) => itemIndex !== index));
+  }
+
+  private handleStreamChunk(modelIndex: number, streamedText: string): void {
+    const { cleanText } = this.actionService.parseActions(streamedText);
+    this.updateModelMessage(modelIndex, cleanText);
+  }
+
+  private handleSendError(error: Error, modelIndex: number): void {
+    this.removeMessageAt(modelIndex);
+    const isModelError =
+      error.message.includes('404') ||
+      error.message.includes('NOT_FOUND') ||
+      error.message.includes('429') ||
+      error.message.includes('RESOURCE_EXHAUSTED');
+
+    const errors = this.lang.t().errors;
+    this.notifications.show({
+      title: errors.systemError,
+      message: isModelError ? errors.modelUnavailable : errors.serviceUnavailable,
+      icon: isModelError ? 'fas fa-robot' : 'fas fa-circle-exclamation',
+      duration: isModelError ? 10000 : 6000,
+    });
   }
 
   private async handleStreamResponse(

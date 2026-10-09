@@ -7,6 +7,8 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { DatePipe, registerLocaleData } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval, timer } from 'rxjs';
 import { ProcessManager } from '../../core/services/process-manager';
 import { NotificationCenter } from '../notification-center/notification-center';
 import { NotificationService } from '../../core/services/notification';
@@ -39,23 +41,14 @@ export class TopBar {
   readonly forceShow = signal(false);
   readonly now = signal(new Date());
   readonly pullOffset = signal(0);
-  readonly isPulling = signal(false);
   readonly isReturning = signal(false);
+  private readonly isPulling = signal(false);
 
   readonly onShutdown = output<boolean>();
 
   private touchStartY = 0;
   private isSwiping = false;
-
-  constructor() {
-    this.initClock();
-  }
-
-  private initClock(): void {
-    if (typeof window === 'undefined') return;
-    const id = setInterval(() => this.now.set(new Date()), 1000);
-    this.destroyRef.onDestroy(() => clearInterval(id));
-  }
+  private readonly clock = this.initClock();
 
   onTouchStart(event: TouchEvent): void {
     if (this.screen.isMobile() && event.touches.length > 0) {
@@ -92,10 +85,19 @@ export class TopBar {
       }
     }
     this.pullOffset.set(0);
-    setTimeout(() => this.isReturning.set(false), 350);
+    timer(350)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.isReturning.set(false));
   }
 
   handlePowerOff(): void {
     this.onShutdown.emit(true);
+  }
+
+  private initClock(): void {
+    if (typeof window === 'undefined') return;
+    interval(1000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.now.set(new Date()));
   }
 }

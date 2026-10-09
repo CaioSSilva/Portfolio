@@ -62,8 +62,8 @@ describe('AppsGrid', () => {
   it('onSearch sets appsService.searchQuery from input element value', () => {
     const input = document.createElement('input');
     input.value = 'browser';
-    const event = { target: input } as unknown as Event;
-    component.onSearch(event);
+    const event: Partial<Event> = { target: input };
+    component.onSearch(event as Event);
     expect(appsSearchQuery()).toBe('browser');
   });
 
@@ -71,7 +71,8 @@ describe('AppsGrid', () => {
     appsSearchQuery.set('browser');
     const input = document.createElement('input');
     input.value = '';
-    component.onSearch({ target: input } as unknown as Event);
+    const event: Partial<Event> = { target: input };
+    component.onSearch(event as Event);
     expect(appsSearchQuery()).toBe('');
   });
 
@@ -83,9 +84,9 @@ describe('AppsGrid', () => {
       color: '#fff',
       component: Base as Type<Base>,
     };
-    const dt = { setData: vi.fn(), effectAllowed: '' } as unknown as DataTransfer;
-    const event = { dataTransfer: dt } as unknown as DragEvent;
-    component.onDragStart(event, app);
+    const dt: Partial<DataTransfer> = { setData: vi.fn(), effectAllowed: 'none' };
+    const event: Partial<DragEvent> = { dataTransfer: dt as DataTransfer };
+    component.onDragStart(event as DragEvent, app);
     expect(dt.setData).toHaveBeenCalledWith('appId', 'browser');
     expect(dt.effectAllowed).toBe('link');
   });
@@ -98,7 +99,7 @@ describe('AppsGrid', () => {
       color: '#fff',
       component: Base as Type<Base>,
     };
-    const event = { dataTransfer: null } as unknown as DragEvent;
-    expect(() => component.onDragStart(event, app)).not.toThrow();
+    const event: Partial<DragEvent> = { dataTransfer: null };
+    expect(() => component.onDragStart(event as DragEvent, app)).not.toThrow();
   });
 });

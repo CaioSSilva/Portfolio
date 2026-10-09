@@ -17,10 +17,10 @@ export class FilesGrid {
   readonly onSelect = output<string>();
   readonly onNavigate = output<FileItem>();
 
-  readonly imageExtensions = IMAGE_EXTENSIONS;
+  private readonly imageExtensions = IMAGE_EXTENSIONS;
 
   isImage(fileName: string): boolean {
-    const ext = fileName.split('.').pop()?.toLowerCase() || '';
-    return this.imageExtensions.includes(ext);
+    const extension = fileName.split('.').pop()?.toLowerCase() || '';
+    return this.imageExtensions.includes(extension);
   }
 }

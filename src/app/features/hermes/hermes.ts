@@ -1,5 +1,7 @@
 import {
   Component,
+  Injector,
+  afterNextRender,
   inject,
   computed,
   viewChild,
@@ -7,7 +9,6 @@ import {
   effect,
   signal,
   ChangeDetectionStrategy,
-  DestroyRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
@@ -28,7 +29,7 @@ import { HermesChatService } from '../../core/services/hermes-chat';
 })
 export class Hermes extends Base {
   private readonly gemini = inject(Gemini);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   readonly lang = inject(LanguageService);
   readonly settings = inject(Settings);
   readonly chat = inject(HermesChatService);
@@ -49,19 +50,12 @@ export class Hermes extends Base {
   );
 
   private modelsLoaded = false;
-  private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     super();
     effect(() => {
       if (this.chat.messages().length || this.chat.isLoading()) {
         this.scrollToBottom();
-      }
-    });
-    this.destroyRef.onDestroy(() => {
-      if (this.scrollTimeout !== null) {
-        clearTimeout(this.scrollTimeout);
-        this.scrollTimeout = null;
       }
     });
   }
@@ -124,15 +118,14 @@ export class Hermes extends Base {
   }
 
   private scrollToBottom(): void {
-    if (this.scrollTimeout !== null) {
-      clearTimeout(this.scrollTimeout);
-    }
-    this.scrollTimeout = setTimeout(() => {
-      this.scrollTimeout = null;
-      const frame = this.scrollFrame()?.nativeElement;
-      if (frame) {
-        frame.scrollTo({ top: frame.scrollHeight, behavior: 'smooth' });
-      }
-    }, 50);
+    afterNextRender(
+      () => {
+        const frame = this.scrollFrame()?.nativeElement;
+        if (frame) {
+          frame.scrollTo({ top: frame.scrollHeight, behavior: 'smooth' });
+        }
+      },
+      { injector: this.injector },
+    );
   }
 }

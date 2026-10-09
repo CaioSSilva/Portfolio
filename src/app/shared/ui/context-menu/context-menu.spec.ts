@@ -5,7 +5,6 @@ import { LanguageService } from '../../../core/services/language';
 import { DockService } from '../../../core/services/dock';
 import { DesktopIconsService } from '../../../core/services/desktop-icons';
 import { ProcessManager } from '../../../core/services/process-manager';
-import { Apps } from '../../../core/services/apps';
 import { signal } from '@angular/core';
 
 describe('ContextMenu', () => {
@@ -24,16 +23,6 @@ describe('ContextMenu', () => {
   const dockMock = { pinnedApps: signal([]), pinApp: vi.fn(), unpinApp: vi.fn() };
   const desktopMock = { onDesktopApps: signal([]), addApp: vi.fn(), removeApp: vi.fn() };
   const processMock = { processes: signal([]), focus: vi.fn(), close: vi.fn() };
-  const appsMock = {
-    openApp: vi.fn(),
-    isAppsGridOpen: signal(false),
-    appsRegistry: signal({}),
-    appsDefinition: signal([]),
-    appSearchResult: signal([]),
-    filteredApps: signal([]),
-    toggleGrid: vi.fn(),
-    onRightClickApp: vi.fn(),
-  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -43,7 +32,6 @@ describe('ContextMenu', () => {
         { provide: DockService, useValue: dockMock },
         { provide: DesktopIconsService, useValue: desktopMock },
         { provide: ProcessManager, useValue: processMock },
-        { provide: Apps, useValue: appsMock },
         LanguageService,
       ],
     }).compileComponents();
@@ -72,9 +60,5 @@ describe('ContextMenu', () => {
 
   it('exposes process manager', () => {
     expect(component.processManager).toBe(processMock);
-  });
-
-  it('exposes apps service', () => {
-    expect(component.appsService).toBe(appsMock);
   });
 });

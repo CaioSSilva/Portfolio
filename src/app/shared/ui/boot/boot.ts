@@ -6,6 +6,8 @@ import {
   signal,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval, switchMap, takeWhile, tap, timer } from 'rxjs';
 import { Sound } from '../../../core/services/sound';
 import { LanguageService } from '../../../core/services/language';
 import { APP_VERSION } from '../../../core/version';
@@ -34,17 +36,20 @@ export class Boot {
   }
 
   private simulateLoading(): void {
-    const interval = setInterval(() => {
-      const next = this.progress() + Math.floor(Math.random() * 15) + 5;
-      if (next >= 100) {
-        this.progress.set(100);
-        clearInterval(interval);
-        this.waitingClick.set(true);
-      } else {
-        this.progress.set(next);
-      }
-    }, 300);
-    this.destroyRef.onDestroy(() => clearInterval(interval));
+    interval(300)
+      .pipe(
+        takeWhile(() => !this.waitingClick()),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        const next = this.progress() + Math.floor(Math.random() * 15) + 5;
+        if (next >= 100) {
+          this.progress.set(100);
+          this.waitingClick.set(true);
+        } else {
+          this.progress.set(next);
+        }
+      });
   }
 
   startSystem(): void {
@@ -52,9 +57,12 @@ export class Boot {
 
     this.sound.play('startup');
     this.waitingClick.set(false);
-    setTimeout(() => {
-      this.isExiting.set(true);
-      setTimeout(() => this.bootFinished.emit(true), 300);
-    }, 1000);
+    timer(1000)
+      .pipe(
+        tap(() => this.isExiting.set(true)),
+        switchMap(() => timer(300)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.bootFinished.emit(true));
   }
 }

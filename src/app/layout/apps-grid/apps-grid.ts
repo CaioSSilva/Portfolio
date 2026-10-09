@@ -1,4 +1,5 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Subscription, take, timer } from 'rxjs';
 import { AppDefinition } from '../../core/models/dock';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
@@ -21,7 +22,7 @@ export class AppsGrid {
   private touchStartX = 0;
   private touchStartY = 0;
   private touchStartTime = 0;
-  private longPressTimer: ReturnType<typeof setTimeout> | null = null;
+  private longPressTimer = Subscription.EMPTY;
 
   onSearch(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -44,16 +45,13 @@ export class AppsGrid {
     this.touchStartTime = Date.now();
 
     const btn = event.currentTarget as HTMLElement;
-    this.longPressTimer = setTimeout(() => {
-      this.appsService.openContextMenuAt(btn, app.id);
-    }, 500);
+    this.longPressTimer = timer(500)
+      .pipe(take(1))
+      .subscribe(() => this.appsService.openContextMenuAt(btn, app.id));
   }
 
   onAppTouchEnd(event: TouchEvent, app: AppDefinition): void {
-    if (this.longPressTimer) {
-      clearTimeout(this.longPressTimer);
-      this.longPressTimer = null;
-    }
+    this.longPressTimer.unsubscribe();
 
     if (!this.touchStartTime || this.contextMenu.isOpen()) return;
 
@@ -71,9 +69,8 @@ export class AppsGrid {
   onAppTouchMove(event: TouchEvent): void {
     const dx = Math.abs(event.touches[0].clientX - this.touchStartX);
     const dy = Math.abs(event.touches[0].clientY - this.touchStartY);
-    if ((dx > 10 || dy > 10) && this.longPressTimer) {
-      clearTimeout(this.longPressTimer);
-      this.longPressTimer = null;
+    if (dx > 10 || dy > 10) {
+      this.longPressTimer.unsubscribe();
     }
   }
 

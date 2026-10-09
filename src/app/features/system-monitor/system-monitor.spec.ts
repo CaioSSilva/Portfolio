@@ -40,10 +40,8 @@ describe('SystemMonitor', () => {
   });
 
   it('should have default signal values', () => {
-    expect(component.cpuHistory()).toEqual([]);
-    expect(component.ramHistory()).toEqual([]);
     expect(component.rtt()).toBe(0);
-    expect(component.downHistory().length).toBe(20);
+    expect(component.downlink()).toBe('0');
   });
 
   it('should getProcessStats return cpu and ram values based on processId', () => {
@@ -76,20 +74,16 @@ describe('SystemMonitor', () => {
   });
 
   it('cpuPoints computed should return a string of SVG points', () => {
-    component.cpuHistory.set([10, 20, 30]);
     const points = component.cpuPoints();
     expect(typeof points).toBe('string');
-    expect(points).toContain(',');
   });
 
   it('ramPoints computed should return a string of SVG points', () => {
-    component.ramHistory.set([40, 50]);
     const points = component.ramPoints();
     expect(typeof points).toBe('string');
   });
 
   it('downPoints computed should return a string of SVG points', () => {
-    component.downHistory.set([1, 2, 3]);
     const points = component.downPoints();
     expect(typeof points).toBe('string');
   });

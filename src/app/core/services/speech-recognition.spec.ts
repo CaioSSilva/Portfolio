@@ -122,3 +122,59 @@ describe('SpeechRecognitionService', () => {
     expect(svc.unsupportedReason()).toBe('insecure-context');
   });
 });
+
+describe('SpeechRecognitionService — mobile detection via token factory', () => {
+  const originalMatchMedia = window.matchMedia;
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    Object.defineProperty(window, 'matchMedia', { value: originalMatchMedia, writable: true });
+  });
+
+  function mockMatchMedia(coarse: boolean, fine: boolean): void {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches:
+          (query === '(pointer: coarse)' && coarse) ||
+          (query === '(pointer: fine)' && fine),
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }),
+    });
+  }
+
+  function resolveReason(): string | null {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({});
+    return TestBed.inject(SPEECH_RECOGNITION_UNSUPPORTED_REASON);
+  }
+
+  it('desktop with mouse only (fine, no coarse) — not mobile', () => {
+    mockMatchMedia(false, true);
+    expect(resolveReason()).not.toBe('mobile');
+  });
+
+  it('desktop touchscreen with mouse (coarse + fine) — not mobile', () => {
+    mockMatchMedia(true, true);
+    expect(resolveReason()).not.toBe('mobile');
+  });
+
+  it('touch-only device (coarse, no fine, no UA) — mobile', () => {
+    mockMatchMedia(true, false);
+    expect(resolveReason()).toBe('mobile');
+  });
+
+  it('Android UA — mobile regardless of pointer media', () => {
+    mockMatchMedia(false, true);
+    vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(
+      'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/120',
+    );
+    expect(resolveReason()).toBe('mobile');
+  });
+});

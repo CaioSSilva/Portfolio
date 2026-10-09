@@ -1,4 +1,13 @@
-import { Component, inject, effect, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  effect,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Base } from '../../core/models/base';
@@ -13,6 +22,7 @@ import { LanguageService } from '../../core/services/language';
 })
 export class Browser extends Base {
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
   readonly lang = inject(LanguageService);
   readonly displayUrl = signal('');
   readonly safeUrl = signal<SafeResourceUrl | null>(null);
@@ -70,11 +80,13 @@ export class Browser extends Base {
       this.history.update((entries) => [...entries, url]);
     }
 
-    setTimeout(() => {
-      if (this.isLoading()) {
-        this.isLoading.set(false);
-        this.hasError.set(true);
-      }
-    }, 6000);
+    timer(6000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.isLoading()) {
+          this.isLoading.set(false);
+          this.hasError.set(true);
+        }
+      });
   }
 }

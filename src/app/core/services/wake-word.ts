@@ -50,13 +50,15 @@ export class WakeWordService {
     return normalized.slice(afterIndex).replace(/^[,\s]+/, '').trim();
   }
 
-  private levenshtein(a: string, b: string): number {
-    const matrix: number[][] = Array.from({ length: b.length + 1 }, (_, i) =>
-      Array.from({ length: a.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
+  private levenshtein(source: string, target: string): number {
+    const matrix: number[][] = Array.from({ length: target.length + 1 }, (rowItem, rowIndex) =>
+      Array.from({ length: source.length + 1 }, (colItem, colIndex) =>
+        rowIndex === 0 ? colIndex : colIndex === 0 ? rowIndex : 0,
+      ),
     );
-    for (let row = 1; row <= b.length; row++) {
-      for (let col = 1; col <= a.length; col++) {
-        const cost = a[col - 1] === b[row - 1] ? 0 : 1;
+    for (let row = 1; row <= target.length; row++) {
+      for (let col = 1; col <= source.length; col++) {
+        const cost = source[col - 1] === target[row - 1] ? 0 : 1;
         matrix[row][col] = Math.min(
           matrix[row - 1][col] + 1,
           matrix[row][col - 1] + 1,
@@ -64,7 +66,7 @@ export class WakeWordService {
         );
       }
     }
-    return matrix[b.length][a.length];
+    return matrix[target.length][source.length];
   }
 
   private normalize(text: string): string {

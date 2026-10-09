@@ -23,7 +23,7 @@ describe('MarkdownPipe', () => {
   });
 
   it('should return empty string when value is null-like (undefined coerced)', () => {
-    expect(pipe.transform(undefined as unknown as string)).toBe('');
+    expect(pipe.transform(undefined as never)).toBe('');
   });
 
   it('should convert **bold** to <strong>', () => {

@@ -7,6 +7,8 @@ import {
   DestroyRef,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
 import { Base } from '../../core/models/base';
 import { LanguageService } from '../../core/services/language';
 import { ProcessManager } from '../../core/services/process-manager';
@@ -40,46 +42,63 @@ export class SystemMonitor extends Base {
   readonly lang = inject(LanguageService);
   readonly processManager = inject(ProcessManager);
 
-  readonly cpuHistory = signal<number[]>([]);
-  readonly ramHistory = signal<number[]>([]);
   readonly downlink = signal<string>('0');
   readonly rtt = signal<number>(0);
   readonly effectiveType = signal<string>(this.lang.t().systemMonitor.network.unknown);
-  readonly downHistory = signal<number[]>(new Array(20).fill(0));
   readonly currentMeasurements = signal({ cpu: 0, ram: 0, network: 0, upTime: 0 });
+
+  private readonly cpuHistory = signal<number[]>([]);
+  private readonly ramHistory = signal<number[]>([]);
+  private readonly downHistory = signal<number[]>(new Array(20).fill(0));
 
   readonly cpuPoints = computed(() => this.calculatePoints(this.cpuHistory()));
   readonly ramPoints = computed(() => this.calculatePoints(this.ramHistory()));
   readonly downPoints = computed(() => this.calculatePoints(this.downHistory()));
 
   private readonly historyLimit = 20;
+  private readonly simulation = this.startSimulation();
+  private readonly networkMonitoring = this.initNetworkMonitoring();
 
   constructor() {
     super();
-    this.startSimulation();
-    this.initNetworkMonitoring();
+  }
+
+  getProcessTitle(appId: string, fallback: string): string {
+    return this.appRegistry.getAppById(appId)?.title ?? fallback;
+  }
+
+  getProcessStats(processId: string): { cpu: string; ram: string } {
+    const seed = processId.length;
+    return {
+      cpu: ((seed * 1.5) % 4).toFixed(1),
+      ram: (seed + 12).toFixed(0),
+    };
+  }
+
+  killProcess(id: string): void {
+    this.processManager.close(id);
   }
 
   private calculatePoints(history: number[]): string {
     const widthStep = 100 / (history.length - 1 || 1);
-    return history.map((value, i) => `${i * widthStep},${100 - value}`).join(' ');
+    return history.map((value, index) => `${index * widthStep},${100 - value}`).join(' ');
   }
 
   private startSimulation(): void {
-    const interval = setInterval(() => {
-      const newStats = {
-        cpu: Math.floor(Math.random() * 30) + 10,
-        ram: Math.floor(Math.random() * 10) + 30,
-        network: Math.floor(Math.random() * 100),
-        upTime: Date.now(),
-      };
+    interval(1500)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const newStats = {
+          cpu: Math.floor(Math.random() * 30) + 10,
+          ram: Math.floor(Math.random() * 10) + 30,
+          network: Math.floor(Math.random() * 100),
+          upTime: Date.now(),
+        };
 
-      this.currentMeasurements.set(newStats);
-      this.updateHistory(this.cpuHistory, newStats.cpu);
-      this.updateHistory(this.ramHistory, newStats.ram);
-    }, 1500);
-
-    this.destroyRef.onDestroy(() => clearInterval(interval));
+        this.currentMeasurements.set(newStats);
+        this.updateHistory(this.cpuHistory, newStats.cpu);
+        this.updateHistory(this.ramHistory, newStats.ram);
+      });
   }
 
   private updateHistory(historySignal: WritableSignal<number[]>, newValue: number | string): void {
@@ -108,18 +127,16 @@ export class SystemMonitor extends Base {
       this.updateHistory(this.downHistory, conn.downlink);
     };
     conn.addEventListener('change', updateStats);
-    const interval = setInterval(updateStats, 1500);
+    interval(1500).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(updateStats);
     updateStats();
-    this.destroyRef.onDestroy(() => {
-      conn.removeEventListener('change', updateStats);
-      clearInterval(interval);
-    });
+    this.destroyRef.onDestroy(() => conn.removeEventListener('change', updateStats));
   }
 
   private simulateNetworkTraffic(): void {
     this.effectiveType.set(this.lang.t().systemMonitor.network.simulated);
-    const interval = setInterval(() => this.runSimulatedNetworkTick(), 1500);
-    this.destroyRef.onDestroy(() => clearInterval(interval));
+    interval(1500)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.runSimulatedNetworkTick());
   }
 
   private async runSimulatedNetworkTick(): Promise<void> {
@@ -141,21 +158,5 @@ export class SystemMonitor extends Base {
       this.downlink.set('0');
       this.updateHistory(this.downHistory, 0);
     }
-  }
-
-  getProcessTitle(appId: string, fallback: string): string {
-    return this.appRegistry.getAppById(appId)?.title ?? fallback;
-  }
-
-  getProcessStats(processId: string): { cpu: string; ram: string } {
-    const seed = processId.length;
-    return {
-      cpu: ((seed * 1.5) % 4).toFixed(1),
-      ram: (seed + 12).toFixed(0),
-    };
-  }
-
-  killProcess(id: string): void {
-    this.processManager.close(id);
   }
 }

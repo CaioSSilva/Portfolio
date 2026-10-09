@@ -1,5 +1,8 @@
 import {
   Component,
+  DestroyRef,
+  Injector,
+  afterNextRender,
   inject,
   signal,
   viewChild,
@@ -7,6 +10,8 @@ import {
   computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer } from 'rxjs';
 import { LanguageService } from '../../core/services/language';
 import { TerminalCommands } from '../../core/services/terminal-commands';
 import { Base } from '../../core/models/base';
@@ -20,6 +25,8 @@ import { FileSystem } from '../../core/services/file-system';
   templateUrl: './terminal.html',
 })
 export class Terminal extends Base {
+  private readonly injector = inject(Injector);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly commandService = inject(TerminalCommands);
   private readonly fileSystem = inject(FileSystem);
   readonly lang = inject(LanguageService);
@@ -156,10 +163,13 @@ export class Terminal extends Base {
   }
 
   private scrollToBottom(): void {
-    setTimeout(() => {
-      const container = this.scrollContainer().nativeElement;
-      container.scrollTop = container.scrollHeight;
-    });
+    afterNextRender(
+      () => {
+        const container = this.scrollContainer().nativeElement;
+        container.scrollTop = container.scrollHeight;
+      },
+      { injector: this.injector },
+    );
   }
 
   focusInput(): void {
@@ -167,7 +177,9 @@ export class Terminal extends Base {
   }
 
   onInputFocus(): void {
-    setTimeout(() => this.scrollToBottom(), 100);
+    timer(100)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.scrollToBottom());
   }
 
   getTranslatedName(id: string): string {

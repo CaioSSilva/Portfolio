@@ -97,9 +97,9 @@ describe('Terminal', () => {
   it('should handleCommand execute command and add to history', async () => {
     const input = document.createElement('input');
     input.value = 'help';
-    const event = { target: input } as unknown as Event;
+    const event: Partial<Event> = { target: input };
 
-    await component.handleCommand(event);
+    await component.handleCommand(event as Event);
 
     expect(commandSpy.execute).toHaveBeenCalledWith('help', 'home');
     expect(component.history().length).toBe(1);
@@ -110,8 +110,8 @@ describe('Terminal', () => {
   it('should handleCommand do nothing when input is empty', async () => {
     const input = document.createElement('input');
     input.value = '   ';
-    const event = { target: input } as unknown as Event;
-    await component.handleCommand(event);
+    const event: Partial<Event> = { target: input };
+    await component.handleCommand(event as Event);
     expect(commandSpy.execute).not.toHaveBeenCalled();
   });
 
@@ -121,7 +121,8 @@ describe('Terminal', () => {
 
     const input = document.createElement('input');
     input.value = 'clear';
-    await component.handleCommand({ target: input } as unknown as Event);
+    const event: Partial<Event> = { target: input };
+    await component.handleCommand(event as Event);
 
     expect(component.history()).toEqual([]);
   });
@@ -131,7 +132,8 @@ describe('Terminal', () => {
 
     const input = document.createElement('input');
     input.value = 'cd documents';
-    await component.handleCommand({ target: input } as unknown as Event);
+    const event: Partial<Event> = { target: input };
+    await component.handleCommand(event as Event);
 
     expect(component.currentPath()).toBe('documents');
   });

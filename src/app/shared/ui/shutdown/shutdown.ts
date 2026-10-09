@@ -1,6 +1,7 @@
-import { Component, inject, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, DestroyRef, inject, output, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer } from 'rxjs';
 import { LanguageService } from '../../../core/services/language';
-import { App } from '../../../app';
 
 @Component({
   selector: 'app-shutdown',
@@ -9,6 +10,7 @@ import { App } from '../../../app';
   templateUrl: './shutdown.html',
 })
 export class Shutdown {
+  private readonly destroyRef = inject(DestroyRef);
   readonly lang = inject(LanguageService);
   readonly shutdown = output<boolean>();
 
@@ -22,8 +24,10 @@ export class Shutdown {
 
   onConfirmPowerOff(): void {
     window.close();
-    setTimeout(() => {
-      window.location.href = 'about:blank';
-    }, 100);
+    timer(100)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        window.location.href = 'about:blank';
+      });
   }
 }

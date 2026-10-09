@@ -74,7 +74,8 @@ describe('MobileOverview', () => {
     processManager.processes.set([proc]);
 
     const stopPropSpy = vi.fn();
-    component.closeProcess(proc, { stopPropagation: stopPropSpy } as unknown as Event);
+    const event: Partial<Event> = { stopPropagation: stopPropSpy };
+    component.closeProcess(proc, event as Event);
 
     expect(stopPropSpy).toHaveBeenCalled();
     expect(closeSpy).toHaveBeenCalledWith('p1');
@@ -86,8 +87,8 @@ describe('MobileOverview', () => {
     const proc = makeProcess('p1');
     processManager.processes.set([proc]);
 
-    const event = { stopPropagation: vi.fn() } as unknown as MouseEvent;
-    component.onCardClick(event, proc);
+    const event: Partial<MouseEvent> = { stopPropagation: vi.fn() };
+    component.onCardClick(event as MouseEvent, proc);
 
     expect(focusSpy).toHaveBeenCalledWith('p1');
     expect(closeOverviewSpy).toHaveBeenCalled();
@@ -122,56 +123,66 @@ describe('MobileOverview', () => {
     expect(component.isDismissing('unknown')).toBe(false);
   });
 
-  it('isDismissing returns true after dismissing flag is set', () => {
-    component.dismissing.set({ p1: true });
+  it('isDismissing returns true after swipe dismiss', () => {
+    const processItem = makeProcess('p1');
+    const startEvent: Partial<TouchEvent> = {
+      touches: [{ clientX: 100, clientY: 200 } as Touch] as Partial<TouchList> as TouchList,
+    };
+    const endEvent: Partial<TouchEvent> = {
+      changedTouches: [{ clientX: 100, clientY: 50 } as Touch] as Partial<TouchList> as TouchList,
+      stopPropagation: () => {},
+    };
+    component.onCardTouchStart(startEvent as TouchEvent, processItem);
+    component.onCardTouchEnd(endEvent as TouchEvent, processItem);
     expect(component.isDismissing('p1')).toBe(true);
   });
 
   it('onBackdropClick closes overview', () => {
     const closeOverviewSpy = vi.spyOn(nav, 'closeOverview');
     nav.isOverviewOpen.set(true);
-    const event = new MouseEvent('click');
-    component.onBackdropClick(event);
+    component.onBackdropClick();
     expect(closeOverviewSpy).toHaveBeenCalled();
   });
 
   it('onBackdropTouchEnd closes overview on tap (small movement)', () => {
     const closeOverviewSpy = vi.spyOn(nav, 'closeOverview');
-    component.onBackdropTouchStart({
-      touches: [{ clientX: 100, clientY: 200 }],
-    } as unknown as TouchEvent);
-    component.onBackdropTouchEnd({
-      changedTouches: [{ clientX: 105, clientY: 204 }],
+    const startEvent: Partial<TouchEvent> = {
+      touches: [{ clientX: 100, clientY: 200 } as Touch] as Partial<TouchList> as TouchList,
+    };
+    component.onBackdropTouchStart(startEvent as TouchEvent);
+    const endEvent: Partial<TouchEvent> = {
+      changedTouches: [{ clientX: 105, clientY: 204 } as Touch] as Partial<TouchList> as TouchList,
       stopPropagation: vi.fn(),
-    } as unknown as TouchEvent);
+    };
+    component.onBackdropTouchEnd(endEvent as TouchEvent);
     expect(closeOverviewSpy).toHaveBeenCalled();
   });
 
   it('onBackdropTouchEnd does NOT close overview when swipe distance exceeds threshold', () => {
     const closeOverviewSpy = vi.spyOn(nav, 'closeOverview');
-    component.onBackdropTouchStart({
-      touches: [{ clientX: 100, clientY: 200 }],
-    } as unknown as TouchEvent);
-    component.onBackdropTouchEnd({
-      changedTouches: [{ clientX: 200, clientY: 200 }],
+    const startEvent: Partial<TouchEvent> = {
+      touches: [{ clientX: 100, clientY: 200 } as Touch] as Partial<TouchList> as TouchList,
+    };
+    component.onBackdropTouchStart(startEvent as TouchEvent);
+    const endEvent: Partial<TouchEvent> = {
+      changedTouches: [{ clientX: 200, clientY: 200 } as Touch] as Partial<TouchList> as TouchList,
       stopPropagation: vi.fn(),
-    } as unknown as TouchEvent);
+    };
+    component.onBackdropTouchEnd(endEvent as TouchEvent);
     expect(closeOverviewSpy).not.toHaveBeenCalled();
   });
 
   it('onCardTouchMove sets negative offset on upward swipe', () => {
     const proc = makeProcess('p1');
-    component.onCardTouchStart(
-      { touches: [{ clientX: 100, clientY: 300 }] } as unknown as TouchEvent,
-      proc,
-    );
-    component.onCardTouchMove(
-      {
-        touches: [{ clientX: 100, clientY: 240 }],
-        stopPropagation: vi.fn(),
-      } as unknown as TouchEvent,
-      proc,
-    );
+    const startEvent: Partial<TouchEvent> = {
+      touches: [{ clientX: 100, clientY: 300 } as Touch] as Partial<TouchList> as TouchList,
+    };
+    component.onCardTouchStart(startEvent as TouchEvent, proc);
+    const moveEvent: Partial<TouchEvent> = {
+      touches: [{ clientX: 100, clientY: 240 } as Touch] as Partial<TouchList> as TouchList,
+      stopPropagation: vi.fn(),
+    };
+    component.onCardTouchMove(moveEvent as TouchEvent, proc);
     expect(component.swipeOffsets()['p1']).toBeLessThan(0);
   });
 
@@ -181,17 +192,15 @@ describe('MobileOverview', () => {
     const proc = makeProcess('p1');
     processManager.processes.set([proc]);
 
-    component.onCardTouchStart(
-      { touches: [{ clientX: 100, clientY: 400 }] } as unknown as TouchEvent,
-      proc,
-    );
-    component.onCardTouchEnd(
-      {
-        changedTouches: [{ clientX: 100, clientY: 300 }],
-        stopPropagation: vi.fn(),
-      } as unknown as TouchEvent,
-      proc,
-    );
+    const startEvent: Partial<TouchEvent> = {
+      touches: [{ clientX: 100, clientY: 400 } as Touch] as Partial<TouchList> as TouchList,
+    };
+    component.onCardTouchStart(startEvent as TouchEvent, proc);
+    const endEvent: Partial<TouchEvent> = {
+      changedTouches: [{ clientX: 100, clientY: 300 } as Touch] as Partial<TouchList> as TouchList,
+      stopPropagation: vi.fn(),
+    };
+    component.onCardTouchEnd(endEvent as TouchEvent, proc);
 
     expect(component.isDismissing('p1')).toBe(true);
     vi.advanceTimersByTime(300);
@@ -205,17 +214,15 @@ describe('MobileOverview', () => {
     const proc = makeProcess('p1');
     processManager.processes.set([proc]);
 
-    component.onCardTouchStart(
-      { touches: [{ clientX: 100, clientY: 400 }] } as unknown as TouchEvent,
-      proc,
-    );
-    component.onCardTouchEnd(
-      {
-        changedTouches: [{ clientX: 100, clientY: 300 }],
-        stopPropagation: vi.fn(),
-      } as unknown as TouchEvent,
-      proc,
-    );
+    const startEvent: Partial<TouchEvent> = {
+      touches: [{ clientX: 100, clientY: 400 } as Touch] as Partial<TouchList> as TouchList,
+    };
+    component.onCardTouchStart(startEvent as TouchEvent, proc);
+    const endEvent: Partial<TouchEvent> = {
+      changedTouches: [{ clientX: 100, clientY: 300 } as Touch] as Partial<TouchList> as TouchList,
+      stopPropagation: vi.fn(),
+    };
+    component.onCardTouchEnd(endEvent as TouchEvent, proc);
 
     processManager.processes.set([]);
     vi.advanceTimersByTime(300);
@@ -230,17 +237,15 @@ describe('MobileOverview', () => {
     const p2 = makeProcess('p2');
     processManager.processes.set([p1, p2]);
 
-    component.onCardTouchStart(
-      { touches: [{ clientX: 100, clientY: 400 }] } as unknown as TouchEvent,
-      p1,
-    );
-    component.onCardTouchEnd(
-      {
-        changedTouches: [{ clientX: 100, clientY: 300 }],
-        stopPropagation: vi.fn(),
-      } as unknown as TouchEvent,
-      p1,
-    );
+    const startEvent: Partial<TouchEvent> = {
+      touches: [{ clientX: 100, clientY: 400 } as Touch] as Partial<TouchList> as TouchList,
+    };
+    component.onCardTouchStart(startEvent as TouchEvent, p1);
+    const endEvent: Partial<TouchEvent> = {
+      changedTouches: [{ clientX: 100, clientY: 300 } as Touch] as Partial<TouchList> as TouchList,
+      stopPropagation: vi.fn(),
+    };
+    component.onCardTouchEnd(endEvent as TouchEvent, p1);
 
     processManager.processes.set([p2]);
     vi.advanceTimersByTime(300);
@@ -253,17 +258,15 @@ describe('MobileOverview', () => {
     const closeOverviewSpy = vi.spyOn(nav, 'closeOverview');
     const proc = makeProcess('p1');
 
-    component.onCardTouchStart(
-      { touches: [{ clientX: 100, clientY: 300 }] } as unknown as TouchEvent,
-      proc,
-    );
-    component.onCardTouchEnd(
-      {
-        changedTouches: [{ clientX: 102, clientY: 302 }],
-        stopPropagation: vi.fn(),
-      } as unknown as TouchEvent,
-      proc,
-    );
+    const startEvent: Partial<TouchEvent> = {
+      touches: [{ clientX: 100, clientY: 300 } as Touch] as Partial<TouchList> as TouchList,
+    };
+    component.onCardTouchStart(startEvent as TouchEvent, proc);
+    const endEvent: Partial<TouchEvent> = {
+      changedTouches: [{ clientX: 102, clientY: 302 } as Touch] as Partial<TouchList> as TouchList,
+      stopPropagation: vi.fn(),
+    };
+    component.onCardTouchEnd(endEvent as TouchEvent, proc);
 
     expect(focusSpy).toHaveBeenCalledWith('p1');
     expect(closeOverviewSpy).toHaveBeenCalled();

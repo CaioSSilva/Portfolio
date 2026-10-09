@@ -24,7 +24,7 @@ describe('Hermes', () => {
     execute: ReturnType<typeof vi.fn>;
   };
 
-  const makeFactory = (): GenAIFactory => (_apiKey: string) => ({
+  const makeFactory = (): GenAIFactory => () => ({
     getGenerativeModel: vi.fn().mockReturnValue({
       generateContent: vi.fn().mockResolvedValue({
         response: { text: () => 'Mocked response' },
@@ -49,9 +49,9 @@ describe('Hermes', () => {
         .fn()
         .mockImplementation(
           async (
-            _p: string,
-            _h: string,
-            _f: { mimeType: string; b64: string } | undefined,
+            prompt: string,
+            history: string,
+            fileData: { mimeType: string; b64: string } | undefined,
             onChunk: (text: string) => void,
           ) => {
             onChunk('Mock AI response');

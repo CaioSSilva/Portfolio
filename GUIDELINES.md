@@ -249,20 +249,23 @@ This is the only valid command for running tests in this project. It uses `@angu
 
 ## 23. Async scheduling
 
-`setTimeout` and `setInterval` are forbidden for deferred-but-immediate work (e.g. deferring a call to the next microtask or the next frame). Use platform APIs that integrate cleanly with Angular's rendering model:
+`setTimeout` and `setInterval` (including `window.setTimeout` / `window.setInterval`) are forbidden.
 
-- **`queueMicrotask(fn)`** — defer work to the next microtask checkpoint (replaces `setTimeout(fn, 0)` for same-tick ordering issues, e.g. browser API sequencing bugs)
-- **`window.setTimeout(fn, delay)`** — allowed only for real time-based delays (backoff timers, awake timeouts, countdowns). Must use `window.setTimeout` explicitly so the return type is `number`.
+- **`setTimeout(fn, 0)`** → use `queueMicrotask(fn)`
+- **Real time-based delays and intervals** → use `timer()` and `interval()` from RxJS with `takeUntilDestroyed(this.destroyRef)` (or `take(1)` / `Subscription.unsubscribe()` for cancellable timers)
+- **Work that must run after a template change** → use `afterNextRender()` from `@angular/core`
 
 ```ts
 // ❌
 setTimeout(() => this.doWork(), 0);
+window.setTimeout(() => this.expire(), TIMEOUT_MS);
+const id = setInterval(() => this.tick(), 1000);
 
 // ✅
 queueMicrotask(() => this.doWork());
-
-// ✅ — real delay, not a scheduling workaround
-this.timer = window.setTimeout(() => this.expire(), TIMEOUT_MS);
+timer(TIMEOUT_MS).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.expire());
+interval(1000).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.tick());
+afterNextRender(() => this.scrollToBottom(), { injector: this.injector });
 ```
 
 ---

@@ -37,10 +37,6 @@ export class Files extends Base {
   readonly fileSystem = inject(FileSystem);
   readonly lang = inject(LanguageService);
 
-  private isResizing = false;
-  private startX = 0;
-  private resizeObserver: ResizeObserver | null = null;
-
   readonly isNarrow = signal(false);
   readonly viewMode = signal<'grid' | 'list'>('list');
   readonly searchQuery = signal('');
@@ -60,7 +56,7 @@ export class Files extends Base {
     return ids[ids.length - 1];
   });
 
-  readonly currentFiles = computed(() => {
+  private readonly currentFiles = computed(() => {
     if (!this.fileSystem.isLoaded()) return [];
 
     const id = this.currentFolderId();
@@ -94,6 +90,10 @@ export class Files extends Base {
     return this.fileSystem.formatFileSize(total);
   });
 
+  private isResizing = false;
+  private startX = 0;
+  private resizeObserver: ResizeObserver | null = null;
+
   constructor() {
     super();
     this.initResizeObserver();
@@ -102,16 +102,6 @@ export class Files extends Base {
         this.fileSystem.ensureLoaded();
       }
     });
-  }
-
-  private initResizeObserver(): void {
-    if (typeof ResizeObserver === 'undefined') return;
-    this.resizeObserver = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect.width ?? 0;
-      this.isNarrow.set(width > 0 && width < 680);
-    });
-    this.resizeObserver.observe(this.hostEl.nativeElement);
-    this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());
   }
 
   handleNavigate(item: FileItem): void {
@@ -168,6 +158,26 @@ export class Files extends Base {
     this.updatePath(id, isSidebar);
   }
 
+  jumpTo(index: number): void {
+    this.searchQuery.set('');
+    this.pathIds.update((ids) => ids.slice(0, index + 1));
+  }
+
+  goBack(): void {
+    this.searchQuery.set('');
+    this.pathIds.update((ids) => (ids.length > 1 ? ids.slice(0, -1) : ids));
+  }
+
+  private initResizeObserver(): void {
+    if (typeof ResizeObserver === 'undefined') return;
+    this.resizeObserver = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      this.isNarrow.set(width > 0 && width < 680);
+    });
+    this.resizeObserver.observe(this.hostEl.nativeElement);
+    this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());
+  }
+
   private updatePath(id: string, isSidebar: boolean): void {
     this.searchQuery.set('');
 
@@ -184,15 +194,5 @@ export class Files extends Base {
     } else {
       this.pathIds.update((ids) => [...ids, id]);
     }
-  }
-
-  jumpTo(index: number): void {
-    this.searchQuery.set('');
-    this.pathIds.update((ids) => ids.slice(0, index + 1));
-  }
-
-  goBack(): void {
-    this.searchQuery.set('');
-    this.pathIds.update((ids) => (ids.length > 1 ? ids.slice(0, -1) : ids));
   }
 }

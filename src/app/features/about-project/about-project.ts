@@ -11,6 +11,18 @@ type AboutAppEntry = {
   info: TranslationSchema['aboutProj']['apps']['files'];
 };
 
+const APP_DISPLAY_ORDER: ReadonlyArray<{ id: string; textKey: string }> = [
+  { id: 'files', textKey: 'files' },
+  { id: 'photos', textKey: 'photos' },
+  { id: 'musics', textKey: 'music' },
+  { id: 'documents', textKey: 'docs' },
+  { id: 'firefox', textKey: 'browser' },
+  { id: 'systemMonitor', textKey: 'sysMonitor' },
+  { id: 'terminal', textKey: 'terminal' },
+  { id: 'settings', textKey: 'settings' },
+  { id: 'hermes', textKey: 'hermes' },
+];
+
 @Component({
   selector: 'app-about-project',
   standalone: true,
@@ -21,7 +33,7 @@ type AboutAppEntry = {
 })
 export class AboutProject extends Base {
   private readonly apps = inject(Apps);
-  private readonly fileSystem = inject(FileSystem);
+  readonly fileSystem = inject(FileSystem);
   readonly lang = inject(LanguageService);
 
   readonly resumeName = computed(() => {
@@ -35,31 +47,6 @@ export class AboutProject extends Base {
     return this.buildDisplayOrder(installed, aboutTexts);
   }
 
-  private buildDisplayOrder(
-    installed: ReturnType<typeof this.apps.appsRegistry>,
-    aboutTexts: ReturnType<typeof this.lang.t>['aboutProj']['apps'],
-  ): AboutAppEntry[] {
-    const displayOrder: Array<{ id: keyof typeof installed; textKey: keyof typeof aboutTexts }> = [
-      { id: 'files', textKey: 'files' },
-      { id: 'photos', textKey: 'photos' },
-      { id: 'musics', textKey: 'music' },
-      { id: 'documents', textKey: 'docs' },
-      { id: 'firefox', textKey: 'browser' },
-      { id: 'systemMonitor', textKey: 'sysMonitor' },
-      { id: 'terminal', textKey: 'terminal' },
-      { id: 'settings', textKey: 'settings' },
-      { id: 'hermes', textKey: 'hermes' },
-    ];
-    return displayOrder
-      .map((item) => ({ config: installed[item.id], info: aboutTexts[item.textKey] }))
-      .filter(
-        (
-          app,
-        ): app is { config: NonNullable<typeof app.config>; info: NonNullable<typeof app.info> } =>
-          Boolean(app.config),
-      );
-  }
-
   handleOpenApp(app: AppDefinition): void {
     this.apps.openApp(app);
   }
@@ -67,5 +54,22 @@ export class AboutProject extends Base {
   downloadResume(): void {
     const path = `${window.document.baseURI}data/root/home/documents/${this.resumeName()}.pdf`;
     this.fileSystem.downloadFile(path, `Caio Souza Silva - ${this.resumeName()}.pdf`);
+  }
+
+  private buildDisplayOrder(
+    installed: ReturnType<typeof this.apps.appsRegistry>,
+    aboutTexts: ReturnType<typeof this.lang.t>['aboutProj']['apps'],
+  ): AboutAppEntry[] {
+    return APP_DISPLAY_ORDER
+      .map((item) => ({
+        config: installed[item.id as keyof typeof installed],
+        info: aboutTexts[item.textKey as keyof typeof aboutTexts],
+      }))
+      .filter(
+        (
+          app,
+        ): app is { config: NonNullable<typeof app.config>; info: NonNullable<typeof app.info> } =>
+          Boolean(app.config),
+      );
   }
 }

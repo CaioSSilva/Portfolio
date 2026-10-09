@@ -1,4 +1,6 @@
 import { DestroyRef, inject, Injectable, InjectionToken, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription, timer } from 'rxjs';
 import { LanguageService } from './language';
 import {
   AgentUnsupportedReason,
@@ -10,10 +12,12 @@ import {
 } from '../models/agent-mode';
 
 function isMobileDevice(): boolean {
-  return (
-    navigator.maxTouchPoints > 1 ||
-    /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-  );
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return true;
+  if (typeof window.matchMedia !== 'function') return false;
+  const hasCoarseOnly =
+    window.matchMedia('(pointer: coarse)').matches &&
+    !window.matchMedia('(pointer: fine)').matches;
+  return hasCoarseOnly;
 }
 
 function resolveUnsupportedReason(): AgentUnsupportedReason {
@@ -63,7 +67,7 @@ export class SpeechRecognitionService {
   private recognition: SpeechRecognitionLike | null = null;
   private restartCount = 0;
   private isStopped = true;
-  private restartTimer = 0;
+  private restartTimer = Subscription.EMPTY;
   private onTranscriptCallback: ((text: string, isFinal: boolean) => void) | null = null;
   private onErrorCallback: ((error: string) => void) | null = null;
 
@@ -85,7 +89,7 @@ export class SpeechRecognitionService {
 
   stop(): void {
     this.isStopped = true;
-    clearTimeout(this.restartTimer);
+    this.restartTimer.unsubscribe();
     this.recognition?.abort();
     this.recognition = null;
     this.isListening.set(false);
@@ -129,7 +133,9 @@ export class SpeechRecognitionService {
     if (!this.isStopped && this.restartCount < MAX_RESTARTS) {
       const delay = BASE_BACKOFF_MS * Math.pow(2, this.restartCount);
       this.restartCount++;
-      this.restartTimer = window.setTimeout(() => this.startSession(), delay);
+      this.restartTimer = timer(delay)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.startSession());
     } else if (this.restartCount >= MAX_RESTARTS) {
       this.onErrorCallback?.('max-restarts');
     }

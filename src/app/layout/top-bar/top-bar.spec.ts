@@ -5,7 +5,7 @@ import { ProcessManager } from '../../core/services/process-manager';
 import { NotificationService } from '../../core/services/notification';
 import { LanguageService } from '../../core/services/language';
 import { Sound } from '../../core/services/sound';
-import { computed, signal } from '@angular/core';
+import { signal } from '@angular/core';
 import { outputToObservable } from '@angular/core/rxjs-interop';
 
 describe('TopBar', () => {
@@ -52,19 +52,19 @@ describe('TopBar', () => {
 
   it('now signal updates over time via constructor interval', async () => {
     vi.useFakeTimers();
-    const f2 = TestBed.createComponent(TopBar);
-    const c2 = f2.componentInstance;
-    f2.detectChanges();
-    const before = c2.now().getTime();
+    const secondFixture = TestBed.createComponent(TopBar);
+    const secondComponent = secondFixture.componentInstance;
+    secondFixture.detectChanges();
+    const before = secondComponent.now().getTime();
     vi.advanceTimersByTime(1100);
-    const after = c2.now().getTime();
+    const after = secondComponent.now().getTime();
     expect(after).toBeGreaterThan(before);
     vi.useRealTimers();
   });
 
   it('handlePowerOff emits true via onShutdown output', () => {
     let emitted: boolean | undefined;
-    outputToObservable(component.onShutdown).subscribe((v) => (emitted = v));
+    outputToObservable(component.onShutdown).subscribe((shutdownValue) => (emitted = shutdownValue));
     component.handlePowerOff();
     expect(emitted).toBe(true);
   });
@@ -73,17 +73,24 @@ describe('TopBar', () => {
     const notificationService = TestBed.inject(NotificationService);
     component.screen.width.set(400);
 
+    const makeTouchList = (touches: Partial<Touch>[]): TouchList =>
+      ({
+        0: touches[0] as Touch,
+        length: touches.length,
+        item: () => null,
+      }) as Partial<TouchList> as TouchList;
+
     component.onTouchStart({
-      touches: [{ clientY: 10 }] as unknown as TouchList,
+      touches: makeTouchList([{ clientY: 10 }]),
     } as TouchEvent);
 
     component.onTouchMove({
-      touches: [{ clientY: 60 }] as unknown as TouchList,
+      touches: makeTouchList([{ clientY: 60 }]),
     } as TouchEvent);
     expect(component.pullOffset()).toBeGreaterThan(0);
 
     component.onTouchEnd({
-      changedTouches: [{ clientY: 60 }] as unknown as TouchList,
+      changedTouches: makeTouchList([{ clientY: 60 }]),
     } as TouchEvent);
 
     expect(notificationService.isPanelOpen()).toBe(true);

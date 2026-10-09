@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Type, signal } from '@angular/core';
+import { signal } from '@angular/core';
 import { Dock } from './dock';
 import { DockService } from '../../core/services/dock';
 import { Apps } from '../../core/services/apps';
@@ -8,7 +8,6 @@ import { Settings } from '../../core/services/settings';
 import { ContextMenuService } from '../../core/services/context-menu';
 import { LanguageService } from '../../core/services/language';
 import { AppDefinition } from '../../core/models/dock';
-import { Base } from '../../core/models/base';
 describe('Dock', () => {
   let component: Dock;
   let fixture: ComponentFixture<Dock>;
@@ -125,24 +124,22 @@ describe('Dock', () => {
 
   it('onDrop calls dock.pinApp with appId and position then resets', () => {
     component.itemNewPinPos.set(2);
-    const dt = {
+    const dt: Partial<DataTransfer> = {
       getData: vi.fn().mockReturnValue('browser'),
-      preventDefault: vi.fn(),
-    } as unknown as DataTransfer;
-    const event = { preventDefault: vi.fn(), dataTransfer: dt } as unknown as DragEvent;
-    component.onDrop(event);
+    };
+    const event: Partial<DragEvent> = { preventDefault: vi.fn(), dataTransfer: dt as DataTransfer };
+    component.onDrop(event as DragEvent);
     expect(dockMock.pinApp).toHaveBeenCalledWith('browser', 2);
     expect(component.itemNewPinPos()).toBeNull();
   });
 
   it('onDrop does nothing if appId is empty', () => {
     component.itemNewPinPos.set(1);
-    const dt = {
+    const dt: Partial<DataTransfer> = {
       getData: vi.fn().mockReturnValue(''),
-      preventDefault: vi.fn(),
-    } as unknown as DataTransfer;
-    const event = { preventDefault: vi.fn(), dataTransfer: dt } as unknown as DragEvent;
-    component.onDrop(event);
+    };
+    const event: Partial<DragEvent> = { preventDefault: vi.fn(), dataTransfer: dt as DataTransfer };
+    component.onDrop(event as DragEvent);
     expect(dockMock.pinApp).not.toHaveBeenCalled();
     expect(component.itemNewPinPos()).toBeNull();
   });

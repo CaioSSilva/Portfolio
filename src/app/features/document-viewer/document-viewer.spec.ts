@@ -299,62 +299,69 @@ describe('DocumentViewer', () => {
         0: { clientX: 0, clientY: 0 } as Touch,
         1: { clientX: half * Math.SQRT2, clientY: half * Math.SQRT2 } as Touch,
         length: 2,
-        item: (i: number) => null,
-      } as unknown as TouchList;
+        item: (_: number) => null,
+      } as Partial<TouchList> as TouchList;
     };
 
     it('should not change zoom when not mobile', () => {
       screenSpy.isMobile.mockReturnValue(false);
       component.zoom.set(1.0);
-      component.onTouchMove({ touches: makeTouches(200) } as unknown as TouchEvent);
+      const event: Partial<TouchEvent> = { touches: makeTouches(200) };
+      component.onTouchMove(event as TouchEvent);
       expect(component.zoom()).toBe(1.0);
     });
 
     it('should change zoom when mobile and pinch distance diff > 18', () => {
       screenSpy.isMobile.mockReturnValue(true);
       component.zoom.set(1.0);
-      component.onTouchStart({ touches: makeTouches(100) } as unknown as TouchEvent);
-      component.onTouchMove({
+      const startEvent: Partial<TouchEvent> = { touches: makeTouches(100) };
+      component.onTouchStart(startEvent as TouchEvent);
+      const moveEvent: Partial<TouchEvent> = {
         touches: makeTouches(200),
         preventDefault: vi.fn(),
-      } as unknown as TouchEvent);
+      };
+      component.onTouchMove(moveEvent as TouchEvent);
       expect(component.zoom()).toBeGreaterThan(1.0);
     });
 
     it('should set isPinchZoomed when zoom changes via pinch', () => {
       screenSpy.isMobile.mockReturnValue(true);
-      component.onTouchStart({ touches: makeTouches(100) } as unknown as TouchEvent);
-      component.onTouchMove({
+      const startEvent: Partial<TouchEvent> = { touches: makeTouches(100) };
+      component.onTouchStart(startEvent as TouchEvent);
+      const moveEvent: Partial<TouchEvent> = {
         touches: makeTouches(200),
         preventDefault: vi.fn(),
-      } as unknown as TouchEvent);
+      };
+      component.onTouchMove(moveEvent as TouchEvent);
       expect(component.isPinchZoomed()).toBe(true);
     });
 
     it('should not react if only 1 touch point in onTouchStart', () => {
       screenSpy.isMobile.mockReturnValue(true);
       component.zoom.set(1.0);
-      component.onTouchStart({
-        touches: { 0: { clientX: 10, clientY: 20 }, length: 1 },
-      } as unknown as TouchEvent);
+      const event: Partial<TouchEvent> = {
+        touches: { 0: { clientX: 10, clientY: 20 } as Touch, length: 1, item: () => null } as Partial<TouchList> as TouchList,
+      };
+      component.onTouchStart(event as TouchEvent);
       expect(component.zoom()).toBe(1.0);
     });
   });
 
   describe('swipe navigation — horizontal scrollable guard', () => {
-    const makeSwipeEnd = (dx: number, target: EventTarget): TouchEvent =>
+    const makeSwipeEnd = (dx: number, _target: EventTarget): TouchEvent =>
       ({
-        touches: { length: 0 },
-        changedTouches: { 0: { clientX: 100 + dx, clientY: 50 } },
-      }) as unknown as TouchEvent;
+        touches: { length: 0, item: () => null } as Partial<TouchList> as TouchList,
+        changedTouches: { 0: { clientX: 100 + dx, clientY: 50 } as Touch, length: 1, item: () => null } as Partial<TouchList> as TouchList,
+      }) as Partial<TouchEvent> as TouchEvent;
 
     const makeSwipeStart = (target: EventTarget): TouchEvent =>
       ({
         touches: {
           length: 1,
-          0: { clientX: 100, clientY: 50, target },
-        },
-      }) as unknown as TouchEvent;
+          0: { clientX: 100, clientY: 50, target } as Touch,
+          item: () => null,
+        } as Partial<TouchList> as TouchList,
+      }) as Partial<TouchEvent> as TouchEvent;
 
     const makeScrollableEl = (scrollWidth: number, clientWidth: number): HTMLElement => {
       const el = document.createElement('pre');

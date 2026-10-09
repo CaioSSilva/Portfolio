@@ -47,7 +47,7 @@ export class HermesActionService {
   parseActions(text: string): ParseActionResult {
     const actions: HermesAction[] = [];
     const cleanText = text
-      .replace(ACTION_REGEX, (_, jsonStr) => {
+      .replace(ACTION_REGEX, (fullMatch, jsonStr) => {
         try {
           const parsed = JSON.parse(jsonStr) as HermesAction;
           if (parsed && typeof parsed.type === 'string') {

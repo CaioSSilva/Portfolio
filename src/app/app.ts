@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   HostListener,
   inject,
   signal,
@@ -10,6 +11,8 @@ import {
   viewChild,
   ElementRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer } from 'rxjs';
 import { ProcessManager } from './core/services/process-manager';
 import { Settings } from './core/services/settings';
 import { Sound } from './core/services/sound';
@@ -48,46 +51,26 @@ import { ContextMenu } from './shared/ui/context-menu/context-menu';
   ],
 })
 export class App {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly sound = inject(Sound);
   private readonly tipsService = inject(SystemTips);
-  private readonly apps = inject(Apps);
+  readonly apps = inject(Apps);
   readonly processManager = inject(ProcessManager);
   readonly settingsService = inject(Settings);
   readonly screen = inject(ScreenService);
 
   readonly systemReady = signal(false);
   readonly isShuttingDown = signal(false);
-
-  readonly videoPlayer = viewChild<ElementRef<HTMLVideoElement>>('bgVideo');
-
   readonly isAnimated = computed(() => {
-    const wp = this.settingsService.wallpaper();
-    return wp && (wp.endsWith('.mp4') || wp.endsWith('.webm'));
+    const wallpaper = this.settingsService.wallpaper();
+    return Boolean(wallpaper && (wallpaper.endsWith('.mp4') || wallpaper.endsWith('.webm')));
   });
 
+  private readonly videoPlayer = viewChild<ElementRef<HTMLVideoElement>>('bgVideo');
+
   constructor() {
-    effect(() => {
-      if (!this.systemReady()) return;
-
-      if (this.settingsService.tipsEnabled()) {
-        this.tipsService.startRandomTips();
-      }
-
-      const aboutApp = untracked(() => this.apps.appsRegistry().about);
-      if (aboutApp) {
-        setTimeout(() => this.apps.openApp(aboutApp), 1000);
-      }
-    });
-
-    effect(() => {
-      this.settingsService.wallpaper();
-      const videoEl = this.videoPlayer()?.nativeElement;
-
-      if (videoEl) {
-        videoEl.load();
-        videoEl.play().catch(() => {});
-      }
-    });
+    effect(() => this.handleSystemReady());
+    effect(() => this.handleWallpaperVideo());
   }
 
   @HostListener('mousedown')
@@ -101,6 +84,28 @@ export class App {
   onMouseUp(): void {
     if (this.systemReady() && !this.screen.isMobile()) {
       this.sound.play('mouse_up');
+    }
+  }
+
+  private handleSystemReady(): void {
+    if (!this.systemReady()) return;
+    if (this.settingsService.tipsEnabled()) {
+      this.tipsService.startRandomTips();
+    }
+    const aboutApp = untracked(() => this.apps.appsRegistry().about);
+    if (aboutApp) {
+      timer(1000)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.apps.openApp(aboutApp));
+    }
+  }
+
+  private handleWallpaperVideo(): void {
+    this.settingsService.wallpaper();
+    const videoEl = this.videoPlayer()?.nativeElement;
+    if (videoEl) {
+      videoEl.load();
+      videoEl.play().catch(() => {});
     }
   }
 }

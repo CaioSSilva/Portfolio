@@ -20,7 +20,7 @@ describe('Gemini', () => {
       })(),
     });
 
-    return (_apiKey: string) => ({
+    return () => ({
       getGenerativeModel: vi.fn().mockReturnValue({
         generateContent: generateContentSpy,
         generateContentStream: generateContentStreamSpy,
@@ -44,7 +44,7 @@ describe('Gemini', () => {
         })(),
       });
 
-    return (_apiKey: string) => ({
+    return () => ({
       getGenerativeModel: vi.fn().mockReturnValue({
         generateContent: generateContentSpy,
         generateContentStream: generateContentStreamSpy,
@@ -56,7 +56,7 @@ describe('Gemini', () => {
     generateContentSpy = vi.fn().mockRejectedValue(error);
     generateContentStreamSpy = vi.fn().mockRejectedValue(error);
 
-    return (_apiKey: string) => ({
+    return () => ({
       getGenerativeModel: vi.fn().mockReturnValue({
         generateContent: generateContentSpy,
         generateContentStream: generateContentStreamSpy,

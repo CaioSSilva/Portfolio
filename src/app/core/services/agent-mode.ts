@@ -1,4 +1,5 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
+import { Subscription, take, timer } from 'rxjs';
 import { Settings } from './settings';
 import { SpeechRecognitionService } from './speech-recognition';
 import { WakeWordService } from './wake-word';
@@ -21,7 +22,7 @@ export class AgentModeService {
   readonly isSecureContext = this.recognition.isSecureContext;
   readonly unsupportedReason = this.recognition.unsupportedReason;
 
-  private awakeTimer = 0;
+  private awakeTimer = Subscription.EMPTY;
 
   constructor() {
     effect(() => {
@@ -47,7 +48,7 @@ export class AgentModeService {
   }
 
   private shutdown(): void {
-    clearTimeout(this.awakeTimer);
+    this.awakeTimer.unsubscribe();
     this.recognition.stop();
     this.synthesis.cancel();
     this.state.set('off');
@@ -79,7 +80,7 @@ export class AgentModeService {
   }
 
   private processAwakeCommand(text: string): void {
-    clearTimeout(this.awakeTimer);
+    this.awakeTimer.unsubscribe();
     if (this.wakeWord.isStopCommand(text)) {
       this.settings.toggleAgentMode();
       return;
@@ -90,15 +91,17 @@ export class AgentModeService {
   private enterAwakeState(): void {
     this.state.set('awake');
     queueMicrotask(() => this.playChime());
-    this.awakeTimer = window.setTimeout(() => {
-      if (this.state() === 'awake') {
-        this.state.set('listening');
-      }
-    }, AWAKE_TIMEOUT_MS);
+    this.awakeTimer = timer(AWAKE_TIMEOUT_MS)
+      .pipe(take(1))
+      .subscribe(() => {
+        if (this.state() === 'awake') {
+          this.state.set('listening');
+        }
+      });
   }
 
   private dispatchCommand(command: string): void {
-    clearTimeout(this.awakeTimer);
+    this.awakeTimer.unsubscribe();
     this.state.set('processing');
     this.recognition.stop();
     this.chat.send(command, null, null).then(() => this.onCommandComplete());

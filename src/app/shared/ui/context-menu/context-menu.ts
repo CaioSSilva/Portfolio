@@ -1,6 +1,5 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { DockService } from '../../../core/services/dock';
-import { Apps } from '../../../core/services/apps';
 import { LanguageService } from '../../../core/services/language';
 import { ProcessManager } from '../../../core/services/process-manager';
 import { ContextMenuService } from '../../../core/services/context-menu';
@@ -14,7 +13,6 @@ import { ScreenService } from '../../../core/services/screen';
   styleUrl: './context-menu.scss',
 })
 export class ContextMenu {
-  readonly appsService = inject(Apps);
   readonly dock = inject(DockService);
   readonly desktop = inject(DesktopIconsService);
   readonly processManager = inject(ProcessManager);

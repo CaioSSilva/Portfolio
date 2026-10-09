@@ -1,4 +1,5 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Subscription, take, timer } from 'rxjs';
 import { DockService } from '../../core/services/dock';
 import { Apps } from '../../core/services/apps';
 import { ProcessManager } from '../../core/services/process-manager';
@@ -17,17 +18,17 @@ import { DockItem } from '../../core/models/dock';
 })
 export class Dock {
   private readonly contextMenu = inject(ContextMenuService);
+  private readonly lang = inject(LanguageService);
   readonly dock = inject(DockService);
   readonly apps = inject(Apps);
   readonly processManager = inject(ProcessManager);
-  readonly lang = inject(LanguageService);
   readonly settings = inject(Settings);
 
   readonly itemNewPinPos = signal<number | null>(null);
 
   private touchStartX = 0;
   private touchStartY = 0;
-  private longPressTimer: ReturnType<typeof setTimeout> | null = null;
+  private longPressTimer = Subscription.EMPTY;
 
   getAppLabel(appId: string, defaultTitle: string): string {
     const langData = this.lang.t();
@@ -41,26 +42,22 @@ export class Dock {
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
 
-    const btn = event.currentTarget as HTMLElement;
-    this.longPressTimer = setTimeout(() => {
-      this.apps.openContextMenuAt(btn, appId);
-    }, 500);
+    const buttonElement = event.currentTarget as HTMLElement;
+    this.longPressTimer = timer(500)
+      .pipe(take(1))
+      .subscribe(() => this.apps.openContextMenuAt(buttonElement, appId));
   }
 
   onItemTouchMove(event: TouchEvent): void {
-    const dx = Math.abs(event.touches[0].clientX - this.touchStartX);
-    const dy = Math.abs(event.touches[0].clientY - this.touchStartY);
-    if ((dx > 10 || dy > 10) && this.longPressTimer) {
-      clearTimeout(this.longPressTimer);
-      this.longPressTimer = null;
+    const diffX = Math.abs(event.touches[0].clientX - this.touchStartX);
+    const diffY = Math.abs(event.touches[0].clientY - this.touchStartY);
+    if (diffX > 10 || diffY > 10) {
+      this.longPressTimer.unsubscribe();
     }
   }
 
   onItemTouchEnd(): void {
-    if (this.longPressTimer) {
-      clearTimeout(this.longPressTimer);
-      this.longPressTimer = null;
-    }
+    this.longPressTimer.unsubscribe();
   }
 
   onItemClick(item: DockItem, event: MouseEvent): void {

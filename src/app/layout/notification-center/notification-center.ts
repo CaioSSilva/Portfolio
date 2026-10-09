@@ -1,4 +1,6 @@
 import { Component, DestroyRef, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { interval } from 'rxjs';
 import { NotificationService } from '../../core/services/notification';
 import { DatePipe, registerLocaleData } from '@angular/common';
 import localePtBr from '@angular/common/locales/pt';
@@ -28,8 +30,9 @@ export class NotificationCenter {
   }
 
   private initClock(): void {
-    const id = setInterval(() => this.now.set(new Date()), 60_000);
-    this.destroyRef.onDestroy(() => clearInterval(id));
+    interval(60_000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.now.set(new Date()));
   }
 
   formatTimestamp(timestamp: Date): string {

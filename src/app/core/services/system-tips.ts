@@ -1,4 +1,5 @@
 import { effect, inject, Injectable } from '@angular/core';
+import { Subscription, take, timer } from 'rxjs';
 import { NotificationService } from './notification';
 import { LanguageService } from './language';
 import { Settings } from './settings';
@@ -11,7 +12,7 @@ export class SystemTips {
   private readonly lang = inject(LanguageService);
   private readonly screen = inject(ScreenService);
 
-  private timeoutId: ReturnType<typeof setTimeout> | null = null;
+  private tipTimer = Subscription.EMPTY;
   private readonly shownDesktopIndexes: Set<number> = new Set();
   private readonly shownMobileIndexes: Set<number> = new Set();
 
@@ -28,18 +29,15 @@ export class SystemTips {
   }
 
   stopTips(): void {
-    if (this.timeoutId !== null) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = null;
-    }
+    this.tipTimer.unsubscribe();
   }
 
   private scheduleNextTip(delay: number, isFirst: boolean): void {
     this.stopTips();
 
-    this.timeoutId = setTimeout(() => {
-      this.processTipCycle(isFirst);
-    }, delay);
+    this.tipTimer = timer(delay)
+      .pipe(take(1))
+      .subscribe(() => this.processTipCycle(isFirst));
   }
 
   private processTipCycle(isFirst: boolean): void {

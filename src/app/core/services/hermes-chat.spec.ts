@@ -4,7 +4,6 @@ import { Gemini } from './gemini';
 import { HermesActionService } from './hermes-action';
 import { NotificationService } from './notification';
 import { LanguageService } from './language';
-import { Message } from '../models/hermes';
 import { ParseActionResult } from '../models/hermes-action';
 
 describe('HermesChatService', () => {

@@ -76,6 +76,6 @@ export class HermesAppActionsService {
   private findByQuery(query: string, extensions: string[]): FileItem | undefined {
     const exts = new Set(extensions);
     const results = this.fileSystem.searchFiles(query);
-    return results.find((f) => exts.has(this.fileSystem.getFileExtension(f.name)));
+    return results.find((fileItem) => exts.has(this.fileSystem.getFileExtension(fileItem.name)));
   }
 }

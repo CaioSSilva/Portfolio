@@ -11,14 +11,13 @@ import { LanguageService } from '../../../../core/services/language';
   styleUrl: './sidebar.scss',
 })
 export class FilesSidebar {
+  readonly lang = inject(LanguageService);
+
   readonly tree = input<FileItem | null>(null);
   readonly width = input(240);
   readonly currentFolderId = input<string>('');
   readonly selectedId = input<string | null>(null);
   readonly expandedFolders = input<Set<string>>(new Set());
-
-  readonly lang = inject(LanguageService);
-
   readonly onNavigate = output<FileItem>();
   readonly onToggle = output<string>();
 

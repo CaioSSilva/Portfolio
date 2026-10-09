@@ -16,7 +16,7 @@ export class TerminalCommands {
 
   private readonly commandMap: Record<string, CommandHandler> = {
     help: () => this.handleHelp(),
-    ls: (_, path) => this.handleLs(path),
+    ls: (args, path) => this.handleLs(path),
     cd: (args, path) => this.handleCd(args, path),
     open: (args, path) => this.handleOpen(args, path),
     date: () => this.handleDate(),
@@ -182,7 +182,7 @@ export class TerminalCommands {
       'Shell: Terminal',
       'WM: VWE_UI',
     ];
-    const output = logo.map((line, i) => `${line.padEnd(16)} ${info[i] || ''}`).join('\n');
+    const output = logo.map((line, index) => `${line.padEnd(16)} ${info[index] || ''}`).join('\n');
     return { output, action: 'NONE' };
   }
 

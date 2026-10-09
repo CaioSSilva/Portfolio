@@ -166,8 +166,8 @@ describe('Files', () => {
   it('updateGridSize sets gridSize from event', () => {
     const input = document.createElement('input');
     input.value = '150';
-    const event = { target: input } as unknown as Event;
-    component.updateGridSize(event);
+    const event: Partial<Event> = { target: input };
+    component.updateGridSize(event as Event);
     expect(component.gridSize()).toBe(150);
   });
 

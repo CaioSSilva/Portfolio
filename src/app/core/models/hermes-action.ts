@@ -81,6 +81,7 @@ export type HermesPayload =
   | ShowNotificationPayload
   | SetLanguagePayload
   | MusicPlayTrackPayload
+  | MediaSearchPayload
   | Record<string, never>;
 
 export type JsonPrimitive = string | number | boolean | null;

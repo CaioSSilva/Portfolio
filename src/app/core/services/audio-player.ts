@@ -1,12 +1,11 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { Subscription, take, timer } from 'rxjs';
 import { FileItem } from '../models/file';
 import { DiscSpinState } from '../models/music';
 
 @Injectable({ providedIn: 'root' })
 export class AudioPlayer {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly audio = new Audio();
-  private lastVolume = 1;
 
   readonly currentTrack = signal<FileItem | null>(null);
   readonly trackList = signal<FileItem[]>([]);
@@ -20,55 +19,15 @@ export class AudioPlayer {
   readonly isMuted = signal(false);
   readonly discSpinState = signal<DiscSpinState>('paused');
 
+  private readonly audio = this.createAudioElement();
+  private lastVolume = 1;
   private lastSeekTime = 0;
-  private seekResetTimer: ReturnType<typeof setTimeout> | null = null;
-  private seekDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  private seekResetTimer = Subscription.EMPTY;
+  private seekDebounceTimer = Subscription.EMPTY;
   private isSeeking = false;
 
   constructor() {
-    this.setupListeners();
     this.destroyRef.onDestroy(() => this.stop());
-  }
-
-  private setupListeners(): void {
-    this.audio.crossOrigin = 'anonymous';
-    this.setupPlaybackListeners();
-    this.setupLoadListeners();
-  }
-
-  private setupPlaybackListeners(): void {
-    this.audio.ontimeupdate = () => {
-      if (!this.isSeeking) this.currentTime.set(this.audio.currentTime);
-    };
-    this.audio.onseeked = () => {
-      this.currentTime.set(this.audio.currentTime);
-      this.isSeeking = false;
-    };
-    this.audio.onloadedmetadata = () => this.duration.set(this.audio.duration);
-    this.audio.onplay = () => {
-      this.isPlaying.set(true);
-      if (!this.seekResetTimer) this.discSpinState.set('playing');
-    };
-    this.audio.onpause = () => {
-      this.isPlaying.set(false);
-      if (!this.seekResetTimer) this.discSpinState.set('paused');
-    };
-    this.audio.onended = () => this.nextTrack();
-  }
-
-  private setupLoadListeners(): void {
-    this.audio.onloadstart = () => {
-      this.isLoading.set(true);
-      this.hasError.set(false);
-    };
-    this.audio.oncanplay = () => this.isLoading.set(false);
-    this.audio.onwaiting = () => this.isLoading.set(true);
-    this.audio.onerror = () => {
-      if (this.audio.src) {
-        this.hasError.set(true);
-        this.isLoading.set(false);
-      }
-    };
   }
 
   async play(track: FileItem, playlist?: FileItem[]): Promise<void> {
@@ -104,23 +63,6 @@ export class AudioPlayer {
     this.currentTrack.set(null);
   }
 
-  private stopPlayback(): void {
-    if (this.seekResetTimer) {
-      clearTimeout(this.seekResetTimer);
-      this.seekResetTimer = null;
-    }
-    if (this.seekDebounceTimer) {
-      clearTimeout(this.seekDebounceTimer);
-      this.seekDebounceTimer = null;
-    }
-    this.audio.pause();
-    this.audio.src = '';
-    this.isPlaying.set(false);
-    this.isLoading.set(false);
-    this.duration.set(0);
-    this.currentTime.set(0);
-  }
-
   nextTrack(): void {
     const list = this.trackList();
     const currentUrl = this.currentTrack()?.url;
@@ -153,26 +95,6 @@ export class AudioPlayer {
     this.applySeek(time, immediate);
   }
 
-  private resetSeekState(): void {
-    if (this.seekResetTimer) clearTimeout(this.seekResetTimer);
-    this.seekResetTimer = setTimeout(() => {
-      this.seekResetTimer = null;
-      this.discSpinState.set(this.isPlaying() ? 'playing' : 'paused');
-    }, 600);
-  }
-
-  private applySeek(time: number, immediate: boolean): void {
-    if (this.seekDebounceTimer) clearTimeout(this.seekDebounceTimer);
-    if (immediate) {
-      this.audio.currentTime = time;
-      return;
-    }
-    this.seekDebounceTimer = setTimeout(() => {
-      this.seekDebounceTimer = null;
-      this.audio.currentTime = time;
-    }, 80);
-  }
-
   setVolume(volume: number): void {
     const clamped = Math.min(Math.max(volume, 0), 1);
     this.volume.set(clamped);
@@ -187,5 +109,79 @@ export class AudioPlayer {
       this.lastVolume = this.volume();
       this.setVolume(0);
     }
+  }
+
+  private createAudioElement(): HTMLAudioElement {
+    const audioElement = new Audio();
+    audioElement.crossOrigin = 'anonymous';
+    this.setupPlaybackListeners(audioElement);
+    this.setupLoadListeners(audioElement);
+    return audioElement;
+  }
+
+  private setupPlaybackListeners(audioElement: HTMLAudioElement): void {
+    audioElement.ontimeupdate = () => {
+      if (!this.isSeeking) this.currentTime.set(audioElement.currentTime);
+    };
+    audioElement.onseeked = () => {
+      this.currentTime.set(audioElement.currentTime);
+      this.isSeeking = false;
+    };
+    audioElement.onloadedmetadata = () => this.duration.set(audioElement.duration);
+    audioElement.onplay = () => {
+      this.isPlaying.set(true);
+      if (this.seekResetTimer.closed) this.discSpinState.set('playing');
+    };
+    audioElement.onpause = () => {
+      this.isPlaying.set(false);
+      if (this.seekResetTimer.closed) this.discSpinState.set('paused');
+    };
+    audioElement.onended = () => this.nextTrack();
+  }
+
+  private setupLoadListeners(audioElement: HTMLAudioElement): void {
+    audioElement.onloadstart = () => {
+      this.isLoading.set(true);
+      this.hasError.set(false);
+    };
+    audioElement.oncanplay = () => this.isLoading.set(false);
+    audioElement.onwaiting = () => this.isLoading.set(true);
+    audioElement.onerror = () => {
+      if (audioElement.src) {
+        this.hasError.set(true);
+        this.isLoading.set(false);
+      }
+    };
+  }
+
+  private stopPlayback(): void {
+    this.seekResetTimer.unsubscribe();
+    this.seekDebounceTimer.unsubscribe();
+    this.audio.pause();
+    this.audio.src = '';
+    this.isPlaying.set(false);
+    this.isLoading.set(false);
+    this.duration.set(0);
+    this.currentTime.set(0);
+  }
+
+  private resetSeekState(): void {
+    this.seekResetTimer.unsubscribe();
+    this.seekResetTimer = timer(600)
+      .pipe(take(1))
+      .subscribe(() => this.discSpinState.set(this.isPlaying() ? 'playing' : 'paused'));
+  }
+
+  private applySeek(time: number, immediate: boolean): void {
+    this.seekDebounceTimer.unsubscribe();
+    if (immediate) {
+      this.audio.currentTime = time;
+      return;
+    }
+    this.seekDebounceTimer = timer(80)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.audio.currentTime = time;
+      });
   }
 }

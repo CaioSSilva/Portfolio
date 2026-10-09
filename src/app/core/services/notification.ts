@@ -1,4 +1,5 @@
 import { DestroyRef, inject, Injectable, signal } from '@angular/core';
+import { Subscription, take, timer } from 'rxjs';
 import { uuid } from '../utils/uuid';
 import { Notification } from '../models/notification';
 import { Sound } from './sound';
@@ -12,11 +13,11 @@ export class NotificationService {
   readonly history = signal<Notification[]>([]);
   readonly isPanelOpen = signal(false);
 
-  private readonly dismissTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly dismissTimers = new Map<string, Subscription>();
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      this.dismissTimers.forEach(clearTimeout);
+      this.dismissTimers.forEach((timerSubscription) => timerSubscription.unsubscribe());
       this.dismissTimers.clear();
     });
   }
@@ -50,18 +51,22 @@ export class NotificationService {
 
   private pushToState(notif: Notification): void {
     this.activeNotifications.update((current) => [...current, notif]);
-    const timer = setTimeout(() => {
-      this.dismissTimers.delete(notif.id);
-      this.activeNotifications.update((items) => items.filter((notif2) => notif2.id !== notif.id));
-      this.history.update((current) => [notif, ...current]);
-    }, notif.duration || 6000);
-    this.dismissTimers.set(notif.id, timer);
+    const dismissTimer = timer(notif.duration || 6000)
+      .pipe(take(1))
+      .subscribe(() => {
+        this.dismissTimers.delete(notif.id);
+        this.activeNotifications.update((items) =>
+          items.filter((notif2) => notif2.id !== notif.id),
+        );
+        this.history.update((current) => [notif, ...current]);
+      });
+    this.dismissTimers.set(notif.id, dismissTimer);
   }
 
   dismiss(id: string): void {
-    const timer = this.dismissTimers.get(id);
-    if (timer !== undefined) {
-      clearTimeout(timer);
+    const dismissTimer = this.dismissTimers.get(id);
+    if (dismissTimer !== undefined) {
+      dismissTimer.unsubscribe();
       this.dismissTimers.delete(id);
       const notif = this.activeNotifications().find((item) => item.id === id);
       this.history.update((current) => (notif ? [notif, ...current] : current));

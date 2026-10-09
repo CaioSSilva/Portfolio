@@ -85,21 +85,21 @@ describe('Apps', () => {
 
   it('should call contextMenu.openApp on right-click within window bounds', () => {
     const app = service.appsDefinition()[0];
-    const event = {
+    const event: Partial<MouseEvent> = {
       preventDefault: vi.fn(),
       stopPropagation: vi.fn(),
       currentTarget: {
         getBoundingClientRect: () => ({ left: 100, top: 300, width: 60, height: 60 }),
-      },
-    } as unknown as MouseEvent;
+      } as Partial<EventTarget> as EventTarget,
+    };
 
-    service.onRightClickApp(event, app.id);
+    service.onRightClickApp(event as MouseEvent, app.id);
     expect(contextMenuSpy.openApp).toHaveBeenCalled();
   });
 
   it('should adjust x position when context menu would overflow right edge', () => {
     const app = service.appsDefinition()[0];
-    const event = {
+    const event: Partial<MouseEvent> = {
       preventDefault: vi.fn(),
       stopPropagation: vi.fn(),
       currentTarget: {
@@ -109,10 +109,10 @@ describe('Apps', () => {
           width: 60,
           height: 60,
         }),
-      },
-    } as unknown as MouseEvent;
+      } as Partial<EventTarget> as EventTarget,
+    };
 
-    service.onRightClickApp(event, app.id);
+    service.onRightClickApp(event as MouseEvent, app.id);
     const [xArg] = contextMenuSpy.openApp.mock.calls[0];
     expect(xArg).toBeLessThan(window.innerWidth - 10);
   });

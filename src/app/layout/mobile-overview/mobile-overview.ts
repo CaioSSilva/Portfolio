@@ -1,4 +1,13 @@
-import { Component, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  computed,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer } from 'rxjs';
 import { ProcessManager } from '../../core/services/process-manager';
 import { MobileNavService } from '../../core/services/mobile-nav';
 import { LanguageService } from '../../core/services/language';
@@ -13,16 +22,17 @@ import { Process } from '../../core/models/process';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MobileOverview {
-  readonly processManager = inject(ProcessManager);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly processManager = inject(ProcessManager);
   readonly nav = inject(MobileNavService);
   readonly lang = inject(LanguageService);
 
   readonly swipeOffsets = signal<Record<string, number>>({});
-  readonly dismissing = signal<Record<string, boolean>>({});
   readonly processes = computed(() =>
-    [...this.processManager.processes()].sort((a, b) => b.zIndex - a.zIndex),
+    [...this.processManager.processes()].sort((firstProc, secondProc) => secondProc.zIndex - firstProc.zIndex),
   );
 
+  private readonly dismissing = signal<Record<string, boolean>>({});
   private backdropTouchStartX = 0;
   private backdropTouchStartY = 0;
   private touchStartX = 0;
@@ -36,58 +46,58 @@ export class MobileOverview {
   }
 
   onBackdropTouchEnd(event: TouchEvent): void {
-    const dx = Math.abs(event.changedTouches[0].clientX - this.backdropTouchStartX);
-    const dy = Math.abs(event.changedTouches[0].clientY - this.backdropTouchStartY);
-    if (dx < 10 && dy < 10) {
+    const diffX = Math.abs(event.changedTouches[0].clientX - this.backdropTouchStartX);
+    const diffY = Math.abs(event.changedTouches[0].clientY - this.backdropTouchStartY);
+    if (diffX < 10 && diffY < 10) {
       event.stopPropagation();
       this.nav.closeOverview();
     }
   }
 
-  onBackdropClick(_event: MouseEvent): void {
+  onBackdropClick(): void {
     this.nav.closeOverview();
   }
 
-  onCardTouchStart(event: TouchEvent, proc: Process): void {
+  onCardTouchStart(event: TouchEvent, process: Process): void {
     this.touchStartX = event.touches[0].clientX;
     this.touchStartY = event.touches[0].clientY;
     this.touchStartTime = Date.now();
-    this.setOffset(proc.id, 0);
+    this.setOffset(process.id, 0);
   }
 
-  onCardTouchMove(event: TouchEvent, proc: Process): void {
-    const dy = event.touches[0].clientY - this.touchStartY;
-    if (dy < 0) {
+  onCardTouchMove(event: TouchEvent, process: Process): void {
+    const diffY = event.touches[0].clientY - this.touchStartY;
+    if (diffY < 0) {
       event.stopPropagation();
-      this.setOffset(proc.id, dy);
+      this.setOffset(process.id, diffY);
     }
   }
 
-  onCardTouchEnd(event: TouchEvent, proc: Process): void {
-    const dx = Math.abs(event.changedTouches[0].clientX - this.touchStartX);
-    const dy = event.changedTouches[0].clientY - this.touchStartY;
+  onCardTouchEnd(event: TouchEvent, process: Process): void {
+    const diffX = Math.abs(event.changedTouches[0].clientX - this.touchStartX);
+    const diffY = event.changedTouches[0].clientY - this.touchStartY;
     const duration = Date.now() - this.touchStartTime;
-    if (dy < -80 || (dy < -40 && duration < 300)) {
+    if (diffY < -80 || (diffY < -40 && duration < 300)) {
       event.stopPropagation();
-      this.dismissCard(proc);
+      this.dismissCard(process);
       return;
     }
-    this.setOffset(proc.id, 0);
-    if (Math.abs(dx) < 10 && Math.abs(dy) < 10 && duration < 400) {
+    this.setOffset(process.id, 0);
+    if (Math.abs(diffX) < 10 && Math.abs(diffY) < 10 && duration < 400) {
       this.lastTapTime = Date.now();
       event.stopPropagation();
-      this.processManager.focus(proc.id);
+      this.processManager.focus(process.id);
       this.nav.closeOverview();
     }
   }
 
-  onCardClick(event: MouseEvent, proc: Process): void {
+  onCardClick(event: MouseEvent, process: Process): void {
     if (Date.now() - this.lastTapTime < 600) {
       event.stopPropagation();
       return;
     }
     event.stopPropagation();
-    this.processManager.focus(proc.id);
+    this.processManager.focus(process.id);
     this.nav.closeOverview();
   }
 
@@ -105,14 +115,14 @@ export class MobileOverview {
     return this.dismissing()[procId] ?? false;
   }
 
-  closeProcess(proc: Process, event: Event): void {
+  closeProcess(process: Process, event: Event): void {
     event.stopPropagation();
-    this.processManager.close(proc.id);
+    this.processManager.close(process.id);
   }
 
   closeAll(): void {
     const list = [...this.processes()];
-    list.forEach((proc) => this.processManager.close(proc.id));
+    list.forEach((process) => this.processManager.close(process.id));
     this.nav.closeOverview();
   }
 
@@ -120,15 +130,17 @@ export class MobileOverview {
     return (this.lang.t().apps as Record<string, string>)[appId] || fallback;
   }
 
-  private dismissCard(proc: Process): void {
-    this.setOffset(proc.id, -600);
-    this.dismissing.update((map) => ({ ...map, [proc.id]: true }));
-    setTimeout(() => {
-      this.processManager.close(proc.id);
-      if (this.processManager.processes().length === 0) {
-        this.nav.closeOverview();
-      }
-    }, 280);
+  private dismissCard(process: Process): void {
+    this.setOffset(process.id, -600);
+    this.dismissing.update((map) => ({ ...map, [process.id]: true }));
+    timer(280)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.processManager.close(process.id);
+        if (this.processManager.processes().length === 0) {
+          this.nav.closeOverview();
+        }
+      });
   }
 
   private setOffset(procId: string, value: number): void {

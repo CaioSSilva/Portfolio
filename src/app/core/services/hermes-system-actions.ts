@@ -121,8 +121,8 @@ export class HermesSystemActionsService {
     if (!payload?.query) throw new Error('Missing music query');
     this.fileSystem.ensureLoaded().then(() => {
       const results = this.fileSystem.searchFiles(payload.query);
-      const track = results.find((f) => AUDIO_EXTENSIONS.includes(
-        this.fileSystem.getFileExtension(f.name),
+      const track = results.find((fileItem) => AUDIO_EXTENSIONS.includes(
+        this.fileSystem.getFileExtension(fileItem.name),
       ));
       if (!track) throw new Error(`No track found for: ${payload.query}`);
       const playlist = this.fileSystem.getFilesByExtensions(AUDIO_EXTENSIONS);
