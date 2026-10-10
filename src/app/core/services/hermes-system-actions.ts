@@ -2,27 +2,24 @@ import { Injectable, inject } from '@angular/core';
 import { Theme } from './theme';
 import { Settings } from './settings';
 import { Sound } from './sound';
-import { AudioPlayer } from './audio-player';
-import { FileSystem } from './file-system';
-import { ProcessManager } from './process-manager';
+import { SystemTips } from './system-tips';
+import { NotificationService } from './notification';
 import {
   HermesAction,
   SetThemePayload,
   SetWallpaperPayload,
   SetSizePayload,
   PlaySoundPayload,
-  MusicPlayTrackPayload,
+  ShowNotificationPayload,
 } from '../models/hermes-action';
-import { AUDIO_EXTENSIONS } from '../models/file';
 
 @Injectable({ providedIn: 'root' })
 export class HermesSystemActionsService {
   private readonly theme = inject(Theme);
   private readonly settings = inject(Settings);
   private readonly sound = inject(Sound);
-  private readonly audioPlayer = inject(AudioPlayer);
-  private readonly fileSystem = inject(FileSystem);
-  private readonly processManager = inject(ProcessManager);
+  private readonly systemTips = inject(SystemTips);
+  private readonly notifications = inject(NotificationService);
 
   execute(action: HermesAction): void {
     switch (action.type) {
@@ -41,12 +38,15 @@ export class HermesSystemActionsService {
       case 'set_desktop_size':
         this.setDesktopSize(action);
         break;
+      case 'show_notification':
+        this.showNotification(action);
+        break;
       default:
-        this.dispatchToggleOrMusicAction(action);
+        this.dispatchToggleOrTipAction(action);
     }
   }
 
-  private dispatchToggleOrMusicAction(action: HermesAction): void {
+  private dispatchToggleOrTipAction(action: HermesAction): void {
     switch (action.type) {
       case 'toggle_sounds':
         this.settings.toggleSystemSounds();
@@ -63,27 +63,17 @@ export class HermesSystemActionsService {
       case 'toggle_agent_mode':
         this.settings.toggleAgentMode();
         break;
-      default:
-        this.dispatchMusicAction(action);
-    }
-  }
-
-  private dispatchMusicAction(action: HermesAction): void {
-    switch (action.type) {
-      case 'music_play_pause':
-        this.audioPlayer.togglePlay();
+      case 'toggle_voice_feedback':
+        this.settings.toggleAgentSpeakReplies();
         break;
-      case 'music_next':
-        this.audioPlayer.nextTrack();
+      case 'show_system_tip':
+        this.systemTips.showRandomTip();
         break;
-      case 'music_prev':
-        this.audioPlayer.prevTrack();
+      case 'clear_notifications':
+        this.notifications.clearHistory();
         break;
-      case 'music_stop':
-        this.audioPlayer.stop();
-        break;
-      case 'music_play_track':
-        this.playTrack(action);
+      case 'toggle_notification_panel':
+        this.notifications.togglePanel();
         break;
     }
   }
@@ -118,16 +108,13 @@ export class HermesSystemActionsService {
     this.sound.play(payload.sound);
   }
 
-  private playTrack(action: HermesAction): void {
-    const payload = action.payload as MusicPlayTrackPayload | undefined;
-    if (!payload?.query) throw new Error('Missing music query');
-    this.fileSystem.ensureLoaded().then(() => {
-      const results = this.fileSystem.searchFiles(payload.query);
-      const track = results.find((fileItem) => AUDIO_EXTENSIONS.includes(
-        this.fileSystem.getFileExtension(fileItem.name),
-      ));
-      if (!track) throw new Error(`No track found for: ${payload.query}`);
-      this.processManager.openFile(track);
+  private showNotification(action: HermesAction): void {
+    const payload = action.payload as ShowNotificationPayload | undefined;
+    if (!payload?.title || !payload?.message) throw new Error('Missing notification content');
+    this.notifications.show({
+      title: payload.title,
+      message: payload.message,
+      icon: payload.icon || 'fas fa-info-circle',
     });
   }
 }

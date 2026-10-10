@@ -3,10 +3,8 @@ import { HermesSystemActionsService } from './hermes-system-actions';
 import { Theme } from './theme';
 import { Settings } from './settings';
 import { Sound } from './sound';
-import { AudioPlayer } from './audio-player';
-import { FileSystem } from './file-system';
-import { ProcessManager } from './process-manager';
-import { FileItem } from '../models/file';
+import { SystemTips } from './system-tips';
+import { NotificationService } from './notification';
 
 describe('HermesSystemActionsService', () => {
   let service: HermesSystemActionsService;
@@ -18,29 +16,15 @@ describe('HermesSystemActionsService', () => {
     toggleSystemSounds: ReturnType<typeof vi.fn>;
     toggleAutoHideDock: ReturnType<typeof vi.fn>;
     toggleSystemTips: ReturnType<typeof vi.fn>;
+    toggleAgentMode: ReturnType<typeof vi.fn>;
+    toggleAgentSpeakReplies: ReturnType<typeof vi.fn>;
   };
   let soundSpy: { play: ReturnType<typeof vi.fn> };
-  let audioPlayerSpy: {
-    togglePlay: ReturnType<typeof vi.fn>;
-    nextTrack: ReturnType<typeof vi.fn>;
-    prevTrack: ReturnType<typeof vi.fn>;
-    stop: ReturnType<typeof vi.fn>;
-    play: ReturnType<typeof vi.fn>;
-  };
-  let fileSystemSpy: {
-    ensureLoaded: ReturnType<typeof vi.fn>;
-    searchFiles: ReturnType<typeof vi.fn>;
-    getFileExtension: ReturnType<typeof vi.fn>;
-    getFilesByExtensions: ReturnType<typeof vi.fn>;
-  };
-  let processManagerSpy: { openFile: ReturnType<typeof vi.fn> };
-
-  const mockTrack: FileItem = {
-    id: 'song1',
-    name: 'bohemian.mp3',
-    type: 'file',
-    icon: 'fas fa-music',
-    url: '/data/music/bohemian.mp3',
+  let systemTipsSpy: { showRandomTip: ReturnType<typeof vi.fn> };
+  let notificationSpy: {
+    show: ReturnType<typeof vi.fn>;
+    clearHistory: ReturnType<typeof vi.fn>;
+    togglePanel: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -52,22 +36,12 @@ describe('HermesSystemActionsService', () => {
       toggleSystemSounds: vi.fn(),
       toggleAutoHideDock: vi.fn(),
       toggleSystemTips: vi.fn(),
+      toggleAgentMode: vi.fn(),
+      toggleAgentSpeakReplies: vi.fn(),
     };
     soundSpy = { play: vi.fn() };
-    audioPlayerSpy = {
-      togglePlay: vi.fn(),
-      nextTrack: vi.fn(),
-      prevTrack: vi.fn(),
-      stop: vi.fn(),
-      play: vi.fn(),
-    };
-    fileSystemSpy = {
-      ensureLoaded: vi.fn().mockResolvedValue(undefined),
-      searchFiles: vi.fn().mockReturnValue([mockTrack]),
-      getFileExtension: vi.fn().mockReturnValue('mp3'),
-      getFilesByExtensions: vi.fn().mockReturnValue([mockTrack]),
-    };
-    processManagerSpy = { openFile: vi.fn() };
+    systemTipsSpy = { showRandomTip: vi.fn() };
+    notificationSpy = { show: vi.fn(), clearHistory: vi.fn(), togglePanel: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -75,9 +49,8 @@ describe('HermesSystemActionsService', () => {
         { provide: Theme, useValue: themeSpy },
         { provide: Settings, useValue: settingsSpy },
         { provide: Sound, useValue: soundSpy },
-        { provide: AudioPlayer, useValue: audioPlayerSpy },
-        { provide: FileSystem, useValue: fileSystemSpy },
-        { provide: ProcessManager, useValue: processManagerSpy },
+        { provide: SystemTips, useValue: systemTipsSpy },
+        { provide: NotificationService, useValue: notificationSpy },
       ],
     });
 
@@ -154,6 +127,21 @@ describe('HermesSystemActionsService', () => {
       service.execute({ type: 'toggle_tips' });
       expect(settingsSpy.toggleSystemTips).toHaveBeenCalled();
     });
+
+    it('toggle_agent_mode toggles agent mode', () => {
+      service.execute({ type: 'toggle_agent_mode' });
+      expect(settingsSpy.toggleAgentMode).toHaveBeenCalled();
+    });
+
+    it('toggle_voice_feedback toggles agent speech', () => {
+      service.execute({ type: 'toggle_voice_feedback' });
+      expect(settingsSpy.toggleAgentSpeakReplies).toHaveBeenCalled();
+    });
+
+    it('show_system_tip shows a random tip', () => {
+      service.execute({ type: 'show_system_tip' });
+      expect(systemTipsSpy.showRandomTip).toHaveBeenCalled();
+    });
   });
 
   describe('sound actions', () => {
@@ -169,36 +157,43 @@ describe('HermesSystemActionsService', () => {
     });
   });
 
-  describe('music actions', () => {
-    it('music_play_pause calls togglePlay', () => {
-      service.execute({ type: 'music_play_pause' });
-      expect(audioPlayerSpy.togglePlay).toHaveBeenCalled();
+  describe('notification actions', () => {
+    it('show_notification shows a notification with given title and message', () => {
+      service.execute({
+        type: 'show_notification',
+        payload: { title: 'Hello', message: 'World' },
+      });
+      expect(notificationSpy.show).toHaveBeenCalledWith({
+        title: 'Hello',
+        message: 'World',
+        icon: 'fas fa-info-circle',
+      });
     });
 
-    it('music_next calls nextTrack', () => {
-      service.execute({ type: 'music_next' });
-      expect(audioPlayerSpy.nextTrack).toHaveBeenCalled();
-    });
-
-    it('music_prev calls prevTrack', () => {
-      service.execute({ type: 'music_prev' });
-      expect(audioPlayerSpy.prevTrack).toHaveBeenCalled();
-    });
-
-    it('music_stop calls stop', () => {
-      service.execute({ type: 'music_stop' });
-      expect(audioPlayerSpy.stop).toHaveBeenCalled();
-    });
-
-    it('music_play_track searches and opens the found track via process manager', async () => {
-      service.execute({ type: 'music_play_track', payload: { query: 'bohemian' } });
-      await vi.waitFor(() => expect(processManagerSpy.openFile).toHaveBeenCalledWith(mockTrack));
-    });
-
-    it('music_play_track throws when query is missing', () => {
-      expect(() => service.execute({ type: 'music_play_track', payload: {} })).toThrow(
-        'Missing music query',
+    it('show_notification uses custom icon when provided', () => {
+      service.execute({
+        type: 'show_notification',
+        payload: { title: 'Alert', message: 'Test', icon: 'fas fa-star' },
+      });
+      expect(notificationSpy.show).toHaveBeenCalledWith(
+        expect.objectContaining({ icon: 'fas fa-star' }),
       );
+    });
+
+    it('show_notification throws when title or message is missing', () => {
+      expect(() =>
+        service.execute({ type: 'show_notification', payload: { title: 'Only title' } }),
+      ).toThrow('Missing notification content');
+    });
+
+    it('clear_notifications clears notification history', () => {
+      service.execute({ type: 'clear_notifications' });
+      expect(notificationSpy.clearHistory).toHaveBeenCalled();
+    });
+
+    it('toggle_notification_panel toggles the panel', () => {
+      service.execute({ type: 'toggle_notification_panel' });
+      expect(notificationSpy.togglePanel).toHaveBeenCalled();
     });
   });
 });

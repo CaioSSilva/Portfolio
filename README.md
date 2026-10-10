@@ -1,6 +1,6 @@
 # Cai_OS
 
-![Version](https://img.shields.io/badge/version-3.0.1-blue)
+![Version](https://img.shields.io/badge/version-3.1.0-blue)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
 ![Vitest](https://img.shields.io/badge/tests-Vitest-brightgreen)
@@ -44,41 +44,35 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 
 ---
 
-## What's New — v3.0.1
+## What's New — v3.1.0
 
-- **Mobile detection for Agent Mode**: `SpeechRecognitionService` now detects mobile devices (Android, iPhone, iPad) via `navigator.maxTouchPoints` + User-Agent and returns `unsupportedReason: 'mobile'` — the toggle is disabled with a clear message instead of silently misbehaving
-- **`AgentUnsupportedReason` type**: replaces the two separate `isSupported`/`isSecureContext` booleans with a single discriminated reason (`'browser' | 'insecure-context' | 'mobile' | null`), exposed on both `SpeechRecognitionService` and `AgentModeService`
-- **`SPEECH_RECOGNITION_UNSUPPORTED_REASON` token**: injectable reason for testing and DI override
-- **Settings → Hermes**: description under the Agent Mode toggle now uses `@switch` on `unsupportedReason()`, showing a distinct message per failure case
-- **Media actions for Hermes**: `music_play_pause`, `music_next`, `music_prev`, `music_stop`, `music_play_track` — control the music player by voice or text
-- **Photo & document search actions**: `photos_open_photo {"query"}` and `docs_open_document {"query"}` — Hermes searches the virtual file system and opens the matching file directly
-- **`spoken replies` dependency**: disabling Agent Mode now automatically resets Spoken Replies to off; the toggle is visually dimmed and non-interactive when Agent Mode is off
+- **Expanded Hermes AI Actions**: Full OS control with window management (`minimize_all`, `close_all_apps`, `focus_app`), browser navigation & Google search (`browser_open_url`, `browser_search`), advanced media playback (`music_set_volume`, `music_toggle_mute`, `music_seek`), and system triggers (`clear_notifications`, `toggle_voice_feedback`, `show_system_tip`)
+- **Modular Action Architecture**: Extracted `HermesMediaActionsService` (`core/services/hermes-media-actions.ts`) to maintain strict service cohesion (≤ 5 dependencies per service)
+- **Enhanced Agent Documentation & System Prompts**: Synchronized documentation and bilingual Hermes context dictionaries with all supported action tags
+- **100% Test Suite Coverage**: Comprehensive unit test suite with 716 passing tests
 
 <details>
 <summary>Previous release — v3.0.0</summary>
 
-- **Agent Mode**: always-on voice service for Hermes — say "Hello Hermes" or "Oi Hermes" to wake it without opening any app. Inline commands supported (e.g. *"Hey Hermes, open the terminal"*)
-- **Tray icon**: microphone icon in the top-bar right cluster reflects live agent state (listening / awake / processing / speaking)
-- **Spoken replies**: opt-in TTS via Web Speech API — Hermes reads its answers aloud; Markdown is stripped before synthesis
-- **Settings → Hermes section**: agent mode toggle, spoken replies toggle, wake phrase reference, privacy notice, per-browser support detection
-- **4 new core services**: `AgentModeService` (state machine), `SpeechRecognitionService` (Web Speech wrapper + backoff), `SpeechSynthesisService` (TTS), `WakeWordService` (fuzzy wake-phrase detection, Levenshtein ≤ 1)
-- **`toggle_agent_mode` action**: Hermes can now enable/disable Agent Mode via the action tag pipeline
-- **`notifyAgentReply()`** on `HermesChatService`: shows a system notification when Agent Mode replies while the Hermes window is closed and spoken replies are off
+- **Agent Mode**: Always-on voice service for Hermes — say "Hello Hermes" or "Oi Hermes" to wake it without opening any app. Inline commands supported (e.g. *"Hey Hermes, open the terminal"*)
+- **Tray icon**: Microphone icon in the top-bar right cluster reflects live agent state (listening / awake / processing / speaking)
+- **Spoken replies**: Opt-in TTS via Web Speech API — Hermes reads its answers aloud; Markdown is stripped before synthesis
+- **Settings → Hermes section**: Agent mode toggle, spoken replies toggle, wake phrase reference, privacy notice, per-browser support detection
+- **4 core services**: `AgentModeService` (state machine), `SpeechRecognitionService` (Web Speech wrapper + backoff), `SpeechSynthesisService` (TTS), `WakeWordService` (fuzzy wake-phrase detection, Levenshtein ≤ 1)
+- **`toggle_agent_mode` action**: Hermes can enable/disable Agent Mode via the action tag pipeline
+- **`notifyAgentReply()`** on `HermesChatService`: Shows a system notification when Agent Mode replies while the Hermes window is closed and spoken replies are off
 
 </details>
 
 <details>
-<summary>Previous release — v2.5.1</summary>
+<summary>Previous release — v2.5.0</summary>
 
-- **Hermes model migration**: Deprecated model IDs auto-migrated to `gemini-flash-lite-latest` on startup
-- **Dual API key fallback**: Gemini retries with a secondary key on 404/429 errors
 - **Window snap system**: Drag-to-snap with ghost preview overlay (left, right, top-full, four corners)
-- **Pinch-to-zoom** in ImageViewer and DocumentViewer (mobile)
-- **Swipe-to-navigate** documents and images on mobile
-- **Anchor scroll in DocumentViewer**: clicking `#id` links in Markdown scrolls the panel
-- **Lyrics**: synced (LRC) and plain-text lyrics from LRCLIB with active-line tracking
-- **Desktop icons**: pinnable shortcuts on the desktop, persisted to `localStorage`
-- **Dock drag-and-drop**: drag apps from the grid onto the dock to pin at a specific position
+- **Lyrics integration**: Synced (LRC) and plain-text lyrics from LRCLIB with active-line tracking
+- **Desktop icons**: Pinnable shortcuts on the desktop, persisted to `localStorage`
+- **Dock drag-and-drop**: Drag apps from the grid onto the dock to pin at a specific position
+- **Dual API key fallback**: Gemini retries with a secondary key on 404/429 errors
+- **Mobile gestures**: Pinch-to-zoom and swipe navigation in ImageViewer and DocumentViewer
 
 </details>
 
@@ -474,7 +468,7 @@ Chat message state. Keeps the last 6 messages as context history. Streams respon
 ---
 
 ### `HermesActionService` — `core/services/hermes-action.ts`
-Parses `<!--caios:action {...} -->` tags from AI responses and dispatches to `HermesAppActionsService` or `HermesSystemActionsService`.
+Parses `<!--caios:action {...} -->` tags from AI responses and dispatches to `HermesAppActionsService`, `HermesMediaActionsService`, or `HermesSystemActionsService`.
 
 **Public API:** `parseActions(text): ParseActionResult`, `execute(action)`
 
@@ -770,7 +764,12 @@ Hermes can trigger OS actions by appending structured tags to its response:
 |---|---|---|
 | `open_app` | `{"app": "terminal"\|"files"\|"firefox"\|"photos"\|"documents"\|"musics"\|"settings"\|"systemMonitor"\|"about"}` | Opens an installed application |
 | `close_app` | `{"app": "<app_id>"}` | Closes all instances of an app |
+| `close_all_apps` | `{}` | Closes all open windows and applications |
+| `focus_app` | `{"app": "<app_id>"}` | Brings a running application to the foreground |
+| `minimize_all` | `{}` | Minimizes all open windows to show the desktop |
 | `open_file` | `{"name": "filename.ext", "url": "/data/root/…"}` | Opens a file with its associated handler |
+| `browser_open_url` | `{"url": "https://…"}` | Opens the Firefox browser at the specified URL |
+| `browser_search` | `{"query": "search query"}` | Performs a Google search in the browser |
 | `set_theme` | `{"dark": true\|false}` | Sets dark or light mode |
 | `toggle_theme` | `{}` | Toggles current theme |
 | `set_wallpaper` | `{"path": "/wallpapers/desktop/sunset.webp"\|"/wallpapers/desktop/nebula.webp"\|"/wallpapers/desktop/default.webp"}` | Changes the wallpaper |
@@ -780,15 +779,21 @@ Hermes can trigger OS actions by appending structured tags to its response:
 | `play_sound` | `{"sound": "bell"\|"click"\|"startup"\|"office"}` | Plays a system sound |
 | `show_notification` | `{"title": "…", "message": "…", "icon?": "fas fa-…"}` | Shows a system notification |
 | `toggle_notification_panel` | `{}` | Opens/closes the notification panel |
+| `clear_notifications` | `{}` | Clears notification history |
 | `set_language` | `{"lang": "pt"\|"en"}` | Changes the system language |
 | `toggle_auto_hide_dock` | `{}` | Toggles dock auto-hide |
 | `toggle_tips` | `{}` | Enables/disables system tips |
+| `show_system_tip` | `{}` | Triggers a system tip notification |
 | `toggle_agent_mode` | `{}` | Enables/disables Agent Mode |
+| `toggle_voice_feedback` | `{}` | Enables/disables Hermes spoken voice replies |
 | `music_play_pause` | `{}` | Play/pause the current track |
 | `music_next` | `{}` | Skip to next track |
 | `music_prev` | `{}` | Go to previous track |
 | `music_stop` | `{}` | Stop playback |
 | `music_play_track` | `{"query": "song name or artist"}` | Search and play a track by name |
+| `music_set_volume` | `{"volume": 0..100}` | Sets music playback volume |
+| `music_toggle_mute` | `{}` | Mutes or unmutes the music player |
+| `music_seek` | `{"time": 30}` | Seeks to a specific timestamp in the track |
 | `photos_open_photo` | `{"query": "photo name"}` | Search and open a photo by name |
 | `docs_open_document` | `{"query": "document name"}` | Search and open a document by name |
 
@@ -964,13 +969,13 @@ This project is private (`"private": true` in `package.json`). All rights reserv
 
 | Metric | Value |
 |---|---|
-| Version | 3.0.1 |
+| Version | 3.1.0 |
 | Angular version | 22.2.1 |
 | TypeScript version | 6.0.3 |
 | Applications | 10 |
 | Layout components | 9 |
 | Shared UI components | 4 |
-| Core services | 29 |
+| Core services | 30 |
 | Data models | 14 files |
 | Languages supported | 2 (PT, EN) |
 | Platforms | Desktop, Mobile |

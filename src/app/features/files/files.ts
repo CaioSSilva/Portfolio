@@ -102,6 +102,13 @@ export class Files extends Base {
         this.fileSystem.ensureLoaded();
       }
     });
+    effect(() => {
+      const rawData = this.data();
+      if (rawData && typeof rawData === 'object' && 'searchQuery' in rawData) {
+        const query = (rawData as { searchQuery: string }).searchQuery;
+        if (query) this.searchQuery.set(query);
+      }
+    });
   }
 
   handleNavigate(item: FileItem): void {

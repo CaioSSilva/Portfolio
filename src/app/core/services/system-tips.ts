@@ -49,7 +49,7 @@ export class SystemTips {
     this.scheduleNextTip(this.calculateNextDelay(isFirst), false);
   }
 
-  private showRandomTip(): void {
+  showRandomTip(): void {
     const translations = this.lang.t();
     const isMobile = this.screen.isMobile();
     const pool = isMobile ? translations.systemTips.mobile : translations.systemTips.desktop;

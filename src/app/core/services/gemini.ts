@@ -3,6 +3,7 @@ import { GoogleGenerativeAI, Part } from '@google/generative-ai';
 import { environment } from '../../../environments/environment';
 import { LanguageService } from './language';
 import { Settings } from './settings';
+import { FileSystem } from './file-system';
 import { HERMES_DOCS } from './hermes-docs';
 import { GenAIFactory, GeminiModel, GeminiModelRaw } from '../models/gemini';
 
@@ -18,14 +19,29 @@ export class Gemini {
   private readonly langService = inject(LanguageService);
   private readonly genAIFactory = inject(GENAI_FACTORY);
   private readonly settings = inject(Settings);
+  private readonly fileSystem = inject(FileSystem);
 
   private buildSystemInstruction(): string {
     const currentLang = this.langService.currentLang();
     const docs = HERMES_DOCS[currentLang] ?? HERMES_DOCS['en'];
+    const fileIndex = this.buildFileIndex(currentLang);
 
     return currentLang === 'pt'
-      ? `Você é Hermes, o assistente inteligente integrado ao CaiOS. Responda com formatação Markdown puro (sem HTML). Seja conciso e direto. Sempre que apropriado, use ações no sistema com a tag <!--caios:action {"type": "...", "payload": {...}} -->.\n\n${docs}`
-      : `You are Hermes, the intelligent assistant integrated into CaiOS. Respond using pure Markdown formatting (no HTML). Be concise and direct. Whenever appropriate, trigger system actions using the tag <!--caios:action {"type": "...", "payload": {...}} -->.\n\n${docs}`;
+      ? `Você é Hermes, o assistente inteligente integrado ao CaiOS. Responda com formatação Markdown puro (sem HTML). Seja conciso e direto. Sempre que apropriado, use ações no sistema com a tag <!--caios:action {"type": "...", "payload": {...}} -->.\n\n${docs}${fileIndex}`
+      : `You are Hermes, the intelligent assistant integrated into CaiOS. Respond using pure Markdown formatting (no HTML). Be concise and direct. Whenever appropriate, trigger system actions using the tag <!--caios:action {"type": "...", "payload": {...}} -->.\n\n${docs}${fileIndex}`;
+  }
+
+  private buildFileIndex(lang: string): string {
+    if (!this.fileSystem.isLoaded()) return '';
+    const lines: string[] = [];
+    for (const node of this.fileSystem.allFiles()) {
+      if (node.url) lines.push(`- ${node.name}: ${node.url}`);
+    }
+    if (lines.length === 0) return '';
+    const header = lang === 'pt'
+      ? '\n\n## Arquivos no sistema\nUse o path exato abaixo em ações como read_file_content ou open_file:\n'
+      : '\n\n## Files in the system\nUse the exact path below in actions like read_file_content or open_file:\n';
+    return header + lines.join('\n');
   }
 
   private buildParts(

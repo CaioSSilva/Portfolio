@@ -1,12 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { Gemini, GENAI_FACTORY, GenAIFactory } from './gemini';
 import { LanguageService } from './language';
+import { FileSystem } from './file-system';
+import { signal } from '@angular/core';
+import { FileItem } from '../models/file';
 
 describe('Gemini', () => {
   let service: Gemini;
   let langService: LanguageService;
   let generateContentSpy: ReturnType<typeof vi.fn>;
   let generateContentStreamSpy: ReturnType<typeof vi.fn>;
+  let fileSystemSpy: {
+    isLoaded: ReturnType<typeof signal<boolean>>;
+    allFiles: ReturnType<typeof vi.fn>;
+  };
 
   const makeFactory = (): GenAIFactory => {
     generateContentSpy = vi.fn().mockResolvedValue({
@@ -64,9 +71,20 @@ describe('Gemini', () => {
     });
   };
 
+  const makeFileSystemSpy = () => ({
+    isLoaded: signal(false),
+    allFiles: vi.fn().mockReturnValue([] as FileItem[]),
+  });
+
   beforeEach(() => {
+    fileSystemSpy = makeFileSystemSpy();
     TestBed.configureTestingModule({
-      providers: [Gemini, LanguageService, { provide: GENAI_FACTORY, useValue: makeFactory() }],
+      providers: [
+        Gemini,
+        LanguageService,
+        { provide: GENAI_FACTORY, useValue: makeFactory() },
+        { provide: FileSystem, useValue: fileSystemSpy },
+      ],
     });
     service = TestBed.inject(Gemini);
     langService = TestBed.inject(LanguageService);
@@ -117,6 +135,23 @@ describe('Gemini', () => {
     const response = await service.generateResponse('Hello', '', undefined);
     expect(response).toBe('Mocked Hermes response');
     expect(generateContentSpy).toHaveBeenCalled();
+  });
+
+  describe('buildFileIndex', () => {
+    it('does not call allFiles when filesystem is not loaded', async () => {
+      fileSystemSpy.isLoaded.set(false);
+      await service.generateResponse('test', '', undefined);
+      expect(fileSystemSpy.allFiles).not.toHaveBeenCalled();
+    });
+
+    it('calls allFiles when filesystem is loaded', async () => {
+      fileSystemSpy.isLoaded.set(true);
+      fileSystemSpy.allFiles.mockReturnValue([
+        { id: 'doc1', name: 'Resume.pdf', type: 'file', icon: '', url: '/data/root/home/documents/Resume.pdf' },
+      ]);
+      await service.generateResponse('test', '', undefined);
+      expect(fileSystemSpy.allFiles).toHaveBeenCalled();
+    });
   });
 
   describe('listModels', () => {
@@ -193,12 +228,14 @@ describe('Gemini', () => {
     const apiError = new Error('404 NOT_FOUND: model unavailable');
 
     beforeEach(() => {
+      fileSystemSpy = makeFileSystemSpy();
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
           Gemini,
           LanguageService,
           { provide: GENAI_FACTORY, useValue: makeFactoryWithFallback(apiError) },
+          { provide: FileSystem, useValue: fileSystemSpy },
         ],
       });
       service = TestBed.inject(Gemini);
@@ -224,12 +261,14 @@ describe('Gemini', () => {
     const apiError = new Error('404 NOT_FOUND: both keys exhausted');
 
     beforeEach(() => {
+      fileSystemSpy = makeFileSystemSpy();
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
           Gemini,
           LanguageService,
           { provide: GENAI_FACTORY, useValue: makeFactoryBothFail(apiError) },
+          { provide: FileSystem, useValue: fileSystemSpy },
         ],
       });
       service = TestBed.inject(Gemini);
@@ -250,12 +289,14 @@ describe('Gemini', () => {
     const networkError = new Error('Network request failed');
 
     beforeEach(() => {
+      fileSystemSpy = makeFileSystemSpy();
       TestBed.resetTestingModule();
       TestBed.configureTestingModule({
         providers: [
           Gemini,
           LanguageService,
           { provide: GENAI_FACTORY, useValue: makeFactoryBothFail(networkError) },
+          { provide: FileSystem, useValue: fileSystemSpy },
         ],
       });
       service = TestBed.inject(Gemini);

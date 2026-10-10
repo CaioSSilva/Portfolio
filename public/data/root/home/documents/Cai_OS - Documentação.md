@@ -1,6 +1,6 @@
 # Cai_OS — Documentação
 
-**Versão:** 3.0.1 · **Plataforma:** Web (Angular 22) · **Autor:** Caio Souza Silva
+**Versão:** 3.1.0 · **Plataforma:** Web (Angular 22) · **Autor:** Caio Souza Silva
 
 ---
 
@@ -281,7 +281,12 @@ Essa tag é invisível para você — o sistema a processa automaticamente. Voc�
 |---|---|---|
 | `open_app` | `{"app": "terminal"\|"files"\|"firefox"\|"photos"\|"documents"\|"musics"\|"settings"\|"systemMonitor"\|"about"}` | Abre um aplicativo |
 | `close_app` | `{"app": "<id_do_app>"}` | Fecha todas as instâncias de um app |
+| `close_all_apps` | `{}` | Fecha todas as janelas e aplicativos abertos |
+| `focus_app` | `{"app": "<id_do_app>"}` | Traz o aplicativo em execução para o primeiro plano |
+| `minimize_all` | `{}` | Minimiza todas as janelas abertas exibindo a área de trabalho |
 | `open_file` | `{"name": "arquivo.ext", "url": "/data/root/…"}` | Abre um arquivo com o handler correspondente |
+| `browser_open_url` | `{"url": "https://…"}` | Abre o navegador Firefox no endereço especificado |
+| `browser_search` | `{"query": "termo de busca"}` | Realiza uma pesquisa no Google pelo navegador |
 | `set_theme` | `{"dark": true\|false}` | Define o modo escuro ou claro |
 | `toggle_theme` | `{}` | Alterna o tema atual |
 | `set_wallpaper` | `{"path": "/wallpapers/desktop/sunset.webp"\|"…/nebula.webp"\|"…/default.webp"}` | Muda o papel de parede |
@@ -291,15 +296,21 @@ Essa tag é invisível para você — o sistema a processa automaticamente. Voc�
 | `play_sound` | `{"sound": "bell"\|"click"\|"startup"\|"office"}` | Toca um som do sistema |
 | `show_notification` | `{"title": "…", "message": "…"}` | Exibe uma notificação |
 | `toggle_notification_panel` | `{}` | Abre/fecha o painel de notificações |
+| `clear_notifications` | `{}` | Limpa o histórico de notificações |
 | `set_language` | `{"lang": "pt"\|"en"}` | Muda o idioma do sistema |
 | `toggle_auto_hide_dock` | `{}` | Ativa/desativa o auto-ocultamento do dock |
 | `toggle_tips` | `{}` | Ativa/desativa as dicas do sistema |
+| `show_system_tip` | `{}` | Dispara a exibição de uma dica do sistema |
 | `toggle_agent_mode` | `{}` | Ativa/desativa o Modo Agente |
+| `toggle_voice_feedback` | `{}` | Ativa/desativa respostas em voz do Hermes |
 | `music_play_pause` | `{}` | Pausar/retomar a música atual |
 | `music_next` | `{}` | Próxima faixa |
 | `music_prev` | `{}` | Faixa anterior |
 | `music_stop` | `{}` | Parar a reprodução |
 | `music_play_track` | `{"query": "nome da música ou artista"}` | Buscar e tocar uma faixa pelo nome |
+| `music_set_volume` | `{"volume": 0..100}` | Ajusta o volume da música |
+| `music_toggle_mute` | `{}` | Muta ou desmuta o reprodutor musical |
+| `music_seek` | `{"time": 30}` | Avança ou move para o segundo especificado da faixa |
 | `photos_open_photo` | `{"query": "nome da foto"}` | Buscar e abrir uma foto pelo nome |
 | `docs_open_document` | `{"query": "nome do documento"}` | Buscar e abrir um documento pelo nome |
 

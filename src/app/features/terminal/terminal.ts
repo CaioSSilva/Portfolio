@@ -9,6 +9,7 @@ import {
   ElementRef,
   computed,
   ChangeDetectionStrategy,
+  effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
@@ -42,6 +43,17 @@ export class Terminal extends Base {
 
   readonly prompt = computed(() => `user@caios:${this.getTranslatedName(this.currentPath())}$`);
 
+  constructor() {
+    super();
+    effect(() => {
+      const rawData = this.data();
+      if (rawData && typeof rawData === 'object' && 'command' in rawData) {
+        const cmd = (rawData as { command: string }).command;
+        if (cmd) queueMicrotask(() => this.runCommand(cmd));
+      }
+    });
+  }
+
   async handleCommand(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const value = input.value.trim();
@@ -66,6 +78,12 @@ export class Terminal extends Base {
     if (result.newPath) this.currentPath.set(result.newPath);
 
     this.addHistoryLine(command, result.output || '', oldPath);
+  }
+
+  private async runCommand(command: string): Promise<void> {
+    const result = await this.commandService.execute(command, this.currentPath());
+    this.processCommandResult(result, command);
+    this.scrollToBottom();
   }
 
   private updateCommandHistory(value: string): void {

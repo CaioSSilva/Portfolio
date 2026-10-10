@@ -3,14 +3,19 @@ import { HermesActionService } from './hermes-action';
 import { HermesActionType } from '../models/hermes-action';
 import { HermesAppActionsService } from './hermes-app-actions';
 import { HermesSystemActionsService } from './hermes-system-actions';
-import { NotificationService } from './notification';
+import { HermesMediaActionsService } from './hermes-media-actions';
+import { HermesInfoActionsService } from './hermes-info-actions';
 import { LanguageService } from './language';
 
 describe('HermesActionService', () => {
   let service: HermesActionService;
   let appActionsSpy: { execute: ReturnType<typeof vi.fn> };
   let systemActionsSpy: { execute: ReturnType<typeof vi.fn> };
-  let notificationSpy: { show: ReturnType<typeof vi.fn>; togglePanel: ReturnType<typeof vi.fn> };
+  let mediaActionsSpy: { execute: ReturnType<typeof vi.fn> };
+  let infoActionsSpy: {
+    getSystemStatus: ReturnType<typeof vi.fn>;
+    showError: ReturnType<typeof vi.fn>;
+  };
   let languageSpy: {
     setLanguage: ReturnType<typeof vi.fn>;
     t: ReturnType<typeof vi.fn>;
@@ -19,7 +24,11 @@ describe('HermesActionService', () => {
   beforeEach(() => {
     appActionsSpy = { execute: vi.fn() };
     systemActionsSpy = { execute: vi.fn() };
-    notificationSpy = { show: vi.fn(), togglePanel: vi.fn() };
+    mediaActionsSpy = { execute: vi.fn() };
+    infoActionsSpy = {
+      getSystemStatus: vi.fn(),
+      showError: vi.fn(),
+    };
     languageSpy = {
       setLanguage: vi.fn(),
       t: vi.fn().mockReturnValue({
@@ -35,7 +44,8 @@ describe('HermesActionService', () => {
         HermesActionService,
         { provide: HermesAppActionsService, useValue: appActionsSpy },
         { provide: HermesSystemActionsService, useValue: systemActionsSpy },
-        { provide: NotificationService, useValue: notificationSpy },
+        { provide: HermesMediaActionsService, useValue: mediaActionsSpy },
+        { provide: HermesInfoActionsService, useValue: infoActionsSpy },
         { provide: LanguageService, useValue: languageSpy },
       ],
     });
@@ -102,6 +112,40 @@ describe('HermesActionService', () => {
       });
     });
 
+    it('should delegate terminal_exec to appActions', () => {
+      service.execute({ type: 'terminal_exec', payload: { command: 'neofetch' } });
+      expect(appActionsSpy.execute).toHaveBeenCalledWith({
+        type: 'terminal_exec',
+        payload: { command: 'neofetch' },
+      });
+    });
+
+    it('should delegate files_search to appActions', () => {
+      service.execute({ type: 'files_search', payload: { query: 'project' } });
+      expect(appActionsSpy.execute).toHaveBeenCalledWith({
+        type: 'files_search',
+        payload: { query: 'project' },
+      });
+    });
+
+    it('should delegate read_file_content to appActions', () => {
+      service.execute({ type: 'read_file_content', payload: { path: '/data/notes.md' } });
+      expect(appActionsSpy.execute).toHaveBeenCalledWith({
+        type: 'read_file_content',
+        payload: { path: '/data/notes.md' },
+      });
+    });
+
+    it('should delegate music actions to mediaActions', () => {
+      service.execute({ type: 'music_play_pause' });
+      expect(mediaActionsSpy.execute).toHaveBeenCalledWith({ type: 'music_play_pause' });
+    });
+
+    it('should delegate music_get_current to mediaActions', () => {
+      service.execute({ type: 'music_get_current' });
+      expect(mediaActionsSpy.execute).toHaveBeenCalledWith({ type: 'music_get_current' });
+    });
+
     it('should delegate set_theme to systemActions', () => {
       service.execute({ type: 'set_theme', payload: { dark: true } });
       expect(systemActionsSpy.execute).toHaveBeenCalledWith({
@@ -123,21 +167,32 @@ describe('HermesActionService', () => {
       });
     });
 
-    it('should handle show_notification directly', () => {
+    it('should delegate show_notification to systemActions', () => {
       service.execute({
         type: 'show_notification',
         payload: { title: 'Test', message: 'Hello' },
       });
-      expect(notificationSpy.show).toHaveBeenCalledWith({
-        title: 'Test',
-        message: 'Hello',
-        icon: 'fas fa-info-circle',
+      expect(systemActionsSpy.execute).toHaveBeenCalledWith({
+        type: 'show_notification',
+        payload: { title: 'Test', message: 'Hello' },
       });
     });
 
-    it('should handle toggle_notification_panel directly', () => {
+    it('should delegate clear_notifications to systemActions', () => {
+      service.execute({ type: 'clear_notifications' });
+      expect(systemActionsSpy.execute).toHaveBeenCalledWith({ type: 'clear_notifications' });
+    });
+
+    it('should delegate toggle_notification_panel to systemActions', () => {
       service.execute({ type: 'toggle_notification_panel' });
-      expect(notificationSpy.togglePanel).toHaveBeenCalled();
+      expect(systemActionsSpy.execute).toHaveBeenCalledWith({
+        type: 'toggle_notification_panel',
+      });
+    });
+
+    it('should delegate get_system_status to infoActions', () => {
+      service.execute({ type: 'get_system_status' });
+      expect(infoActionsSpy.getSystemStatus).toHaveBeenCalled();
     });
 
     it('should handle set_language directly', () => {
@@ -145,28 +200,25 @@ describe('HermesActionService', () => {
       expect(languageSpy.setLanguage).toHaveBeenCalledWith('en');
     });
 
-    it('should show error notification when an unknown action is executed', () => {
+    it('should call infoActions.showError when an unknown action is executed', () => {
       service.execute({ type: 'invalid_action' as HermesActionType });
-
-      expect(notificationSpy.show).toHaveBeenCalledWith({
-        title: expect.any(String),
-        message: expect.any(String),
-        icon: 'fas fa-circle-exclamation',
-      });
+      expect(infoActionsSpy.showError).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+      );
     });
 
-    it('should show error notification when appActions throws', () => {
+    it('should call infoActions.showError when appActions throws', () => {
       appActionsSpy.execute.mockImplementation(() => {
         throw new Error('App not found');
       });
 
       service.execute({ type: 'open_app', payload: { app: 'nonexistent' } });
 
-      expect(notificationSpy.show).toHaveBeenCalledWith({
-        title: expect.any(String),
-        message: expect.any(String),
-        icon: 'fas fa-circle-exclamation',
-      });
+      expect(infoActionsSpy.showError).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+      );
     });
   });
 });

@@ -191,6 +191,10 @@ export class FileSystem {
     this.sizeFormatCache.set(key, value);
   }
 
+  allFiles(): FileItem[] {
+    return Array.from(this.nodeMap.values()).filter((node) => node.type === 'file');
+  }
+
   getFileExtension(fileName: string): string {
     const dot = fileName.lastIndexOf('.');
     return dot === -1 ? '' : fileName.slice(dot + 1).toLowerCase();

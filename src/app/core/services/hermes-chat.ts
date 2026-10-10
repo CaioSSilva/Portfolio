@@ -49,6 +49,15 @@ export class HermesChatService {
     this.messages.set([]);
   }
 
+  injectSystemMessage(path: string, content: string): void {
+    const label = this.lang.currentLang() === 'pt' ? 'Conteúdo do arquivo' : 'File content';
+    const preview = content.length > 3000 ? `${content.slice(0, 3000)}\n…` : content;
+    this.messages.update((prev) => [
+      ...prev,
+      { role: 'model', text: `**${label}:** \`${path}\`\n\n\`\`\`\n${preview}\n\`\`\`` },
+    ]);
+  }
+
   private buildHistory(): string {
     const recentMessages = this.messages().slice(-MAX_HISTORY_MESSAGES);
     if (recentMessages.length === 0) return '';

@@ -21,7 +21,23 @@ export type HermesActionType =
   | 'music_stop'
   | 'music_play_track'
   | 'photos_open_photo'
-  | 'docs_open_document';
+  | 'docs_open_document'
+  | 'minimize_all'
+  | 'close_all_apps'
+  | 'focus_app'
+  | 'browser_open_url'
+  | 'browser_search'
+  | 'music_set_volume'
+  | 'music_toggle_mute'
+  | 'music_seek'
+  | 'music_get_current'
+  | 'clear_notifications'
+  | 'toggle_voice_feedback'
+  | 'show_system_tip'
+  | 'terminal_exec'
+  | 'files_search'
+  | 'read_file_content'
+  | 'get_system_status';
 
 export interface OpenAppPayload {
   app: string;
@@ -70,6 +86,38 @@ export interface MediaSearchPayload {
   query: string;
 }
 
+export interface FocusAppPayload {
+  app: string;
+}
+
+export interface BrowserOpenUrlPayload {
+  url: string;
+}
+
+export interface BrowserSearchPayload {
+  query: string;
+}
+
+export interface MusicSetVolumePayload {
+  volume: number;
+}
+
+export interface MusicSeekPayload {
+  time: number;
+}
+
+export interface TerminalExecPayload {
+  command: string;
+}
+
+export interface FilesSearchPayload {
+  query: string;
+}
+
+export interface ReadFileContentPayload {
+  path: string;
+}
+
 export type HermesPayload =
   | OpenAppPayload
   | CloseAppPayload
@@ -82,6 +130,14 @@ export type HermesPayload =
   | SetLanguagePayload
   | MusicPlayTrackPayload
   | MediaSearchPayload
+  | FocusAppPayload
+  | BrowserOpenUrlPayload
+  | BrowserSearchPayload
+  | MusicSetVolumePayload
+  | MusicSeekPayload
+  | TerminalExecPayload
+  | FilesSearchPayload
+  | ReadFileContentPayload
   | Record<string, never>;
 
 export type JsonPrimitive = string | number | boolean | null;

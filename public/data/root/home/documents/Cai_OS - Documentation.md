@@ -1,6 +1,6 @@
 # Cai_OS — Documentation
 
-**Version:** 3.0.1 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
+**Version:** 3.1.0 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
 
 ---
 
@@ -281,7 +281,12 @@ This tag is invisible to you — the system processes it automatically. You can 
 |---|---|---|
 | `open_app` | `{"app": "terminal"\|"files"\|"firefox"\|"photos"\|"documents"\|"musics"\|"settings"\|"systemMonitor"\|"about"}` | Opens an application |
 | `close_app` | `{"app": "<app_id>"}` | Closes all instances of an app |
+| `close_all_apps` | `{}` | Closes all open windows and applications |
+| `focus_app` | `{"app": "<app_id>"}` | Brings a running application to the foreground |
+| `minimize_all` | `{}` | Minimizes all open windows to show the desktop |
 | `open_file` | `{"name": "file.ext", "url": "/data/root/…"}` | Opens a file with its associated handler |
+| `browser_open_url` | `{"url": "https://…"}` | Opens the Firefox browser at the specified URL |
+| `browser_search` | `{"query": "search query"}` | Performs a Google search in the browser |
 | `set_theme` | `{"dark": true\|false}` | Sets dark or light mode |
 | `toggle_theme` | `{}` | Toggles the current theme |
 | `set_wallpaper` | `{"path": "/wallpapers/desktop/sunset.webp"\|"…/nebula.webp"\|"…/default.webp"}` | Changes the wallpaper |
@@ -291,17 +296,28 @@ This tag is invisible to you — the system processes it automatically. You can 
 | `play_sound` | `{"sound": "bell"\|"click"\|"startup"\|"office"}` | Plays a system sound |
 | `show_notification` | `{"title": "…", "message": "…"}` | Shows a system notification |
 | `toggle_notification_panel` | `{}` | Opens/closes the notification panel |
+| `clear_notifications` | `{}` | Clears notification history |
 | `set_language` | `{"lang": "pt"\|"en"}` | Changes the system language |
 | `toggle_auto_hide_dock` | `{}` | Toggles dock auto-hide |
 | `toggle_tips` | `{}` | Enables/disables system tips |
+| `show_system_tip` | `{}` | Triggers a system tip notification |
 | `toggle_agent_mode` | `{}` | Enables/disables Agent Mode |
+| `toggle_voice_feedback` | `{}` | Enables/disables Hermes spoken voice replies |
 | `music_play_pause` | `{}` | Play/pause the current track |
 | `music_next` | `{}` | Skip to next track |
 | `music_prev` | `{}` | Go to previous track |
 | `music_stop` | `{}` | Stop playback |
 | `music_play_track` | `{"query": "song name or artist"}` | Search and play a track by name |
+| `music_set_volume` | `{"volume": 0..100}` | Sets music volume |
+| `music_toggle_mute` | `{}` | Mutes or unmutes the music player |
+| `music_seek` | `{"time": 30}` | Seeks to a specific timestamp in the track |
+| `music_get_current` | `{}` | Shows a notification with the currently playing track name |
 | `photos_open_photo` | `{"query": "photo name"}` | Search and open a photo by name |
 | `docs_open_document` | `{"query": "document name"}` | Search and open a document by name |
+| `terminal_exec` | `{"command": "neofetch"}` | Opens the terminal and executes the specified command |
+| `files_search` | `{"query": "search term"}` | Opens the file manager with a pre-filled search query |
+| `read_file_content` | `{"path": "/data/root/…"}` | Fetches a text file and injects its content into the Hermes chat |
+| `get_system_status` | `{}` | Shows a notification with active process count and hardware info |
 
 **Example requests to Hermes:**
 - "Open the terminal"

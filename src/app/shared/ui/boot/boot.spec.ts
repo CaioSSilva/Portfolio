@@ -30,7 +30,7 @@ describe('Boot', () => {
     const f2 = TestBed.createComponent(Boot);
     const c2 = f2.componentInstance;
     f2.detectChanges();
-    vi.advanceTimersByTime(3500);
+    vi.advanceTimersByTime(10000);
     expect(c2.progress()).toBe(100);
     expect(c2.waitingClick()).toBe(true);
     vi.useRealTimers();

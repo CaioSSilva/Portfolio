@@ -256,4 +256,23 @@ describe('FileSystem', () => {
       expect(siblings.map((f) => f.id)).toEqual(expect.arrayContaining(['img1', 'img2']));
     });
   });
+
+  describe('allFiles', () => {
+    it('returns empty array before filesystem is loaded', () => {
+      expect(service.allFiles()).toEqual([]);
+    });
+
+    it('returns all file-type nodes after loading', async () => {
+      await loadFs();
+      const files = service.allFiles();
+      expect(files.every((f) => f.type === 'file')).toBe(true);
+      expect(files.length).toBeGreaterThan(0);
+    });
+
+    it('excludes folder nodes', async () => {
+      await loadFs();
+      const files = service.allFiles();
+      expect(files.some((f) => f.type === 'folder')).toBe(false);
+    });
+  });
 });
