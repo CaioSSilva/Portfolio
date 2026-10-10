@@ -1,13 +1,6 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { ScreenService } from './screen';
 
-const DEPRECATED_MODELS: Record<string, string> = {
-  'gemini-2.5-flash': 'gemini-flash-lite-latest',
-  'gemini-2.0-flash-lite': 'gemini-flash-lite-latest',
-  'gemini-2.0-flash-lite-latest': 'gemini-flash-lite-latest',
-  'gemini-2.0-flash': 'gemini-flash-lite-latest',
-};
-
 @Injectable({ providedIn: 'root' })
 export class Settings {
   private readonly screen = inject(ScreenService);
@@ -18,7 +11,7 @@ export class Settings {
   readonly autoHideDock = signal<boolean>(this.load('autoHideDock', true));
   readonly tipsEnabled = signal<boolean>(this.load('tipsEnabled', true));
   readonly geminiModel = signal<string>(
-    this.migrateModel(this.load('geminiModel', 'gemini-flash-lite-latest')),
+    this.load('geminiModel', 'gemini-flash-lite-latest'),
   );
   readonly agentModeEnabled = signal<boolean>(this.load('agentModeEnabled', false));
   readonly agentSpeakReplies = signal<boolean>(this.load('agentSpeakReplies', false));
@@ -92,10 +85,6 @@ export class Settings {
 
   toggleAgentSpeakReplies(): void {
     this.agentSpeakReplies.update((value) => !value);
-  }
-
-  private migrateModel(model: string): string {
-    return DEPRECATED_MODELS[model] ?? model;
   }
 
   private load<T>(key: string, defaultValue: T): T {
