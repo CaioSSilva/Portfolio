@@ -1,6 +1,27 @@
-# Cai_OS — Documentação
+# Cai_OS
+
+[🇧🇷 Português (Brasil)](README.pt-BR.md) | [🇺🇸 English](README.md)
+
+![Versão](https://img.shields.io/badge/version-3.3.0-blue)
+![Angular](https://img.shields.io/badge/Angular-22-red)
+![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
+![Vitest](https://img.shields.io/badge/tests-Vitest-brightgreen)
+![Deploy](https://img.shields.io/badge/deploy-Vercel-black)
 
 **Versão:** 3.3.0 · **Plataforma:** Web (Angular 22) · **Autor:** Caio Souza Silva
+
+---
+
+> **Demonstração:** [https://caiossilva.com](https://caiossilva.com)
+
+## Destaques da versão 3.3.0
+
+- **Snap de janelas configurável**: layouts Clássico, Metades ou Terços, sensibilidade das bordas ajustável, pré-visualização ao arrastar e recálculo responsivo
+- **Seleção de janela adjacente no estilo Pop!_OS**: escolha uma janela aberta para preencher a metade oposta; janelas minimizadas podem ser selecionadas e restauradas
+- **Atalhos de teclado consistentes**: `Alt` + setas para laterais e zonas inferiores, `Alt` + `Shift` + esquerda/direita para cantos superiores, `Alt` + `Ctrl` + esquerda/direita para cantos inferiores no modo Clássico e `Alt` + `↑` para maximizar/restaurar
+- **Controles de snap exclusivos para desktop**: configurações e atalhos ficam ocultos no mobile, onde as janelas permanecem em tela cheia
+- **Controles de interface compartilhados**: dropdown acessível e seletor dedicado de janela adjacente
+- **Testes**: 861 testes aprovados em 69 arquivos (`ng test`)
 
 ---
 
@@ -643,6 +664,27 @@ As variáveis de ambiente são lidas de `src/.env` pelo script `mynode.js` e esc
 | Executor de testes | Unit-test builder do Angular (`ng test`), Vitest `^4.0.18` |
 | Node.js (build) | ≥ 20 |
 
+### Estrutura do projeto
+
+```text
+src/app/
+├── core/       # Modelos, serviços, idiomas, pipes e utilitários
+├── layout/     # Barra superior, dock, navegação mobile e janelas
+├── shared/ui/  # Componentes compartilhados da interface
+└── features/   # Aplicativos: arquivos, terminal, Hermes, fotos, etc.
+public/
+├── data/       # Manifesto do sistema de arquivos e arquivos públicos
+├── sounds/     # Sons do sistema
+├── wallpapers/ # Papéis de parede estáticos
+└── videos/    # Papéis de parede animados
+```
+
+### Componentes principais
+
+- **Layout:** TopBar, Dock, AppsGrid, MobileNavBar, MobileOverview, NotificationCenter, WindowSwitcher, MusicWidget e NowPlayingWidget.
+- **Interface compartilhada:** Window, Boot, Shutdown e ContextMenu.
+- **Aplicativos:** AboutProject, Browser, Terminal, Files, ImageViewer, DocumentViewer, Musics, Settings, SystemMonitor, Hermes e DesktopIcons.
+
 ### Scripts npm
 
 | Script | Descrição |
@@ -653,6 +695,51 @@ As variáveis de ambiente são lidas de `src/.env` pelo script `mynode.js` e esc
 | `npm run watch` | Build incremental de desenvolvimento |
 
 **Última validação:** 861 testes passaram em 69 arquivos de teste.
+
+### Instalação e execução local
+
+Pré-requisitos: Node.js ≥ 20, npm ≥ 11.7.0 e Angular CLI 22 (`npm install -g @angular/cli@22`).
+
+```bash
+git clone https://github.com/CaioSSilva/portfolio.git
+cd portfolio
+npm install
+```
+
+Crie `src/.env` com sua chave da API do Google Gemini:
+
+```dotenv
+geminiApiKey=SUA_CHAVE_GOOGLE_AI
+geminiApiKey2=SUA_CHAVE_RESERVA
+```
+
+A chave de reserva é opcional. Inicie o servidor com `npm start` e abra `http://localhost:4200`. Esse comando gera os arquivos de ambiente antes de iniciar o servidor; não use `ng serve` diretamente.
+
+### Personalização
+
+- **Novo aplicativo:** crie um componente em `src/app/features/`, registre-o em `getInstalledApps()` e adicione as chaves de tradução em `en.ts` e `pt.ts`.
+- **Papéis de parede:** adicione imagens em `public/wallpapers/desktop/` ou `public/wallpapers/mobile/`; vídeos vão em `public/videos/wallpapers/desktop/`. Registre os caminhos nas listas em `src/app/features/settings/settings.ts`.
+- **Sons:** adicione arquivos `.ogg` em `public/sounds/`.
+- **Traduções:** atualize `src/app/core/language/pt.ts` e `en.ts`.
+- **Sistema de arquivos virtual:** edite `public/data/fs.json`; os arquivos referenciados devem existir em `public/`.
+
+### Solução de problemas
+
+| Problema | Solução |
+|---|---|
+| `src/environments/environment.ts` não encontrado | Execute `npm start`, que gera o arquivo por meio do `mynode.js` |
+| Hermes não responde | Verifique `geminiApiKey` em `src/.env` e o console do navegador |
+| Erro de modelo do Hermes | Selecione outro modelo no aplicativo Hermes ou remova a chave `geminiModel` do `localStorage` |
+| Modo Agente indisponível | Use Chrome/Chromium em uma origem HTTPS e conceda permissão de microfone |
+| Sistema de arquivos não carrega | Confira se `public/data/fs.json` existe e contém JSON válido |
+| Sons não tocam | Interaja com a página para liberar o `AudioContext` do navegador |
+| Vídeos não reproduzem como papel de parede | Alguns navegadores bloqueiam reprodução automática; tente uma imagem estática |
+
+### Contribuição
+
+Convenção de branches: `main` para produção, `feat/descricao` para funcionalidades e `fix/descricao` para correções.
+
+Antes de abrir um pull request, confirme que não há logs de depuração, que efeitos e signals têm o ciclo de vida apropriado, que novas traduções existem em `en.ts` e `pt.ts`, e que `npm test` e `npm run build` passam.
 
 ### Persistência no localStorage
 
@@ -681,3 +768,25 @@ As variáveis de ambiente são lidas de `src/.env` pelo script `mynode.js` e esc
 - Portfolio: [caiossilva.com](https://caiossilva.com)
 - GitHub: [github.com/CaioSSilva](https://github.com/CaioSSilva)
 - Email: caiosouzasilva13650@gmail.com
+
+---
+
+## Licença
+
+Este projeto é privado (`"private": true` em `package.json`). Todos os direitos reservados.
+
+## Estatísticas do projeto
+
+| Métrica | Valor |
+|---|---|
+| Versão | 3.3.0 |
+| Angular | 22.2.1 |
+| TypeScript | 6.0.3 |
+| Aplicativos | 10 |
+| Componentes de layout | 9 |
+| Componentes de UI compartilhados | 4 |
+| Serviços core | 32 |
+| Idiomas | 2 (PT, EN) |
+| Plataformas | Desktop, mobile |
+| Testes | Vitest via Angular CLI |
+| Deploy | Vercel |

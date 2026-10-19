@@ -1,5 +1,7 @@
 # Cai_OS
 
+[🇺🇸 English](README.md) | [🇧🇷 Português (Brasil)](README.pt-BR.md)
+
 ![Version](https://img.shields.io/badge/version-3.3.0-blue)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
@@ -30,17 +32,6 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 ## Live Demo
 
 > **[https://caiossilva.com](https://caiossilva.com)**
-
----
-
-## Documentation
-
-| Language | File |
-|---|---|
-| 🇧🇷 Português | [`public/data/root/home/documents/Cai_OS - Documentação.md`](public/data/root/home/documents/Cai_OS%20-%20Documenta%C3%A7%C3%A3o.md) |
-| 🇺🇸 English | [`public/data/root/home/documents/Cai_OS - Documentation.md`](public/data/root/home/documents/Cai_OS%20-%20Documentation.md) |
-
-> These files are also available **inside the running OS** — open the Documents app and select either file to read them in the Document Viewer.
 
 ---
 
@@ -101,6 +92,66 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 - **Mobile gestures**: Pinch-to-zoom and swipe navigation in ImageViewer and DocumentViewer
 
 </details>
+
+---
+
+## Getting Started
+
+When you first access Cai_OS, a boot screen with a simulated progress bar appears. Select **Press to Start** when prompted. After booting, the **About the project** app opens automatically.
+
+## Applications
+
+| App | What it does |
+|---|---|
+| Files | Browse the virtual file system in grid or list view |
+| Firefox | Browse the web in an embedded browser |
+| Terminal | Run shell-like commands against the virtual file system |
+| Settings | Configure appearance, desktop, sound, language, Hermes, and system tips |
+| About the project | Explore the project and download the resume |
+| Photos | Browse, zoom, rotate, and navigate images |
+| Documents | View PDF, Markdown, and plain-text files |
+| Musics | Play audio and follow synchronized lyrics |
+| System Monitor | View system graphs and active processes |
+| Hermes | Chat with the AI assistant and control the OS |
+
+## Window Management
+
+On desktop, windows can be dragged, resized, maximized, minimized, closed, and cascaded. Drag a window to a screen edge to snap it using the selected Classic, Halves, or Thirds layout. Classic and Halves layouts can pair the snapped window with another open window. Snap sensitivity, layout, and pairing are configurable under **Settings → Desktop**.
+
+Keyboard shortcuts: `Alt` + `←` / `→` snaps to a side; `Alt` + `↑` maximizes or restores; `Alt` + `↓` snaps to the lower zone. In Classic mode, `Alt` + `Shift` + `←` / `→` snaps to upper corners and `Alt` + `Ctrl` + `←` / `→` to lower corners. Press `Ctrl` + `` ` `` to switch between windows.
+
+On mobile, apps open full-screen and use a dedicated navigation bar, overview, and app drawer. Dragging, resizing, and window snapping are disabled.
+
+## Terminal
+
+The terminal navigates the virtual file system. Use `Tab` for autocomplete and `↑` / `↓` to browse command history. Folder and file names follow the active language; `cd` and `open` accept either the translated or original name. On touch devices, suggestion chips, an on-screen key bar, command history, and tappable `ls` results are available.
+
+| Command | Description |
+|---|---|
+| `help` | List available commands |
+| `ls` | List files and folders |
+| `cd <path>` | Change directory |
+| `open <file>` | Open a file in its associated app |
+| `date` | Show the current date and time |
+| `theme` | Toggle light/dark mode |
+| `clear` | Clear the terminal |
+| `about` | Show Cai_OS version and kernel information |
+| `neofetch` | Show the system information banner |
+| `whoami` | Show developer information |
+
+## Hermes and Agent Mode
+
+Open Hermes from the app grid or dock to chat with Google Gemini. Responses stream as they are generated, and you can attach an image. Hermes can also control apps, windows, media, and system settings through structured actions.
+
+Agent Mode enables voice activation without opening the Hermes window. Enable it under **Settings → Hermes** and grant microphone permission. Say **“Hello Hermes”**, **“Oi Hermes”**, or **“Hey Hermes”**; an inline command can follow the wake phrase. Spoken replies are optional. Agent Mode is opt-in and uses the browser Web Speech API; in Chrome, audio is sent to Google's servers for transcription. It is supported on desktop Chrome/Chromium, not Firefox or mobile.
+
+## Files, Settings, and Notifications
+
+The virtual file system is described by [`public/data/fs.json`](public/data/fs.json). Opening a supported file in Files or with the terminal's `open` command launches its associated app.
+
+Settings include light/dark themes, static or animated wallpapers, dock and desktop icon sizes, snap layouts and sensitivity, system sounds, language, Gemini model, Agent Mode, spoken replies, and system tips. Preferences are saved in browser `localStorage`.
+
+Open the notification center from the bell in the top bar or swipe down on mobile. It shows active notifications, session history, and the music widget when a track is playing. System tips can be disabled under **Settings → System**.
 
 ---
 
