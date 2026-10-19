@@ -374,6 +374,13 @@ export const pt = {
       stack: 'Tecnologias',
       location: 'Localização',
     },
+    touch: {
+      history: 'Histórico',
+      historyEmpty: 'Nenhum comando no histórico ainda.',
+      historyTitle: 'Histórico de Comandos',
+      historyClose: 'Fechar histórico',
+      historyRun: 'Executar',
+    },
   },
 
   systemTips: {

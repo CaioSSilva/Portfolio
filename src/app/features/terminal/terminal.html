@@ -1,10 +1,9 @@
 <div
-  class="flex flex-col w-full bg-gnome-bg text-gnome-text font-mono text-xs @sm:text-sm p-3 @sm:p-4 overflow-hidden transition-colors duration-300"
-  style="height: 100%; height: 100dvh; max-height: 100%"
-  (click)="focusInput()"
+  class="flex flex-col w-full h-full bg-gnome-bg text-gnome-text font-mono overflow-hidden transition-colors duration-300"
+  (click)="onOutputAreaClick($event)"
 >
   <div
-    class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1 min-h-0"
+    class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1 min-h-0 terminal-output p-3 @sm:p-4"
     #scrollContainer
   >
     <div class="text-gnome-blue font-bold mb-1 @sm:mb-2 text-xs @sm:text-sm">
@@ -16,7 +15,7 @@
 
     @for (line of history(); track $index) {
       <div class="terminal-line mb-2.5 @sm:mb-3">
-        <div class="flex flex-wrap gap-1 @sm:gap-2">
+        <div class="flex flex-wrap gap-1 @sm:gap-2 text-xs @sm:text-sm">
           <span class="text-green-500 font-bold shrink-0">user@caios:{{ line.path }}$</span>
           <span class="text-gnome-text break-all">{{ line.command }}</span>
         </div>
@@ -36,13 +35,23 @@
                   </span>
                 </div>
               } @else if (item.startsWith('[DIR]')) {
-                <div class="text-gnome-blue font-bold inline-block mr-3">
-                  📁 {{ item.replace('[DIR]', '') }}
-                </div>
+                <button
+                  data-interactive
+                  class="text-gnome-blue font-bold inline-block mr-3 touch-manipulation active:opacity-50 transition-opacity"
+                  (click)="onDirTap(extractDirName(item)); $event.stopPropagation()"
+                  [attr.aria-label]="lang.t().terminal.commands.cd + ': ' + extractDirName(item)"
+                >
+                  📁 {{ extractDirName(item) }}
+                </button>
               } @else if (item.startsWith('[FILE]')) {
-                <div class="text-gnome-text inline-block mr-3">
-                  📄 {{ item.replace('[FILE]', '') }}
-                </div>
+                <button
+                  data-interactive
+                  class="text-gnome-text inline-block mr-3 touch-manipulation active:opacity-50 transition-opacity"
+                  (click)="onFileTap(extractFileName(item)); $event.stopPropagation()"
+                  [attr.aria-label]="lang.t().terminal.commands.open + ': ' + extractFileName(item)"
+                >
+                  📄 {{ extractFileName(item) }}
+                </button>
               } @else {
                 <div class="text-gnome-text-secondary/80 break-words">
                   {{ item }}
@@ -55,20 +64,121 @@
     }
   </div>
 
-  <div class="flex gap-2 items-center mt-2 shrink-0 border-t border-gnome-border pt-2 pb-safe">
-    <span class="text-green-500 font-bold shrink-0 text-xs @sm:text-sm">{{ prompt() }}</span>
+  @if (screen.hasCoarsePointer() && (suggestions().length > 0 || isInputFocused())) {
+    <div
+      class="shrink-0 border-t border-gnome-border/40 bg-gnome-surface/50"
+      data-interactive
+      (click)="$event.stopPropagation()"
+    >
+      @if (suggestions().length > 0) {
+        <div class="flex gap-1.5 overflow-x-auto no-scrollbar px-3 py-1.5">
+          @for (suggestion of suggestions(); track suggestion.value) {
+            <button
+              class="shrink-0 px-2.5 py-0.5 rounded-full border border-gnome-blue/50 text-gnome-blue text-[11px] font-mono touch-manipulation active:bg-gnome-blue/15 transition-colors"
+              (pointerdown)="$event.preventDefault()"
+              (click)="applySuggestion(suggestion)"
+              [attr.aria-label]="suggestion.label"
+            >
+              {{ suggestion.label }}
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="flex gap-1 overflow-x-auto no-scrollbar px-2 py-1.5">
+          @for (touchKey of touchKeys; track touchKey.key) {
+            <button
+              class="shrink-0 min-w-[36px] h-7 px-1.5 rounded border border-gnome-border/70 text-gnome-text-secondary text-[11px] font-mono touch-manipulation active:bg-gnome-border/40 active:text-gnome-text transition-colors"
+              (pointerdown)="$event.preventDefault()"
+              (click)="onTouchKey(touchKey)"
+              [attr.aria-label]="touchKey.label"
+            >
+              {{ touchKey.label }}
+            </button>
+          }
+          <button
+            class="shrink-0 ml-auto h-7 px-2 rounded border border-gnome-border/70 text-gnome-text-secondary text-[11px] touch-manipulation active:bg-gnome-border/40 transition-colors"
+            (pointerdown)="$event.preventDefault()"
+            (click)="isHistorySheetOpen.set(true)"
+            [attr.aria-label]="lang.t().terminal.touch.history"
+          >
+            ↕
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <div
+    class="flex gap-2 items-center shrink-0 border-t border-gnome-border px-3 @sm:px-4 py-2"
+    data-interactive
+    (click)="$event.stopPropagation()"
+  >
+    <span class="text-green-500 font-bold shrink-0 text-xs @sm:text-sm mobile-input-font">{{
+      prompt()
+    }}</span>
     <input
       #termInput
       type="text"
       inputmode="text"
-      enterkeyhint="send"
-      class="flex-1 bg-transparent border-none outline-none text-gnome-text caret-gnome-blue font-mono text-xs @sm:text-sm"
+      enterkeyhint="go"
+      autocapitalize="off"
+      autocorrect="off"
+      class="flex-1 bg-transparent border-none outline-none text-gnome-text caret-gnome-blue font-mono text-xs @sm:text-sm mobile-input-font"
       [placeholder]="lang.t().terminal.placeholder"
       (keydown.enter)="handleCommand($event)"
       (keydown)="handleKeydown($event)"
       (focus)="onInputFocus()"
+      (blur)="onInputBlur()"
+      (input)="handleInput($event)"
+      (beforeinput)="handleBeforeInput($event)"
       spellcheck="false"
       autocomplete="off"
     />
   </div>
 </div>
+
+@if (isHistorySheetOpen()) {
+  <div
+    class="absolute inset-0 z-50 flex flex-col justify-end bg-black/40"
+    (pointerdown)="$event.preventDefault()"
+    (click)="isHistorySheetOpen.set(false)"
+  >
+    <div
+      class="bg-gnome-surface border-t border-gnome-border rounded-t-2xl max-h-[55vh] flex flex-col"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gnome-border/30">
+        <span class="font-mono text-sm font-semibold text-gnome-text">
+          {{ lang.t().terminal.touch.historyTitle }}
+        </span>
+        <button
+          class="w-6 h-6 flex items-center justify-center rounded-full text-gnome-text-secondary hover:text-gnome-text touch-manipulation transition-colors"
+          (click)="isHistorySheetOpen.set(false)"
+          [attr.aria-label]="lang.t().terminal.touch.historyClose"
+        >
+          ✕
+        </button>
+      </div>
+      <div class="overflow-y-auto flex-1 custom-scrollbar">
+        @if (historyService.commands().length === 0) {
+          <p class="text-gnome-text-secondary text-xs text-center py-8 italic">
+            {{ lang.t().terminal.touch.historyEmpty }}
+          </p>
+        } @else {
+          @for (cmd of historyService.commands(); track $index) {
+            <button
+              class="w-full flex items-center gap-3 px-4 py-2.5 border-b border-gnome-border/20 text-left touch-manipulation active:bg-gnome-border/20 transition-colors"
+              (click)="runFromHistory(cmd)"
+              [attr.aria-label]="lang.t().terminal.touch.historyRun + ' ' + cmd"
+            >
+              <span class="text-gnome-text-secondary/50 text-[10px] font-mono shrink-0">$</span>
+              <span class="flex-1 font-mono text-xs text-gnome-text break-all text-left">{{
+                cmd
+              }}</span>
+            </button>
+          }
+        }
+      </div>
+    </div>
+  </div>
+}

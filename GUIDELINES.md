@@ -270,6 +270,37 @@ afterNextRender(() => this.scrollToBottom(), { injector: this.injector });
 
 ---
 
+## 24. NgZone usage
+
+`NgZone` must not be injected unless change detection cannot propagate through the normal Angular reactivity model.
+
+Signals, `computed()`, `effect()`, and `toSignal()` are zone-aware by design — writing to a signal from any context (including raw DOM event listeners) schedules a check automatically. Wrapping signal writes in `ngZone.run()` is redundant and adds unnecessary indirection.
+
+**Only valid reasons to inject `NgZone`:**
+
+- You are integrating a **third-party library** that fires callbacks entirely outside Angular (e.g. a WebGL render loop, a legacy jQuery plugin) and you need to batch multiple DOM mutations followed by a single detection pass — use `runOutsideAngular` to suppress detection during the hot path, then `run()` once at the end.
+- You must **suppress change detection** for a performance-critical loop that mutates the DOM directly without going through Angular bindings — use `runOutsideAngular`.
+
+**Never use NgZone to:**
+
+- Wrap signal writes (`this.signal.set(value)` already notifies the scheduler).
+- Register and immediately deregister listeners whose callbacks only write to signals.
+- "Ensure" change detection after an async operation — `async/await` inside an Angular context is already zone-patched; signals don't need it at all.
+
+```ts
+// ❌ — ngZone.run() is redundant when the callback only writes signals
+this.ngZone.runOutsideAngular(() => {
+  vv.addEventListener('resize', () => {
+    this.ngZone.run(() => this.height.set(vv.height));
+  });
+});
+
+// ✅ — signal write is scheduler-aware; no zone needed
+vv.addEventListener('resize', () => this.height.set(vv.height));
+```
+
+---
+
 ## General rules
 
 - No code comments of any kind (inline `//`, block `/* */`, JSDoc `/** */`)

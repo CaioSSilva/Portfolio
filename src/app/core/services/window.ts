@@ -1,4 +1,4 @@
-import { Injectable, NgZone, inject, signal, effect, untracked } from '@angular/core';
+import { Injectable, inject, signal, effect, untracked } from '@angular/core';
 import { Process } from '../models/process';
 import { Rect } from '../models/desktop';
 import { ProcessManager } from './process-manager';
@@ -17,7 +17,6 @@ const SNAP_EDGE = 32;
 export class WindowService {
   private readonly processManager = inject(ProcessManager);
   private readonly settings = inject(Settings);
-  private readonly ngZone = inject(NgZone);
   private readonly dock = inject(DockService);
   readonly screen = inject(ScreenService);
 
@@ -104,13 +103,11 @@ export class WindowService {
   }
 
   private registerDragListeners(parent: HTMLElement): void {
-    this.ngZone.runOutsideAngular(() => {
-      const onMove = (e: MouseEvent) => this.onDragMove(e, parent);
-      const onStop = () => this.onDragStop(onMove, onStop);
+    const onMove = (e: MouseEvent) => this.onDragMove(e, parent);
+    const onStop = () => this.onDragStop(onMove, onStop);
 
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onStop);
-    });
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onStop);
   }
 
   private onDragMove(e: MouseEvent, parent: HTMLElement): void {
@@ -141,7 +138,7 @@ export class WindowService {
     const ghost = this.calculateSnap(mouseX, mouseY);
     if (!this.snapGhostChanged(ghost)) return;
     this.lastSnapGhost = ghost;
-    this.ngZone.run(() => this.snapGhost.set(ghost));
+    this.snapGhost.set(ghost);
   }
 
   private snapGhostChanged(ghost: Rect | null): boolean {
@@ -167,13 +164,11 @@ export class WindowService {
   }
 
   private registerResizeListeners(startX: number, startY: number, startRect: Rect): void {
-    this.ngZone.runOutsideAngular(() => {
-      const onMove = (e: MouseEvent) => this.onResizeMove(e, startX, startY, startRect);
-      const onStop = () => this.onResizeStop(onMove, onStop);
+    const onMove = (e: MouseEvent) => this.onResizeMove(e, startX, startY, startRect);
+    const onStop = () => this.onResizeStop(onMove, onStop);
 
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onStop);
-    });
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onStop);
   }
 
   private onResizeMove(e: MouseEvent, startX: number, startY: number, startRect: Rect): void {
@@ -194,10 +189,8 @@ export class WindowService {
     }
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onStop);
-    this.ngZone.run(() => {
-      this.isResizing.set(false);
-      this.normalRect = { ...this.rect };
-    });
+    this.isResizing.set(false);
+    this.normalRect = { ...this.rect };
   }
 
   toggleMaximize(): void {
@@ -247,14 +240,12 @@ export class WindowService {
   }
 
   private finalizeDrag(): void {
-    this.ngZone.run(() => {
-      this.isDragging.set(false);
-      const ghost = this.snapGhost();
-      if (!ghost && !this.isMaximized() && !this.isSnapped()) {
-        this.normalRect = { ...this.rect };
-      }
-      this.applySnap();
-    });
+    this.isDragging.set(false);
+    const ghost = this.snapGhost();
+    if (!ghost && !this.isMaximized() && !this.isSnapped()) {
+      this.normalRect = { ...this.rect };
+    }
+    this.applySnap();
   }
 
   private applySnap(): void {
@@ -348,7 +339,7 @@ export class WindowService {
 
     if (this.isBottomOverlapping !== isOverBottom) {
       this.isBottomOverlapping = isOverBottom;
-      this.ngZone.run(() => this.processManager.updateBottomOverlap(isOverBottom));
+      this.processManager.updateBottomOverlap(isOverBottom);
     }
   }
 

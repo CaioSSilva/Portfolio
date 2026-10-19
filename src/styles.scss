@@ -178,3 +178,14 @@ body {
     transform: rotate(-360deg);
   }
 }
+
+.terminal-output {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+@media (pointer: coarse) {
+  .mobile-input-font {
+    font-size: 16px;
+  }
+}

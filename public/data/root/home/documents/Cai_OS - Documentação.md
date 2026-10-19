@@ -1,6 +1,6 @@
 # Cai_OS — Documentação
 
-**Versão:** 3.1.0 · **Plataforma:** Web (Angular 22) · **Autor:** Caio Souza Silva
+**Versão:** 3.2.0 · **Plataforma:** Web (Angular 22) · **Autor:** Caio Souza Silva
 
 ---
 
@@ -135,7 +135,7 @@ Gerenciador de arquivos com sidebar recolhível, modos de visualização em grad
 Navegador embutido com iframe. Suporta qualquer URL, histórico de navegação e botão de voltar. Algumas URLs não abrem por política de embedding (X-Frame-Options).
 
 **Terminal (`terminal`)**
-Emulador de terminal Unix-like com histórico de comandos (teclas ↑/↓), autocomplete por Tab, navegação no sistema de arquivos virtual e comandos embutidos. Veja a seção [Terminal](#terminal) para a lista completa.
+Emulador de terminal Unix-like com histórico de comandos (teclas ↑/↓), autocomplete por Tab, navegação no sistema de arquivos virtual, comandos embutidos e modo para toque (chips de sugestão, barra de teclas, painel de histórico e saída do `ls` clicável). Veja a seção [Terminal](#terminal) para a lista completa.
 
 **Ajustes (`settings`)**
 Painel de configurações com seções: Aparência (tema, papel de parede), Desktop (dock, tamanho de ícones), Som, Idioma e Sistema (informações de hardware).
@@ -195,7 +195,7 @@ No mobile, todas as janelas são automaticamente maximizadas em tela cheia. Drag
 
 O terminal emula um shell Unix navegando pelo sistema de arquivos virtual.
 
-**Prompt:** `user@caios:pasta$`
+**Prompt:** `user@caios:~$` na pasta inicial, `user@caios:~/Fotos$` dentro de uma pasta (os nomes das pastas seguem o idioma ativo)
 
 ### Comandos disponíveis
 
@@ -215,6 +215,16 @@ O terminal emula um shell Unix navegando pelo sistema de arquivos virtual.
 **Autocomplete:** pressione `Tab` para completar nomes de comandos e arquivos.
 
 **Histórico:** use ↑ e ↓ para navegar pelos comandos anteriores.
+
+**Nomes localizados:** pastas e arquivos aparecem no idioma ativo (ex.: `Fotos` em PT, `Photos` em EN) no prompt, no `ls` e no autocomplete. `cd` e `open` aceitam tanto o nome traduzido quanto o original.
+
+### Dispositivos de toque
+
+- **Chips de sugestão:** ao digitar, chips acima do input completam comandos e caminhos.
+- **Barra de teclas:** com o input focado e sem sugestões, uma barra oferece `Tab`, `↑`, `↓`, `Ctrl+C`, `/`, `~` e `-`.
+- **Painel de histórico:** o botão `↕` abre um painel com os comandos anteriores; tocar em um deles o executa.
+- **`ls` clicável:** pastas executam `cd` e arquivos executam `open` ao serem tocados.
+- **Teclado:** `open` fecha o teclado virtual para que o app aberto fique visível.
 
 ---
 
@@ -541,7 +551,7 @@ interface LoadedDoc {
 |---|---|
 | `ProcessManager` | Ciclo de vida de janelas/processos (abrir, fechar, focar, minimizar) |
 | `WindowService` | Drag, resize, snap por instância de janela (fornecido localmente) |
-| `ScreenService` | Largura/altura do viewport, sinais `isMobile` e `isDesktop` |
+| `ScreenService` | Largura/altura do viewport, sinais `isMobile`, `isDesktop` e `hasCoarsePointer` |
 | `AppRegistry` | Catálogo reativo de apps, busca por ID e extensão de arquivo |
 | `AppLauncher` | Orquestração de abertura de aplicativos |
 | `DockService` | Itens da dock, pin/unpin, persistência em `localStorage` |
@@ -561,6 +571,8 @@ interface LoadedDoc {
 | `AudioPlayer` | Wrapper do `<audio>` HTML com seek, playlist e estado |
 | `LyricsService` | Busca de letras no LRCLIB, parse LRC, linha ativa |
 | `TerminalCommands` | Implementação dos comandos do terminal |
+| `TerminalAutocomplete` | Sugestões localizadas de comandos e caminhos para o terminal |
+| `TerminalHistoryService` | Navegação no histórico de comandos por terminal (provider no componente) |
 | `DesktopIconsService` | Atalhos fixados no desktop, persistência em `localStorage` |
 | `DocumentLoaderService` | Carregamento e detecção de tipo de documentos |
 | `SystemTips` | Agendamento de dicas periódicas |

@@ -1,6 +1,6 @@
 # Cai_OS — Documentation
 
-**Version:** 3.1.0 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
+**Version:** 3.2.0 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
 
 ---
 
@@ -135,7 +135,7 @@ File manager with collapsible sidebar, grid and list view modes, search bar, and
 Embedded iframe browser. Supports any URL, navigation history, and back button. Some URLs may not load due to X-Frame-Options embedding policies.
 
 **Terminal (`terminal`)**
-Unix-like terminal emulator with command history (↑/↓ keys), Tab autocomplete, virtual file system navigation, and built-in commands. See the [Terminal](#terminal) section for the full command list.
+Unix-like terminal emulator with command history (↑/↓ keys), Tab autocomplete, virtual file system navigation, built-in commands, and a touch-friendly mode (suggestion chips, key bar, history sheet, tappable `ls` output). See the [Terminal](#terminal) section for the full command list.
 
 **Settings (`settings`)**
 Settings panel with sections: Appearance (theme, wallpaper), Desktop (dock, icon sizes), Sound, Language, and System (hardware info).
@@ -195,7 +195,7 @@ On mobile, all windows are automatically maximized to full screen. Drag and resi
 
 The terminal emulates a Unix shell navigating the virtual file system.
 
-**Prompt:** `user@caios:folder$`
+**Prompt:** `user@caios:~$` at home, `user@caios:~/Photos$` inside a folder (folder names follow the active language)
 
 ### Available commands
 
@@ -215,6 +215,16 @@ The terminal emulates a Unix shell navigating the virtual file system.
 **Autocomplete:** press `Tab` to complete command and file names.
 
 **History:** use ↑ and ↓ to navigate previous commands.
+
+**Localized names:** folders and files appear in the active language (e.g. `Photos` in EN, `Fotos` in PT) in the prompt, `ls` and autocomplete. `cd` and `open` accept both the translated and the original name.
+
+### Touch devices
+
+- **Suggestion chips:** while typing, tappable chips above the input complete commands and paths.
+- **Key bar:** when the input is focused and no suggestions are shown, a bar offers `Tab`, `↑`, `↓`, `Ctrl+C`, `/`, `~` and `-`.
+- **History sheet:** the `↕` button opens a sheet with previous commands; tapping one runs it.
+- **Tappable `ls`:** folders run `cd` and files run `open` when tapped.
+- **Keyboard:** `open` closes the on-screen keyboard so the opened app is visible.
 
 ---
 
@@ -546,7 +556,7 @@ interface LoadedDoc {
 |---|---|
 | `ProcessManager` | Window/process lifecycle (open, close, focus, minimize) |
 | `WindowService` | Drag, resize, snap per window instance (provided locally) |
-| `ScreenService` | Viewport width/height, `isMobile` and `isDesktop` signals |
+| `ScreenService` | Viewport width/height, `isMobile`, `isDesktop` and `hasCoarsePointer` signals |
 | `AppRegistry` | Reactive app catalog, lookup by ID and file extension |
 | `AppLauncher` | App launch orchestration |
 | `DockService` | Dock items, pin/unpin, `localStorage` persistence |
@@ -566,6 +576,8 @@ interface LoadedDoc {
 | `AudioPlayer` | HTML `<audio>` wrapper with seek, playlist, and state |
 | `LyricsService` | LRCLIB lyrics fetch, LRC parse, active line tracking |
 | `TerminalCommands` | Terminal command implementations |
+| `TerminalAutocomplete` | Localized command and path suggestions for the terminal |
+| `TerminalHistoryService` | Per-terminal command history navigation (component-level provider) |
 | `DesktopIconsService` | Desktop-pinned app shortcuts, `localStorage` persistence |
 | `DocumentLoaderService` | Document loading and type detection |
 | `SystemTips` | Periodic tip scheduling |

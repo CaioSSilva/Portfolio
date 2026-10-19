@@ -129,6 +129,7 @@ describe('TerminalCommands', () => {
     const result = await service.execute('ls', 'home');
     expect(result.action).toBe('NONE');
     expect(result.output).toContain('[DIR]');
+    expect(result.output).toContain('[FILE] pic.jpg');
   });
 
   it('should execute ls command with empty directory', async () => {
@@ -157,6 +158,24 @@ describe('TerminalCommands', () => {
     const result = await service.execute('open', 'home');
     expect(result.action).toBe('NONE');
     expect(result.output).toBeDefined();
+  });
+
+  it('should execute open with file and set blurInput to true', async () => {
+    fileSystemMock.getChildren.mockReturnValue([
+      { id: 'readme', name: 'readme.txt', type: 'file', icon: 'file', url: '/readme.txt' },
+    ]);
+    const result = await service.execute('open readme.txt', 'home');
+    expect(processManagerMock.openFile).toHaveBeenCalled();
+    expect(result.blurInput).toBe(true);
+  });
+
+  it('should cd into a folder using its translated name', async () => {
+    TestBed.inject(LanguageService).setLanguage('pt');
+    fileSystemMock.getChildren.mockReturnValue([
+      { id: 'photos', name: 'Photos', type: 'folder', icon: 'folder' },
+    ]);
+    const result = await service.execute('cd Fotos/', 'home');
+    expect(result.newPath).toBe('photos');
   });
 
   it('should return not found for unknown command', async () => {

@@ -10,11 +10,17 @@ import { ProcessManager } from '../../core/services/process-manager';
 import { NotificationService } from '../../core/services/notification';
 import { AppRegistry } from '../../core/services/app-registry';
 import { Sound } from '../../core/services/sound';
+import { TerminalAutocomplete } from '../../core/services/terminal-autocomplete';
 
 describe('Terminal', () => {
   let component: Terminal;
   let fixture: ComponentFixture<Terminal>;
   let commandSpy: { execute: ReturnType<typeof vi.fn> };
+  let autocompleteSpy: {
+    getSuggestions: ReturnType<typeof vi.fn>;
+    resolveMatch: ReturnType<typeof vi.fn>;
+    getCommandNames: ReturnType<typeof vi.fn>;
+  };
   let fsSpy: {
     isLoaded: ReturnType<typeof vi.fn>;
     ensureLoaded: ReturnType<typeof vi.fn>;
@@ -37,6 +43,11 @@ describe('Terminal', () => {
   beforeEach(async () => {
     commandSpy = {
       execute: vi.fn().mockResolvedValue({ output: 'ok', action: 'NONE' }),
+    };
+    autocompleteSpy = {
+      getSuggestions: vi.fn().mockResolvedValue([]),
+      resolveMatch: vi.fn().mockReturnValue('help'),
+      getCommandNames: vi.fn().mockReturnValue(['help', 'ls', 'clear']),
     };
     fsSpy = {
       isLoaded: vi.fn().mockReturnValue(true),
@@ -70,6 +81,7 @@ describe('Terminal', () => {
         NotificationService,
         AppRegistry,
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
+        { provide: TerminalAutocomplete, useValue: autocompleteSpy },
       ],
     }).compileComponents();
 
@@ -92,6 +104,14 @@ describe('Terminal', () => {
 
   it('should prompt include current path translated name', () => {
     expect(component.prompt()).toContain('user@caios:');
+  });
+
+  it('should getPromptPath use the translated folder name', () => {
+    TestBed.inject(LanguageService).setLanguage('pt');
+    fsSpy.getNode.mockReturnValue({ id: 'photos', name: 'Photos', type: 'folder' });
+    expect(component.getPromptPath('photos')).toBe('~/Fotos');
+    expect(component.getPromptPath('home')).toBe('~');
+    expect(component.getPromptPath('root')).toBe('/');
   });
 
   it('should handleCommand execute command and add to history', async () => {
@@ -138,6 +158,35 @@ describe('Terminal', () => {
     expect(component.currentPath()).toBe('documents');
   });
 
+  it('should handleCommand clear suggestions after execution', async () => {
+    component.suggestions.set([{ label: 'help', value: 'help' }]);
+    const input = document.createElement('input');
+    input.value = 'help';
+    const event: Partial<Event> = { target: input };
+    await component.handleCommand(event as Event);
+    expect(component.suggestions()).toEqual([]);
+  });
+
+  it('should applySuggestion refresh suggestions after applying', async () => {
+    autocompleteSpy.getSuggestions.mockResolvedValue([
+      { label: 'Documents/', value: 'Documents/' },
+    ]);
+    autocompleteSpy.resolveMatch.mockReturnValue('cd Documents/');
+    component.suggestions.set([{ label: 'Documents/', value: 'Documents/' }]);
+    await component.applySuggestion({ label: 'Documents/', value: 'Documents/' });
+    expect(autocompleteSpy.getSuggestions).toHaveBeenCalled();
+  });
+
+  it('should handleInput update suggestions via autocomplete service', async () => {
+    autocompleteSpy.getSuggestions.mockResolvedValue([{ label: 'ls', value: 'ls' }]);
+    const input = document.createElement('input');
+    input.value = 'l';
+    const event: Partial<Event> = { target: input };
+    await component.handleInput(event as Event);
+    expect(component.suggestions().length).toBe(1);
+    expect(component.suggestions()[0].value).toBe('ls');
+  });
+
   it('should getTranslatedName return translation when available', () => {
     const result = component.getTranslatedName('home');
     expect(typeof result).toBe('string');
@@ -154,5 +203,85 @@ describe('Terminal', () => {
     fsSpy.getNode.mockReturnValue(undefined);
     const result = component.getTranslatedName('unknown-xyz-999');
     expect(result).toBe('unknown-xyz-999');
+  });
+
+  it('extractDirName strips [DIR] prefix', () => {
+    expect(component.extractDirName('[DIR] Documents')).toBe('Documents');
+  });
+
+  it('extractFileName strips [FILE] prefix', () => {
+    expect(component.extractFileName('[FILE] readme.txt')).toBe('readme.txt');
+  });
+
+  it('onDirTap executes cd and adds to history', async () => {
+    component.onDirTap('Documents');
+    await fixture.whenStable();
+    expect(commandSpy.execute).toHaveBeenCalledWith('cd Documents', 'home');
+    expect(component.historyService.commands()[0]).toBe('cd Documents');
+  });
+
+  it('onFileTap executes open and adds to history', async () => {
+    component.onFileTap('readme.txt');
+    await fixture.whenStable();
+    expect(commandSpy.execute).toHaveBeenCalledWith('open readme.txt', 'home');
+  });
+
+  it('runFromHistory executes the command and closes history sheet', async () => {
+    component.isHistorySheetOpen.set(true);
+    component.runFromHistory('whoami');
+    await fixture.whenStable();
+    expect(component.isHistorySheetOpen()).toBe(false);
+    expect(commandSpy.execute).toHaveBeenCalledWith('whoami', 'home');
+  });
+
+  it('tracks input focus state', () => {
+    component.onInputFocus();
+    expect(component.isInputFocused()).toBe(true);
+    component.onInputBlur();
+    expect(component.isInputFocused()).toBe(false);
+  });
+
+  it('should blur input when command returns blurInput', async () => {
+    commandSpy.execute.mockResolvedValue({ output: 'opening...', action: 'NONE', blurInput: true });
+    const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    const blurSpy = vi.spyOn(input, 'blur');
+
+    input.value = 'open file.pdf';
+    const event: Partial<Event> = { target: input };
+    await component.handleCommand(event as Event);
+
+    expect(blurSpy).toHaveBeenCalled();
+  });
+
+  it('should list all available commands when Tab is pressed on empty input', async () => {
+    autocompleteSpy.getCommandNames.mockReturnValue(['help', 'ls', 'clear']);
+    const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    input.value = '';
+
+    const event = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+    const preventDefaultSpy = vi.spyOn(event, 'preventDefault');
+
+    component.handleKeydown(event);
+    await fixture.whenStable();
+
+    expect(preventDefaultSpy).toHaveBeenCalled();
+    expect(component.history().length).toBe(1);
+    expect(component.history()[0].output).toContain('help  ls  clear');
+  });
+
+  it('should list multiple matching suggestions when Tab is pressed with prefix', async () => {
+    autocompleteSpy.getSuggestions.mockResolvedValue([
+      { label: 'Documents/', value: 'Documents/' },
+      { label: 'Downloads/', value: 'Downloads/' },
+    ]);
+    const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    input.value = 'cd D';
+
+    const event = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+    component.handleKeydown(event);
+    await fixture.whenStable();
+
+    expect(component.history().length).toBe(1);
+    expect(component.history()[0].output).toContain('Documents/  Downloads/');
   });
 });

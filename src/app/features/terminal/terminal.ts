@@ -15,8 +15,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
 import { LanguageService } from '../../core/services/language';
 import { TerminalCommands } from '../../core/services/terminal-commands';
+import { TerminalAutocomplete } from '../../core/services/terminal-autocomplete';
+import { TerminalHistoryService } from '../../core/services/terminal-history';
+import { ScreenService } from '../../core/services/screen';
 import { Base } from '../../core/models/base';
-import { CommandResult, TerminalLine } from '../../core/models/terminal';
+import {
+  CommandResult,
+  TerminalLine,
+  TerminalSuggestion,
+  TerminalTouchKey,
+} from '../../core/models/terminal';
 import { FileSystem } from '../../core/services/file-system';
 
 @Component({
@@ -24,24 +32,38 @@ import { FileSystem } from '../../core/services/file-system';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './terminal.html',
+  providers: [TerminalHistoryService],
 })
 export class Terminal extends Base {
   private readonly injector = inject(Injector);
   private readonly destroyRef = inject(DestroyRef);
   private readonly commandService = inject(TerminalCommands);
   private readonly fileSystem = inject(FileSystem);
+  private readonly autocompleteService = inject(TerminalAutocomplete);
+  readonly historyService = inject(TerminalHistoryService);
   readonly lang = inject(LanguageService);
+  readonly screen = inject(ScreenService);
 
   readonly currentPath = signal('home');
   readonly history = signal<TerminalLine[]>([]);
-
-  private readonly commandHistory = signal<string[]>([]);
-  private readonly historyIndex = signal(-1);
+  readonly suggestions = signal<TerminalSuggestion[]>([]);
+  readonly isHistorySheetOpen = signal(false);
+  readonly isInputFocused = signal(false);
 
   private readonly termInput = viewChild.required<ElementRef<HTMLInputElement>>('termInput');
   private readonly scrollContainer = viewChild.required<ElementRef<HTMLElement>>('scrollContainer');
 
-  readonly prompt = computed(() => `user@caios:${this.getTranslatedName(this.currentPath())}$`);
+  readonly prompt = computed(() => `user@caios:${this.getPromptPath(this.currentPath())}$`);
+
+  readonly touchKeys: TerminalTouchKey[] = [
+    { label: 'Tab', key: 'Tab', action: 'key' },
+    { label: '↑', key: 'ArrowUp', action: 'key' },
+    { label: '↓', key: 'ArrowDown', action: 'key' },
+    { label: 'Ctrl+C', key: 'c', action: 'ctrl' },
+    { label: '/', key: '/', action: 'key' },
+    { label: '~', key: '~', action: 'key' },
+    { label: '-', key: '-', action: 'key' },
+  ];
 
   constructor() {
     super();
@@ -57,18 +79,49 @@ export class Terminal extends Base {
   async handleCommand(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const value = input.value.trim();
+    input.value = '';
+    await this.submitValue(value);
+  }
+
+  private async submitValue(value: string): Promise<void> {
     if (!value) return;
 
-    this.updateCommandHistory(value);
+    this.historyService.push(value);
     const result = await this.commandService.execute(value, this.currentPath());
 
     this.processCommandResult(result, value);
-
-    input.value = '';
+    this.suggestions.set([]);
     this.scrollToBottom();
   }
 
+  private async submitCurrentInput(): Promise<void> {
+    const input = this.termInput().nativeElement;
+    const value = input.value.trim();
+    input.value = '';
+    await this.submitValue(value);
+  }
+
+  async handleInput(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const newSuggestions = await this.autocompleteService.getSuggestions(
+      input.value,
+      this.currentPath(),
+    );
+    this.suggestions.set(newSuggestions);
+  }
+
+  handleBeforeInput(event: InputEvent): void {
+    if (event.inputType === 'insertLineBreak') {
+      event.preventDefault();
+      this.submitCurrentInput();
+    }
+  }
+
   private processCommandResult(result: CommandResult, command: string): void {
+    if (result.blurInput) {
+      this.termInput().nativeElement.blur();
+    }
+
     if (result.action === 'CLEAR_ACTION') {
       this.history.set([]);
       return;
@@ -86,16 +139,11 @@ export class Terminal extends Base {
     this.scrollToBottom();
   }
 
-  private updateCommandHistory(value: string): void {
-    this.commandHistory.update((prev) => [value, ...prev]);
-    this.historyIndex.set(-1);
-  }
-
   handleKeydown(event: KeyboardEvent): void {
     const actions: Record<string, () => void> = {
       Tab: () => {
         event.preventDefault();
-        this.autocomplete();
+        this.applyFirstSuggestion();
       },
       ArrowUp: () => {
         event.preventDefault();
@@ -109,74 +157,87 @@ export class Terminal extends Base {
     actions[event.key]?.();
   }
 
-  private navigateHistory(direction: number): void {
-    const history = this.commandHistory();
-    const newIndex = this.historyIndex() + direction;
+  async applySuggestion(suggestion: TerminalSuggestion): Promise<void> {
+    const input = this.termInput().nativeElement;
+    input.value = this.autocompleteService.resolveMatch(input.value, suggestion);
+    input.focus();
+    await this.handleInputUpdate(input.value);
+  }
 
-    if (newIndex >= -1 && newIndex < history.length) {
-      this.historyIndex.set(newIndex);
-      this.termInput().nativeElement.value = newIndex === -1 ? '' : history[newIndex];
+  onTouchKey(touchKey: TerminalTouchKey): void {
+    if (touchKey.action === 'ctrl' && touchKey.key === 'c') {
+      this.termInput().nativeElement.value = '';
+      this.suggestions.set([]);
+      return;
+    }
+
+    const keyHandlers: Record<string, () => void> = {
+      Tab: () => this.applyFirstSuggestion(),
+      ArrowUp: () => this.navigateHistory(1),
+      ArrowDown: () => this.navigateHistory(-1),
+    };
+
+    const handler = keyHandlers[touchKey.key];
+    if (handler) {
+      handler();
+      return;
+    }
+
+    this.insertTouchChar(touchKey.key);
+  }
+
+  private insertTouchChar(char: string): void {
+    const input = this.termInput().nativeElement;
+    input.value += char;
+    input.focus();
+    this.handleInputUpdate(input.value);
+  }
+
+  private async handleInputUpdate(value: string): Promise<void> {
+    const newSuggestions = await this.autocompleteService.getSuggestions(value, this.currentPath());
+    this.suggestions.set(newSuggestions);
+  }
+
+  runFromHistory(command: string): void {
+    this.isHistorySheetOpen.set(false);
+    this.submitValue(command);
+  }
+
+  onDirTap(dirName: string): void {
+    this.submitValue(`cd ${dirName}`);
+  }
+
+  onFileTap(fileName: string): void {
+    this.submitValue(`open ${fileName}`);
+  }
+
+  private async applyFirstSuggestion(): Promise<void> {
+    const input = this.termInput().nativeElement;
+    const value = input.value;
+
+    if (!value.trim()) {
+      const commands = this.autocompleteService.getCommandNames();
+      this.addHistoryLine('', commands.join('  '), this.currentPath());
+      return;
+    }
+
+    const current = await this.autocompleteService.getSuggestions(value, this.currentPath());
+    if (current.length === 1) {
+      await this.applySuggestion(current[0]);
+    } else if (current.length > 1) {
+      this.addHistoryLine(value, current.map((s) => s.label).join('  '), this.currentPath());
     }
   }
 
-  private autocomplete(): void {
-    const input = this.termInput().nativeElement;
-    const parts = input.value.split(' ');
-    const lastPart = parts[parts.length - 1];
-
-    parts.length === 1
-      ? this.autocompleteCommand(input, parts, lastPart)
-      : this.autocompleteFile(input, parts, lastPart);
-  }
-
-  private autocompleteCommand(input: HTMLInputElement, parts: string[], lastPart: string): void {
-    const matches = Object.keys(this.lang.t().terminal.commands).filter((cmd) =>
-      cmd.startsWith(lastPart.toLowerCase()),
-    );
-    this.applyMatch(input, parts, matches);
-  }
-
-  private async autocompleteFile(
-    input: HTMLInputElement,
-    parts: string[],
-    lastPart: string,
-  ): Promise<void> {
-    const segments = lastPart.split('/');
-    const prefix = segments.pop()?.toLowerCase() || '';
-    const dirPath = segments.join('/');
-
-    const searchDir = await this.resolveSearchDir(dirPath);
-    if (!searchDir) return;
-
-    const matches = this.fileSystem
-      .getChildren(searchDir)
-      .map((file) => ({ name: this.getTranslatedName(file.id), isFolder: file.type === 'folder' }))
-      .filter((file) => file.name.toLowerCase().startsWith(prefix))
-      .map((file) => (file.isFolder ? `${file.name}/` : file.name));
-
-    this.applyMatch(input, parts, matches, dirPath);
-  }
-
-  private async resolveSearchDir(dirPath: string): Promise<string | null> {
-    if (!dirPath) return this.currentPath();
-    const result = await this.commandService.execute(`cd ${dirPath}`, this.currentPath());
-    return result.newPath || null;
-  }
-
-  private applyMatch(input: HTMLInputElement, parts: string[], matches: string[], path = ''): void {
-    if (matches.length === 1) {
-      parts[parts.length - 1] = path ? `${path}/${matches[0]}` : matches[0];
-      input.value = parts.join(' ');
-    } else if (matches.length > 1) {
-      this.addHistoryLine(input.value, matches.join('\n'), this.currentPath());
+  private navigateHistory(direction: 1 | -1): void {
+    const value = this.historyService.navigate(direction);
+    if (value !== null) {
+      this.termInput().nativeElement.value = value;
     }
   }
 
   private addHistoryLine(command: string, output: string, pathId: string): void {
-    this.history.update((prev) => [
-      ...prev,
-      { command, output, path: this.getTranslatedName(pathId) },
-    ]);
+    this.history.update((prev) => [...prev, { command, output, path: this.getPromptPath(pathId) }]);
     this.scrollToBottom();
   }
 
@@ -195,13 +256,39 @@ export class Terminal extends Base {
   }
 
   onInputFocus(): void {
+    this.isInputFocused.set(true);
     timer(100)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.scrollToBottom());
   }
 
+  onInputBlur(): void {
+    this.isInputFocused.set(false);
+  }
+
+  onOutputAreaClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (target.closest('[data-interactive]')) return;
+    this.focusInput();
+  }
+
+  getPromptPath(pathId: string): string {
+    if (pathId === 'home') return '~';
+    if (pathId === 'root') return '/';
+    const name = this.getTranslatedName(pathId);
+    return `~/${name}`;
+  }
+
   getTranslatedName(id: string): string {
     const fileTranslations = this.lang.t().files as Record<string, string>;
     return fileTranslations[id.toLowerCase()] || this.fileSystem.getNode(id)?.name || id;
+  }
+
+  extractDirName(item: string): string {
+    return item.replace('[DIR]', '').trim();
+  }
+
+  extractFileName(item: string): string {
+    return item.replace('[FILE]', '').trim();
   }
 }

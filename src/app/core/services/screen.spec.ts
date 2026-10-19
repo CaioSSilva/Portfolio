@@ -42,4 +42,24 @@ describe('ScreenService', () => {
   it('height signal is initialized to a positive number', () => {
     expect(service.height()).toBeGreaterThan(0);
   });
+
+  it('hasCoarsePointer updates when the media query changes', () => {
+    let listener: ((e: MediaQueryListEvent) => void) | undefined;
+    const original = window.matchMedia;
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: false,
+      addEventListener: (_: string, cb: (e: MediaQueryListEvent) => void) => (listener = cb),
+      removeEventListener: vi.fn(),
+    });
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [ScreenService] });
+    const fresh = TestBed.inject(ScreenService);
+    listener?.({ matches: true } as MediaQueryListEvent);
+    expect(fresh.hasCoarsePointer()).toBe(true);
+    window.matchMedia = original;
+  });
+
+  it('hasCoarsePointer is a boolean signal', () => {
+    expect(typeof service.hasCoarsePointer()).toBe('boolean');
+  });
 });

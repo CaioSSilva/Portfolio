@@ -1,6 +1,6 @@
 # Cai_OS
 
-![Version](https://img.shields.io/badge/version-3.1.0-blue)
+![Version](https://img.shields.io/badge/version-3.2.0-blue)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
 ![Vitest](https://img.shields.io/badge/tests-Vitest-brightgreen)
@@ -44,12 +44,26 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 
 ---
 
-## What's New — v3.1.0
+## What's New — v3.2.0
+
+- **Touch-friendly Terminal**: On touch devices a suggestion chip bar replaces typing for paths and commands, and a key bar (`Tab`, `↑`, `↓`, `Ctrl+C`, `/`, `~`, `-`) appears while the input is focused. A command history sheet lets you re-run previous commands with a tap
+- **Tappable `ls` output**: Folders (`cd`) and files (`open`) listed by `ls` are now buttons, so navigation works without a keyboard
+- **Localized folder names everywhere**: The prompt, `ls`, Tab autocomplete, `cd` and `open` now use the same language (e.g. `Fotos` in PT, `Photos` in EN), and both the translated and original names are accepted as input
+- **New terminal services**: `TerminalAutocomplete` (command/path suggestions, `core/services/terminal-autocomplete.ts`) and `TerminalHistoryService` (per-terminal history navigation, `core/services/terminal-history.ts`)
+- **Mobile keyboard handling**: `interactive-widget=resizes-content` viewport hint, 16px input font on touch screens (prevents iOS zoom), `open` blurs the input so the keyboard closes when an app opens, and `ScreenService.hasCoarsePointer` reacts to pointer changes
+- **Selectable terminal output**: Output text can be selected and copied
+- **No more `NgZone`**: Removed from `ScreenService` and `WindowService` — signal writes already notify the scheduler. New guideline §24 documents when `NgZone` is acceptable
+- **Test suite**: 784 passing tests
+
+<details>
+<summary>Previous release — v3.1.0</summary>
 
 - **Expanded Hermes AI Actions**: Full OS control with window management (`minimize_all`, `close_all_apps`, `focus_app`), browser navigation & Google search (`browser_open_url`, `browser_search`), advanced media playback (`music_set_volume`, `music_toggle_mute`, `music_seek`), and system triggers (`clear_notifications`, `toggle_voice_feedback`, `show_system_tip`)
 - **Modular Action Architecture**: Extracted `HermesMediaActionsService` (`core/services/hermes-media-actions.ts`) to maintain strict service cohesion (≤ 5 dependencies per service)
 - **Enhanced Agent Documentation & System Prompts**: Synchronized documentation and bilingual Hermes context dictionaries with all supported action tags
 - **100% Test Suite Coverage**: Comprehensive unit test suite with 716 passing tests
+
+</details>
 
 <details>
 <summary>Previous release — v3.0.0</summary>
@@ -213,7 +227,7 @@ src/
 │   │   ├── services/                # Application services (all providedIn: root)
 │   │   │   ├── process-manager.ts   # Window/process lifecycle
 │   │   │   ├── window.ts            # Per-window drag/resize/snap (provided per Window)
-│   │   │   ├── screen.ts            # Viewport size, isMobile, isDesktop
+│   │   │   ├── screen.ts            # Viewport size, isMobile, isDesktop, hasCoarsePointer
 │   │   │   ├── apps.ts              # App grid, search, context menu
 │   │   │   ├── app-launcher.ts      # Launch wrapper
 │   │   │   ├── app-registry.ts      # Registry computed from getInstalledApps()
@@ -238,6 +252,8 @@ src/
 │   │   │   ├── speech-synthesis.ts  # Browser TTS wrapper, Markdown stripping
 │   │   │   ├── wake-word.ts         # Wake phrase normalisation + fuzzy match
 │   │   │   ├── terminal-commands.ts # Built-in terminal commands
+│   │   │   ├── terminal-autocomplete.ts # Command/path suggestions (localized)
+│   │   │   ├── terminal-history.ts  # Per-terminal command history navigation
 │   │   │   ├── audio-player.ts      # HTML Audio element wrapper
 │   │   │   ├── lyrics.service.ts    # LRCLIB fetch + LRC parsing
 │   │   │   ├── system-info.ts       # Browser/device info
@@ -333,7 +349,7 @@ public/
 |---|---|---|---|---|
 | `AboutProject` | `features/about-project/about-project.ts` | Project overview, app descriptions, resume download | Windowed | Windowed |
 | `Browser` | `features/browser/browser.ts` | Embedded iframe browser with URL history and back navigation | Windowed | Windowed |
-| `Terminal` | `features/terminal/terminal.ts` | Unix-like terminal: command history, Tab autocomplete, path navigation | Windowed | Windowed |
+| `Terminal` | `features/terminal/terminal.ts` | Unix-like terminal: command history, Tab autocomplete, path navigation, touch key bar, suggestion chips, tappable `ls` output, history sheet | Windowed | Windowed |
 | `Files` | `features/files/files.ts` | File manager with collapsible sidebar, grid/list views, search, resizable sidebar | Windowed | Windowed (no sidebar resize) |
 | `ImageViewer` | `features/image-viewer/image-viewer.ts` | Image gallery with zoom, rotate, pan, pinch-to-zoom, keyboard arrow navigation | Windowed | Windowed |
 | `DocumentViewer` | `features/document-viewer/document-viewer.ts` | PDF, Markdown, and text viewer with zoom, anchor scroll, keyboard navigation | Windowed (lazy-loaded) | Windowed |
@@ -377,7 +393,7 @@ Per-window service (provided inside `Window` component). Handles drag, resize, s
 ### `ScreenService` — `core/services/screen.ts`
 Tracks viewport dimensions. `MOBILE_BREAKPOINT = 768`, `TABLET_BREAKPOINT = 1024`.
 
-**Signals:** `width`, `height`, `isMobile` (computed), `isDesktop` (computed)
+**Signals:** `width`, `height`, `isMobile` (computed), `isDesktop` (computed), `hasCoarsePointer` (`(pointer: coarse) and (hover: none)`, updates on media query change)
 
 ---
 
@@ -494,6 +510,24 @@ Fetches lyrics from `https://lrclib.net/api/search`. Parses LRC format. Tracks a
 Implements all terminal commands against the virtual file system.
 
 **Public API:** `execute(rawCommand, currentPath): Promise<CommandResult>`, `resolvePath(pathStr, currentPath)`
+
+`cd` and `open` accept both the original and the translated name of a file or folder. `ls` prefixes entries with `[DIR]` / `[FILE]`, which the Terminal UI renders as tappable buttons. `open` returns `blurInput: true` so the on-screen keyboard closes when an app opens.
+
+---
+
+### `TerminalAutocomplete` — `core/services/terminal-autocomplete.ts`
+Builds suggestions for the terminal input: command names, or folders/files (localized names) for `cd`, `open` and `ls`, including relative and absolute sub-paths.
+
+**Public API:** `getSuggestions(inputValue, currentPath): Promise<TerminalSuggestion[]>`, `resolveMatch(inputValue, suggestion)`, `getCommandNames()`
+
+---
+
+### `TerminalHistoryService` — `core/services/terminal-history.ts`
+Command history for a single terminal window (provided at component level, not `providedIn: 'root'`).
+
+**Signals:** `commands` (read-only, newest first)
+
+**Public API:** `push(command)`, `navigate(direction: 1 | -1): string | null`
 
 ---
 
@@ -816,7 +850,9 @@ All commands are registered in [`src/app/core/services/terminal-commands.ts`](sr
 | `neofetch` | Display ASCII logo with system information |
 | `whoami` | Display developer information (Caio Souza Silva) |
 
-Tab autocomplete works for both commands and file names.
+Tab autocomplete works for both commands and file names. Folder and file names follow the active language (e.g. `Photos` / `Fotos`), and either form is accepted by `cd` and `open`.
+
+**Touch devices:** suggestion chips appear above the input while typing; when the input is focused and empty, a key bar offers `Tab`, `↑`, `↓`, `Ctrl+C`, `/`, `~`, `-` and a button that opens the command history sheet. Folders and files printed by `ls` can be tapped to run `cd` / `open`.
 
 ---
 
@@ -969,13 +1005,13 @@ This project is private (`"private": true` in `package.json`). All rights reserv
 
 | Metric | Value |
 |---|---|
-| Version | 3.1.0 |
+| Version | 3.2.0 |
 | Angular version | 22.2.1 |
 | TypeScript version | 6.0.3 |
 | Applications | 10 |
 | Layout components | 9 |
 | Shared UI components | 4 |
-| Core services | 30 |
+| Core services | 32 |
 | Data models | 14 files |
 | Languages supported | 2 (PT, EN) |
 | Platforms | Desktop, Mobile |

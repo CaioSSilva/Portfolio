@@ -372,6 +372,13 @@ export const en = {
       stack: 'Stack',
       location: 'Location',
     },
+    touch: {
+      history: 'History',
+      historyEmpty: 'No commands in history yet.',
+      historyTitle: 'Command History',
+      historyClose: 'Close history',
+      historyRun: 'Run',
+    },
   },
 
   systemTips: {

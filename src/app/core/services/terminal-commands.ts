@@ -61,12 +61,15 @@ export class TerminalCommands {
   }
 
   private findChildInDir(dirId: string, name: string): FileItem | undefined {
+    const translations = this.lang.t().files as Record<string, string>;
+    const target = name.toLowerCase();
     return this.fileSystem
       .getChildren(dirId)
       .find(
         (file) =>
-          file.id.toLowerCase() === name.toLowerCase() ||
-          file.name.toLowerCase() === name.toLowerCase(),
+          file.id.toLowerCase() === target ||
+          file.name.toLowerCase() === target ||
+          translations[file.id.toLowerCase()]?.toLowerCase() === target,
       );
   }
 
@@ -82,7 +85,7 @@ export class TerminalCommands {
     const fileTranslations = this.lang.t().files;
     const output = files
       .map((file) => {
-        const prefix = file.type === 'folder' ? '[DIR] ' : '      ';
+        const prefix = file.type === 'folder' ? '[DIR] ' : '[FILE] ';
         return `${prefix}${fileTranslations[file.id.toLowerCase()] || file.name}`;
       })
       .join('\n');
@@ -121,7 +124,7 @@ export class TerminalCommands {
       };
     }
     this.processManager.openFile(node);
-    return { output: `${terminal.opening} ${node.name}...`, action: 'NONE' };
+    return { output: `${terminal.opening} ${node.name}...`, action: 'NONE', blurInput: true };
   }
 
   private parsePath(fullPath: string): { dir: string; file: string } {
