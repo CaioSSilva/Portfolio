@@ -642,14 +642,13 @@ describe('WindowService', () => {
       return animationFrames.length;
     });
 
+    settings.windowAnimationsEnabled.set(false);
     processManager.open(proc);
     const pid = processManager.processes()[0].id;
     const process = makeProcess({ id: pid });
     service.init(el, process);
     TestBed.flushEffects();
-
-    while (animationFrames.length) animationFrames.shift()?.(0);
-    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
+    settings.windowAnimationsEnabled.set(true);
 
     processManager.toggleMinimize(pid);
     TestBed.flushEffects();
@@ -658,23 +657,13 @@ describe('WindowService', () => {
     vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
     expect(service.isAnimatingMinimize()).toBe(false);
 
-    animationFrames.length = 0;
     processManager.toggleMinimize(pid);
     TestBed.flushEffects();
     expect(processManager.processes()[0].isMinimized).toBe(false);
-    expect(el.style.width).not.toBe('0px');
-
-    for (let attempts = 0; el.style.width !== '0px' && attempts < 10; attempts++) {
-      animationFrames.shift()?.(0);
-    }
     expect(el.style.width).toBe('0px');
     expect(el.style.opacity).toBe('0');
 
-    for (
-      let attempts = 0;
-      (el.style.width === '0px' || el.style.opacity !== '1') && attempts < 10;
-      attempts++
-    ) {
+    for (let attempts = 0; el.style.width === '0px' && attempts < 10; attempts++) {
       animationFrames.shift()?.(0);
     }
     expect(el.style.width).not.toBe('0px');

@@ -102,6 +102,26 @@ describe('ProcessManager', () => {
     expect(service.processes()[0].isMinimized).toBe(false);
   });
 
+  it('should prepare a minimized window before restoring its process', () => {
+    service.open(mockApp);
+    const processId = service.processes()[0].id;
+    const prepareRestore = vi.fn(() => {
+      expect(service.processes().find((process) => process.id === processId)?.isMinimized).toBe(
+        true,
+      );
+    });
+    service.registerWindowSnapHandler(processId, vi.fn(), () => true, prepareRestore);
+
+    service.toggleMinimize(processId);
+    expect(prepareRestore).not.toHaveBeenCalled();
+    service.toggleMinimize(processId);
+
+    expect(prepareRestore).toHaveBeenCalledOnce();
+    expect(service.processes().find((process) => process.id === processId)?.isMinimized).toBe(
+      false,
+    );
+  });
+
   it('should focus active process', () => {
     service.open(mockApp);
     const pid = service.processes()[0].id;

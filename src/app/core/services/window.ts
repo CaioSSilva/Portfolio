@@ -58,6 +58,7 @@ export class WindowService {
   private snapLayout: WindowSnapLayout | null = null;
   private isBottomOverlapping = false;
   private wasMobile = false;
+  private isRestoreAnimationPrepared = false;
   private unregisterSnapHandler: (() => void) | null = null;
 
   constructor() {
@@ -88,7 +89,7 @@ export class WindowService {
       if (!this.windowEl || !this.settings.windowAnimationsEnabled()) return;
 
       if (wasMinimized && !updated.isMinimized) {
-        this.animateFromIcon();
+        this.startPreparedIconAnimation();
       } else if (!wasMinimized && updated.isMinimized && !this.isAnimatingMinimize()) {
         this.isAnimatingMinimize.set(true);
         this.animateToIcon();
@@ -106,6 +107,7 @@ export class WindowService {
       const viewportHeight = this.screen.height();
       const process = this.processManager.processes().find((item) => item.id === this.process?.id);
       if (!this.windowEl || !process || process.isMinimized) return;
+      if (this.isRestoreAnimationPrepared) return;
 
       const wasMobile = this.wasMobile;
       this.wasMobile = isMobile;
@@ -179,6 +181,7 @@ export class WindowService {
       (layout) => this.snapToLayout(layout, false),
       () =>
         this.process.isMinimized || (!this.isMaximized() && !this.isSnapped()),
+      () => this.prepareRestoreAnimation(),
     );
     this.destroyRef.onDestroy(() => this.unregisterSnapHandler?.());
   }
@@ -495,10 +498,22 @@ export class WindowService {
 
   private animateFromIcon(): void {
     const iconRect = this.resolveIconRect();
-    requestAnimationFrame(() => {
-      this.setIconStartStyles(iconRect);
-      requestAnimationFrame(() => this.completeIconAnimation());
-    });
+    this.setIconStartStyles(iconRect);
+    requestAnimationFrame(() => requestAnimationFrame(() => this.completeIconAnimation()));
+  }
+
+  private prepareRestoreAnimation(): void {
+    if (!this.windowEl || this.screen.isMobile() || !this.settings.windowAnimationsEnabled()) return;
+    this.setIconStartStyles(this.resolveIconRect());
+    this.isRestoreAnimationPrepared = true;
+  }
+
+  private startPreparedIconAnimation(): void {
+    if (!this.isRestoreAnimationPrepared) {
+      this.setIconStartStyles(this.resolveIconRect());
+      this.isRestoreAnimationPrepared = true;
+    }
+    requestAnimationFrame(() => this.completeIconAnimation());
   }
 
   private setIconStartStyles(iconRect: DOMRect | null): void {
@@ -512,6 +527,7 @@ export class WindowService {
   }
 
   private completeIconAnimation(): void {
+    this.isRestoreAnimationPrepared = false;
     this.windowEl.style.transition = GENIE_TRANSITION;
     this.applyStyles();
     this.windowEl.style.opacity = '1';

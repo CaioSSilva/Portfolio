@@ -56,7 +56,11 @@ export class ProcessManager {
   private globalCascadeIndex = 0;
   private readonly windowSnapHandlers = new Map<
     string,
-    { snap: (layout: WindowSnapLayout) => void; canPair: () => boolean }
+    {
+      snap: (layout: WindowSnapLayout) => void;
+      canPair: () => boolean;
+      prepareRestore: () => void;
+    }
   >();
 
   constructor() {
@@ -161,6 +165,7 @@ export class ProcessManager {
   }
 
   focus(processId: string): void {
+    this.prepareWindowRestore(processId);
     this.processes.update((current) => {
       let maxZ = 0;
       let target: Process | undefined;
@@ -180,9 +185,15 @@ export class ProcessManager {
     processId: string,
     snap: (layout: WindowSnapLayout) => void,
     canPair: () => boolean = () => true,
+    prepareRestore: () => void = () => undefined,
   ): () => void {
-    this.windowSnapHandlers.set(processId, { snap, canPair });
+    this.windowSnapHandlers.set(processId, { snap, canPair, prepareRestore });
     return () => this.windowSnapHandlers.delete(processId);
+  }
+
+  private prepareWindowRestore(processId: string): void {
+    const process = this.processes().find((item) => item.id === processId);
+    if (process?.isMinimized) this.windowSnapHandlers.get(processId)?.prepareRestore();
   }
 
   requestSnapPairing(sourceProcessId: string, targetLayout: WindowSnapLayout): void {
@@ -213,6 +224,7 @@ export class ProcessManager {
   }
 
   toggleMinimize(processId: string): void {
+    this.prepareWindowRestore(processId);
     if (this.snapPairRequest()?.sourceProcessId === processId) {
       this.dismissSnapPairing();
     }
