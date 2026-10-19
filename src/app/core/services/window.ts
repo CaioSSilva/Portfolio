@@ -495,8 +495,10 @@ export class WindowService {
 
   private animateFromIcon(): void {
     const iconRect = this.resolveIconRect();
-    this.setIconStartStyles(iconRect);
-    requestAnimationFrame(() => requestAnimationFrame(() => this.completeIconAnimation()));
+    requestAnimationFrame(() => {
+      this.setIconStartStyles(iconRect);
+      requestAnimationFrame(() => this.completeIconAnimation());
+    });
   }
 
   private setIconStartStyles(iconRect: DOMRect | null): void {

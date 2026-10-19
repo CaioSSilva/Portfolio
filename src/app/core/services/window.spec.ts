@@ -86,10 +86,22 @@ describe('WindowService', () => {
 
   it('should play genie animation on init when animations enabled', () => {
     vi.useFakeTimers();
+    const animationFrames: FrameRequestCallback[] = [];
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      animationFrames.push(callback);
+      return animationFrames.length;
+    });
+
     service.init(el, proc);
     expect(service.isVisible()).toBe(true);
+
+    animationFrames.shift()?.(0);
     expect(el.style.opacity).toBe('0');
+    animationFrames.shift()?.(0);
+    expect(el.style.opacity).toBe('1');
+
     vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
+    rafSpy.mockRestore();
     vi.useRealTimers();
   });
 
@@ -622,13 +634,22 @@ describe('WindowService', () => {
     vi.useRealTimers();
   });
 
-  it('should minimize and restore from icon via external toggleMinimize (effect path)', () => {
+  it('should minimize and restore from icon via external toggleMinimize', () => {
     vi.useFakeTimers();
+    const animationFrames: FrameRequestCallback[] = [];
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      animationFrames.push(callback);
+      return animationFrames.length;
+    });
+
     processManager.open(proc);
     const pid = processManager.processes()[0].id;
     const process = makeProcess({ id: pid });
     service.init(el, process);
     TestBed.flushEffects();
+
+    while (animationFrames.length) animationFrames.shift()?.(0);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
 
     processManager.toggleMinimize(pid);
     TestBed.flushEffects();
@@ -637,11 +658,31 @@ describe('WindowService', () => {
     vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
     expect(service.isAnimatingMinimize()).toBe(false);
 
+    animationFrames.length = 0;
     processManager.toggleMinimize(pid);
     TestBed.flushEffects();
     expect(processManager.processes()[0].isMinimized).toBe(false);
+    expect(el.style.width).not.toBe('0px');
+
+    for (let attempts = 0; el.style.width !== '0px' && attempts < 10; attempts++) {
+      animationFrames.shift()?.(0);
+    }
+    expect(el.style.width).toBe('0px');
     expect(el.style.opacity).toBe('0');
+
+    for (
+      let attempts = 0;
+      (el.style.width === '0px' || el.style.opacity !== '1') && attempts < 10;
+      attempts++
+    ) {
+      animationFrames.shift()?.(0);
+    }
+    expect(el.style.width).not.toBe('0px');
+    expect(el.style.opacity).toBe('1');
+    expect(el.style.transition).toContain('width');
+
     vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
+    rafSpy.mockRestore();
     vi.useRealTimers();
   });
 
