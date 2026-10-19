@@ -1,3 +1,16 @@
 :host {
   display: block;
 }
+
+.overview-enter {
+  animation: overviewFade 90ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes overviewFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

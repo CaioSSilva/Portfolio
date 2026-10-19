@@ -59,7 +59,8 @@ export class MobileOverview {
     }
   }
 
-  onBackdropClick(): void {
+  onBackdropClick(event?: MouseEvent): void {
+    event?.stopPropagation();
     this.closeWithTransition();
   }
 
@@ -113,12 +114,11 @@ export class MobileOverview {
   }
 
   onCardClick(event: MouseEvent, process: Process): void {
+    event.stopPropagation();
     if (this.isClosing() || this.isDismissing(process.id)) return;
-    if (Date.now() - this.lastTapTime < 600) {
-      event.stopPropagation();
+    if (Date.now() - this.lastTapTime < 250) {
       return;
     }
-    event.stopPropagation();
     this.focusProcessAndClose(process.id);
   }
 
@@ -170,7 +170,7 @@ export class MobileOverview {
     this.focusingId.set(processId);
     this.isClosing.set(true);
 
-    timer(200)
+    timer(100)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.processManager.focus(processId);
@@ -189,7 +189,7 @@ export class MobileOverview {
     }
 
     this.isClosing.set(true);
-    timer(180)
+    timer(100)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.nav.closeOverview();
@@ -209,7 +209,7 @@ export class MobileOverview {
 
     this.setOffset(process.id, -600);
     this.dismissing.update((map) => ({ ...map, [process.id]: true }));
-    timer(280)
+    timer(150)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.processManager.close(process.id);

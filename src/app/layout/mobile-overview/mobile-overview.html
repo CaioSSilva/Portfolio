@@ -1,11 +1,9 @@
 @if (nav.isOverviewOpen()) {
   <div
-    class="fixed inset-0 z-[9600] bg-black/75 backdrop-blur-md flex flex-col justify-between py-18 select-none transition-opacity duration-200 ease-out"
-    [class.animate-in]="settings.windowAnimationsEnabled()"
-    [class.fade-in]="settings.windowAnimationsEnabled()"
+    class="fixed inset-0 z-[9600] bg-black/90 backdrop-blur-xl flex flex-col justify-between py-18 select-none transition-opacity duration-100 ease-out"
+    [class.overview-enter]="settings.windowAnimationsEnabled()"
     [class.opacity-0]="isClosing() && settings.windowAnimationsEnabled()"
-    [class.pointer-events-none]="isClosing()"
-    (click)="onBackdropClick()"
+    (click)="onBackdropClick($event)"
     (touchstart)="onBackdropTouchStart($event)"
     (touchend)="onBackdropTouchEnd($event)"
   >
@@ -47,14 +45,14 @@
               !settings.windowAnimationsEnabled()
                 ? 'none'
                 : isDismissing(proc.id)
-                  ? 'transform 300ms cubic-bezier(0.25,0.46,0.45,0.94), opacity 300ms ease'
+                  ? 'transform 150ms cubic-bezier(0.25,0.46,0.45,0.94), opacity 150ms ease'
                   : isClosing() && focusingId() === proc.id
-                    ? 'transform 200ms cubic-bezier(0.2, 0.9, 0.3, 1), opacity 200ms ease'
+                    ? 'transform 100ms cubic-bezier(0.16, 1, 0.3, 1), opacity 100ms ease'
                     : isClosing()
-                      ? 'opacity 180ms ease, transform 180ms ease'
+                      ? 'opacity 100ms ease, transform 100ms ease'
                       : swipeOffsets()[proc.id]
                         ? 'none'
-                        : 'transform 200ms ease, opacity 200ms ease'
+                        : 'transform 100ms cubic-bezier(0.16, 1, 0.3, 1), opacity 100ms ease'
             "
             class="snap-center shrink-0 w-[65vw] max-w-[320px] h-[45vh] max-h-[460px] bg-gnome-surface border border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col cursor-pointer group relative touch-manipulation will-change-transform active:scale-[0.98]"
           >

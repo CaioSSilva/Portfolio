@@ -14,7 +14,7 @@ const MIN_W = 320;
 const MIN_H = 240;
 const SNAP_EDGE = 32;
 
-const ANIM_DURATION_MS = 220;
+const ANIM_DURATION_MS = 180;
 const GENIE_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 const GENIE_TRANSITION = `transform ${ANIM_DURATION_MS}ms ${GENIE_EASING}, width ${ANIM_DURATION_MS}ms ${GENIE_EASING}, height ${ANIM_DURATION_MS}ms ${GENIE_EASING}, opacity ${ANIM_DURATION_MS}ms ${GENIE_EASING}`;
 
