@@ -31,6 +31,8 @@ function makeWindowServiceMock() {
     toggleMaximize: vi.fn(),
     isSnapped: signal(false),
     isVisible: signal(true),
+    isClosing: signal(false),
+    isAnimatingMinimize: signal(false),
     isDragging: signal(false),
     isResizing: signal(false),
     snapGhost: signal(null),

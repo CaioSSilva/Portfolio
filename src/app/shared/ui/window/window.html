@@ -14,13 +14,13 @@
   [ngClass]="{
     'fixed top-0 left-0': windowService.isMaximized() || windowService.screen.isMobile(),
     absolute: !windowService.isMaximized() && !windowService.screen.isMobile(),
-    'pointer-events-none': process().isMinimized || !windowService.isVisible(),
-    'hidden invisible': process().isMinimized,
+    'pointer-events-none': process().isMinimized || !windowService.isVisible() || windowService.isClosing() || windowService.isAnimatingMinimize(),
+    'hidden invisible': process().isMinimized && !windowService.isAnimatingMinimize(),
   }"
   [style.z-index]="process().zIndex"
 >
   <div
-    class="w-full h-full flex flex-col overflow-hidden shadow-2xl bg-gnome-bg transition-all duration-300 ease-[cubic-bezier(0.25,0.8,0.25,1)]"
+    class="w-full h-full flex flex-col overflow-hidden shadow-2xl bg-gnome-bg"
     (mousedown)="windowService.focus()"
     [ngClass]="{
       'rounded-xl border border-gnome-border/40':
@@ -29,8 +29,6 @@
         !windowService.screen.isMobile(),
       'rounded-none border-none':
         windowService.isMaximized() || windowService.isSnapped() || windowService.screen.isMobile(),
-      'opacity-0 scale-[0.95]': process().isMinimized || !windowService.isVisible(),
-      'opacity-100 scale-100': !process().isMinimized && windowService.isVisible(),
     }"
   >
     @if (!windowService.screen.isMobile()) {

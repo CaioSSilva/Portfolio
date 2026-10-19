@@ -5,6 +5,7 @@
     (click)="tap(nav.toggleOverview.bind(nav))"
     class="w-12 h-10 flex items-center justify-center rounded-xl text-gnome-text hover:bg-black/10 active:scale-90 transition-all cursor-pointer relative touch-manipulation"
     [attr.aria-label]="lang.t().mobileNav.recentApps"
+    data-nav-overview
   >
     <div
       class="w-4 h-4 border-2 border-gnome-text rounded-[4px] transition-transform"

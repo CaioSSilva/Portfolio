@@ -206,6 +206,8 @@ export const pt = {
       iconSizeDesc: 'Ajusta a dimensão da dock e seus elementos',
       desktopItemsSize: 'Tamanho dos ícones da área de trabalho',
       desktopItemsSizeDesc: 'Ajusta o tamanho dos ítens na área de trabalho',
+      windowAnimations: 'Animações de Janela',
+      windowAnimationsDesc: 'Transições suaves ao abrir, fechar e minimizar janelas',
     },
 
     sound: {

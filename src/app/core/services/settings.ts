@@ -15,6 +15,7 @@ export class Settings {
   );
   readonly agentModeEnabled = signal<boolean>(this.load('agentModeEnabled', false));
   readonly agentSpeakReplies = signal<boolean>(this.load('agentSpeakReplies', false));
+  readonly windowAnimationsEnabled = signal<boolean>(this.load('windowAnimations', true));
 
   private readonly desktopWallpaper = signal<string>(
     this.load('wallpaper', '/wallpapers/desktop/default.webp'),
@@ -38,6 +39,7 @@ export class Settings {
     effect(() => this.save('geminiModel', this.geminiModel()));
     effect(() => this.save('agentModeEnabled', this.agentModeEnabled()));
     effect(() => this.save('agentSpeakReplies', this.agentSpeakReplies()));
+    effect(() => this.save('windowAnimations', this.windowAnimationsEnabled()));
   }
 
   setWallpaper(path: string): void {
@@ -85,6 +87,10 @@ export class Settings {
 
   toggleAgentSpeakReplies(): void {
     this.agentSpeakReplies.update((value) => !value);
+  }
+
+  toggleWindowAnimations(): void {
+    this.windowAnimationsEnabled.update((value) => !value);
   }
 
   private load<T>(key: string, defaultValue: T): T {

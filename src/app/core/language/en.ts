@@ -206,6 +206,8 @@ export const en = {
       iconSizeDesc: 'Adjust the dock and elements size',
       desktopItemsSize: 'Desktop items size',
       desktopItemsSizeDesc: 'Adjust the size of items on desktop',
+      windowAnimations: 'Window Animations',
+      windowAnimationsDesc: 'Smooth open, close, and minimize transitions',
     },
 
     sound: {

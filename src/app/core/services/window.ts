@@ -1,11 +1,12 @@
-import { Injectable, inject, signal, effect, untracked } from '@angular/core';
+import { DestroyRef, Injectable, inject, signal, effect, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { timer } from 'rxjs';
 import { Process } from '../models/process';
 import { Rect } from '../models/desktop';
 import { ProcessManager } from './process-manager';
 import { Settings } from './settings';
 import { DockService } from './dock';
 import { ScreenService } from './screen';
-
 export type { Rect };
 export const TOP_BAR_HEIGHT = 32;
 export const MOBILE_NAV_BAR_HEIGHT = 48;
@@ -13,11 +14,16 @@ const MIN_W = 320;
 const MIN_H = 240;
 const SNAP_EDGE = 32;
 
+const ANIM_DURATION_MS = 220;
+const GENIE_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
+const GENIE_TRANSITION = `transform ${ANIM_DURATION_MS}ms ${GENIE_EASING}, width ${ANIM_DURATION_MS}ms ${GENIE_EASING}, height ${ANIM_DURATION_MS}ms ${GENIE_EASING}, opacity ${ANIM_DURATION_MS}ms ${GENIE_EASING}`;
+
 @Injectable()
 export class WindowService {
   private readonly processManager = inject(ProcessManager);
   private readonly settings = inject(Settings);
   private readonly dock = inject(DockService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly screen = inject(ScreenService);
 
   private windowEl!: HTMLElement;
@@ -28,6 +34,8 @@ export class WindowService {
   readonly isDragging = signal<boolean>(false);
   readonly isResizing = signal<boolean>(false);
   readonly isVisible = signal<boolean>(false);
+  readonly isClosing = signal<boolean>(false);
+  readonly isAnimatingMinimize = signal<boolean>(false);
   readonly snapGhost = signal<Rect | null>(null);
 
   private rect: Rect = { x: 0, y: 0, width: 1000, height: 700 };
@@ -39,6 +47,35 @@ export class WindowService {
   private isBottomOverlapping = false;
 
   constructor() {
+    effect(() => {
+      const updated = this.processManager.processes().find((proc) => proc.id === this.process?.id);
+      if (!updated) return;
+      const wasMinimized = this.process?.isMinimized ?? false;
+      this.process = updated;
+
+      if (this.screen.isMobile()) {
+        if (wasMinimized && !updated.isMinimized && this.windowEl) {
+          this.applyStyles();
+          this.windowEl.style.opacity = '1';
+        }
+        return;
+      }
+
+      if (!this.windowEl || !this.settings.windowAnimationsEnabled()) return;
+
+      if (wasMinimized && !updated.isMinimized) {
+        this.animateFromIcon();
+      } else if (!wasMinimized && updated.isMinimized && !this.isAnimatingMinimize()) {
+        this.isAnimatingMinimize.set(true);
+        this.animateToIcon();
+        timer(ANIM_DURATION_MS)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.isAnimatingMinimize.set(false);
+          });
+      }
+    });
+
     effect(() => {
       const isMobile = this.screen.isMobile();
       if (!this.windowEl) return;
@@ -80,18 +117,26 @@ export class WindowService {
       this.isMaximized.set(true);
       this.normalRect = { ...this.rect };
       this.applyStyles();
-    } else {
-      this.centerWindow();
-      this.normalRect = { ...this.rect };
+      this.isVisible.set(true);
+      return;
+    }
+
+    this.centerWindow();
+    this.normalRect = { ...this.rect };
+
+    if (!this.settings.windowAnimationsEnabled()) {
       this.applyStyles();
+      this.isVisible.set(true);
+      return;
     }
 
     this.isVisible.set(true);
+    this.animateFromIcon();
   }
 
   startDrag(event: MouseEvent): void {
     this.assertInitialized();
-    if (this.screen.isMobile() || event.button !== 0 || this.isResizing()) return;
+    if (this.screen.isMobile() || event.button !== 0 || this.isResizing() || this.isDragging()) return;
 
     this.processManager.focus(this.process.id);
     const parent = this.windowEl.offsetParent as HTMLElement;
@@ -218,6 +263,7 @@ export class WindowService {
   }
 
   close(): void {
+    if (this.isClosing()) return;
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
@@ -225,14 +271,70 @@ export class WindowService {
     if (this.isBottomOverlapping) {
       this.processManager.updateBottomOverlap(false);
     }
-    this.processManager.close(this.process.id);
+    if (!this.settings.windowAnimationsEnabled() || this.screen.isMobile()) {
+      this.processManager.close(this.process.id);
+      return;
+    }
+    this.isClosing.set(true);
+    this.animateToIcon();
+    timer(ANIM_DURATION_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.processManager.close(this.process.id));
   }
 
   minimize(): void {
+    if (this.isAnimatingMinimize()) return;
     if (this.isBottomOverlapping) {
       this.processManager.updateBottomOverlap(false);
     }
     this.processManager.toggleMinimize(this.process.id);
+  }
+
+  private resolveIconRect(): DOMRect | null {
+    if (this.screen.isMobile()) {
+      const btn = document.querySelector<HTMLElement>('[data-nav-overview]');
+      return btn ? btn.getBoundingClientRect() : null;
+    }
+    const btn = document.querySelector<HTMLElement>(
+      `[data-dock-id="${this.process.appId}"]`,
+    );
+    return btn ? btn.getBoundingClientRect() : null;
+  }
+
+  private animateToIcon(): void {
+    const iconRect = this.resolveIconRect();
+    const targetX = iconRect ? iconRect.left + iconRect.width / 2 : window.innerWidth / 2;
+    const targetY = iconRect ? iconRect.top + iconRect.height / 2 : window.innerHeight;
+    this.windowEl.style.transition = GENIE_TRANSITION;
+    this.windowEl.style.transformOrigin = 'center center';
+    this.windowEl.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
+    this.windowEl.style.width = '0px';
+    this.windowEl.style.height = '0px';
+    this.windowEl.style.opacity = '0';
+  }
+
+  private animateFromIcon(): void {
+    const iconRect = this.resolveIconRect();
+    const startX = iconRect ? iconRect.left + iconRect.width / 2 : window.innerWidth / 2;
+    const startY = iconRect ? iconRect.top + iconRect.height / 2 : window.innerHeight;
+    this.windowEl.style.transition = 'none';
+    this.windowEl.style.transform = `translate3d(${startX}px, ${startY}px, 0)`;
+    this.windowEl.style.width = '0px';
+    this.windowEl.style.height = '0px';
+    this.windowEl.style.opacity = '0';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.windowEl.style.transition = GENIE_TRANSITION;
+        this.applyStyles();
+        this.windowEl.style.opacity = '1';
+        timer(ANIM_DURATION_MS)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.windowEl.style.transition = '';
+            this.windowEl.style.opacity = '';
+          });
+      });
+    });
   }
 
   focus(): void {

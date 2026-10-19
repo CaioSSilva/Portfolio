@@ -1,6 +1,10 @@
 @if (nav.isOverviewOpen()) {
   <div
-    class="fixed inset-0 z-[9600] bg-black/60 backdrop-blur-2xl flex flex-col justify-between py-18 animate-in fade-in duration-200 select-none"
+    class="fixed inset-0 z-[9600] bg-black/75 backdrop-blur-md flex flex-col justify-between py-18 select-none transition-opacity duration-200 ease-out"
+    [class.animate-in]="settings.windowAnimationsEnabled()"
+    [class.fade-in]="settings.windowAnimationsEnabled()"
+    [class.opacity-0]="isClosing() && settings.windowAnimationsEnabled()"
+    [class.pointer-events-none]="isClosing()"
     (click)="onBackdropClick()"
     (touchstart)="onBackdropTouchStart($event)"
     (touchend)="onBackdropTouchEnd($event)"
@@ -40,13 +44,19 @@
             [style.transform]="getCardTransform(proc.id)"
             [style.opacity]="getCardOpacity(proc.id)"
             [style.transition]="
-              isDismissing(proc.id)
-                ? 'transform 300ms cubic-bezier(0.25,0.46,0.45,0.94), opacity 300ms ease'
-                : swipeOffsets()[proc.id]
-                  ? 'none'
-                  : 'transform 200ms ease, opacity 200ms ease'
+              !settings.windowAnimationsEnabled()
+                ? 'none'
+                : isDismissing(proc.id)
+                  ? 'transform 300ms cubic-bezier(0.25,0.46,0.45,0.94), opacity 300ms ease'
+                  : isClosing() && focusingId() === proc.id
+                    ? 'transform 200ms cubic-bezier(0.2, 0.9, 0.3, 1), opacity 200ms ease'
+                    : isClosing()
+                      ? 'opacity 180ms ease, transform 180ms ease'
+                      : swipeOffsets()[proc.id]
+                        ? 'none'
+                        : 'transform 200ms ease, opacity 200ms ease'
             "
-            class="snap-center shrink-0 w-[65vw] max-w-[320px] h-[45vh] max-h-[460px] bg-gnome-surface border border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col cursor-pointer group relative touch-manipulation will-change-transform"
+            class="snap-center shrink-0 w-[65vw] max-w-[320px] h-[45vh] max-h-[460px] bg-gnome-surface border border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col cursor-pointer group relative touch-manipulation will-change-transform active:scale-[0.98]"
           >
             <div
               class="h-12 bg-gnome-header px-4 flex items-center justify-between border-b border-gnome-border/40 shrink-0"

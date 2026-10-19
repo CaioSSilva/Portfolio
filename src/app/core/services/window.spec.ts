@@ -56,9 +56,19 @@ describe('WindowService', () => {
   });
 
   it('should initialize window element and process in desktop mode', () => {
+    settings.windowAnimationsEnabled.set(false);
     service.init(el, proc);
     expect(service.isMaximized()).toBe(false);
     expect(service.isVisible()).toBe(true);
+  });
+
+  it('should play genie animation on init when animations enabled', () => {
+    vi.useFakeTimers();
+    service.init(el, proc);
+    expect(service.isVisible()).toBe(true);
+    expect(el.style.opacity).toBe('0');
+    vi.advanceTimersByTime(220);
+    vi.useRealTimers();
   });
 
   it('should initialize window element as maximized in mobile mode', () => {
@@ -117,24 +127,106 @@ describe('WindowService', () => {
     document.dispatchEvent(new MouseEvent('mouseup'));
   });
 
-  it('should close process via close()', () => {
+  it('should close process via close() with genie animation', () => {
+    vi.useFakeTimers();
     processManager.open(proc);
     const pid = processManager.processes()[0].id;
     const closeProc = makeProcess({ id: pid, appId: proc.appId });
     service.init(el, closeProc);
 
     service.close();
+    expect(service.isClosing()).toBe(true);
+    expect(el.style.opacity).toBe('0');
+    expect(el.style.width).toBe('0px');
+    vi.advanceTimersByTime(220);
     expect(processManager.processes().length).toBe(0);
+    vi.useRealTimers();
+  });
+
+  it('should not close process before animation completes', () => {
+    vi.useFakeTimers();
+    processManager.open(proc);
+    const pid = processManager.processes()[0].id;
+    const closeProc = makeProcess({ id: pid, appId: proc.appId });
+    service.init(el, closeProc);
+
+    service.close();
+    expect(processManager.processes().length).toBe(1);
+    vi.advanceTimersByTime(220);
+    vi.useRealTimers();
+  });
+
+  it('should guard against double close()', () => {
+    vi.useFakeTimers();
+    processManager.open(proc);
+    const pid = processManager.processes()[0].id;
+    const closeProc = makeProcess({ id: pid, appId: proc.appId });
+    service.init(el, closeProc);
+
+    service.close();
+    service.close();
+    vi.advanceTimersByTime(220);
+    expect(processManager.processes().length).toBe(0);
+    vi.useRealTimers();
   });
 
   it('should minimize process via minimize()', () => {
+    vi.useFakeTimers();
     processManager.open(proc);
     const pid = processManager.processes()[0].id;
     const process = makeProcess({ id: pid });
     service.init(el, process);
+    TestBed.flushEffects();
+    vi.advanceTimersByTime(220);
 
     service.minimize();
+    TestBed.flushEffects();
     expect(processManager.processes()[0].isMinimized).toBe(true);
+    expect(service.isAnimatingMinimize()).toBe(true);
+    vi.advanceTimersByTime(220);
+    expect(service.isAnimatingMinimize()).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it('should apply genie transition styles when minimizing', () => {
+    vi.useFakeTimers();
+    processManager.open(proc);
+    const pid = processManager.processes()[0].id;
+    const process = makeProcess({ id: pid });
+    service.init(el, process);
+    TestBed.flushEffects();
+    vi.advanceTimersByTime(220);
+
+    service.minimize();
+    TestBed.flushEffects();
+    expect(el.style.opacity).toBe('0');
+    expect(el.style.width).toBe('0px');
+    expect(el.style.height).toBe('0px');
+    vi.advanceTimersByTime(220);
+    vi.useRealTimers();
+  });
+
+  it('should minimize and restore from icon via external toggleMinimize (effect path)', () => {
+    vi.useFakeTimers();
+    processManager.open(proc);
+    const pid = processManager.processes()[0].id;
+    const process = makeProcess({ id: pid });
+    service.init(el, process);
+    TestBed.flushEffects();
+
+    processManager.toggleMinimize(pid);
+    TestBed.flushEffects();
+    expect(processManager.processes()[0].isMinimized).toBe(true);
+    expect(service.isAnimatingMinimize()).toBe(true);
+    vi.advanceTimersByTime(220);
+    expect(service.isAnimatingMinimize()).toBe(false);
+
+    processManager.toggleMinimize(pid);
+    TestBed.flushEffects();
+    expect(processManager.processes()[0].isMinimized).toBe(false);
+    expect(el.style.opacity).toBe('0');
+    vi.advanceTimersByTime(220);
+    vi.useRealTimers();
   });
 
   it('should focus process via focus()', () => {

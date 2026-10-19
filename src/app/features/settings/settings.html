@@ -222,10 +222,10 @@
           {{ lang.t().settings.desktop.title }}
         </h2>
         <div class="space-y-6">
-          <div
-            class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border"
-          >
-            @if (!screen.isMobile()) {
+          @if (!screen.isMobile()) {
+            <div
+              class="bg-gnome-surface rounded-xl border border-gnome-border divide-y divide-gnome-border"
+            >
               <div class="p-4 flex items-center justify-between">
                 <div>
                   <div class="font-medium">{{ lang.t().settings.desktop.autoHideDock }}</div>
@@ -271,8 +271,34 @@
                   >
                 </div>
               </div>
-            }
+            </div>
+          }
 
+          <div class="bg-gnome-surface rounded-xl border border-gnome-border">
+            <div class="p-4 flex items-center justify-between">
+              <div class="min-w-0">
+                <div class="font-medium">{{ lang.t().settings.desktop.windowAnimations }}</div>
+                <div class="text-sm text-gnome-text-secondary">
+                  {{ lang.t().settings.desktop.windowAnimationsDesc }}
+                </div>
+              </div>
+              <button
+                (click)="settings.toggleWindowAnimations()"
+                [attr.aria-label]="lang.t().settings.desktop.windowAnimations"
+                class="w-12 h-6 rounded-full relative transition-colors duration-200 p-1 cursor-pointer shrink-0 ml-4"
+                [class.bg-gnome-blue]="settings.windowAnimationsEnabled()"
+                [class.bg-zinc-400]="!settings.windowAnimationsEnabled()"
+              >
+                <div
+                  class="w-4 h-4 bg-white rounded-full transition-transform duration-200 shadow-sm"
+                  [class.translate-x-6]="settings.windowAnimationsEnabled()"
+                  [class.translate-x-0]="!settings.windowAnimationsEnabled()"
+                ></div>
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-gnome-surface rounded-xl border border-gnome-border">
             <div class="p-4 flex items-center justify-between gap-4">
               <div class="min-w-0">
                 <div class="font-medium">{{ lang.t().settings.desktop.desktopItemsSize }}</div>
