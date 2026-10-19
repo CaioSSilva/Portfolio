@@ -18,6 +18,12 @@ describe('ContextMenuService', () => {
     expect(service.isOpen()).toBe(true);
     expect(service.position()).toEqual({ x: 100, y: 200 });
     expect(service.activeAppId()).toBe('files');
+    expect(service.origin()).toBe('other');
+  });
+
+  it('should remember when a context menu was opened from the dock', () => {
+    service.openApp(100, 200, 'files', 'dock');
+    expect(service.origin()).toBe('dock');
   });
 
   it('should close context menu and reset activeAppId', () => {
@@ -25,6 +31,7 @@ describe('ContextMenuService', () => {
     service.close();
     expect(service.isOpen()).toBe(false);
     expect(service.activeAppId()).toBeNull();
+    expect(service.origin()).toBeNull();
   });
 
   it('should start with activeItem as null', () => {

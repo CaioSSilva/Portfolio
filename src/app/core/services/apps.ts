@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { AppDefinition } from '../models/dock';
 import { debounceTime, map, Subscription, take, timer } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { ContextMenuService } from './context-menu';
+import { ContextMenuOrigin, ContextMenuService } from './context-menu';
 import { AppRegistry } from './app-registry';
 import { AppLauncher } from './app-launcher';
 
@@ -20,6 +20,7 @@ export class Apps {
   private touchStartX = 0;
   private touchStartY = 0;
   private didSwitchAppOnTouch = false;
+  private touchContextMenuOrigin: ContextMenuOrigin = 'other';
 
   readonly appsRegistry = computed(() => this.appRegistry.registry());
   readonly appsDefinition = computed(() => this.appRegistry.definitions());
@@ -54,24 +55,37 @@ export class Apps {
     this.resetSearch();
   }
 
-  onRightClickApp(event: MouseEvent, appId: string): void {
+  onRightClickApp(event: MouseEvent, appId: string, origin: ContextMenuOrigin = 'other'): void {
     event.preventDefault();
     event.stopPropagation();
-    this.openContextMenuAt(event.clientX, event.clientY, appId);
+    this.openContextMenuAt(event.clientX, event.clientY, appId, origin);
   }
 
   onContextMenuBackdrop(event: MouseEvent): void {
     event.preventDefault();
-    const appId = this.getAppIdAtPosition(event.clientX, event.clientY);
-    if (appId) this.openContextMenuAt(event.clientX, event.clientY, appId);
+    const appElement = this.getAppElementAtPosition(event.clientX, event.clientY);
+    const appId = appElement?.dataset['contextMenuAppId'];
+    if (appId) {
+      this.openContextMenuAt(
+        event.clientX,
+        event.clientY,
+        appId,
+        appElement.hasAttribute('data-dock-id') ? 'dock' : 'other',
+      );
+    }
   }
 
   getAppIdAtPosition(x: number, y: number): string | null {
-    const appElement = document
+    return this.getAppElementAtPosition(x, y)?.dataset['contextMenuAppId'] ?? null;
+  }
+
+  private getAppElementAtPosition(x: number, y: number): HTMLElement | null {
+    return (
+      document
       .elementsFromPoint(x, y)
       .map((element) => element.closest<HTMLElement>('[data-context-menu-app-id]'))
-      .find((element) => element !== null);
-    return appElement?.dataset['contextMenuAppId'] ?? null;
+      .find((element) => element !== null) ?? null
+    );
   }
 
   onContextMenuBackdropTouchStart(event: TouchEvent): void {
@@ -80,7 +94,9 @@ export class Apps {
     const touch = event.touches[0];
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
-    this.touchAppId = this.getAppIdAtPosition(touch.clientX, touch.clientY);
+    const appElement = this.getAppElementAtPosition(touch.clientX, touch.clientY);
+    this.touchAppId = appElement?.dataset['contextMenuAppId'] ?? null;
+    this.touchContextMenuOrigin = appElement?.hasAttribute('data-dock-id') ? 'dock' : 'other';
     this.didSwitchAppOnTouch = false;
 
     if (!this.touchAppId) {
@@ -109,14 +125,24 @@ export class Apps {
     this.touchAppId = null;
   }
 
-  openContextMenuAt(x: number, y: number, appId: string): void {
-    this.contextMenu.openApp(x, y, appId);
+  openContextMenuAt(
+    x: number,
+    y: number,
+    appId: string,
+    origin: ContextMenuOrigin = 'other',
+  ): void {
+    this.contextMenu.openApp(x, y, appId, origin);
   }
 
   private openTouchedAppContextMenu(): void {
     if (!this.touchAppId) return;
     this.didSwitchAppOnTouch = true;
-    this.openContextMenuAt(this.touchStartX, this.touchStartY, this.touchAppId);
+    this.openContextMenuAt(
+      this.touchStartX,
+      this.touchStartY,
+      this.touchAppId,
+      this.touchContextMenuOrigin,
+    );
   }
 
   private cancelBackdropTouch(): void {

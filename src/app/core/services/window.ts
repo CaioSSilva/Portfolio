@@ -40,18 +40,30 @@ export class WindowService {
 
   private rect: Rect = { x: 0, y: 0, width: 1000, height: 700 };
   private normalRect: Rect = { x: 0, y: 0, width: 1000, height: 700 };
+  private snapRectBeforeMaximize: Rect | null = null;
 
   private mouseOffset = { x: 0, y: 0 };
   private rafId: number | null = null;
   private lastSnapGhost: Rect | null = null;
   private isBottomOverlapping = false;
+  private wasMobile = false;
 
   constructor() {
     effect(() => {
       const updated = this.processManager.processes().find((proc) => proc.id === this.process?.id);
-      if (!updated) return;
+      if (!updated) {
+        this.setBottomOverlap(false);
+        return;
+      }
       const wasMinimized = this.process?.isMinimized ?? false;
       this.process = updated;
+
+      if (updated.isMinimized) {
+        this.setBottomOverlap(false);
+      } else if (wasMinimized) {
+        if (!this.screen.isMobile()) this.constrainAndPositionWindow();
+        this.checkBottomOverlap();
+      }
 
       if (this.screen.isMobile()) {
         if (wasMinimized && !updated.isMinimized && this.windowEl) {
@@ -78,8 +90,13 @@ export class WindowService {
 
     effect(() => {
       const isMobile = this.screen.isMobile();
-      if (!this.windowEl) return;
+      const viewportWidth = this.screen.width();
+      const viewportHeight = this.screen.height();
+      const process = this.processManager.processes().find((item) => item.id === this.process?.id);
+      if (!this.windowEl || !process || process.isMinimized) return;
 
+      const wasMobile = this.wasMobile;
+      this.wasMobile = isMobile;
       const maximized = untracked(() => this.isMaximized());
       if (isMobile) {
         if (!maximized) {
@@ -89,14 +106,18 @@ export class WindowService {
           this.checkBottomOverlap();
         }
       } else {
-        if (maximized && !this.process?.isMaximized) {
+        if (wasMobile && maximized && !process.isMaximized) {
           this.isMaximized.set(false);
           this.rect = { ...this.normalRect };
           this.constrainAndPositionWindow();
           this.applyStyles();
           this.checkBottomOverlap();
         } else if (!maximized) {
-          this.constrainAndPositionWindow();
+          this.constrainAndPositionWindow(viewportWidth, viewportHeight);
+          if (!untracked(() => this.isSnapped())) this.normalRect = { ...this.rect };
+          this.applyStyles();
+          this.checkBottomOverlap();
+        } else {
           this.applyStyles();
           this.checkBottomOverlap();
         }
@@ -112,6 +133,7 @@ export class WindowService {
   init(element: HTMLElement, process: Process): void {
     this.windowEl = element;
     this.process = process;
+    this.wasMobile = this.screen.isMobile();
 
     if (this.screen.isMobile()) {
       this.isMaximized.set(true);
@@ -123,6 +145,7 @@ export class WindowService {
 
     this.centerWindow();
     this.normalRect = { ...this.rect };
+    this.checkBottomOverlap();
 
     if (!this.settings.windowAnimationsEnabled()) {
       this.applyStyles();
@@ -201,7 +224,13 @@ export class WindowService {
 
   startResize(event: MouseEvent): void {
     this.assertInitialized();
-    if (this.screen.isMobile() || this.isMaximized() || event.button !== 0) return;
+    if (
+      this.screen.isMobile() ||
+      this.isMaximized() ||
+      this.isSnapped() ||
+      event.button !== 0
+    )
+      return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -220,10 +249,19 @@ export class WindowService {
   private onResizeMove(e: MouseEvent, startX: number, startY: number, startRect: Rect): void {
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
     this.rafId = requestAnimationFrame(() => {
-      this.rect.width = Math.max(MIN_W, startRect.width + (e.clientX - startX));
-      this.rect.height = Math.max(MIN_H, startRect.height + (e.clientY - startY));
+      const maxWidth = Math.max(1, window.innerWidth - this.rect.x);
+      const maxHeight = Math.max(1, window.innerHeight - this.rect.y);
+      this.rect.width = Math.min(
+        Math.max(MIN_W, startRect.width + (e.clientX - startX)),
+        maxWidth,
+      );
+      this.rect.height = Math.min(
+        Math.max(MIN_H, startRect.height + (e.clientY - startY)),
+        maxHeight,
+      );
       this.windowEl.style.width = `${this.rect.width}px`;
       this.windowEl.style.height = `${this.rect.height}px`;
+      this.checkBottomOverlap();
       this.rafId = null;
     });
   }
@@ -237,6 +275,7 @@ export class WindowService {
     document.removeEventListener('mouseup', onStop);
     this.isResizing.set(false);
     this.normalRect = { ...this.rect };
+    this.checkBottomOverlap();
   }
 
   toggleMaximize(): void {
@@ -245,6 +284,7 @@ export class WindowService {
     if (this.isMaximized()) {
       this.unmaximize();
     } else {
+      this.snapRectBeforeMaximize = this.isSnapped() ? { ...this.rect } : null;
       if (!this.isSnapped()) this.normalRect = { ...this.rect };
       this.isMaximized.set(true);
       this.isSnapped.set(false);
@@ -254,13 +294,13 @@ export class WindowService {
   }
 
   private unmaximize(): void {
-    this.rect = { ...this.normalRect };
-    if (this.rect.height >= window.innerHeight - TOP_BAR_HEIGHT) {
-      this.rect.width = 1000;
-      this.rect.height = 700;
-    }
+    const restoreSnap = this.snapRectBeforeMaximize;
+    this.rect = { ...(restoreSnap ?? this.normalRect) };
+    this.snapRectBeforeMaximize = null;
     this.isMaximized.set(false);
-    this.isSnapped.set(false);
+    this.isSnapped.set(restoreSnap !== null);
+    this.constrainAndPositionWindow();
+    if (!restoreSnap) this.normalRect = { ...this.rect };
   }
 
   close(): void {
@@ -269,9 +309,7 @@ export class WindowService {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
-    if (this.isBottomOverlapping) {
-      this.processManager.updateBottomOverlap(false);
-    }
+    this.setBottomOverlap(false);
     if (!this.settings.windowAnimationsEnabled() || this.screen.isMobile()) {
       this.processManager.close(this.process.id);
       return;
@@ -285,9 +323,7 @@ export class WindowService {
 
   minimize(): void {
     if (this.isAnimatingMinimize()) return;
-    if (this.isBottomOverlapping) {
-      this.processManager.updateBottomOverlap(false);
-    }
+    this.setBottomOverlap(false);
     this.processManager.toggleMinimize(this.process.id);
   }
 
@@ -357,6 +393,7 @@ export class WindowService {
       return;
     }
 
+    this.snapRectBeforeMaximize = null;
     const isFullMax = this.isFullMaximizeSnap(ghost);
     if (!this.isMaximized() && !this.isSnapped() && !isFullMax) this.normalRect = { ...this.rect };
 
@@ -436,12 +473,23 @@ export class WindowService {
   private checkBottomOverlap(): void {
     const bottomEdge = this.rect.y + this.rect.height;
     const threshold = this.settings.dockSize();
-    const isOverBottom = this.isMaximized() || bottomEdge > window.innerHeight - (threshold + 32);
+    const dockArea = document.querySelector<HTMLElement>('[data-dock-area]');
+    const dockRect = dockArea?.getBoundingClientRect();
+    const overlapsDockHorizontally =
+      dockRect !== undefined &&
+      this.rect.x < dockRect.right &&
+      this.rect.x + this.rect.width > dockRect.left;
+    const isOverBottom =
+      this.isMaximized() ||
+      (overlapsDockHorizontally && bottomEdge > window.innerHeight - (threshold + 32));
 
-    if (this.isBottomOverlapping !== isOverBottom) {
-      this.isBottomOverlapping = isOverBottom;
-      this.processManager.updateBottomOverlap(isOverBottom);
-    }
+    this.setBottomOverlap(isOverBottom);
+  }
+
+  private setBottomOverlap(isOverlapping: boolean): void {
+    if (this.isBottomOverlapping === isOverlapping) return;
+    this.isBottomOverlapping = isOverlapping;
+    this.processManager.updateBottomOverlap(isOverlapping);
   }
 
   private prepareDragState(event: MouseEvent): void {
@@ -463,6 +511,9 @@ export class WindowService {
   ): void {
     const ratio = offsetX / rect.width;
     this.rect = { ...this.normalRect };
+    this.constrainAndPositionWindow();
+    this.normalRect = { ...this.rect };
+    this.snapRectBeforeMaximize = null;
     this.rect.x = event.clientX - this.rect.width * ratio;
     this.rect.y = Math.max(TOP_BAR_HEIGHT, event.clientY - offsetY);
     this.isMaximized.set(false);
@@ -472,22 +523,14 @@ export class WindowService {
     this.mouseOffset = { x: event.clientX - newRect.left, y: event.clientY - newRect.top };
   }
 
-  private constrainAndPositionWindow(): void {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+  private constrainAndPositionWindow(
+    vw = window.innerWidth,
+    vh = window.innerHeight,
+  ): void {
     this.clampRectToViewport(vw, vh);
 
-    const maxX = Math.max(0, vw - this.rect.width);
-    const maxY = Math.max(TOP_BAR_HEIGHT, vh - this.rect.height);
-
-    if (
-      this.rect.x < 0 ||
-      this.rect.x > maxX ||
-      this.rect.y < TOP_BAR_HEIGHT ||
-      this.rect.y > maxY
-    ) {
-      this.centerWindow();
-    }
+    this.rect.x = Math.min(Math.max(0, this.rect.x), vw - this.rect.width);
+    this.rect.y = Math.min(Math.max(TOP_BAR_HEIGHT, this.rect.y), vh - this.rect.height);
   }
 
   private centerWindow(): void {
@@ -503,8 +546,8 @@ export class WindowService {
   }
 
   private clampRectToViewport(vw: number, vh: number): void {
-    this.rect.width = Math.min(this.rect.width, Math.max(MIN_W, vw - 40));
-    this.rect.height = Math.min(this.rect.height, Math.max(MIN_H, vh - TOP_BAR_HEIGHT - 60));
+    this.rect.width = Math.min(this.rect.width, Math.max(1, vw));
+    this.rect.height = Math.min(this.rect.height, Math.max(1, vh - TOP_BAR_HEIGHT));
   }
 
   private centerRectInViewport(vw: number, vh: number): void {

@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Subscription, take, timer } from 'rxjs';
 import { DockService } from '../../core/services/dock';
 import { Apps } from '../../core/services/apps';
@@ -17,12 +17,15 @@ import { DockItem } from '../../core/models/dock';
   styleUrl: './dock.scss',
 })
 export class Dock {
-  private readonly contextMenu = inject(ContextMenuService);
+  readonly contextMenu = inject(ContextMenuService);
   private readonly lang = inject(LanguageService);
   readonly dock = inject(DockService);
   readonly apps = inject(Apps);
   readonly processManager = inject(ProcessManager);
   readonly settings = inject(Settings);
+  readonly isDockContextMenuOpen = computed(
+    () => this.contextMenu.isOpen() && this.contextMenu.origin() === 'dock',
+  );
 
   readonly itemNewPinPos = signal<number | null>(null);
 
@@ -44,7 +47,9 @@ export class Dock {
 
     this.longPressTimer = timer(500)
       .pipe(take(1))
-      .subscribe(() => this.apps.openContextMenuAt(this.touchStartX, this.touchStartY, appId));
+      .subscribe(() =>
+        this.apps.openContextMenuAt(this.touchStartX, this.touchStartY, appId, 'dock'),
+      );
   }
 
   onItemTouchMove(event: TouchEvent): void {

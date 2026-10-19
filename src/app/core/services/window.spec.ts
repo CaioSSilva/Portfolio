@@ -41,6 +41,8 @@ describe('WindowService', () => {
     settings = TestBed.inject(Settings);
 
     screenService.width.set(1280);
+    screenService.height.set(window.innerHeight);
+    settings.windowAnimationsEnabled.set(true);
 
     el = document.createElement('div');
     document.body.appendChild(el);
@@ -49,6 +51,7 @@ describe('WindowService', () => {
 
   afterEach(() => {
     document.body.removeChild(el);
+    document.querySelector('[data-dock-area]')?.remove();
   });
 
   it('should be created', () => {
@@ -102,6 +105,79 @@ describe('WindowService', () => {
     expect(el.style.width).toContain('px');
   });
 
+  it('should restore the previous partial snap after maximizing', () => {
+    settings.windowAnimationsEnabled.set(false);
+    service.init(el, proc);
+    const snappedRect = {
+      x: 0,
+      y: TOP_BAR_HEIGHT,
+      width: window.innerWidth / 2,
+      height: (window.innerHeight - TOP_BAR_HEIGHT) / 2,
+    };
+    service.snapGhost.set(snappedRect);
+    service['applySnap']();
+    expect(service.isSnapped()).toBe(true);
+
+    service.toggleMaximize();
+    expect(service.isMaximized()).toBe(true);
+    service.toggleMaximize();
+
+    expect(service.isMaximized()).toBe(false);
+    expect(service.isSnapped()).toBe(true);
+    expect(el.style.transform).toBe(`translate3d(${snappedRect.x}px, ${snappedRect.y}px, 0)`);
+    expect(el.style.width).toBe(`${snappedRect.width}px`);
+    expect(el.style.height).toBe(`${snappedRect.height}px`);
+  });
+
+  it('should fit a maximized window to a smaller viewport when restored', () => {
+    settings.windowAnimationsEnabled.set(false);
+    service.init(el, proc);
+    service.toggleMaximize();
+
+    const originalWidth = window.innerWidth;
+    const originalHeight = window.innerHeight;
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 800 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 400 });
+
+    try {
+      service.toggleMaximize();
+      const [, x, y] = el.style.transform.match(/translate3d\((\d+)px, (\d+)px, 0\)/) ?? [];
+      expect(Number(x) + Number.parseFloat(el.style.width)).toBeLessThanOrEqual(800);
+      expect(Number(y) + Number.parseFloat(el.style.height)).toBeLessThanOrEqual(400);
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalWidth });
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: originalHeight });
+    }
+  });
+
+  it('should constrain a normal window when the viewport shrinks', () => {
+    settings.windowAnimationsEnabled.set(false);
+    processManager.open(proc);
+    service.init(el, processManager.processes()[0]);
+
+    screenService.width.set(800);
+    screenService.height.set(400);
+    TestBed.flushEffects();
+
+    const [, x, y] = el.style.transform.match(/translate3d\((\d+)px, (\d+)px, 0\)/) ?? [];
+    expect(Number(x) + Number.parseFloat(el.style.width)).toBeLessThanOrEqual(800);
+    expect(Number(y) + Number.parseFloat(el.style.height)).toBeLessThanOrEqual(400);
+  });
+
+  it('should stay maximized when the desktop viewport changes size', () => {
+    settings.windowAnimationsEnabled.set(false);
+    processManager.open(proc);
+    service.init(el, processManager.processes()[0]);
+    service.toggleMaximize();
+
+    screenService.width.set(1100);
+    screenService.height.set(700);
+    TestBed.flushEffects();
+
+    expect(service.isMaximized()).toBe(true);
+    expect(el.style.width).toBe('100vw');
+  });
+
   it('should not start resize when already maximized', () => {
     service.init(el, proc);
     service.toggleMaximize();
@@ -125,6 +201,34 @@ describe('WindowService', () => {
     service.startResize(event);
     expect(service.isResizing()).toBe(true);
     document.dispatchEvent(new MouseEvent('mouseup'));
+  });
+
+  it('should keep a resized window within the viewport', () => {
+    settings.windowAnimationsEnabled.set(false);
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      callback(0);
+      return 0;
+    });
+
+    try {
+      service.init(el, proc);
+      service.startResize(new MouseEvent('mousedown', { button: 0, clientX: 500, clientY: 500 }));
+      document.dispatchEvent(
+        new MouseEvent('mousemove', {
+          clientX: window.innerWidth + 1000,
+          clientY: window.innerHeight + 1000,
+        }),
+      );
+      document.dispatchEvent(new MouseEvent('mouseup'));
+
+      const [, x, y] = el.style.transform.match(/translate3d\((\d+)px, (\d+)px, 0\)/) ?? [];
+      expect(Number(x) + Number.parseFloat(el.style.width)).toBeLessThanOrEqual(window.innerWidth);
+      expect(Number(y) + Number.parseFloat(el.style.height)).toBeLessThanOrEqual(
+        window.innerHeight,
+      );
+    } finally {
+      rafSpy.mockRestore();
+    }
   });
 
   it('should close process via close() with genie animation', () => {
@@ -251,6 +355,76 @@ describe('WindowService', () => {
     expect(processManager.isDockHidden()).toBe(false);
     service.toggleMaximize();
     expect(processManager.isDockHidden()).toBe(true);
+  });
+
+  it('should clear dock overlap when a window is minimized externally', () => {
+    processManager.open(proc);
+    const process = processManager.processes()[0];
+    service.init(el, process);
+
+    service.toggleMaximize();
+    expect(processManager.isDockHidden()).toBe(true);
+
+    processManager.toggleMinimize(process.id);
+    TestBed.flushEffects();
+    expect(processManager.isDockHidden()).toBe(false);
+  });
+
+  it('should clear dock overlap when a process is removed externally', () => {
+    processManager.open(proc);
+    const process = processManager.processes()[0];
+    service.init(el, process);
+    service.toggleMaximize();
+    expect(processManager.isDockHidden()).toBe(true);
+
+    processManager.close(process.id);
+    TestBed.flushEffects();
+    expect(processManager.isDockHidden()).toBe(false);
+  });
+
+  it('should update dock overlap when resizing changes the window bottom edge', () => {
+    const dockArea = document.createElement('div');
+    dockArea.dataset['dockArea'] = '';
+    vi.spyOn(dockArea, 'getBoundingClientRect').mockReturnValue(
+      new DOMRect(0, window.innerHeight - 80, window.innerWidth, 80),
+    );
+    document.body.appendChild(dockArea);
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      callback(0);
+      return 0;
+    });
+    settings.windowAnimationsEnabled.set(false);
+
+    try {
+      service.init(el, proc);
+      expect(processManager.isDockHidden()).toBe(true);
+      service.startResize(new MouseEvent('mousedown', { button: 0, clientX: 500, clientY: 500 }));
+      document.dispatchEvent(new MouseEvent('mousemove', { clientX: 500, clientY: 100 }));
+      document.dispatchEvent(new MouseEvent('mouseup'));
+
+      expect(processManager.isDockHidden()).toBe(false);
+    } finally {
+      rafSpy.mockRestore();
+    }
+  });
+
+  it('should not hide the dock when a window reaches the bottom outside its horizontal area', () => {
+    const originalWidth = window.innerWidth;
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1800 });
+    const dockArea = document.createElement('div');
+    dockArea.dataset['dockArea'] = '';
+    vi.spyOn(dockArea, 'getBoundingClientRect').mockReturnValue(
+      new DOMRect(100, window.innerHeight - 80, 200, 80),
+    );
+    document.body.appendChild(dockArea);
+    settings.windowAnimationsEnabled.set(false);
+
+    try {
+      service.init(el, proc);
+      expect(processManager.isDockHidden()).toBe(false);
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalWidth });
+    }
   });
 
   it('should not allow drag when in mobile mode', () => {

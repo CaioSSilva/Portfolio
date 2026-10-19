@@ -11,6 +11,9 @@ import { AppDefinition } from '../../core/models/dock';
 describe('Dock', () => {
   let component: Dock;
   let fixture: ComponentFixture<Dock>;
+  let isDockHidden: ReturnType<typeof signal<boolean>>;
+  let contextMenuIsOpen: ReturnType<typeof signal<boolean>>;
+  let contextMenuOrigin: ReturnType<typeof signal<'dock' | 'other' | null>>;
   let dockMock: Pick<
     DockService,
     | 'pinnedAppIds'
@@ -31,6 +34,7 @@ describe('Dock', () => {
     | 'appsDefinition'
     | 'appSearchResult'
     | 'searchQuery'
+    | 'openContextMenuAt'
     | 'toggleGrid'
     | 'onRightClickApp'
   > & { appsRegistry: ReturnType<typeof signal<Record<string, AppDefinition | undefined>>> };
@@ -56,6 +60,7 @@ describe('Dock', () => {
       appsDefinition: signal([]),
       appSearchResult: signal([]),
       searchQuery: signal(''),
+      openContextMenuAt: vi.fn(),
       toggleGrid: vi.fn(),
       onRightClickApp: vi.fn(),
     };
@@ -68,6 +73,9 @@ describe('Dock', () => {
       systemMuted: signal(false),
       autoHideDock: signal(true),
     };
+    isDockHidden = signal(true);
+    contextMenuIsOpen = signal(false);
+    contextMenuOrigin = signal<'dock' | 'other' | null>(null);
 
     await TestBed.configureTestingModule({
       imports: [Dock],
@@ -78,7 +86,7 @@ describe('Dock', () => {
           useValue: {
             processes: signal([]),
             isTopBarHidden: signal(false),
-            isDockHidden: signal(false),
+            isDockHidden,
             hasActiveProcesses: signal(false),
             focus: vi.fn(),
           },
@@ -87,10 +95,11 @@ describe('Dock', () => {
         {
           provide: ContextMenuService,
           useValue: {
-            isOpen: signal(false),
+            isOpen: contextMenuIsOpen,
             position: signal({ x: 0, y: 0 }),
             activeAppId: signal(null),
             activeItem: signal(null),
+            origin: contextMenuOrigin,
             close: vi.fn(),
             openApp: vi.fn(),
           },
@@ -106,6 +115,39 @@ describe('Dock', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('keeps the dock visible only for an open menu from the dock', () => {
+    fixture.detectChanges();
+    const dockElement = fixture.nativeElement.querySelector('[data-dock-area]') as HTMLElement;
+    expect(dockElement.classList.contains('translate-y-[150%]')).toBe(true);
+
+    contextMenuIsOpen.set(true);
+    contextMenuOrigin.set('other');
+    fixture.detectChanges();
+    expect(dockElement.classList.contains('translate-y-[150%]')).toBe(true);
+
+    contextMenuOrigin.set('dock');
+    fixture.detectChanges();
+    expect(dockElement.classList.contains('translate-y-[150%]')).toBe(false);
+
+    contextMenuIsOpen.set(false);
+    fixture.detectChanges();
+    expect(dockElement.classList.contains('translate-y-[150%]')).toBe(true);
+  });
+
+  it('marks a long-press context menu as originating from the dock', () => {
+    vi.useFakeTimers();
+    const event = new Event('touchstart');
+    Object.defineProperty(event, 'touches', {
+      value: [{ clientX: 140, clientY: 720 }],
+    });
+
+    component.onItemTouchStart(event as TouchEvent, 'files');
+    vi.advanceTimersByTime(500);
+
+    expect(appsMock.openContextMenuAt).toHaveBeenCalledWith(140, 720, 'files', 'dock');
+    vi.useRealTimers();
   });
 
   it('getAppLabel returns localized app name', () => {

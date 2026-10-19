@@ -94,7 +94,17 @@ describe('Apps', () => {
     };
 
     service.onRightClickApp(event as MouseEvent, app.id);
-    expect(contextMenuSpy.openApp).toHaveBeenCalledWith(120, 330, app.id);
+    expect(contextMenuSpy.openApp).toHaveBeenCalledWith(120, 330, app.id, 'other');
+  });
+
+  it('should mark a context menu opened from the dock', () => {
+    const event = new MouseEvent('contextmenu', { clientX: 120, clientY: 330 });
+    vi.spyOn(event, 'preventDefault');
+    vi.spyOn(event, 'stopPropagation');
+
+    service.onRightClickApp(event, 'files', 'dock');
+
+    expect(contextMenuSpy.openApp).toHaveBeenCalledWith(120, 330, 'files', 'dock');
   });
 
   it('should open the context menu for an app under the backdrop right-click', () => {
@@ -113,7 +123,7 @@ describe('Apps', () => {
       service.onContextMenuBackdrop(event);
 
       expect(event.preventDefault).toHaveBeenCalled();
-      expect(contextMenuSpy.openApp).toHaveBeenCalledWith(240, 180, 'terminal');
+      expect(contextMenuSpy.openApp).toHaveBeenCalledWith(240, 180, 'terminal', 'other');
     } finally {
       Reflect.deleteProperty(document, 'elementsFromPoint');
     }
@@ -140,7 +150,7 @@ describe('Apps', () => {
       expect(contextMenuSpy.openApp).not.toHaveBeenCalled();
 
       vi.advanceTimersByTime(500);
-      expect(contextMenuSpy.openApp).toHaveBeenCalledWith(120, 160, 'terminal');
+      expect(contextMenuSpy.openApp).toHaveBeenCalledWith(120, 160, 'terminal', 'other');
 
       service.onContextMenuBackdropTouchEnd();
       expect(contextMenuSpy.close).not.toHaveBeenCalled();
