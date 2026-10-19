@@ -66,6 +66,27 @@ describe('AboutProject', () => {
     expect(component.resumeName()).toBe('Resume');
   });
 
+  it('should choose the README matching the active language', () => {
+    component.lang.setLanguage('en');
+    expect(component.readmeName()).toBe('README.md');
+
+    component.lang.setLanguage('pt');
+    expect(component.readmeName()).toBe('README.pt-BR.md');
+  });
+
+  it('should download the README matching the active language', () => {
+    const fileSystem = TestBed.inject(FileSystem);
+    const fsSpy = vi.spyOn(fileSystem, 'downloadFile').mockImplementation(() => {});
+
+    component.lang.setLanguage('pt');
+    component.downloadReadme();
+
+    expect(fsSpy).toHaveBeenCalledWith(
+      '/data/root/home/documents/README.pt-BR.md',
+      'README.pt-BR.md',
+    );
+  });
+
   it('should downloadResume call fs.downloadFile with correct path and name', () => {
     const fileSystem = TestBed.inject(FileSystem);
     const fsSpy = vi

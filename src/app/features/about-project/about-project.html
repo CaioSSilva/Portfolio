@@ -100,12 +100,7 @@
       </div>
       <div>
         <div
-          (click)="
-            fileSystem.downloadFile(
-              `/data/root/home/documents/Cai_OS - ${lang.t().aboutProj.documentation}.md`,
-              `Cai_OS - ${lang.t().aboutProj.documentation}.md`
-            )
-          "
+          (click)="downloadReadme()"
           class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
         >
           <div
@@ -114,7 +109,7 @@
             <i class="fas fa-book"></i>
           </div>
           <h4 class="font-bold text-sm text-gnome-text">
-            Cai_OS - {{ lang.t().aboutProj.documentation }}.md
+            {{ readmeName() }}
           </h4>
         </div>
 

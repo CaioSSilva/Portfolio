@@ -41,6 +41,10 @@ export class AboutProject extends Base {
     return lang.currentLang() === 'en' ? 'Resume' : 'Currículo';
   });
 
+  readonly readmeName = computed(() =>
+    this.lang.currentLang() === 'en' ? 'README.md' : 'README.pt-BR.md',
+  );
+
   aboutApps(): AboutAppEntry[] {
     const installed = this.apps.appsRegistry();
     const aboutTexts = this.lang.t().aboutProj.apps;
@@ -54,6 +58,11 @@ export class AboutProject extends Base {
   downloadResume(): void {
     const path = `${window.document.baseURI}data/root/home/documents/${this.resumeName()}.pdf`;
     this.fileSystem.downloadFile(path, `Caio Souza Silva - ${this.resumeName()}.pdf`);
+  }
+
+  downloadReadme(): void {
+    const name = this.readmeName();
+    this.fileSystem.downloadFile(`/data/root/home/documents/${name}`, name);
   }
 
   private buildDisplayOrder(
