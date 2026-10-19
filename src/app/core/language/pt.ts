@@ -334,13 +334,19 @@ export const pt = {
   },
 
   browser: {
-    connectionFailed: 'Falha na conexão',
-    embedWarning: 'O site recusou a conexão porque não permite visualização incorporada.',
-    notExistsWarning: 'Ou talvez ele só não exista mesmo.',
+    connectionFailed: 'Não foi possível exibir a página',
+    invalidUrlTitle: 'Endereço inválido',
+    invalidUrlMessage: 'Confira o endereço informado. Use uma URL válida, como https://exemplo.com.',
+    loadTimeoutTitle: 'A página demorou para responder',
+    loadTimeoutMessage:
+      'Não foi possível confirmar o carregamento. Verifique o endereço e sua conexão; o site também pode bloquear a incorporação (X-Frame-Options/CSP).',
+    loadFailedMessage:
+      'O navegador não conseguiu carregar esta página. Ela pode estar indisponível ou bloquear a incorporação (X-Frame-Options/CSP).',
+    reportLoadFailure: 'A página não abriu?',
     tryToSearch: 'Experimente pesquisar por uma URL',
     urlDisclaimer: 'Algumas URLs não serão acessiveis por questão de privacidade',
     tryAgain: 'Tentar de novo',
-    openExternal: 'Abrir fora',
+    externalFallback: 'Abrir em nova aba',
     back: 'Voltar',
     refresh: 'Atualizar',
     placeholder: 'Escreva uma URL aqui! (Ex: wikipedia.com)',

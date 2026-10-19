@@ -332,13 +332,19 @@ export const en = {
   },
 
   browser: {
-    connectionFailed: 'Connection failed',
-    embedWarning: 'The site refused the connection because it does not allow embedded viewing.',
-    notExistsWarning: 'Or maybe it just does not exist at all.',
+    connectionFailed: 'Could not display the page',
+    invalidUrlTitle: 'Invalid address',
+    invalidUrlMessage: 'Check the address. Enter a valid URL, such as https://example.com.',
+    loadTimeoutTitle: 'The page took too long to respond',
+    loadTimeoutMessage:
+      'The page could not be confirmed as loaded. Check the address and your connection; the site may also block embedding (X-Frame-Options/CSP).',
+    loadFailedMessage:
+      'The browser could not load this page. It may be unavailable or block embedding (X-Frame-Options/CSP).',
+    reportLoadFailure: 'Did the page fail to open?',
     tryToSearch: 'Try search for a URL',
     urlDisclaimer: 'Some URLs will not open, for a privacy question',
     tryAgain: 'Try again',
-    openExternal: 'Open externally',
+    externalFallback: 'Open in new tab',
     back: 'Back',
     refresh: 'Refresh',
     placeholder: 'Write a URL here! (Like: wikipedia.com)',

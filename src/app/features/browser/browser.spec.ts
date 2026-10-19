@@ -37,10 +37,75 @@ describe('Browser', () => {
     expect(component.safeUrl()).not.toBeNull();
   });
 
+  it('should show the external fallback only on the error screen for the failed URL', () => {
+    component.displayUrl.set('https://example.com');
+    component.navigateToUrl();
+    component.displayUrl.set('https://not-submitted.example');
+    component.hasError.set(true);
+    fixture.detectChanges();
+
+    const toolbar = fixture.nativeElement.querySelector('.bg-gnome-header') as HTMLElement;
+    const errorLinks = fixture.nativeElement.querySelectorAll(
+      'a[rel="noopener noreferrer"]',
+    ) as NodeListOf<HTMLAnchorElement>;
+    expect(toolbar.querySelector('a')).toBeNull();
+    expect(errorLinks.length).toBe(1);
+    const link = errorLinks[0];
+    expect(link.href).toBe('https://example.com/');
+    expect(link.target).toBe('_blank');
+    expect(link.textContent).toContain(component.lang.t().browser.externalFallback);
+  });
+
   it('should prepend https when URL does not start with http', () => {
     component.displayUrl.set('example.com');
     component.navigateToUrl();
     expect(component.history()[0]).toBe('https://example.com');
+  });
+
+  it('should show a specific error for an invalid URL', () => {
+    component.displayUrl.set('https://');
+    component.navigateToUrl();
+    fixture.detectChanges();
+
+    expect(component.errorType()).toBe('invalidUrl');
+    expect(component.safeUrl()).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain(
+      component.lang.t().browser.invalidUrlTitle,
+    );
+    expect(fixture.nativeElement.querySelector('a[rel="noopener noreferrer"]')).toBeNull();
+  });
+
+  it('should show a generic error message when the iframe reports a load failure', () => {
+    component.displayUrl.set('https://example.com');
+    component.navigateToUrl();
+    component.onError();
+    fixture.detectChanges();
+
+    expect(component.errorType()).toBe('loadFailed');
+    expect(component.hasError()).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain(
+      component.lang.t().browser.loadFailedMessage,
+    );
+  });
+
+  it('should allow showing the standard error screen after an iframe load event', () => {
+    component.displayUrl.set('https://www.youtube.com');
+    component.navigateToUrl();
+    component.onLoad();
+    fixture.detectChanges();
+
+    const reportButton = fixture.nativeElement.querySelector(
+      `button[title="${component.lang.t().browser.reportLoadFailure}"]`,
+    ) as HTMLButtonElement;
+    expect(reportButton).toBeTruthy();
+    reportButton.click();
+    fixture.detectChanges();
+
+    expect(component.errorType()).toBe('loadFailed');
+    expect(fixture.nativeElement.textContent).toContain(
+      component.lang.t().browser.loadFailedMessage,
+    );
+    expect(fixture.nativeElement.querySelector('a[rel="noopener noreferrer"]')).toBeTruthy();
   });
 
   it('should clear state when navigating to empty URL', () => {
