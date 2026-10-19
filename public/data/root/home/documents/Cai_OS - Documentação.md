@@ -61,13 +61,15 @@ Após o boot, o aplicativo **Sobre o projeto** abre automaticamente com informa�
 │  ┌──────────────────────────────────────────────────┐   │
 │  │              Aplicação Angular (SPA)             │   │
 │  │                                                  │   │
-│  │  ┌─────────────┐  ┌──────────────────────────┐  │   │
-│  │  │  Layout     │  │   UI Compartilhada        │  │   │
-│  │  │  TopBar     │  │   Janela (por processo)   │  │   │
-│  │  │  Dock       │  │   Boot / Shutdown         │  │   │
-│  │  │  AppsGrid   │  │   Menu de Contexto        │  │   │
-│  │  │  NavMobile  │  └──────────────────────────┘  │   │
-│  │  └─────────────┘                                │   │
+│  │  ┌─────────────┐  ┌──────────────────────────┐   │   │
+│  │  │  Layout     │  │   UI Compartilhada       │   │   │
+│  │  │  TopBar     │  │   Janela (por processo)  │   │   │
+│  │  │  Dock       │  │   Boot / Shutdown        │   │   │
+│  │  │  AppsGrid   │  │   Menu de Contexto       │   │   │
+│  │  │  NavMobile  │  │   Avisos / Alternador    │   │   │
+│  │  └─────────────┘  │   Mobile / Snap          │   │   │
+│  │                   │   Widgets de música      │   │   │
+│  │                   └──────────────────────────┘   │   │
 │  │                                                  │   │
 │  │  ┌────────────────────────────────────────────┐  │   │
 │  │  │           Aplicativos (Features)           │  │   │
@@ -78,17 +80,25 @@ Após o boot, o aplicativo **Sobre o projeto** abre automaticamente com informa�
 │  │                                                  │   │
 │  │  ┌────────────────────────────────────────────┐  │   │
 │  │  │               Serviços Core                │  │   │
-│  │  │  ProcessManager  WindowService  FileSystem │  │   │
-│  │  │  Settings  Theme  Language  Notification   │  │   │
-│  │  │  DockService  AppRegistry  AppLauncher     │  │   │
+│  │  │  ProcessManager  WindowService  WindowSnap │  │   │
+│  │  │  Screen  FileSystem  DocumentLoader        │  │   │
+│  │  │  Apps  AppRegistry  AppLauncher Dock       │  │   │
+│  │  │  ContextMenu  MobileNav  DesktopIcons      │  │   │
+│  │  │  Settings  Theme  Language  Notifications  │  │   │
+│  │  │  SystemInfo  SystemTips                    │  │   │
 │  │  │  Gemini  HermesChat  HermesAction          │  │   │
+│  │  │  HermesApp/Info/Media/SystemActions        │  │   │
 │  │  │  AgentMode  SpeechRecognition  WakeWord    │  │   │
-│  │  │  AudioPlayer  LyricsService  Sound         │  │   │
+│  │  │  SpeechSynthesis  AudioPlayer  Lyrics Sound│  │   │
+│  │  │  TerminalCommands  Autocomplete  History   │  │   │
 │  │  └────────────────────────────────────────────┘  │   │
 │  └──────────────────────────────────────────────────┘   │
 │                                                         │
-│  Assets estáticos: /data/fs.json  /sounds/*.ogg         │
-│                    /wallpapers/   /videos/wallpapers/    │
+│  Integrações: Gemini API / LRCLIB                       │
+│  Métricas: Vercel Analytics / Speed Insights            │
+│  APIs do navegador: Web Speech / localStorage           │
+│  Assets: /data/fs.json /sounds/*.ogg                    │
+│          /wallpapers/ /videos/wallpapers/               │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -558,9 +568,12 @@ interface LoadedDoc {
 | `WindowService` | Arrastar, redimensionar e aplicar layouts de snap por janela (fornecido localmente) |
 | `WindowSnapService` | Calcular zonas de snap e resolver atalhos do teclado |
 | `ScreenService` | Largura/altura do viewport, sinais `isMobile`, `isDesktop` e `hasCoarsePointer` |
+| `Apps` | Estado da grade de aplicativos, pesquisa e abertura via launcher |
 | `AppRegistry` | Catálogo reativo de apps, busca por ID e extensão de arquivo |
 | `AppLauncher` | Orquestração de abertura de aplicativos |
 | `DockService` | Itens da dock, pin/unpin, persistência em `localStorage` |
+| `MobileNavService` | Navegação e estado da barra de navegação mobile |
+| `ContextMenuService` | Abertura, posicionamento e fechamento do menu de contexto |
 | `FileSystem` | Sistema de arquivos virtual (HTTP → JSON → maps de nodes) |
 | `Settings` | Preferências persistidas (wallpaper, dockSize, geminiModel, …) |
 | `Theme` | Modo escuro/claro, sincroniza com `prefers-color-scheme` |
@@ -570,6 +583,10 @@ interface LoadedDoc {
 | `Gemini` | Wrapper da API Google Generative AI com fallback de chave |
 | `HermesChatService` | Estado do chat, histórico, envio com streaming |
 | `HermesActionService` | Parse e dispatch de tags `<!--caios:action -->` |
+| `HermesAppActionsService` | Ações do Hermes para abrir e controlar aplicativos |
+| `HermesInfoActionsService` | Ações do Hermes para consultar informações do sistema |
+| `HermesMediaActionsService` | Ações do Hermes para controlar reprodução de mídia |
+| `HermesSystemActionsService` | Ações do Hermes para alterar configurações do sistema |
 | `AgentModeService` | Máquina de estados do Modo Agente: ouvindo → acordado → processando → falando |
 | `SpeechRecognitionService` | Wrapper da Web Speech API com reinício automático e backoff |
 | `SpeechSynthesisService` | Wrapper de TTS do navegador com remoção de Markdown |
@@ -581,6 +598,7 @@ interface LoadedDoc {
 | `TerminalHistoryService` | Navegação no histórico de comandos por terminal (provider no componente) |
 | `DesktopIconsService` | Atalhos fixados no desktop, persistência em `localStorage` |
 | `DocumentLoaderService` | Carregamento e detecção de tipo de documentos |
+| `SystemInfoService` | Coleta de informações de hardware e ambiente do navegador |
 | `SystemTips` | Agendamento de dicas periódicas |
 
 ---

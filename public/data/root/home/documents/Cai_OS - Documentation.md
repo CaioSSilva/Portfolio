@@ -61,34 +61,44 @@ After booting, the **About the project** application opens automatically with de
 │  ┌──────────────────────────────────────────────────┐   │
 │  │                  Angular App (SPA)               │   │
 │  │                                                  │   │
-│  │  ┌─────────────┐  ┌──────────────────────────┐  │   │
-│  │  │  Layout     │  │   Shared UI              │  │   │
-│  │  │  TopBar     │  │   Window (per process)   │  │   │
-│  │  │  Dock       │  │   Boot / Shutdown        │  │   │
-│  │  │  AppsGrid   │  │   ContextMenu            │  │   │
-│  │  │  MobileNav  │  └──────────────────────────┘  │   │
-│  │  └─────────────┘                                │   │
+│  │  ┌─────────────┐  ┌──────────────────────────┐   │   │
+│  │  │  Layout     │  │   Shared UI              │   │   │
+│  │  │  TopBar     │  │   Window (per process)   │   │   │
+│  │  │  Dock       │  │   Boot / Shutdown        │   │   │
+│  │  │  AppsGrid   │  │   ContextMenu            │   │   │
+│  │  │  MobileNav  │  │   Alerts / Switcher      │   │   │
+│  │  └─────────────┘  │   Mobile overview / Snap │   │   │
+│  │                   │   Music widgets          │   │   │
+│  │                   └──────────────────────────┘   │   │
 │  │                                                  │   │
 │  │  ┌────────────────────────────────────────────┐  │   │
 │  │  │              Feature Apps                  │  │   │
 │  │  │  Files  Terminal  Browser  Hermes  Musics  │  │   │
 │  │  │  Photos  Documents  Settings  SystemMonitor│  │   │
-│  │  │  AboutProject  DesktopIcons               │  │   │
+│  │  │  AboutProject  DesktopIcons                │  │   │
 │  │  └────────────────────────────────────────────┘  │   │
 │  │                                                  │   │
 │  │  ┌────────────────────────────────────────────┐  │   │
-│  │  │               Core Services               │  │   │
-│  │  │  ProcessManager  WindowService  FileSystem │  │   │
-│  │  │  Settings  Theme  Language  Notification   │  │   │
-│  │  │  DockService  AppRegistry  AppLauncher     │  │   │
+│  │  │               Core Services                │  │   │
+│  │  │  ProcessManager  WindowService  WindowSnap │  │   │
+│  │  │  Screen  FileSystem  DocumentLoader        │  │   │
+│  │  │  Apps  AppRegistry  AppLauncher Dock       │  │   │
+│  │  │  ContextMenu  MobileNav  DesktopIcons      │  │   │
+│  │  │  Settings  Theme  Language  Notifications  │  │   │
+│  │  │  SystemInfo  SystemTips                    │  │   │
 │  │  │  Gemini  HermesChat  HermesAction          │  │   │
+│  │  │  HermesApp/Info/Media/SystemActions        │  │   │
 │  │  │  AgentMode  SpeechRecognition  WakeWord    │  │   │
-│  │  │  AudioPlayer  LyricsService  Sound         │  │   │
+│  │  │  SpeechSynthesis  AudioPlayer  Lyrics Sound│  │   │
+│  │  │  TerminalCommands  Autocomplete  History   │  │   │
 │  │  └────────────────────────────────────────────┘  │   │
 │  └──────────────────────────────────────────────────┘   │
 │                                                         │
-│  Static assets: /data/fs.json  /sounds/*.ogg            │
-│                 /wallpapers/   /videos/wallpapers/       │
+│  Integrations: Gemini API / LRCLIB                      │
+│  Metrics: Vercel Analytics / Speed Insights             │
+│  Browser APIs: Web Speech / localStorage                │
+│  Static assets: /data/fs.json /sounds/*.ogg             │
+│                /wallpapers/ /videos/wallpapers/         │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -563,9 +573,12 @@ interface LoadedDoc {
 | `WindowService` | Drag, resize, and apply snap layouts per window instance (provided locally) |
 | `WindowSnapService` | Calculate snap zones and resolve keyboard shortcuts |
 | `ScreenService` | Viewport width/height, `isMobile`, `isDesktop` and `hasCoarsePointer` signals |
+| `Apps` | Apps grid state, search, and opening apps through the launcher |
 | `AppRegistry` | Reactive app catalog, lookup by ID and file extension |
 | `AppLauncher` | App launch orchestration |
 | `DockService` | Dock items, pin/unpin, `localStorage` persistence |
+| `MobileNavService` | Mobile navigation bar state and interactions |
+| `ContextMenuService` | Context menu opening, positioning, and closing |
 | `FileSystem` | Virtual file system (HTTP → JSON → node maps) |
 | `Settings` | Persisted preferences (wallpaper, dockSize, geminiModel, …) |
 | `Theme` | Dark/light mode, syncs with `prefers-color-scheme` |
@@ -575,6 +588,10 @@ interface LoadedDoc {
 | `Gemini` | Google Generative AI wrapper with API key fallback |
 | `HermesChatService` | Chat state, history, send with streaming |
 | `HermesActionService` | Parse and dispatch `<!--caios:action -->` tags |
+| `HermesAppActionsService` | Hermes actions for opening and controlling apps |
+| `HermesInfoActionsService` | Hermes actions for querying system information |
+| `HermesMediaActionsService` | Hermes actions for controlling media playback |
+| `HermesSystemActionsService` | Hermes actions for changing system settings |
 | `AgentModeService` | Agent Mode state machine: listening → awake → processing → speaking |
 | `SpeechRecognitionService` | Web Speech API wrapper with auto-restart and backoff |
 | `SpeechSynthesisService` | Browser TTS wrapper, Markdown stripping |
@@ -586,6 +603,7 @@ interface LoadedDoc {
 | `TerminalHistoryService` | Per-terminal command history navigation (component-level provider) |
 | `DesktopIconsService` | Desktop-pinned app shortcuts, `localStorage` persistence |
 | `DocumentLoaderService` | Document loading and type detection |
+| `SystemInfoService` | Hardware and browser environment information |
 | `SystemTips` | Periodic tip scheduling |
 
 ---

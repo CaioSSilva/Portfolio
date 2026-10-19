@@ -115,8 +115,10 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 │  │  │  TopBar     │  │   Window (per process)   │   │   │
 │  │  │  Dock       │  │   Boot / Shutdown        │   │   │
 │  │  │  AppsGrid   │  │   ContextMenu            │   │   │
-│  │  │  MobileNav  │  └──────────────────────────┘   │   │
-│  │  └─────────────┘                                 │   │
+│  │  │  MobileNav  │  │   Alerts / Switcher      │   │   │
+│  │  └─────────────┘  │   Mobile overview / Snap │   │   │
+│  │                   │   Music widgets          │   │   │
+│  │                   └──────────────────────────┘   │   │
 │  │                                                  │   │
 │  │  ┌────────────────────────────────────────────┐  │   │
 │  │  │              Feature Apps                  │  │   │
@@ -127,17 +129,25 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 │  │                                                  │   │
 │  │  ┌────────────────────────────────────────────┐  │   │
 │  │  │               Core Services                │  │   │
-│  │  │  ProcessManager  WindowService  FileSystem │  │   │
-│  │  │  Settings  Theme  Language  Notification   │  │   │
-│  │  │  DockService  AppRegistry  AppLauncher     │  │   │
+│  │  │  ProcessManager  WindowService  WindowSnap │  │   │
+│  │  │  Screen  FileSystem  DocumentLoader        │  │   │
+│  │  │  Apps  AppRegistry  AppLauncher Dock       │  │   │
+│  │  │  ContextMenu  MobileNav  DesktopIcons      │  │   │
+│  │  │  Settings  Theme  Language  Notifications  │  │   │
+│  │  │  SystemInfo  SystemTips                    │  │   │
 │  │  │  Gemini  HermesChat  HermesAction          │  │   │
+│  │  │  HermesApp/Info/Media/SystemActions        │  │   │
 │  │  │  AgentMode  SpeechRecognition  WakeWord    │  │   │
-│  │  │  AudioPlayer  LyricsService  Sound         │  │   │
+│  │  │  SpeechSynthesis  AudioPlayer  Lyrics Sound│  │   │
+│  │  │  TerminalCommands  Autocomplete  History   │  │   │
 │  │  └────────────────────────────────────────────┘  │   │
 │  └──────────────────────────────────────────────────┘   │
 │                                                         │
-│  Static Assets: /data/fs.json  /sounds/*.ogg            │
-│                 /wallpapers/   /videos/wallpapers/      │
+│  Integrations: Gemini API / LRCLIB                      │
+│  Metrics: Vercel Analytics / Speed Insights             │
+│  Browser APIs: Web Speech / localStorage                │
+│  Static assets: /data/fs.json /sounds/*.ogg             │
+│                /wallpapers/ /videos/wallpapers/         │
 └─────────────────────────────────────────────────────────┘
 ```
 
