@@ -14,7 +14,7 @@ const MIN_W = 320;
 const MIN_H = 240;
 const SNAP_EDGE = 32;
 
-const ANIM_DURATION_MS = 180;
+const ANIM_DURATION_MS = 280;
 const GENIE_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 const GENIE_TRANSITION = `transform ${ANIM_DURATION_MS}ms ${GENIE_EASING}, width ${ANIM_DURATION_MS}ms ${GENIE_EASING}, height ${ANIM_DURATION_MS}ms ${GENIE_EASING}, opacity ${ANIM_DURATION_MS}ms ${GENIE_EASING}`;
 
@@ -136,7 +136,8 @@ export class WindowService {
 
   startDrag(event: MouseEvent): void {
     this.assertInitialized();
-    if (this.screen.isMobile() || event.button !== 0 || this.isResizing() || this.isDragging()) return;
+    if (this.screen.isMobile() || event.button !== 0 || this.isResizing() || this.isDragging())
+      return;
 
     this.processManager.focus(this.process.id);
     const parent = this.windowEl.offsetParent as HTMLElement;
@@ -295,9 +296,7 @@ export class WindowService {
       const btn = document.querySelector<HTMLElement>('[data-nav-overview]');
       return btn ? btn.getBoundingClientRect() : null;
     }
-    const btn = document.querySelector<HTMLElement>(
-      `[data-dock-id="${this.process.appId}"]`,
-    );
+    const btn = document.querySelector<HTMLElement>(`[data-dock-id="${this.process.appId}"]`);
     return btn ? btn.getBoundingClientRect() : null;
   }
 
