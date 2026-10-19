@@ -1,6 +1,7 @@
 import {
   Component,
   ElementRef,
+  HostListener,
   inject,
   input,
   viewChild,
@@ -29,5 +30,10 @@ export class Window implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.windowService.init(this.windowFrame().nativeElement, this.process());
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  onWindowKeydown(event: KeyboardEvent): void {
+    this.windowService.handleWindowShortcut(event);
   }
 }

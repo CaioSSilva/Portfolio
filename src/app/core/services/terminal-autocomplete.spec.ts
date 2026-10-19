@@ -65,6 +65,7 @@ describe('TerminalAutocomplete', () => {
         { provide: Sound, useValue: { play: vi.fn().mockResolvedValue(undefined) } },
       ],
     });
+    TestBed.inject(LanguageService).setLanguage('en');
     service = TestBed.inject(TerminalAutocomplete);
   });
 

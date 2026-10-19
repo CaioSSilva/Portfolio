@@ -41,6 +41,7 @@ function makeWindowServiceMock() {
       isDesktop: signal(true),
     },
     focus: vi.fn(),
+    handleWindowShortcut: vi.fn(),
     startDrag: vi.fn(),
     startResize: vi.fn(),
     minimize: vi.fn(),
@@ -93,5 +94,11 @@ describe('Window', () => {
   it('windowService.focus is accessible', () => {
     component.windowService.focus();
     expect(windowServiceMock.focus).toHaveBeenCalled();
+  });
+
+  it('forwards keyboard shortcuts to WindowService', () => {
+    const event = new KeyboardEvent('keydown', { key: 'ArrowLeft', altKey: true });
+    component.onWindowKeydown(event);
+    expect(windowServiceMock.handleWindowShortcut).toHaveBeenCalledWith(event);
   });
 });

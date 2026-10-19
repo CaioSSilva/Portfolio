@@ -1,6 +1,6 @@
 # Cai_OS
 
-![Version](https://img.shields.io/badge/version-3.2.0-blue)
+![Version](https://img.shields.io/badge/version-3.3.0-blue)
 ![Angular](https://img.shields.io/badge/Angular-22-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)
 ![Vitest](https://img.shields.io/badge/tests-Vitest-brightgreen)
@@ -44,7 +44,17 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 
 ---
 
-## What's New — v3.2.0
+## What's New — v3.3.0
+
+- **Configurable window snapping**: Classic, Halves, or Thirds layouts, adjustable edge sensitivity, drag previews, and responsive snap recalculation
+- **Pop!_OS-style adjacent-window selection**: optionally choose an open window to fill the opposite half; minimized windows can be selected and are restored into place
+- **Consistent keyboard shortcuts**: `Alt` + arrows for sides and lower zones, `Alt` + `Shift` + left/right for upper corners, `Alt` + `Ctrl` + left/right for lower corners in Classic, and `Alt` + `↑` to maximize/restore
+- **Desktop-only snap controls**: snap settings and shortcuts are hidden on mobile, where windows remain full-screen
+- **Shared UI controls**: accessible custom dropdown and dedicated adjacent-window picker
+- **Test suite**: 861 passing tests across 69 files (`ng test`)
+
+<details>
+<summary>Previous release — v3.2.0</summary>
 
 - **Touch-friendly Terminal**: On touch devices a suggestion chip bar replaces typing for paths and commands, and a key bar (`Tab`, `↑`, `↓`, `Ctrl+C`, `/`, `~`, `-`) appears while the input is focused. A command history sheet lets you re-run previous commands with a tap
 - **Tappable `ls` output**: Folders (`cd`) and files (`open`) listed by `ls` are now buttons, so navigation works without a keyboard
@@ -81,7 +91,7 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 <details>
 <summary>Previous release — v2.5.0</summary>
 
-- **Window snap system**: Drag-to-snap with ghost preview overlay (left, right, top-full, four corners)
+- **Window snap system**: Pointer-based drag-to-snap with live preview, configurable classic/half/third layouts and edge sensitivity, optional Pop!_OS-style adjacent-window selection, and keyboard shortcuts
 - **Lyrics integration**: Synced (LRC) and plain-text lyrics from LRCLIB with active-line tracking
 - **Desktop icons**: Pinnable shortcuts on the desktop, persisted to `localStorage`
 - **Dock drag-and-drop**: Drag apps from the grid onto the dock to pin at a specific position
@@ -100,23 +110,23 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 │  ┌──────────────────────────────────────────────────┐   │
 │  │                  Angular App (SPA)               │   │
 │  │                                                  │   │
-│  │  ┌─────────────┐  ┌──────────────────────────┐  │   │
-│  │  │  Layout     │  │   Shared UI              │  │   │
-│  │  │  TopBar     │  │   Window (per process)   │  │   │
-│  │  │  Dock       │  │   Boot / Shutdown        │  │   │
-│  │  │  AppsGrid   │  │   ContextMenu            │  │   │
-│  │  │  MobileNav  │  └──────────────────────────┘  │   │
-│  │  └─────────────┘                                │   │
+│  │  ┌─────────────┐  ┌──────────────────────────┐   │   │
+│  │  │  Layout     │  │   Shared UI              │   │   │
+│  │  │  TopBar     │  │   Window (per process)   │   │   │
+│  │  │  Dock       │  │   Boot / Shutdown        │   │   │
+│  │  │  AppsGrid   │  │   ContextMenu            │   │   │
+│  │  │  MobileNav  │  └──────────────────────────┘   │   │
+│  │  └─────────────┘                                 │   │
 │  │                                                  │   │
 │  │  ┌────────────────────────────────────────────┐  │   │
 │  │  │              Feature Apps                  │  │   │
 │  │  │  Files  Terminal  Browser  Hermes  Musics  │  │   │
 │  │  │  Photos  Documents  Settings  SystemMonitor│  │   │
-│  │  │  AboutProject  DesktopIcons               │  │   │
+│  │  │  AboutProject  DesktopIcons                │  │   │
 │  │  └────────────────────────────────────────────┘  │   │
 │  │                                                  │   │
 │  │  ┌────────────────────────────────────────────┐  │   │
-│  │  │               Core Services               │  │   │
+│  │  │               Core Services                │  │   │
 │  │  │  ProcessManager  WindowService  FileSystem │  │   │
 │  │  │  Settings  Theme  Language  Notification   │  │   │
 │  │  │  DockService  AppRegistry  AppLauncher     │  │   │
@@ -127,7 +137,7 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 │  └──────────────────────────────────────────────────┘   │
 │                                                         │
 │  Static Assets: /data/fs.json  /sounds/*.ogg            │
-│                 /wallpapers/   /videos/wallpapers/       │
+│                 /wallpapers/   /videos/wallpapers/      │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -212,7 +222,8 @@ src/
 │   │   │   ├── agent-mode.ts        # AgentModeState, Web Speech API interfaces, WakeWordMatch
 │   │   │   ├── apps.ts              # AppRegistry + getInstalledApps()
 │   │   │   ├── base.ts              # Base directive, AppBase, ProcessData
-│   │   │   ├── desktop.ts           # Rect, pinnedDesktopItem
+│   │   │   ├── desktop.ts           # Window snap layouts, geometry, and desktop item types
+│   │   │   ├── dropdown.ts          # Shared dropdown option model
 │   │   │   ├── dock.ts              # AppDefinition, DockItem
 │   │   │   ├── document.ts          # DocFileType, LoadedDoc
 │   │   │   ├── file.ts              # FileItem, extension constants
@@ -226,7 +237,9 @@ src/
 │   │   │
 │   │   ├── services/                # Application services (all providedIn: root)
 │   │   │   ├── process-manager.ts   # Window/process lifecycle
-│   │   │   ├── window.ts            # Per-window drag/resize/snap (provided per Window)
+│   │   │   ├── window.ts            # Per-window drag/resize and snap application (provided per Window)
+│   │   │   ├── window-snap.ts       # Snap zone geometry and keyboard shortcut resolution
+│   │   │   ├── window-constants.ts  # Shared window layout constants
 │   │   │   ├── screen.ts            # Viewport size, isMobile, isDesktop, hasCoarsePointer
 │   │   │   ├── apps.ts              # App grid, search, context menu
 │   │   │   ├── app-launcher.ts      # Launch wrapper
@@ -339,6 +352,8 @@ public/
 | Component | File | Description |
 |---|---|---|
 | `Window` | `shared/ui/window/window.ts` | Host container for every process; provides `WindowService` per instance; handles drag, resize, snap |
+| `Dropdown` | `shared/ui/dropdown/dropdown.ts` | Accessible shared dropdown with keyboard navigation |
+| `SnapPairPicker` | `shared/ui/snap-pair-picker/snap-pair-picker.ts` | Selects an open window for the opposite half-snap area |
 | `Boot` | `shared/ui/boot/boot.ts` | Boot screen with simulated progress bar and startup sound |
 | `Shutdown` | `shared/ui/shutdown/shutdown.ts` | Shutdown confirmation dialog with cancel, restart, power off |
 | `ContextMenu` | `shared/ui/context-menu/context-menu.ts` | Right-click context menu for dock items and desktop icons |
@@ -354,7 +369,7 @@ public/
 | `ImageViewer` | `features/image-viewer/image-viewer.ts` | Image gallery with zoom, rotate, pan, pinch-to-zoom, keyboard arrow navigation | Windowed | Windowed |
 | `DocumentViewer` | `features/document-viewer/document-viewer.ts` | PDF, Markdown, and text viewer with zoom, anchor scroll, keyboard navigation | Windowed (lazy-loaded) | Windowed |
 | `Musics` | `features/musics/musics.ts` | Music player with library, playback controls, seek, synced lyrics | Windowed | Windowed (compact) |
-| `SettingsComponent` | `features/settings/settings.ts` | Settings: appearance, desktop, sound, language, Hermes (agent mode, model, spoken replies), system info | Windowed | Windowed (narrow layout) |
+| `SettingsComponent` | `features/settings/settings.ts` | Settings: appearance, desktop (snap layouts, sensitivity, pairing), sound, language, Hermes (agent mode, model, spoken replies), system info | Windowed | Windowed (narrow layout; snap options hidden) |
 | `SystemMonitor` | `features/system-monitor/system-monitor.ts` | CPU/RAM graph (simulated), network stats, process list with kill | Windowed | Windowed |
 | `Hermes` | `features/hermes/hermes.ts` | AI chat with Gemini, image attachment, model picker, streaming response | Windowed | Windowed |
 | `DesktopIcons` | `features/desktop-icons/desktop-icons.ts` | Desktop icon overlay rendered directly on the wallpaper | Visible | N/A |
@@ -382,11 +397,16 @@ Central process lifecycle manager.
 ---
 
 ### `WindowService` — `core/services/window.ts`
-Per-window service (provided inside `Window` component). Handles drag, resize, snap.
+Per-window service (provided inside `Window` component). Handles drag and resize, and applies snap layouts calculated by `WindowSnapService`.
 
 **Signals:** `isMaximized`, `isSnapped`, `isDragging`, `isResizing`, `isVisible`, `snapGhost`
 
 **Public API:** `init()`, `startDrag()`, `startResize()`, `toggleMaximize()`, `close()`, `minimize()`, `focus()`
+
+---
+
+### `WindowSnapService` — `core/services/window-snap.ts`
+Calculates snap zones for Classic, Halves, and Thirds layouts and resolves their keyboard shortcuts. Snap is available only on desktop.
 
 ---
 
@@ -427,7 +447,7 @@ Loads `/data/fs.json`, builds node/parent/URL maps and a search index.
 ### `Settings` — `core/services/settings.ts`
 Persisted user settings via `localStorage`.
 
-**Signals:** `dockSize` (default 48, range 28–64), `desktopSize` (default 40, range 32–80), `systemMuted` (default false), `autoHideDock` (default true), `tipsEnabled` (default true), `geminiModel` (default `gemini-flash-lite-latest`), `agentModeEnabled` (default false), `agentSpeakReplies` (default false), `wallpaper` (computed from desktop/mobile)
+**Signals:** `dockSize` (default 48, range 28–64), `desktopSize` (default 40, range 32–80), `systemMuted` (default false), `autoHideDock` (default true), `tipsEnabled` (default true), `geminiModel` (default `gemini-flash-lite-latest`), `agentModeEnabled` (default false), `agentSpeakReplies` (default false), `windowSnapMode`, `snapEdgeSize`, `snapPairingEnabled`, `wallpaper` (computed from desktop/mobile)
 
 **Public API:** `setWallpaper(path)`, `setDockSize(size)`, `setDesktopSize(size)`, `toggleAutoHideDock()`, `setGeminiModel(model)`, `toggleSystemTips()`, `toggleSystemSounds()`, `toggleAgentMode()`, `disableAgentMode()`, `toggleAgentSpeakReplies()`
 
@@ -908,20 +928,20 @@ Both `environment.ts` and `environment.development.ts` are git-ignored. Never co
 | `start` | `node -r dotenv/config mynode.js && ng serve` | Generates environment files then starts the dev server |
 | `build` | `ng build` | Production build |
 | `watch` | `ng build --watch --configuration development` | Incremental development build |
-| `test` | `ng test` | Run test suite (Vitest) |
+| `test` | `ng test` | Run the Angular unit-test builder (Vitest) |
 | `ng` | `ng` | Angular CLI passthrough |
 
 ---
 
 ## Testing
 
-**Framework:** [Vitest](https://vitest.dev/) `^4.0.18` with `jsdom` `^28.0.0`.
+**Test runner:** Angular CLI unit-test builder (`ng test`), powered by [Vitest](https://vitest.dev/) `^4.0.18` with `jsdom` `^28.0.0`.
 
 ```bash
 npm test
 ```
 
-> Run `npm test` for the current test count. Test files are not listed in this document to avoid staleness.
+> Last validated: 861 tests passed across 69 files. Run `npm test` to rerun the suite.
 
 ---
 
@@ -1005,7 +1025,7 @@ This project is private (`"private": true` in `package.json`). All rights reserv
 
 | Metric | Value |
 |---|---|
-| Version | 3.2.0 |
+| Version | 3.3.0 |
 | Angular version | 22.2.1 |
 | TypeScript version | 6.0.3 |
 | Applications | 10 |
@@ -1015,5 +1035,5 @@ This project is private (`"private": true` in `package.json`). All rights reserv
 | Data models | 14 files |
 | Languages supported | 2 (PT, EN) |
 | Platforms | Desktop, Mobile |
-| Test runner | Vitest 4.0.18 |
+| Test runner | Angular CLI unit-test builder; Vitest `^4.0.18` |
 | Deployment | Vercel |

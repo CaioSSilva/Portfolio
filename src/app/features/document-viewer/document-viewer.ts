@@ -10,7 +10,9 @@ import {
   ElementRef,
   viewChild,
 } from '@angular/core';
-import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
+import { Subscription, timer } from 'rxjs';
 import { Base } from '../../core/models/base';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
@@ -21,6 +23,7 @@ import { MarkdownPipe } from '../../core/pipes/markdown-pipe';
 import { FileItem } from '../../core/models/file';
 import { DocumentLoaderService } from '../../core/services/document-loader';
 import { DocFileType } from '../../core/models/document';
+import { WINDOW_ANIMATION_DURATION_MS } from '../../core/services/window-constants';
 
 @Component({
   selector: 'app-document-viewer',
@@ -31,6 +34,8 @@ import { DocFileType } from '../../core/models/document';
   imports: [PdfViewerModule, MarkdownPipe],
 })
 export class DocumentViewer extends Base {
+  private static readonly PDF_RESIZE_DEBOUNCE_MS = 100;
+
   private readonly appsService = inject(Apps);
   private readonly hostEl = inject(ElementRef<HTMLElement>);
   private readonly screen = inject(ScreenService);
@@ -39,17 +44,6 @@ export class DocumentViewer extends Base {
   readonly lang = inject(LanguageService);
   readonly fileSystem = inject(FileSystem);
   readonly loader = inject(DocumentLoaderService);
-
-  private readonly scrollContainer = viewChild<ElementRef<HTMLElement>>('scrollContainer');
-
-  private resizeObserver: ResizeObserver | null = null;
-  private touchStartX = 0;
-  private touchStartY = 0;
-  private touchStartTarget: EventTarget | null = null;
-  private pinchStartDistance = 0;
-  private pinchLastStepDistance = 0;
-  private pinchLastStepTime = 0;
-  private lastUrl: string | null | undefined = undefined;
 
   readonly fileType = signal<DocFileType>('unsupported');
   readonly fileName = signal('');
@@ -60,7 +54,6 @@ export class DocumentViewer extends Base {
   readonly isViewingDocument = signal(false);
   readonly isNarrow = signal(false);
   readonly isPinchZoomed = signal(false);
-
   readonly safePath = computed(() => {
     const selectedFile = this.selectedFile();
     const isViewing = this.isViewingDocument();
@@ -87,6 +80,20 @@ export class DocumentViewer extends Base {
     if (docs.length === 0) return true;
     return index >= docs.length - 1;
   });
+
+  private readonly scrollContainer = viewChild<ElementRef<HTMLElement>>('scrollContainer');
+  private readonly pdfViewer = viewChild(PdfViewerComponent);
+
+  private resizeObserver: ResizeObserver | null = null;
+  private pdfResizeSubscription = Subscription.EMPTY;
+  private isPdfLoaded = false;
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private touchStartTarget: EventTarget | null = null;
+  private pinchStartDistance = 0;
+  private pinchLastStepDistance = 0;
+  private pinchLastStepTime = 0;
+  private lastUrl: string | null | undefined = undefined;
 
   constructor() {
     super();
@@ -115,9 +122,13 @@ export class DocumentViewer extends Base {
     this.resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0]?.contentRect.width ?? 0;
       this.isNarrow.set(width > 0 && width < 500);
+      this.schedulePdfResize();
     });
     this.resizeObserver.observe(this.hostEl.nativeElement);
-    this.destroyRef.onDestroy(() => this.resizeObserver?.disconnect());
+    this.destroyRef.onDestroy(() => {
+      this.resizeObserver?.disconnect();
+      this.pdfResizeSubscription.unsubscribe();
+    });
   }
 
   private loadAllDocs(): void {
@@ -140,6 +151,8 @@ export class DocumentViewer extends Base {
   }
 
   private async applyProcessedFile(file: FileItem): Promise<void> {
+    this.isPdfLoaded = false;
+    this.pdfResizeSubscription.unsubscribe();
     const result = await this.loader.processFile(file);
     this.fileType.set(result.fileType);
     this.fileName.set(result.fileName);
@@ -173,6 +186,8 @@ export class DocumentViewer extends Base {
 
   closeDocumentView(): void {
     this.isViewingDocument.set(false);
+    this.isPdfLoaded = false;
+    this.pdfResizeSubscription.unsubscribe();
     this.data.set(null);
     this.zoom.set(1.0);
     this.loader.resetState();
@@ -183,9 +198,25 @@ export class DocumentViewer extends Base {
   onPdfLoadSuccess(): void {
     this.loader.isLoading.set(false);
     this.loader.hasError.set(false);
+    this.isPdfLoaded = true;
+    this.schedulePdfResize();
+  }
+
+  private schedulePdfResize(): void {
+    if (!this.isPdfLoaded || !this.isViewingDocument() || !this.pdfViewer()) return;
+
+    this.pdfResizeSubscription.unsubscribe();
+    const delay = this.resizeObserver
+      ? DocumentViewer.PDF_RESIZE_DEBOUNCE_MS
+      : WINDOW_ANIMATION_DURATION_MS + DocumentViewer.PDF_RESIZE_DEBOUNCE_MS;
+    this.pdfResizeSubscription = timer(delay)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.pdfViewer()?.updateSize());
   }
 
   onPdfLoadError(): void {
+    this.isPdfLoaded = false;
+    this.pdfResizeSubscription.unsubscribe();
     this.loader.hasError.set(true);
     this.loader.isLoading.set(false);
   }

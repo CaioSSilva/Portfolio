@@ -57,6 +57,18 @@ describe('Settings', () => {
     expect(service.geminiModel()).toBe('gemini-nano');
   });
 
+  it('should configure snap mode and constrain edge sensitivity', () => {
+    service.setWindowSnapMode('thirds');
+    service.setSnapEdgeSize(60);
+    expect(service.windowSnapMode()).toBe('thirds');
+    expect(service.snapEdgeSize()).toBe(60);
+
+    service.setSnapEdgeSize(100);
+    expect(service.snapEdgeSize()).toBe(64);
+    service.setSnapEdgeSize(0);
+    expect(service.snapEdgeSize()).toBe(16);
+  });
+
   it('should reset agentSpeakReplies when agent mode is toggled off', () => {
     service.toggleAgentMode();
     service.toggleAgentSpeakReplies();

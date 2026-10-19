@@ -2,21 +2,29 @@ import { DestroyRef, Injectable, inject, signal, effect, untracked } from '@angu
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { timer } from 'rxjs';
 import { Process } from '../models/process';
-import { Rect } from '../models/desktop';
+import { Rect, WindowSnapLayout } from '../models/desktop';
 import { ProcessManager } from './process-manager';
 import { Settings } from './settings';
 import { DockService } from './dock';
-import { ScreenService } from './screen';
+import { WindowSnapService } from './window-snap';
+import {
+  MOBILE_NAV_BAR_HEIGHT,
+  TOP_BAR_HEIGHT,
+  WINDOW_ANIMATION_DURATION_MS,
+} from './window-constants';
 export type { Rect };
-export const TOP_BAR_HEIGHT = 32;
-export const MOBILE_NAV_BAR_HEIGHT = 48;
+export { TOP_BAR_HEIGHT };
+export { MOBILE_NAV_BAR_HEIGHT };
+export { WINDOW_ANIMATION_DURATION_MS };
 const MIN_W = 320;
 const MIN_H = 240;
-const SNAP_EDGE = 32;
-
-const ANIM_DURATION_MS = 280;
 const GENIE_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
-const GENIE_TRANSITION = `transform ${ANIM_DURATION_MS}ms ${GENIE_EASING}, width ${ANIM_DURATION_MS}ms ${GENIE_EASING}, height ${ANIM_DURATION_MS}ms ${GENIE_EASING}, opacity ${ANIM_DURATION_MS}ms ${GENIE_EASING}`;
+const GENIE_TRANSITION = [
+  `transform ${WINDOW_ANIMATION_DURATION_MS}ms ${GENIE_EASING}`,
+  `width ${WINDOW_ANIMATION_DURATION_MS}ms ${GENIE_EASING}`,
+  `height ${WINDOW_ANIMATION_DURATION_MS}ms ${GENIE_EASING}`,
+  `opacity ${WINDOW_ANIMATION_DURATION_MS}ms ${GENIE_EASING}`,
+].join(', ');
 
 @Injectable()
 export class WindowService {
@@ -24,7 +32,8 @@ export class WindowService {
   private readonly settings = inject(Settings);
   private readonly dock = inject(DockService);
   private readonly destroyRef = inject(DestroyRef);
-  readonly screen = inject(ScreenService);
+  private readonly windowSnap = inject(WindowSnapService);
+  readonly screen = this.windowSnap.screen;
 
   private windowEl!: HTMLElement;
   private process!: Process;
@@ -45,8 +54,11 @@ export class WindowService {
   private mouseOffset = { x: 0, y: 0 };
   private rafId: number | null = null;
   private lastSnapGhost: Rect | null = null;
+  private pendingSnapLayout: WindowSnapLayout | null = null;
+  private snapLayout: WindowSnapLayout | null = null;
   private isBottomOverlapping = false;
   private wasMobile = false;
+  private unregisterSnapHandler: (() => void) | null = null;
 
   constructor() {
     effect(() => {
@@ -80,7 +92,7 @@ export class WindowService {
       } else if (!wasMinimized && updated.isMinimized && !this.isAnimatingMinimize()) {
         this.isAnimatingMinimize.set(true);
         this.animateToIcon();
-        timer(ANIM_DURATION_MS)
+        timer(WINDOW_ANIMATION_DURATION_MS)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(() => {
             this.isAnimatingMinimize.set(false);
@@ -102,19 +114,40 @@ export class WindowService {
         if (!maximized) {
           this.isMaximized.set(true);
           this.isSnapped.set(false);
+          this.snapLayout = null;
+          this.snapRectBeforeMaximize = null;
           this.applyStyles();
           this.checkBottomOverlap();
         }
       } else {
         if (wasMobile && maximized && !process.isMaximized) {
           this.isMaximized.set(false);
+          this.isSnapped.set(false);
+          this.snapLayout = null;
+          this.snapRectBeforeMaximize = null;
           this.rect = { ...this.normalRect };
           this.constrainAndPositionWindow();
           this.applyStyles();
           this.checkBottomOverlap();
+        } else if (
+          this.snapLayout &&
+          (untracked(() => this.isSnapped()) || (maximized && this.snapRectBeforeMaximize))
+        ) {
+          if (maximized && this.snapRectBeforeMaximize) {
+            this.snapRectBeforeMaximize = this.windowSnap.getSnapRect(
+              this.snapLayout,
+              viewportWidth,
+              viewportHeight,
+            );
+          } else {
+            this.rect = this.windowSnap.getSnapRect(this.snapLayout, viewportWidth, viewportHeight);
+          }
+          this.constrainNormalRect(viewportWidth, viewportHeight);
+          this.applyStyles();
+          this.checkBottomOverlap();
         } else if (!maximized) {
           this.constrainAndPositionWindow(viewportWidth, viewportHeight);
-          if (!untracked(() => this.isSnapped())) this.normalRect = { ...this.rect };
+          this.normalRect = { ...this.rect };
           this.applyStyles();
           this.checkBottomOverlap();
         } else {
@@ -134,30 +167,43 @@ export class WindowService {
     this.windowEl = element;
     this.process = process;
     this.wasMobile = this.screen.isMobile();
+    this.registerSnapHandler(process.id);
+    if (this.initializeMobileWindow()) return;
+    this.initializeDesktopWindow();
+  }
 
+  private registerSnapHandler(processId: string): void {
+    this.unregisterSnapHandler?.();
+    this.unregisterSnapHandler = this.processManager.registerWindowSnapHandler(
+      processId,
+      (layout) => this.snapToLayout(layout, false),
+      () =>
+        this.process.isMinimized || (!this.isMaximized() && !this.isSnapped()),
+    );
+    this.destroyRef.onDestroy(() => this.unregisterSnapHandler?.());
+  }
+
+  private initializeMobileWindow(): boolean {
     if (this.screen.isMobile()) {
       this.isMaximized.set(true);
       this.normalRect = { ...this.rect };
       this.applyStyles();
       this.isVisible.set(true);
-      return;
+      return true;
     }
+    return false;
+  }
 
+  private initializeDesktopWindow(): void {
     this.centerWindow();
     this.normalRect = { ...this.rect };
     this.checkBottomOverlap();
-
-    if (!this.settings.windowAnimationsEnabled()) {
-      this.applyStyles();
-      this.isVisible.set(true);
-      return;
-    }
-
+    if (this.settings.windowAnimationsEnabled()) this.animateFromIcon();
+    else this.applyStyles();
     this.isVisible.set(true);
-    this.animateFromIcon();
   }
 
-  startDrag(event: MouseEvent): void {
+  startDrag(event: PointerEvent | MouseEvent): void {
     this.assertInitialized();
     if (this.screen.isMobile() || event.button !== 0 || this.isResizing() || this.isDragging())
       return;
@@ -168,43 +214,79 @@ export class WindowService {
 
     this.prepareDragState(event);
     this.isDragging.set(true);
-    this.registerDragListeners(parent);
+    if (event.cancelable) event.preventDefault();
+    if ('pointerId' in event) this.registerPointerDragListeners(parent, event.pointerId);
+    else this.registerMouseDragListeners(parent);
   }
 
-  private registerDragListeners(parent: HTMLElement): void {
+  private registerMouseDragListeners(parent: HTMLElement): void {
     const onMove = (e: MouseEvent) => this.onDragMove(e, parent);
-    const onStop = () => this.onDragStop(onMove, onStop);
+    const onStop = (e: MouseEvent) => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onStop);
+      this.onDragStop(e, parent);
+    };
 
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onStop);
   }
 
-  private onDragMove(e: MouseEvent, parent: HTMLElement): void {
+  private registerPointerDragListeners(parent: HTMLElement, pointerId: number): void {
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerId === pointerId) this.onDragMove(e, parent);
+    };
+    const onStop = (e: PointerEvent) => {
+      if (e.pointerId !== pointerId) return;
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onStop);
+      document.removeEventListener('pointercancel', onStop);
+      this.onDragStop(e, parent);
+    };
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onStop);
+    document.addEventListener('pointercancel', onStop);
+  }
+
+  private onDragMove(e: MouseEvent | PointerEvent, parent: HTMLElement): void {
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
     this.rafId = requestAnimationFrame(() => {
-      const parentRect = parent.getBoundingClientRect();
-      this.rect.x = e.clientX - parentRect.left - this.mouseOffset.x;
-      this.rect.y = Math.max(TOP_BAR_HEIGHT, e.clientY - parentRect.top - this.mouseOffset.y);
-      this.updateSnapGhost(e.clientX, e.clientY);
-      this.checkBottomOverlap();
-      this.dock.forceShow.set(false);
-      this.updateTransform();
+      this.applyDragPosition(e.clientX, e.clientY, parent);
       this.rafId = null;
     });
   }
 
-  private onDragStop(onMove: (e: MouseEvent) => void, onStop: () => void): void {
+  private applyDragPosition(clientX: number, clientY: number, parent: HTMLElement): void {
+    const parentRect = parent.getBoundingClientRect();
+    this.rect.x = clientX - parentRect.left - this.mouseOffset.x;
+    this.rect.y = Math.max(TOP_BAR_HEIGHT, clientY - parentRect.top - this.mouseOffset.y);
+    this.updateSnapGhost(clientX, clientY);
+    this.checkBottomOverlap();
+    this.dock.forceShow.set(false);
+    this.updateTransform();
+  }
+
+  private onDragStop(
+    event: MouseEvent | PointerEvent,
+    parent: HTMLElement,
+  ): void {
+    this.applyDragPosition(event.clientX, event.clientY, parent);
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onStop);
     this.finalizeDrag();
   }
 
   private updateSnapGhost(mouseX: number, mouseY: number): void {
-    const ghost = this.calculateSnap(mouseX, mouseY);
+    const target = this.windowSnap.calculateSnap(
+      mouseX,
+      mouseY,
+      this.screen.width(),
+      this.screen.height(),
+    );
+    const ghost = target?.rect ?? null;
+    this.pendingSnapLayout = target?.layout ?? null;
     if (!this.snapGhostChanged(ghost)) return;
     this.lastSnapGhost = ghost;
     this.snapGhost.set(ghost);
@@ -222,7 +304,7 @@ export class WindowService {
     );
   }
 
-  startResize(event: MouseEvent): void {
+  startResize(event: PointerEvent | MouseEvent): void {
     this.assertInitialized();
     if (
       this.screen.isMobile() ||
@@ -235,44 +317,96 @@ export class WindowService {
     event.preventDefault();
     event.stopPropagation();
     this.isResizing.set(true);
-    this.registerResizeListeners(event.clientX, event.clientY, { ...this.rect });
+    this.registerResizeListeners(event.clientX, event.clientY, { ...this.rect }, event);
   }
 
-  private registerResizeListeners(startX: number, startY: number, startRect: Rect): void {
-    const onMove = (e: MouseEvent) => this.onResizeMove(e, startX, startY, startRect);
-    const onStop = () => this.onResizeStop(onMove, onStop);
+  private registerResizeListeners(
+    startX: number,
+    startY: number,
+    startRect: Rect,
+    event: PointerEvent | MouseEvent,
+  ): void {
+    if ('pointerId' in event)
+      this.registerPointerResizeListeners(startX, startY, startRect, event.pointerId);
+    else this.registerMouseResizeListeners(startX, startY, startRect);
+  }
 
+  private registerPointerResizeListeners(
+    startX: number,
+    startY: number,
+    startRect: Rect,
+    pointerId: number,
+  ): void {
+    const onMove = (event: PointerEvent) => {
+      if (event.pointerId === pointerId) this.onResizeMove(event, startX, startY, startRect);
+    };
+    const onStop = (event: PointerEvent) => {
+      if (event.pointerId !== pointerId) return;
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onStop);
+      document.removeEventListener('pointercancel', onStop);
+      this.onResizeStop(event, startX, startY, startRect);
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onStop);
+    document.addEventListener('pointercancel', onStop);
+  }
+
+  private registerMouseResizeListeners(
+    startX: number,
+    startY: number,
+    startRect: Rect,
+  ): void {
+    const onMove = (event: MouseEvent) => this.onResizeMove(event, startX, startY, startRect);
+    const onStop = (event: MouseEvent) => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onStop);
+      this.onResizeStop(event, startX, startY, startRect);
+    };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onStop);
   }
 
-  private onResizeMove(e: MouseEvent, startX: number, startY: number, startRect: Rect): void {
+  private onResizeMove(
+    e: MouseEvent | PointerEvent,
+    startX: number,
+    startY: number,
+    startRect: Rect,
+  ): void {
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
     this.rafId = requestAnimationFrame(() => {
-      const maxWidth = Math.max(1, window.innerWidth - this.rect.x);
-      const maxHeight = Math.max(1, window.innerHeight - this.rect.y);
-      this.rect.width = Math.min(
-        Math.max(MIN_W, startRect.width + (e.clientX - startX)),
-        maxWidth,
-      );
-      this.rect.height = Math.min(
-        Math.max(MIN_H, startRect.height + (e.clientY - startY)),
-        maxHeight,
-      );
-      this.windowEl.style.width = `${this.rect.width}px`;
-      this.windowEl.style.height = `${this.rect.height}px`;
-      this.checkBottomOverlap();
+      this.applyResizePosition(e.clientX, e.clientY, startX, startY, startRect);
       this.rafId = null;
     });
   }
 
-  private onResizeStop(onMove: (e: MouseEvent) => void, onStop: () => void): void {
+  private applyResizePosition(
+    clientX: number,
+    clientY: number,
+    startX: number,
+    startY: number,
+    startRect: Rect,
+  ): void {
+    const maxWidth = Math.max(1, window.innerWidth - this.rect.x);
+    const maxHeight = Math.max(1, window.innerHeight - this.rect.y);
+    this.rect.width = Math.min(Math.max(MIN_W, startRect.width + (clientX - startX)), maxWidth);
+    this.rect.height = Math.min(Math.max(MIN_H, startRect.height + (clientY - startY)), maxHeight);
+    this.windowEl.style.width = `${this.rect.width}px`;
+    this.windowEl.style.height = `${this.rect.height}px`;
+    this.checkBottomOverlap();
+  }
+
+  private onResizeStop(
+    event: MouseEvent | PointerEvent,
+    startX: number,
+    startY: number,
+    startRect: Rect,
+  ): void {
+    this.applyResizePosition(event.clientX, event.clientY, startX, startY, startRect);
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onStop);
     this.isResizing.set(false);
     this.normalRect = { ...this.rect };
     this.checkBottomOverlap();
@@ -295,12 +429,23 @@ export class WindowService {
 
   private unmaximize(): void {
     const restoreSnap = this.snapRectBeforeMaximize;
-    this.rect = { ...(restoreSnap ?? this.normalRect) };
+    this.rect = {
+      ...(restoreSnap && this.snapLayout
+        ? this.windowSnap.getSnapRect(
+            this.snapLayout,
+            this.screen.width(),
+            this.screen.height(),
+          )
+        : (restoreSnap ?? this.normalRect)),
+    };
     this.snapRectBeforeMaximize = null;
     this.isMaximized.set(false);
     this.isSnapped.set(restoreSnap !== null);
     this.constrainAndPositionWindow();
-    if (!restoreSnap) this.normalRect = { ...this.rect };
+    if (!restoreSnap) {
+      this.normalRect = { ...this.rect };
+      this.snapLayout = null;
+    }
   }
 
   close(): void {
@@ -316,7 +461,7 @@ export class WindowService {
     }
     this.isClosing.set(true);
     this.animateToIcon();
-    timer(ANIM_DURATION_MS)
+    timer(WINDOW_ANIMATION_DURATION_MS)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.processManager.close(this.process.id));
   }
@@ -350,6 +495,11 @@ export class WindowService {
 
   private animateFromIcon(): void {
     const iconRect = this.resolveIconRect();
+    this.setIconStartStyles(iconRect);
+    requestAnimationFrame(() => requestAnimationFrame(() => this.completeIconAnimation()));
+  }
+
+  private setIconStartStyles(iconRect: DOMRect | null): void {
     const startX = iconRect ? iconRect.left + iconRect.width / 2 : window.innerWidth / 2;
     const startY = iconRect ? iconRect.top + iconRect.height / 2 : window.innerHeight;
     this.windowEl.style.transition = 'none';
@@ -357,23 +507,80 @@ export class WindowService {
     this.windowEl.style.width = '0px';
     this.windowEl.style.height = '0px';
     this.windowEl.style.opacity = '0';
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this.windowEl.style.transition = GENIE_TRANSITION;
-        this.applyStyles();
-        this.windowEl.style.opacity = '1';
-        timer(ANIM_DURATION_MS)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() => {
-            this.windowEl.style.transition = '';
-            this.windowEl.style.opacity = '';
-          });
+  }
+
+  private completeIconAnimation(): void {
+    this.windowEl.style.transition = GENIE_TRANSITION;
+    this.applyStyles();
+    this.windowEl.style.opacity = '1';
+    timer(WINDOW_ANIMATION_DURATION_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.windowEl.style.transition = '';
+        this.windowEl.style.opacity = '';
       });
-    });
   }
 
   focus(): void {
     this.processManager.focus(this.process.id);
+  }
+
+  handleWindowShortcut(event: KeyboardEvent): boolean {
+    if (this.isShortcutBlocked(event)) {
+      return false;
+    }
+
+    const action = this.windowSnap.resolveShortcut(
+      event,
+      this.settings.windowSnapMode(),
+      this.isMaximized(),
+      this.isSnapped(),
+      this.snapLayout,
+    );
+    if (!action) return false;
+    event.preventDefault();
+    if (action.type === 'restore') this.restoreWindow();
+    else this.snapToLayout(action.layout);
+    return true;
+  }
+
+  private isShortcutBlocked(event: KeyboardEvent): boolean {
+    const target = event.target;
+    return (
+      this.screen.isMobile() ||
+      this.processManager.activeProcessId() !== this.process.id ||
+      event.metaKey ||
+      (target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)))
+    );
+  }
+
+  restoreWindow(): void {
+    if (this.isMaximized()) {
+      this.unmaximize();
+    } else if (this.isSnapped()) {
+      this.rect = { ...this.normalRect };
+      this.isSnapped.set(false);
+      this.snapLayout = null;
+      this.constrainAndPositionWindow();
+    }
+    this.applyStyles();
+    this.checkBottomOverlap();
+  }
+
+  snapToLayout(layout: WindowSnapLayout, coordinatePair = true): void {
+    if (this.screen.isMobile()) return;
+    if (!this.isMaximized() && !this.isSnapped()) this.normalRect = { ...this.rect };
+    this.snapRectBeforeMaximize = null;
+    this.snapLayout = layout;
+    this.isSnapped.set(true);
+    this.isMaximized.set(layout === 'maximize');
+    this.rect = this.windowSnap.getSnapRect(layout, this.screen.width(), this.screen.height());
+    this.applyStyles();
+    this.checkBottomOverlap();
+
+    if (coordinatePair) this.pairAdjacentWindow(layout);
   }
 
   private finalizeDrag(): void {
@@ -388,66 +595,54 @@ export class WindowService {
   private applySnap(): void {
     const ghost = this.snapGhost();
     if (!ghost) {
-      this.snapGhost.set(null);
-      this.lastSnapGhost = null;
+      this.clearSnapPreview();
       return;
     }
 
-    this.snapRectBeforeMaximize = null;
-    const isFullMax = this.isFullMaximizeSnap(ghost);
-    if (!this.isMaximized() && !this.isSnapped() && !isFullMax) this.normalRect = { ...this.rect };
+    const layout = this.pendingSnapLayout;
+    if (!layout) return;
+    this.applySnapLayout(layout, ghost);
+  }
 
-    this.rect = { ...ghost };
+  private clearSnapPreview(): void {
+    this.pendingSnapLayout = null;
+    this.snapGhost.set(null);
+    this.lastSnapGhost = null;
+  }
+
+  private applySnapLayout(layout: WindowSnapLayout, rect: Rect): void {
+    this.snapRectBeforeMaximize = null;
+    const isMaximizing = layout === 'maximize';
+    if (!this.isMaximized() && !this.isSnapped() && !isMaximizing)
+      this.normalRect = { ...this.rect };
+
+    this.rect = { ...rect };
+    this.snapLayout = layout;
     this.isSnapped.set(true);
-    this.isMaximized.set(isFullMax);
+    this.isMaximized.set(isMaximizing);
     this.applyStyles();
     this.snapGhost.set(null);
     this.lastSnapGhost = null;
+    this.pendingSnapLayout = null;
     this.checkBottomOverlap();
+    this.pairAdjacentWindow(layout);
   }
 
-  private isFullMaximizeSnap(ghost: Rect): boolean {
-    return (
-      ghost.x === 0 &&
-      ghost.y === TOP_BAR_HEIGHT &&
-      ghost.width === window.innerWidth &&
-      ghost.height === window.innerHeight - TOP_BAR_HEIGHT
-    );
+  private pairAdjacentWindow(layout: WindowSnapLayout): void {
+    if (!this.settings.snapPairingEnabled()) return;
+    if (layout === 'left-half') {
+      this.processManager.requestSnapPairing(this.process.id, 'right-half');
+    } else if (layout === 'right-half') {
+      this.processManager.requestSnapPairing(this.process.id, 'left-half');
+    }
   }
 
-  private calculateSnap(mouseX: number, mouseY: number): Rect | null {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const availableH = vh - TOP_BAR_HEIGHT;
-    const halfWidth = vw / 2;
-    const halfHeight = availableH / 2;
-    const midY = TOP_BAR_HEIGHT + halfHeight;
-
-    if (mouseY < TOP_BAR_HEIGHT + SNAP_EDGE && mouseX > SNAP_EDGE && mouseX < vw - SNAP_EDGE) {
-      return { x: 0, y: TOP_BAR_HEIGHT, width: vw, height: availableH };
-    }
-
-    if (mouseY < TOP_BAR_HEIGHT + SNAP_EDGE) {
-      if (mouseX <= SNAP_EDGE)
-        return { x: 0, y: TOP_BAR_HEIGHT, width: halfWidth, height: halfHeight };
-      if (mouseX >= vw - SNAP_EDGE)
-        return { x: halfWidth, y: TOP_BAR_HEIGHT, width: halfWidth, height: halfHeight };
-    }
-
-    if (mouseY > vh - SNAP_EDGE) {
-      if (mouseX <= SNAP_EDGE) return { x: 0, y: midY, width: halfWidth, height: halfHeight };
-      if (mouseX >= vw - SNAP_EDGE)
-        return { x: halfWidth, y: midY, width: halfWidth, height: halfHeight };
-      if (mouseX > SNAP_EDGE && mouseX < vw - SNAP_EDGE)
-        return { x: 0, y: midY, width: vw, height: halfHeight };
-    }
-
-    if (mouseX < SNAP_EDGE)
-      return { x: 0, y: TOP_BAR_HEIGHT, width: halfWidth, height: availableH };
-    if (mouseX > vw - SNAP_EDGE)
-      return { x: halfWidth, y: TOP_BAR_HEIGHT, width: halfWidth, height: availableH };
-
-    return null;
+  private constrainNormalRect(vw: number, vh: number): void {
+    const snappedRect = this.rect;
+    this.rect = { ...this.normalRect };
+    this.constrainAndPositionWindow(vw, vh);
+    this.normalRect = { ...this.rect };
+    this.rect = snappedRect;
   }
 
   private applyStyles(): void {
@@ -492,7 +687,7 @@ export class WindowService {
     this.processManager.updateBottomOverlap(isOverlapping);
   }
 
-  private prepareDragState(event: MouseEvent): void {
+  private prepareDragState(event: MouseEvent | PointerEvent): void {
     const rect = this.windowEl.getBoundingClientRect();
     const offsetX = event.clientX - rect.left;
     const offsetY = event.clientY - rect.top;
@@ -514,6 +709,7 @@ export class WindowService {
     this.constrainAndPositionWindow();
     this.normalRect = { ...this.rect };
     this.snapRectBeforeMaximize = null;
+    this.snapLayout = null;
     this.rect.x = event.clientX - this.rect.width * ratio;
     this.rect.y = Math.max(TOP_BAR_HEIGHT, event.clientY - offsetY);
     this.isMaximized.set(false);

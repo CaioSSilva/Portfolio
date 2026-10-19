@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal, Type, untracked } from '@angular/core';
+import { computed, effect, inject, Injectable, signal, Type, untracked } from '@angular/core';
 import { uuid } from '../utils/uuid';
 import { AppBase, Base, ProcessData } from '../models/base';
 import { AppDefinition } from '../models/dock';
@@ -8,6 +8,7 @@ import { FileSystem } from './file-system';
 import { AUDIO_EXTENSIONS, FileItem } from '../models/file';
 import { NotificationService } from './notification';
 import { AppRegistry } from './app-registry';
+import { WindowSnapLayout } from '../models/desktop';
 
 @Injectable({ providedIn: 'root' })
 export class ProcessManager {
@@ -17,14 +18,29 @@ export class ProcessManager {
   private readonly appRegistry = inject(AppRegistry);
 
   readonly processes = signal<Process[]>([]);
+  readonly snapPairRequest = signal<{
+    sourceProcessId: string;
+    targetLayout: WindowSnapLayout;
+  } | null>(null);
   private readonly topOverlapCounter = signal<number>(0);
   private readonly bottomOverlapCounter = signal<number>(0);
-  private globalCascadeIndex = 0;
 
   readonly isTopBarHidden = computed(() => this.topOverlapCounter() > 0);
   readonly isDockHidden = computed(() => this.bottomOverlapCounter() > 0);
   readonly hasActiveProcesses = computed(() => this.processes().length > 0);
-
+  readonly snapPairCandidates = computed(() => {
+    const request = this.snapPairRequest();
+    if (!request) return [];
+    const processes = this.processes();
+    const source = processes.find((process) => process.id === request.sourceProcessId);
+    if (!source || source.isMinimized) return [];
+    return processes
+      .filter((process) => {
+        if (process.id === request.sourceProcessId) return false;
+        return this.windowSnapHandlers.get(process.id)?.canPair() ?? false;
+      })
+      .sort((first, second) => second.zIndex - first.zIndex);
+  });
   readonly activeProcessId = computed(() => {
     let topId: string | null = null;
     let topZ = -1;
@@ -36,6 +52,20 @@ export class ProcessManager {
     }
     return topId;
   });
+
+  private globalCascadeIndex = 0;
+  private readonly windowSnapHandlers = new Map<
+    string,
+    { snap: (layout: WindowSnapLayout) => void; canPair: () => boolean }
+  >();
+
+  constructor() {
+    effect(() => {
+      if (this.snapPairRequest() && this.snapPairCandidates().length === 0) {
+        this.dismissSnapPairing();
+      }
+    });
+  }
 
   open(app: AppDefinition, data?: ProcessData): void {
     const existing = untracked(() => this.processes().find((proc) => proc.appId === app.id));
@@ -111,10 +141,22 @@ export class ProcessManager {
   }
 
   close(processId: string): void {
+    if (this.snapPairRequest()?.sourceProcessId === processId) {
+      this.dismissSnapPairing();
+    }
     this.processes.update((current) => current.filter((proc) => proc.id !== processId));
   }
 
   closeAllInstancesById(appId: string): void {
+    const request = this.snapPairRequest();
+    if (
+      request &&
+      this.processes().some(
+        (proc) => proc.id === request.sourceProcessId && proc.appId === appId,
+      )
+    ) {
+      this.dismissSnapPairing();
+    }
     this.processes.update((current) => current.filter((proc) => proc.appId !== appId));
   }
 
@@ -134,7 +176,46 @@ export class ProcessManager {
     });
   }
 
+  registerWindowSnapHandler(
+    processId: string,
+    snap: (layout: WindowSnapLayout) => void,
+    canPair: () => boolean = () => true,
+  ): () => void {
+    this.windowSnapHandlers.set(processId, { snap, canPair });
+    return () => this.windowSnapHandlers.delete(processId);
+  }
+
+  requestSnapPairing(sourceProcessId: string, targetLayout: WindowSnapLayout): void {
+    const hasCandidate = this.processes().some((process) => {
+      if (process.id === sourceProcessId) return false;
+      return this.windowSnapHandlers.get(process.id)?.canPair() ?? false;
+    });
+    if (!hasCandidate) {
+      this.dismissSnapPairing();
+      return;
+    }
+    this.snapPairRequest.set({ sourceProcessId, targetLayout });
+  }
+
+  chooseSnapPairCandidate(processId: string): void {
+    const request = this.snapPairRequest();
+    const candidate = this.processes().find((process) => process.id === processId);
+    const handler = this.windowSnapHandlers.get(processId);
+    if (!request || !candidate || !handler?.canPair()) return;
+
+    this.snapPairRequest.set(null);
+    this.focus(processId);
+    handler.snap(request.targetLayout);
+  }
+
+  dismissSnapPairing(): void {
+    this.snapPairRequest.set(null);
+  }
+
   toggleMinimize(processId: string): void {
+    if (this.snapPairRequest()?.sourceProcessId === processId) {
+      this.dismissSnapPairing();
+    }
     this.processes.update((current) => {
       let maxZ = 0;
       for (const item of current) {

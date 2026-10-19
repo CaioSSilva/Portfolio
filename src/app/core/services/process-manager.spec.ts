@@ -109,6 +109,75 @@ describe('ProcessManager', () => {
     expect(service.activeProcessId()).toBe(pid);
   });
 
+  it('should request a window for the opposite snap area instead of choosing automatically', () => {
+    service.open(mockApp);
+    service.open(musicApp);
+    const [source, candidate] = service.processes();
+    const snapCandidate = vi.fn();
+    service.registerWindowSnapHandler(candidate.id, snapCandidate, () => true);
+
+    service.requestSnapPairing(source.id, 'right-half');
+
+    expect(service.snapPairRequest()).toEqual({
+      sourceProcessId: source.id,
+      targetLayout: 'right-half',
+    });
+    expect(snapCandidate).not.toHaveBeenCalled();
+    expect(service.snapPairCandidates().map((process) => process.id)).toEqual([candidate.id]);
+
+    service.chooseSnapPairCandidate(candidate.id);
+
+    expect(snapCandidate).toHaveBeenCalledWith('right-half');
+    expect(service.snapPairRequest()).toBeNull();
+    expect(service.activeProcessId()).toBe(candidate.id);
+  });
+
+  it('should offer minimized windows and restore the selected window into the opposite snap area', () => {
+    service.open(mockApp);
+    service.open(musicApp);
+    const [source, candidate] = service.processes();
+    const snapCandidate = vi.fn();
+    service.registerWindowSnapHandler(candidate.id, snapCandidate, () => true);
+    service.toggleMinimize(candidate.id);
+
+    service.requestSnapPairing(source.id, 'right-half');
+
+    expect(service.snapPairCandidates().map((process) => process.id)).toEqual([candidate.id]);
+    expect(service.snapPairCandidates()[0].isMinimized).toBe(true);
+
+    service.chooseSnapPairCandidate(candidate.id);
+
+    expect(service.processes().find((process) => process.id === candidate.id)?.isMinimized).toBe(
+      false,
+    );
+    expect(snapCandidate).toHaveBeenCalledWith('right-half');
+    expect(service.activeProcessId()).toBe(candidate.id);
+  });
+
+  it('should not offer snapped or maximized windows as snap candidates', () => {
+    service.open(mockApp);
+    service.open(musicApp);
+    const [source, candidate] = service.processes();
+    service.registerWindowSnapHandler(candidate.id, vi.fn(), () => false);
+
+    service.requestSnapPairing(source.id, 'right-half');
+    expect(service.snapPairCandidates()).toHaveLength(0);
+    expect(service.snapPairRequest()).toBeNull();
+  });
+
+  it('should dismiss pairing when its last candidate closes', () => {
+    service.open(mockApp);
+    service.open(musicApp);
+    const [source, candidate] = service.processes();
+    service.registerWindowSnapHandler(candidate.id, vi.fn(), () => true);
+    service.requestSnapPairing(source.id, 'right-half');
+
+    service.close(candidate.id);
+    TestBed.flushEffects();
+
+    expect(service.snapPairRequest()).toBeNull();
+  });
+
   it('should close all instances by appId', () => {
     service.open(mockApp);
     service.open(musicApp);

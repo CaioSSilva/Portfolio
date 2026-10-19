@@ -76,6 +76,8 @@ describe('App', () => {
           provide: ProcessManager,
           useValue: {
             processes: signal([]),
+            snapPairRequest: signal(null),
+            snapPairCandidates: signal([]),
             isTopBarHidden: signal(false),
             isDockHidden: signal(false),
             hasActiveProcesses: signal(false),
@@ -83,6 +85,8 @@ describe('App', () => {
             focus: vi.fn(),
             close: vi.fn(),
             openFile: vi.fn(),
+            chooseSnapPairCandidate: vi.fn(),
+            dismissSnapPairing: vi.fn(),
           },
         },
         { provide: Settings, useValue: settingsMock },

@@ -30,6 +30,7 @@ import { Boot } from './shared/ui/boot/boot';
 import { Shutdown } from './shared/ui/shutdown/shutdown';
 import { DesktopIcons } from './features/desktop-icons/desktop-icons';
 import { ContextMenu } from './shared/ui/context-menu/context-menu';
+import { SnapPairPicker } from './shared/ui/snap-pair-picker/snap-pair-picker';
 
 @Component({
   selector: 'app-root',
@@ -48,6 +49,7 @@ import { ContextMenu } from './shared/ui/context-menu/context-menu';
     Shutdown,
     DesktopIcons,
     ContextMenu,
+    SnapPairPicker,
   ],
 })
 export class App {

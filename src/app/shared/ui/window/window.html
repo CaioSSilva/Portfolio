@@ -1,6 +1,6 @@
 @if (windowService.snapGhost(); as ghost) {
   <div
-    class="fixed z-[99999] bg-gnome-bg/20 backdrop-blur-md rounded-lg border-2 border-white/40 transition-all duration-100 pointer-events-none"
+    class="fixed z-[99999] bg-gnome-blue/20 backdrop-blur-md rounded-xl border-2 border-gnome-blue/70 shadow-2xl transition-[top,left,width,height] duration-150 ease-out pointer-events-none"
     [style.top.px]="ghost.y"
     [style.left.px]="ghost.x"
     [style.width.px]="ghost.width"
@@ -33,10 +33,10 @@
   >
     @if (!windowService.screen.isMobile()) {
       <div
-        (mousedown)="windowService.startDrag($event)"
+        (pointerdown)="windowService.startDrag($event)"
         (dblclick)="windowService.toggleMaximize()"
-        class="h-12 bg-gnome-header flex items-center justify-between px-3 select-none border-b border-black/5 shrink-0"
-        [class.cursor-grab]="!windowService.isMaximized() && !windowService.isSnapped()"
+        class="h-12 bg-gnome-header flex items-center justify-between px-3 select-none border-b border-black/5 shrink-0 touch-none cursor-grab"
+        [class.cursor-grabbing]="windowService.isDragging()"
       >
         <div
           class="font-bold text-sm tracking-wide text-gnome-text opacity-90 pl-2 flex items-center gap-2 pointer-events-none truncate"
@@ -45,7 +45,7 @@
           <span class="truncate">{{ lang.t().apps[process().appId] || process().title }}</span>
         </div>
 
-        <div class="flex items-center gap-2" (mousedown)="$event.stopPropagation()">
+        <div class="flex items-center gap-2" (pointerdown)="$event.stopPropagation()">
           <button
             (click)="windowService.minimize()"
             class="cursor-pointer w-6 h-6 rounded-full hover:bg-gnome-text/5 flex items-center justify-center transition-colors text-gnome-text-secondary"
@@ -91,8 +91,8 @@
     !windowService.isMaximized() && !windowService.isSnapped() && !windowService.screen.isMobile()
   ) {
     <div
-      (mousedown)="windowService.startResize($event)"
-      class="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 z-50 opacity-0 hover:opacity-100 transition-opacity"
+      (pointerdown)="windowService.startResize($event)"
+      class="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 z-50 opacity-0 hover:opacity-100 transition-opacity touch-none"
     >
       <div class="w-2 h-2 border-r-2 border-b-2 border-gnome-text-secondary"></div>
     </div>

@@ -1,6 +1,6 @@
 # Cai_OS — Documentation
 
-**Version:** 3.2.0 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
+**Version:** 3.3.0 · **Platform:** Web (Angular 22) · **Author:** Caio Souza Silva
 
 ---
 
@@ -174,11 +174,13 @@ Every open window corresponds to a `Process` managed by `ProcessManager`. Window
 - **Maximize**: click the maximize button or double-click the title bar
 - **Minimize**: click the minimize button; the window disappears and can be restored from the Dock
 - **Close**: click the close (X) button
-- **Snap**: drag a window to screen edges/corners to snap into halves or quadrants
-  - Left/right edge → 50% of the screen
-  - Top edge (center) → full screen
-  - Top corner → 25% quadrant (top corner)
-  - Bottom edge → bottom half of the screen
+- **Snap**: drag a window to screen edges to use the selected Classic, Halves, or Thirds layout
+  - Classic: left/right halves, top/bottom corner quadrants, bottom half, and maximize
+  - Halves: left/right halves, bottom half, and maximize
+  - Thirds: left/center/right thirds and maximize
+  - Edge sensitivity is configurable in Settings → Desktop
+- **Adjacent-window pairing**: in Classic or Halves mode, optionally choose an open window for the opposite half after snapping. Minimized windows can be selected and are restored when selected.
+- **Keyboard shortcuts**: `Alt` + `←` / `→` snaps to the sides; `Alt` + `↑` maximizes/restores; `Alt` + `↓` snaps to the lower zone and toggles back to the previous size. Classic also uses `Alt` + `Shift` + `←` / `→` for top corners and `Alt` + `Ctrl` + `←` / `→` for bottom corners.
 - **Cascade**: new windows open with automatic offset to avoid stacking
 
 ### App Switcher (desktop)
@@ -187,7 +189,7 @@ Press `Ctrl + \`` (backtick) to open the window switcher. Press again to cycle. 
 
 ### Mobile
 
-On mobile, all windows are automatically maximized to full screen. Drag and resize are disabled.
+On mobile, all windows are automatically maximized to full screen. Drag, resize, snap layouts, snap settings, and snap shortcuts are disabled.
 
 ---
 
@@ -383,6 +385,9 @@ The **Settings** application has the following sections:
 - **Auto-hide Dock**: hides the dock automatically when windows are over it
 - **Dock Icon Size**: adjusts icon size (default: 48, range 28–64)
 - **Desktop Items Size**: adjusts the size of icons pinned to the desktop (default: 40, range 32–80)
+- **Snap Layout**: select Classic, Halves, or Thirds and configure edge activation sensitivity (16–64 px)
+- **Pair Adjacent Windows**: in Classic and Halves, select a window to fill the opposite half; minimized windows are restored when selected
+- Snap settings and shortcut help are available on desktop only
 
 ### Sound
 - **System Sounds**: enable/disable interaction sounds (mouse, boot, notifications)
@@ -555,7 +560,8 @@ interface LoadedDoc {
 | Service | Responsibility |
 |---|---|
 | `ProcessManager` | Window/process lifecycle (open, close, focus, minimize) |
-| `WindowService` | Drag, resize, snap per window instance (provided locally) |
+| `WindowService` | Drag, resize, and apply snap layouts per window instance (provided locally) |
+| `WindowSnapService` | Calculate snap zones and resolve keyboard shortcuts |
 | `ScreenService` | Viewport width/height, `isMobile`, `isDesktop` and `hasCoarsePointer` signals |
 | `AppRegistry` | Reactive app catalog, lookup by ID and file extension |
 | `AppLauncher` | App launch orchestration |
@@ -621,7 +627,7 @@ Environment variables are read from `src/.env` by the `mynode.js` script and wri
 | Tailwind CSS | 4.1.18 |
 | `@google/generative-ai` | 0.24.1 |
 | `ng2-pdf-viewer` | 10.4.0 |
-| Vitest | 4.0.18 |
+| Test runner | Angular CLI unit-test builder (`ng test`), Vitest `^4.0.18` |
 | Node.js (build) | ≥ 20 |
 
 ### npm Scripts
@@ -630,8 +636,10 @@ Environment variables are read from `src/.env` by the `mynode.js` script and wri
 |---|---|
 | `npm start` | Generates `environment.ts` and starts the development server |
 | `npm run build` | Production build |
-| `npm test` | Runs the test suite (Vitest) |
+| `npm test` | Runs `ng test` through Angular's unit-test builder |
 | `npm run watch` | Incremental development build |
+
+**Latest validation:** 861 tests passed across 69 test files.
 
 ### localStorage Persistence
 

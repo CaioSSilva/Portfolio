@@ -7,6 +7,8 @@ import {
   computed,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { Dropdown } from '../../shared/ui/dropdown/dropdown';
+import { DropdownOption } from '../../core/models/dropdown';
 import { Theme } from '../../core/services/theme';
 import { SettingSection } from '../../core/models/setting';
 import { Settings } from '../../core/services/settings';
@@ -20,7 +22,7 @@ import { AgentModeService } from '../../core/services/agent-mode';
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [],
+  imports: [Dropdown],
   templateUrl: './settings.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './settings.scss',
@@ -35,10 +37,16 @@ export class SettingsComponent extends Base {
   readonly screen = inject(ScreenService);
   readonly agentMode = inject(AgentModeService);
 
-  readonly version = APP_VERSION;
-
   readonly isNarrow = signal(false);
   readonly activeSection = signal<SettingSection>('appearance');
+  readonly snapModeOptions = computed<DropdownOption[]>(() => {
+    const labels = this.lang.t().settings.desktop;
+    return [
+      { value: 'classic', label: labels.snapClassic },
+      { value: 'halves', label: labels.snapHalves },
+      { value: 'thirds', label: labels.snapThirds },
+    ];
+  });
 
   readonly menuItems = computed(() => {
     const items = [
@@ -95,6 +103,7 @@ export class SettingsComponent extends Base {
     '/wallpapers/mobile/sunset.webp',
   ];
 
+  readonly version = APP_VERSION;
   readonly systemInfo = this.systemInfoService.info;
 
   constructor() {
@@ -116,8 +125,8 @@ export class SettingsComponent extends Base {
     this.activeSection.set(section);
   }
 
-  setWallpaper(wp: string): void {
-    this.settings.setWallpaper(wp);
+  setWallpaper(wallpaperPath: string): void {
+    this.settings.setWallpaper(wallpaperPath);
   }
 
   setThemeMode(dark: boolean): void {
@@ -126,5 +135,34 @@ export class SettingsComponent extends Base {
 
   setLanguage(lang: 'pt' | 'en'): void {
     this.lang.setLanguage(lang);
+  }
+
+  setSnapMode(mode: string): void {
+    if (mode === 'classic' || mode === 'halves' || mode === 'thirds') {
+      this.settings.setWindowSnapMode(mode);
+    }
+  }
+
+  onDockSizeInput(event: Event): void {
+    const value = this.getRangeValue(event);
+    if (value !== null) this.settings.setDockSize(value);
+  }
+
+  onSnapEdgeSizeInput(event: Event): void {
+    const value = this.getRangeValue(event);
+    if (value !== null) this.settings.setSnapEdgeSize(value);
+  }
+
+  onDesktopSizeInput(event: Event): void {
+    const value = this.getRangeValue(event);
+    if (value !== null) this.settings.setDesktopSize(value);
+  }
+
+  private getRangeValue(event: Event): number | null {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return null;
+
+    const value = Number(target.value);
+    return Number.isFinite(value) ? value : null;
   }
 }

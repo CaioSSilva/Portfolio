@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { ScreenService } from './screen';
+import { WindowSnapMode } from '../models/desktop';
 
 @Injectable({ providedIn: 'root' })
 export class Settings {
@@ -16,6 +17,9 @@ export class Settings {
   readonly agentModeEnabled = signal<boolean>(this.load('agentModeEnabled', false));
   readonly agentSpeakReplies = signal<boolean>(this.load('agentSpeakReplies', false));
   readonly windowAnimationsEnabled = signal<boolean>(this.load('windowAnimations', true));
+  readonly snapEdgeSize = signal<number>(this.load('snapEdgeSize', 32));
+  readonly windowSnapMode = signal<WindowSnapMode>(this.loadSnapMode());
+  readonly snapPairingEnabled = signal<boolean>(this.load('snapPairingEnabled', false));
 
   private readonly desktopWallpaper = signal<string>(
     this.load('wallpaper', '/wallpapers/desktop/default.webp'),
@@ -40,6 +44,9 @@ export class Settings {
     effect(() => this.save('agentModeEnabled', this.agentModeEnabled()));
     effect(() => this.save('agentSpeakReplies', this.agentSpeakReplies()));
     effect(() => this.save('windowAnimations', this.windowAnimationsEnabled()));
+    effect(() => this.save('snapEdgeSize', this.snapEdgeSize()));
+    effect(() => this.save('windowSnapMode', this.windowSnapMode()));
+    effect(() => this.save('snapPairingEnabled', this.snapPairingEnabled()));
   }
 
   setWallpaper(path: string): void {
@@ -91,6 +98,27 @@ export class Settings {
 
   toggleWindowAnimations(): void {
     this.windowAnimationsEnabled.update((value) => !value);
+  }
+
+  toggleSnapPairing(): void {
+    this.snapPairingEnabled.update((value) => !value);
+  }
+
+  setSnapEdgeSize(size: number): void {
+    this.snapEdgeSize.set(Math.min(64, Math.max(16, size)));
+  }
+
+  setWindowSnapMode(mode: WindowSnapMode): void {
+    this.windowSnapMode.set(mode);
+  }
+
+  private loadSnapMode(): WindowSnapMode {
+    try {
+      const value = localStorage.getItem('windowSnapMode');
+      return value === 'halves' || value === 'thirds' ? value : 'classic';
+    } catch {
+      return 'classic';
+    }
   }
 
   private load<T>(key: string, defaultValue: T): T {

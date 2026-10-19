@@ -1,6 +1,6 @@
 # Cai_OS — Documentação
 
-**Versão:** 3.2.0 · **Plataforma:** Web (Angular 22) · **Autor:** Caio Souza Silva
+**Versão:** 3.3.0 · **Plataforma:** Web (Angular 22) · **Autor:** Caio Souza Silva
 
 ---
 
@@ -174,11 +174,13 @@ Cada janela aberta corresponde a um `Process` gerenciado pelo `ProcessManager`. 
 - **Maximizar**: clique no botão de maximizar ou dê duplo clique na barra de título
 - **Minimizar**: clique no botão de minimizar; a janela some e pode ser restaurada pelo Dock
 - **Fechar**: clique no botão de fechar (X)
-- **Snap**: arraste a janela até as bordas/cantos da tela para encaixar em metades ou quadrantes
-  - Borda esquerda/direita → 50% da tela
-  - Borda superior (centro) → tela cheia
-  - Canto superior → quadrante 25% (canto superior)
-  - Borda inferior → metade inferior da tela
+- **Snap**: arraste a janela até as bordas para usar o layout Clássico, Metades ou Terços selecionado
+  - Clássico: metades esquerda/direita, quadrantes nos cantos superiores/inferiores, metade inferior e maximizar
+  - Metades: metades esquerda/direita, metade inferior e maximizar
+  - Terços: terços esquerdo/central/direito e maximizar
+  - A sensibilidade das bordas é configurável em Configurações → Desktop
+- **Encaixe de janelas adjacentes**: nos layouts Clássico ou Metades, escolha opcionalmente uma janela aberta para preencher a metade oposta. Janelas minimizadas podem ser escolhidas e são restauradas ao selecionar.
+- **Atalhos**: `Alt` + `←` / `→` encaixa nas laterais; `Alt` + `↑` maximiza/restaura; `Alt` + `↓` encaixa na zona inferior e alterna de volta ao tamanho anterior. No Clássico, `Alt` + `Shift` + `←` / `→` encaixa nos cantos superiores e `Alt` + `Ctrl` + `←` / `→` nos inferiores.
 - **Cascata**: novas janelas abrem com deslocamento automático para não se sobrepor
 
 ### App Switcher (desktop)
@@ -187,7 +189,7 @@ Pressione `Ctrl + \`` (backtick) para abrir o seletor de janelas. Pressione nova
 
 ### Mobile
 
-No mobile, todas as janelas são automaticamente maximizadas em tela cheia. Drag e resize estão desabilitados.
+No mobile, todas as janelas são automaticamente maximizadas em tela cheia. Arrastar, redimensionar, layouts de snap, configurações de snap e atalhos ficam desabilitados.
 
 ---
 
@@ -378,6 +380,9 @@ O aplicativo **Ajustes** possui as seguintes seções:
 - **Auto-ocultar Dock**: oculta o dock automaticamente quando janelas estão sobre ele
 - **Tamanho do ícone do Dock**: ajusta o tamanho dos ícones (padrão: 48, intervalo 28–64)
 - **Tamanho dos itens do desktop**: ajusta o tamanho dos ícones fixados no desktop (padrão: 40, intervalo 32–80)
+- **Layout de snap**: selecione Clássico, Metades ou Terços e ajuste a distância de ativação das bordas (16–64 px)
+- **Encaixar janela adjacente**: nos layouts Clássico e Metades, escolha uma janela para preencher a metade oposta; janelas minimizadas são restauradas ao selecionar
+- Os controles e a ajuda dos atalhos de snap aparecem apenas no desktop
 
 ### Som
 - **Sons do sistema**: ativa/desativa os sons de interação (mouse, boot, notificações)
@@ -550,7 +555,8 @@ interface LoadedDoc {
 | Serviço | Responsabilidade |
 |---|---|
 | `ProcessManager` | Ciclo de vida de janelas/processos (abrir, fechar, focar, minimizar) |
-| `WindowService` | Drag, resize, snap por instância de janela (fornecido localmente) |
+| `WindowService` | Arrastar, redimensionar e aplicar layouts de snap por janela (fornecido localmente) |
+| `WindowSnapService` | Calcular zonas de snap e resolver atalhos do teclado |
 | `ScreenService` | Largura/altura do viewport, sinais `isMobile`, `isDesktop` e `hasCoarsePointer` |
 | `AppRegistry` | Catálogo reativo de apps, busca por ID e extensão de arquivo |
 | `AppLauncher` | Orquestração de abertura de aplicativos |
@@ -616,7 +622,7 @@ As variáveis de ambiente são lidas de `src/.env` pelo script `mynode.js` e esc
 | Tailwind CSS | 4.1.18 |
 | `@google/generative-ai` | 0.24.1 |
 | `ng2-pdf-viewer` | 10.4.0 |
-| Vitest | 4.0.18 |
+| Executor de testes | Unit-test builder do Angular (`ng test`), Vitest `^4.0.18` |
 | Node.js (build) | ≥ 20 |
 
 ### Scripts npm
@@ -625,8 +631,10 @@ As variáveis de ambiente são lidas de `src/.env` pelo script `mynode.js` e esc
 |---|---|
 | `npm start` | Gera `environment.ts` e inicia o servidor de desenvolvimento |
 | `npm run build` | Build de produção |
-| `npm test` | Executa a suíte de testes (Vitest) |
+| `npm test` | Executa `ng test` pelo unit-test builder do Angular |
 | `npm run watch` | Build incremental de desenvolvimento |
+
+**Última validação:** 861 testes passaram em 69 arquivos de teste.
 
 ### Persistência no localStorage
 

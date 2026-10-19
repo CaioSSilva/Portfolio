@@ -1,5 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { WindowService, TOP_BAR_HEIGHT, MOBILE_NAV_BAR_HEIGHT } from './window';
+import {
+  WindowService,
+  TOP_BAR_HEIGHT,
+  MOBILE_NAV_BAR_HEIGHT,
+  WINDOW_ANIMATION_DURATION_MS,
+} from './window';
 import { Base } from '../models/base';
 import { ProcessManager } from './process-manager';
 import { Settings } from './settings';
@@ -23,6 +28,18 @@ function makeProcess(overrides: Partial<Process> = {}): Process {
   };
 }
 
+function makePointerEvent(type: string, init: PointerEventInit = {}): PointerEvent {
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    button: init.button ?? 0,
+    clientX: init.clientX ?? 0,
+    clientY: init.clientY ?? 0,
+  }) as PointerEvent;
+  Object.defineProperty(event, 'pointerId', { value: init.pointerId ?? 1 });
+  return event;
+}
+
 describe('WindowService', () => {
   let service: WindowService;
   let processManager: ProcessManager;
@@ -43,6 +60,8 @@ describe('WindowService', () => {
     screenService.width.set(1280);
     screenService.height.set(window.innerHeight);
     settings.windowAnimationsEnabled.set(true);
+    settings.windowSnapMode.set('classic');
+    settings.snapPairingEnabled.set(false);
 
     el = document.createElement('div');
     document.body.appendChild(el);
@@ -70,7 +89,7 @@ describe('WindowService', () => {
     service.init(el, proc);
     expect(service.isVisible()).toBe(true);
     expect(el.style.opacity).toBe('0');
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
     vi.useRealTimers();
   });
 
@@ -108,14 +127,13 @@ describe('WindowService', () => {
   it('should restore the previous partial snap after maximizing', () => {
     settings.windowAnimationsEnabled.set(false);
     service.init(el, proc);
+    service.snapToLayout('top-left');
     const snappedRect = {
       x: 0,
       y: TOP_BAR_HEIGHT,
-      width: window.innerWidth / 2,
-      height: (window.innerHeight - TOP_BAR_HEIGHT) / 2,
+      width: screenService.width() / 2,
+      height: (screenService.height() - TOP_BAR_HEIGHT) / 2,
     };
-    service.snapGhost.set(snappedRect);
-    service['applySnap']();
     expect(service.isSnapped()).toBe(true);
 
     service.toggleMaximize();
@@ -127,6 +145,297 @@ describe('WindowService', () => {
     expect(el.style.transform).toBe(`translate3d(${snappedRect.x}px, ${snappedRect.y}px, 0)`);
     expect(el.style.width).toBe(`${snappedRect.width}px`);
     expect(el.style.height).toBe(`${snappedRect.height}px`);
+  });
+
+  it('should resize a snapped window proportionally when the viewport changes', () => {
+    settings.windowAnimationsEnabled.set(false);
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    service.snapToLayout('left-half');
+
+    screenService.width.set(800);
+    screenService.height.set(600);
+    TestBed.flushEffects();
+
+    expect(el.style.transform).toBe(`translate3d(0px, ${TOP_BAR_HEIGHT}px, 0)`);
+    expect(el.style.width).toBe('400px');
+    expect(el.style.height).toBe(`${600 - TOP_BAR_HEIGHT}px`);
+  });
+
+  it('should restore a maximized snapped window to the resized snap zone', () => {
+    settings.windowAnimationsEnabled.set(false);
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    service.snapToLayout('right-half');
+    service.toggleMaximize();
+
+    screenService.width.set(800);
+    screenService.height.set(600);
+    TestBed.flushEffects();
+    service.toggleMaximize();
+
+    expect(el.style.transform).toBe(`translate3d(400px, ${TOP_BAR_HEIGHT}px, 0)`);
+    expect(el.style.width).toBe('400px');
+    expect(el.style.height).toBe(`${600 - TOP_BAR_HEIGHT}px`);
+  });
+
+  it('should apply the final drag position when the pointer is released', () => {
+    settings.windowAnimationsEnabled.set(false);
+    service.init(el, proc);
+    Object.defineProperty(el, 'offsetParent', { configurable: true, value: document.body });
+
+    service.startDrag(new MouseEvent('mousedown', { button: 0, clientX: 400, clientY: 100 }));
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 500, clientY: 140 }));
+    document.dispatchEvent(new MouseEvent('mouseup', { clientX: 0, clientY: 140 }));
+
+    expect(service.isDragging()).toBe(false);
+    expect(service.isSnapped()).toBe(true);
+    expect(el.style.transform).toBe(`translate3d(0px, ${TOP_BAR_HEIGHT}px, 0)`);
+    expect(el.style.width).toBe(`${screenService.width() / 2}px`);
+  });
+
+  it('should drag windows through Pointer Events', () => {
+    settings.windowAnimationsEnabled.set(false);
+    service.init(el, proc);
+    Object.defineProperty(el, 'offsetParent', { configurable: true, value: document.body });
+
+    service.startDrag(
+      makePointerEvent('pointerdown', { clientX: 400, clientY: 100, pointerId: 3 }),
+    );
+    document.dispatchEvent(
+      makePointerEvent('pointermove', { clientX: 450, clientY: 130, pointerId: 3 }),
+    );
+    document.dispatchEvent(
+      makePointerEvent('pointerup', { clientX: 0, clientY: 130, pointerId: 3 }),
+    );
+
+    expect(service.isDragging()).toBe(false);
+    expect(service.isSnapped()).toBe(true);
+    expect(el.style.width).toBe(`${screenService.width() / 2}px`);
+  });
+
+  it('should use the configured thirds snap layout', () => {
+    settings.windowAnimationsEnabled.set(false);
+    settings.setWindowSnapMode('thirds');
+    service.init(el, proc);
+
+    service['updateSnapGhost'](0, 200);
+    expect(service.snapGhost()?.width).toBe(screenService.width() / 3);
+    service['finalizeDrag']();
+    expect(el.style.width).toBe(`${screenService.width() / 3}px`);
+  });
+
+  it('should offer eligible windows for the opposite half when pairing is enabled', () => {
+    settings.windowAnimationsEnabled.set(false);
+    settings.snapPairingEnabled.set(true);
+    const pairedSnap = vi.fn();
+    processManager.processes.set([proc, makeProcess({ id: 'p2', zIndex: 2 })]);
+    processManager.registerWindowSnapHandler('p2', pairedSnap);
+    service.init(el, proc);
+
+    service.snapToLayout('left-half');
+
+    expect(processManager.snapPairRequest()).toEqual({
+      sourceProcessId: proc.id,
+      targetLayout: 'right-half',
+    });
+    expect(processManager.snapPairCandidates().map((candidate) => candidate.id)).toContain('p2');
+
+    processManager.chooseSnapPairCandidate('p2');
+    expect(pairedSnap).toHaveBeenCalledWith('right-half');
+    expect(processManager.snapPairRequest()).toBeNull();
+  });
+
+  it('should apply window snap keyboard shortcuts', () => {
+    settings.windowAnimationsEnabled.set(false);
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    processManager.focus(proc.id);
+    const event = new KeyboardEvent('keydown', {
+      key: 'ArrowRight',
+      altKey: true,
+      cancelable: true,
+    });
+
+    expect(service.handleWindowShortcut(event)).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+    expect(service.isSnapped()).toBe(true);
+    expect(el.style.transform).toBe(
+      `translate3d(${screenService.width() / 2}px, ${TOP_BAR_HEIGHT}px, 0)`,
+    );
+  });
+
+  it.each([
+    ['classic', 'left-half', 0, 2],
+    ['halves', 'left-half', 0, 2],
+    ['thirds', 'left-third', 0, 3],
+  ] as const)('should snap Alt+ArrowLeft to the left zone in %s mode', (mode, layout, x, divisor) => {
+    settings.windowAnimationsEnabled.set(false);
+    settings.setWindowSnapMode(mode);
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    processManager.focus(proc.id);
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'ArrowLeft',
+      altKey: true,
+      cancelable: true,
+    });
+    expect(service.handleWindowShortcut(event)).toBe(true);
+    expect(service.isSnapped()).toBe(true);
+    expect(el.style.transform).toBe(`translate3d(${x}px, ${TOP_BAR_HEIGHT}px, 0)`);
+    expect(el.style.width).toBe(`${screenService.width() / divisor}px`);
+    expect(service['snapLayout']).toBe(layout);
+  });
+
+  it.each([
+    ['classic', 'bottom-half'],
+    ['halves', 'bottom-half'],
+    ['thirds', 'center-third'],
+  ] as const)('should snap Alt+ArrowDown to the lower zone in %s mode', (mode, layout) => {
+    settings.windowAnimationsEnabled.set(false);
+    settings.setWindowSnapMode(mode);
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    processManager.focus(proc.id);
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      altKey: true,
+      cancelable: true,
+    });
+    expect(service.handleWindowShortcut(event)).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+    expect(service['snapLayout']).toBe(layout);
+  });
+
+  it('should reserve corner shortcuts for classic mode', () => {
+    settings.windowAnimationsEnabled.set(false);
+    settings.setWindowSnapMode('classic');
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    processManager.focus(proc.id);
+
+    service.handleWindowShortcut(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowRight',
+        altKey: true,
+        shiftKey: true,
+        cancelable: true,
+      }),
+    );
+
+    expect(service['snapLayout']).toBe('top-right');
+  });
+
+  it.each([
+    ['ArrowLeft', 'bottom-left'],
+    ['ArrowRight', 'bottom-right'],
+  ] as const)('should snap to the %s lower corner in classic mode', (key, layout) => {
+    settings.windowAnimationsEnabled.set(false);
+    settings.setWindowSnapMode('classic');
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    processManager.focus(proc.id);
+    const event = new KeyboardEvent('keydown', {
+      key,
+      altKey: true,
+      ctrlKey: true,
+      cancelable: true,
+    });
+
+    expect(service.handleWindowShortcut(event)).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+    expect(service['snapLayout']).toBe(layout);
+  });
+
+  it.each(['top-left', 'top-right', 'bottom-left', 'bottom-right'] as const)(
+    'should drag-snap to the %s corner in classic mode',
+    (layout) => {
+    settings.windowAnimationsEnabled.set(false);
+    settings.setWindowSnapMode('classic');
+    service.init(el, proc);
+    const x = layout.endsWith('right') ? screenService.width() - 1 : 0;
+    const y = layout.startsWith('bottom')
+      ? screenService.height() - 1
+      : TOP_BAR_HEIGHT + 1;
+
+    service['updateSnapGhost'](x, y);
+    service['finalizeDrag']();
+
+    expect(service['snapLayout']).toBe(layout);
+    expect(service.isSnapped()).toBe(true);
+    },
+  );
+
+  it('should maximize with Alt+ArrowUp and restore on the next press', () => {
+    settings.windowAnimationsEnabled.set(false);
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    processManager.focus(proc.id);
+    const event = () =>
+      new KeyboardEvent('keydown', { key: 'ArrowUp', altKey: true, cancelable: true });
+
+    service.handleWindowShortcut(event());
+    expect(service.isMaximized()).toBe(true);
+
+    service.handleWindowShortcut(event());
+    expect(service.isMaximized()).toBe(false);
+  });
+
+  it('should not maximize or restore with Alt+Shift+ArrowUp', () => {
+    settings.windowAnimationsEnabled.set(false);
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    processManager.focus(proc.id);
+    const event = new KeyboardEvent('keydown', {
+      key: 'ArrowUp',
+      altKey: true,
+      shiftKey: true,
+      cancelable: true,
+    });
+
+    expect(service.handleWindowShortcut(event)).toBe(false);
+    expect(event.defaultPrevented).toBe(false);
+    expect(service.isMaximized()).toBe(false);
+    expect(service.isSnapped()).toBe(false);
+  });
+
+  it('should snap to the bottom half with Alt+ArrowDown', () => {
+    settings.windowAnimationsEnabled.set(false);
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    processManager.focus(proc.id);
+    const event = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      altKey: true,
+      cancelable: true,
+    });
+
+    expect(service.handleWindowShortcut(event)).toBe(true);
+    expect(event.defaultPrevented).toBe(true);
+    expect(service.isSnapped()).toBe(true);
+    expect(service.isMaximized()).toBe(false);
+    expect(el.style.transform).toBe(
+      `translate3d(0px, ${TOP_BAR_HEIGHT + (screenService.height() - TOP_BAR_HEIGHT) / 2}px, 0)`,
+    );
+    expect(el.style.width).toBe(`${screenService.width()}px`);
+    expect(el.style.height).toBe(`${(screenService.height() - TOP_BAR_HEIGHT) / 2}px`);
+  });
+
+  it('should restore the window when Alt+ArrowDown is pressed again on the bottom snap', () => {
+    settings.windowAnimationsEnabled.set(false);
+    processManager.processes.set([proc]);
+    service.init(el, proc);
+    processManager.focus(proc.id);
+    service.snapToLayout('bottom-half');
+
+    service.handleWindowShortcut(
+      new KeyboardEvent('keydown', { key: 'ArrowDown', altKey: true, cancelable: true }),
+    );
+
+    expect(service.isSnapped()).toBe(false);
+    expect(service.isMaximized()).toBe(false);
   });
 
   it('should fit a maximized window to a smaller viewport when restored', () => {
@@ -242,7 +551,7 @@ describe('WindowService', () => {
     expect(service.isClosing()).toBe(true);
     expect(el.style.opacity).toBe('0');
     expect(el.style.width).toBe('0px');
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
     expect(processManager.processes().length).toBe(0);
     vi.useRealTimers();
   });
@@ -256,7 +565,10 @@ describe('WindowService', () => {
 
     service.close();
     expect(processManager.processes().length).toBe(1);
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS - 1);
+    expect(processManager.processes().length).toBe(1);
+    vi.advanceTimersByTime(1);
+    expect(processManager.processes().length).toBe(0);
     vi.useRealTimers();
   });
 
@@ -269,7 +581,7 @@ describe('WindowService', () => {
 
     service.close();
     service.close();
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
     expect(processManager.processes().length).toBe(0);
     vi.useRealTimers();
   });
@@ -281,13 +593,13 @@ describe('WindowService', () => {
     const process = makeProcess({ id: pid });
     service.init(el, process);
     TestBed.flushEffects();
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
 
     service.minimize();
     TestBed.flushEffects();
     expect(processManager.processes()[0].isMinimized).toBe(true);
     expect(service.isAnimatingMinimize()).toBe(true);
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
     expect(service.isAnimatingMinimize()).toBe(false);
     vi.useRealTimers();
   });
@@ -299,14 +611,14 @@ describe('WindowService', () => {
     const process = makeProcess({ id: pid });
     service.init(el, process);
     TestBed.flushEffects();
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
 
     service.minimize();
     TestBed.flushEffects();
     expect(el.style.opacity).toBe('0');
     expect(el.style.width).toBe('0px');
     expect(el.style.height).toBe('0px');
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
     vi.useRealTimers();
   });
 
@@ -322,14 +634,14 @@ describe('WindowService', () => {
     TestBed.flushEffects();
     expect(processManager.processes()[0].isMinimized).toBe(true);
     expect(service.isAnimatingMinimize()).toBe(true);
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
     expect(service.isAnimatingMinimize()).toBe(false);
 
     processManager.toggleMinimize(pid);
     TestBed.flushEffects();
     expect(processManager.processes()[0].isMinimized).toBe(false);
     expect(el.style.opacity).toBe('0');
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(WINDOW_ANIMATION_DURATION_MS);
     vi.useRealTimers();
   });
 

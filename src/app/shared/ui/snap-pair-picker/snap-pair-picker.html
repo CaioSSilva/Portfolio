@@ -1,0 +1,58 @@
+@if (processManager.snapPairRequest(); as request) {
+  <div
+    class="fixed inset-0 z-[10001] pointer-events-auto"
+    (click)="processManager.dismissSnapPairing()"
+  >
+    <section
+      class="fixed bottom-0 top-8 flex flex-col items-center justify-center gap-5 overflow-y-auto border-l border-gnome-blue/40 bg-gnome-bg/85 p-4 shadow-2xl backdrop-blur-xl animate-in @min-[700px]:p-8"
+      (click)="$event.stopPropagation()"
+      [class.left-1/2]="request.targetLayout === 'right-half'"
+      [class.right-0]="request.targetLayout === 'left-half'"
+      [class.w-1/2]="request.targetLayout === 'left-half' || request.targetLayout === 'right-half'"
+      aria-labelledby="snap-pair-title"
+      aria-modal="true"
+      role="dialog"
+    >
+      <header class="w-full max-w-lg text-center">
+        <h2 id="snap-pair-title" class="text-lg font-bold text-gnome-text @min-[700px]:text-xl">
+          {{ lang.t().settings.desktop.snapPairPickerTitle }}
+        </h2>
+        <p class="mt-1 text-sm text-gnome-text-secondary">
+          {{ lang.t().settings.desktop.snapPairPickerDescription }}
+        </p>
+      </header>
+
+      <div class="grid w-full max-w-lg grid-cols-1 gap-3 @min-[520px]:grid-cols-2">
+        @for (process of processManager.snapPairCandidates(); track process.id) {
+          <button
+            type="button"
+            (click)="processManager.chooseSnapPairCandidate(process.id)"
+            class="flex min-h-24 items-center gap-3 rounded-2xl border border-gnome-border bg-gnome-surface p-4 text-left shadow-sm transition hover:border-gnome-blue hover:bg-gnome-header focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gnome-blue active:scale-[0.98] cursor-pointer"
+          >
+            <span
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gnome-header"
+            >
+              <i [class]="process.icon + ' text-2xl'" [style.color]="process.color"></i>
+            </span>
+            <span class="min-w-0">
+              <span class="block truncate text-sm font-semibold text-gnome-text">
+                {{ process.title }}
+              </span>
+              <span class="mt-1 block text-xs text-gnome-text-secondary">
+                {{ lang.t().settings.desktop.snapPairPickerAction }}
+              </span>
+            </span>
+          </button>
+        }
+      </div>
+
+      <button
+        type="button"
+        (click)="processManager.dismissSnapPairing()"
+        class="rounded-lg px-4 py-2 text-sm font-medium text-gnome-text-secondary transition hover:bg-gnome-header hover:text-gnome-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gnome-blue cursor-pointer"
+      >
+        {{ lang.t().settings.desktop.snapPairPickerCancel }}
+      </button>
+    </section>
+  </div>
+}

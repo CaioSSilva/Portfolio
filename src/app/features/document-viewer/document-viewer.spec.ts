@@ -1,6 +1,9 @@
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { PdfViewerComponent } from 'ng2-pdf-viewer';
 import { DocumentViewer } from './document-viewer';
 import { LanguageService } from '../../core/services/language';
 import { Apps } from '../../core/services/apps';
@@ -8,7 +11,7 @@ import { FileSystem } from '../../core/services/file-system';
 import { DocumentLoaderService } from '../../core/services/document-loader';
 import { ScreenService } from '../../core/services/screen';
 import { Sound } from '../../core/services/sound';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { WINDOW_ANIMATION_DURATION_MS } from '../../core/services/window-constants';
 import { FileItem } from '../../core/models/file';
 import { AppRegistry } from '../../core/services/app-registry';
 import { AppLauncher } from '../../core/services/app-launcher';
@@ -21,6 +24,16 @@ const makeDoc = (id: string, name: string, url: string): FileItem => ({
   icon: 'file',
   url,
 });
+
+@Component({
+  selector: 'pdf-viewer',
+  standalone: true,
+  template: '',
+  providers: [{ provide: PdfViewerComponent, useExisting: PdfViewerStub }],
+})
+class PdfViewerStub {
+  updateSize = vi.fn();
+}
 
 describe('DocumentViewer', () => {
   let component: DocumentViewer;
@@ -116,7 +129,9 @@ describe('DocumentViewer', () => {
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
-      .overrideComponent(DocumentViewer, { set: { imports: [], schemas: [NO_ERRORS_SCHEMA] } })
+      .overrideComponent(DocumentViewer, {
+        set: { imports: [PdfViewerStub], schemas: [NO_ERRORS_SCHEMA] },
+      })
       .compileComponents();
 
     fixture = TestBed.createComponent(DocumentViewer);
@@ -190,6 +205,25 @@ describe('DocumentViewer', () => {
     component.onPdfLoadSuccess();
     expect(loaderSpy.isLoading.set).toHaveBeenCalledWith(false);
     expect(loaderSpy.hasError.set).toHaveBeenCalledWith(false);
+  });
+
+  it('should recalculate PDF scale after the viewer has finished opening', async () => {
+    vi.useFakeTimers();
+    try {
+      component.selectFile(mockDocs[0]);
+      component.isViewingDocument.set(true);
+      component.fileType.set('pdf');
+      fixture.detectChanges();
+
+      component.onPdfLoadSuccess();
+      await vi.advanceTimersByTimeAsync(WINDOW_ANIMATION_DURATION_MS + 100);
+
+      const viewer = fixture.debugElement.query(By.directive(PdfViewerStub))
+        .componentInstance as PdfViewerStub;
+      expect(viewer.updateSize).toHaveBeenCalledOnce();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('should onPdfLoadError set hasError', () => {

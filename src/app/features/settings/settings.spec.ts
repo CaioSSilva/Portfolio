@@ -102,4 +102,91 @@ describe('SettingsComponent', () => {
     const pct = ((settings.desktopSize() - 32) / (80 - 32)) * 100;
     expect(pct).toBe(100);
   });
+
+  it('updates snap edge sensitivity from a typed range input event', () => {
+    const settings = TestBed.inject(Settings);
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.value = '48';
+    const event = new Event('input');
+    Object.defineProperty(event, 'target', { value: input });
+
+    component.onSnapEdgeSizeInput(event);
+
+    expect(settings.snapEdgeSize()).toBe(48);
+  });
+
+  it('uses the shared dropdown for snap mode instead of a native select', () => {
+    component.setSection('desktop');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('select')).toBeNull();
+    const dropdown = fixture.nativeElement.querySelector('app-dropdown');
+    expect(dropdown).not.toBeNull();
+
+    dropdown.querySelector('[data-dropdown-trigger]').click();
+    fixture.detectChanges();
+    expect(dropdown.querySelector('[role="listbox"]')).not.toBeNull();
+    expect(dropdown.querySelectorAll('[role="option"]').length).toBe(3);
+  });
+
+  it('updates snap mode when selecting a shared dropdown option', () => {
+    const settings = TestBed.inject(Settings);
+    component.setSection('desktop');
+    fixture.detectChanges();
+    const dropdown = fixture.nativeElement.querySelector('app-dropdown');
+    dropdown.querySelector('[data-dropdown-trigger]').click();
+    fixture.detectChanges();
+
+    dropdown.querySelector('[data-dropdown-option="thirds"]').click();
+    fixture.detectChanges();
+
+    expect(settings.windowSnapMode()).toBe('thirds');
+    expect(dropdown.querySelector('[role="listbox"]')).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain('Pair adjacent windows');
+
+    settings.setWindowSnapMode('halves');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Pair adjacent windows');
+  });
+
+  it('groups snap shortcut guidance and adapts the labels to the selected layout', () => {
+    const settings = TestBed.inject(Settings);
+    const language = TestBed.inject(LanguageService);
+    language.setLanguage('pt');
+    settings.setWindowSnapMode('classic');
+    component.setSection('desktop');
+    fixture.detectChanges();
+
+    const desktop = fixture.nativeElement as HTMLElement;
+    expect(desktop.textContent).toContain('Atalhos do teclado');
+    expect(desktop.textContent).toContain('Encaixar à esquerda ou à direita');
+    expect(desktop.textContent).toContain('Metades da tela');
+    expect(desktop.querySelectorAll('.snap-shortcut-key').length).toBeGreaterThan(0);
+    expect(desktop.textContent).toContain('Encaixar nos cantos superiores');
+
+    settings.setWindowSnapMode('thirds');
+    fixture.detectChanges();
+    expect(desktop.textContent).toContain('Terços da tela');
+    expect(desktop.textContent).toContain('Terço central; pressione novamente para restaurar');
+    expect(desktop.textContent).not.toContain('Encaixar nos cantos superiores');
+  });
+
+  it('hides snap controls and shortcut guidance in mobile mode', () => {
+    const screen = TestBed.inject(ScreenService);
+    TestBed.inject(LanguageService).setLanguage('pt');
+    component.setSection('desktop');
+    screen.width.set(500);
+    fixture.detectChanges();
+
+    const desktop = fixture.nativeElement as HTMLElement;
+    expect(desktop.querySelector('app-dropdown')).toBeNull();
+    expect(desktop.textContent).not.toContain('Layouts de encaixe');
+    expect(desktop.textContent).not.toContain('Atalhos do teclado');
+    expect(desktop.querySelector('.snap-shortcut-key')).toBeNull();
+
+    screen.width.set(1024);
+    fixture.detectChanges();
+    expect(desktop.querySelector('app-dropdown')).not.toBeNull();
+  });
 });
