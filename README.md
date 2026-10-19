@@ -65,6 +65,8 @@ Cai_OS is not a traditional portfolio page — it is a fully functional simulate
 - **No more `NgZone`**: Removed from `ScreenService` and `WindowService` — signal writes already notify the scheduler. New guideline §24 documents when `NgZone` is acceptable
 - **Test suite**: 784 passing tests
 
+</details>
+
 <details>
 <summary>Previous release — v3.1.0</summary>
 
