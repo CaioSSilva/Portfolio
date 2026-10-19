@@ -773,7 +773,7 @@ Antes de abrir um pull request, confirme que não há logs de depuração, que e
 
 ## Licença
 
-Este projeto é privado (`"private": true` em `package.json`). Todos os direitos reservados.
+Este projeto é público e toda colaboração é bem-vinda. Fique à vontade para abrir uma issue ou enviar um pull request.
 
 ## Estatísticas do projeto
 

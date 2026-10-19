@@ -1080,7 +1080,7 @@ Edit `public/data/fs.json` to add nodes to the tree. Files referenced by `url` m
 
 ## License
 
-This project is private (`"private": true` in `package.json`). All rights reserved.
+This project is public, and contributions are welcome. Feel free to open an issue or submit a pull request.
 
 ---
 
