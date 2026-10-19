@@ -1,27 +1,22 @@
 import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { TranslationSchema } from '../../core/language/i18n.types';
 import { Base } from '../../core/models/base';
 import { AppDefinition } from '../../core/models/dock';
+import {
+  APP_DISPLAY_ORDER,
+  README_FILES,
+  RESUME_FILES,
+  RESUME_LABELS,
+} from '../../core/models/about-project';
 import { Apps } from '../../core/services/apps';
 import { LanguageService } from '../../core/services/language';
 import { FileSystem } from '../../core/services/file-system';
-import { TranslationSchema } from '../../core/language/i18n.types';
+import { ProcessManager } from '../../core/services/process-manager';
 
 type AboutAppEntry = {
   config: AppDefinition;
   info: TranslationSchema['aboutProj']['apps']['files'];
 };
-
-const APP_DISPLAY_ORDER: ReadonlyArray<{ id: string; textKey: string }> = [
-  { id: 'files', textKey: 'files' },
-  { id: 'photos', textKey: 'photos' },
-  { id: 'musics', textKey: 'music' },
-  { id: 'documents', textKey: 'docs' },
-  { id: 'firefox', textKey: 'browser' },
-  { id: 'systemMonitor', textKey: 'sysMonitor' },
-  { id: 'terminal', textKey: 'terminal' },
-  { id: 'settings', textKey: 'settings' },
-  { id: 'hermes', textKey: 'hermes' },
-];
 
 @Component({
   selector: 'app-about-project',
@@ -33,17 +28,13 @@ const APP_DISPLAY_ORDER: ReadonlyArray<{ id: string; textKey: string }> = [
 })
 export class AboutProject extends Base {
   private readonly apps = inject(Apps);
+  private readonly processManager = inject(ProcessManager);
   readonly fileSystem = inject(FileSystem);
   readonly lang = inject(LanguageService);
 
-  readonly resumeName = computed(() => {
-    const lang = this.lang;
-    return lang.currentLang() === 'en' ? 'Resume' : 'Currículo';
-  });
+  readonly resumeName = computed(() => RESUME_LABELS[this.lang.currentLang()]);
 
-  readonly readmeName = computed(() =>
-    this.lang.currentLang() === 'en' ? 'README.md' : 'README.pt-BR.md',
-  );
+  readonly readmeName = computed(() => README_FILES[this.lang.currentLang()].name);
 
   aboutApps(): AboutAppEntry[] {
     const installed = this.apps.appsRegistry();
@@ -55,14 +46,12 @@ export class AboutProject extends Base {
     this.apps.openApp(app);
   }
 
-  downloadResume(): void {
-    const path = `${window.document.baseURI}data/root/home/documents/${this.resumeName()}.pdf`;
-    this.fileSystem.downloadFile(path, `Caio Souza Silva - ${this.resumeName()}.pdf`);
+  openResume(): void {
+    this.processManager.openFile(RESUME_FILES[this.lang.currentLang()]);
   }
 
-  downloadReadme(): void {
-    const name = this.readmeName();
-    this.fileSystem.downloadFile(`/data/root/home/documents/${name}`, name);
+  openReadme(): void {
+    this.processManager.openFile(README_FILES[this.lang.currentLang()]);
   }
 
   private buildDisplayOrder(

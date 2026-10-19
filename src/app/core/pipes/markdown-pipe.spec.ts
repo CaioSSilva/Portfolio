@@ -103,6 +103,37 @@ describe('MarkdownPipe', () => {
     expect(result).toContain('Google');
   });
 
+  it('should render HTTPS Markdown images', () => {
+    const result = pipe.transform('![Version](https://img.shields.io/badge/version-3.3.0-blue)').toString();
+    expect(result).toContain(
+      '<img src="https://img.shields.io/badge/version-3.3.0-blue" alt="Version">',
+    );
+    expect(result).not.toContain('<img src="![Version]');
+  });
+
+  it('should render a Markdown image wrapped in a link', () => {
+    const result = pipe
+      .transform('[![Version](https://img.shields.io/version.svg)](https://example.com)')
+      .toString();
+    expect(result).toContain(
+      '<a href="https://example.com" target="_blank" rel="noopener"><img src="https://img.shields.io/version.svg" alt="Version"></a>',
+    );
+  });
+
+  it('should keep consecutive Markdown images on the same line', () => {
+    const result = pipe
+      .transform('![One](https://example.com/one.svg)\n![Two](https://example.com/two.svg)')
+      .toString();
+    expect(result).toContain('src="https://example.com/one.svg"');
+    expect(result).toContain('src="https://example.com/two.svg"');
+    expect(result).not.toContain('<br>');
+  });
+
+  it('should not render Markdown images with unsafe URL schemes', () => {
+    const result = pipe.transform('![Unsafe](javascript:alert(1))').toString();
+    expect(result).not.toContain('<img');
+  });
+
   it('should convert anchor links [text](#id) to <a href="#id">', () => {
     const result = pipe.transform('[Overview](#overview)').toString();
     expect(result).toContain('<a href="#overview"');

@@ -43,7 +43,14 @@ export class MarkdownPipe implements PipeTransform {
   private applyHeadingsAndInlines(html: string): string {
     let text = this.applyHeadings(html);
     text = this.applyInlineStyles(text);
+    text = this.applyImages(text);
     return this.applyLinks(text);
+  }
+
+  private applyImages(html: string): string {
+    return html.replace(/!\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/gi, (_match, alt, src) => {
+      return `<img src="${this.escapeAttribute(src)}" alt="${this.escapeAttribute(alt)}">`;
+    });
   }
 
   private applyHeadings(html: string): string {
@@ -137,6 +144,7 @@ export class MarkdownPipe implements PipeTransform {
       /(?<!<\/(?:h[1-4]|li|blockquote|pre|ul|ol|hr)>)\n(?!<(?:h[1-4]|li|blockquote|pre|ul|ol|hr))/g,
       '<br>',
     );
+    html = html.replace(/<br>(?=<img\b)|(<img\b[^>]*>)<br>/g, '$1');
     return html.replace(/(<br>\s*){2,}/g, '<br><br>');
   }
 
@@ -151,5 +159,9 @@ export class MarkdownPipe implements PipeTransform {
 
   private escapeHtml(str: string): string {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  private escapeAttribute(str: string): string {
+    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   }
 }

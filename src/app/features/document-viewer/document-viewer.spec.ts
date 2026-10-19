@@ -207,20 +207,25 @@ describe('DocumentViewer', () => {
     expect(loaderSpy.hasError.set).toHaveBeenCalledWith(false);
   });
 
-  it('should recalculate PDF scale after the viewer has finished opening', async () => {
+  it('should wait for the window layout to settle before creating the PDF viewer', async () => {
     vi.useFakeTimers();
     try {
       component.selectFile(mockDocs[0]);
-      component.isViewingDocument.set(true);
-      component.fileType.set('pdf');
+      component.openSelectedDocument();
+      await vi.advanceTimersByTimeAsync(0);
       fixture.detectChanges();
 
-      component.onPdfLoadSuccess();
-      await vi.advanceTimersByTimeAsync(WINDOW_ANIMATION_DURATION_MS + 100);
+      expect(fixture.debugElement.query(By.directive(PdfViewerStub))).toBeNull();
 
-      const viewer = fixture.debugElement.query(By.directive(PdfViewerStub))
-        .componentInstance as PdfViewerStub;
-      expect(viewer.updateSize).toHaveBeenCalledOnce();
+      const initialLayoutDelay = WINDOW_ANIMATION_DURATION_MS + 120;
+      await vi.advanceTimersByTimeAsync(initialLayoutDelay - 1);
+      fixture.detectChanges();
+      expect(fixture.debugElement.query(By.directive(PdfViewerStub))).toBeNull();
+
+      await vi.advanceTimersByTimeAsync(1);
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.directive(PdfViewerStub))).not.toBeNull();
     } finally {
       vi.useRealTimers();
     }

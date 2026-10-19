@@ -197,18 +197,20 @@
         (touchend)="onTouchEnd($event)"
       >
         @if (fileType() === 'pdf') {
-          <pdf-viewer
-            [src]="safePath()!"
-            [render-text]="true"
-            [original-size]="false"
-            [zoom]="zoom()"
-            [autoresize]="true"
-            [show-all]="true"
-            [fit-to-page]="false"
-            (after-load-complete)="onPdfLoadSuccess()"
-            (error)="onPdfLoadError()"
-            class="mx-auto block shadow-2xl flex-1 w-full"
-          ></pdf-viewer>
+          @if (isPdfLayoutReady()) {
+            <pdf-viewer
+              [src]="safePath()!"
+              [render-text]="true"
+              [original-size]="false"
+              [zoom]="zoom()"
+              [autoresize]="false"
+              [show-all]="true"
+              [fit-to-page]="false"
+              (after-load-complete)="onPdfLoadSuccess()"
+              (error)="onPdfLoadError()"
+              class="mx-auto block shadow-2xl flex-1 w-full"
+            ></pdf-viewer>
+          }
 
           @if (isNarrow()) {
             <div

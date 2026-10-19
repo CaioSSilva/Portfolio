@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PdfViewerComponent, PdfViewerModule } from 'ng2-pdf-viewer';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { Subscription, timer } from 'rxjs';
 import { Base } from '../../core/models/base';
 import { LanguageService } from '../../core/services/language';
@@ -34,7 +34,7 @@ import { WINDOW_ANIMATION_DURATION_MS } from '../../core/services/window-constan
   imports: [PdfViewerModule, MarkdownPipe],
 })
 export class DocumentViewer extends Base {
-  private static readonly PDF_RESIZE_DEBOUNCE_MS = 100;
+  private static readonly PDF_LAYOUT_STABLE_MS = 120;
 
   private readonly appsService = inject(Apps);
   private readonly hostEl = inject(ElementRef<HTMLElement>);
@@ -54,6 +54,7 @@ export class DocumentViewer extends Base {
   readonly isViewingDocument = signal(false);
   readonly isNarrow = signal(false);
   readonly isPinchZoomed = signal(false);
+  readonly isPdfLayoutReady = signal(false);
   readonly safePath = computed(() => {
     const selectedFile = this.selectedFile();
     const isViewing = this.isViewingDocument();
@@ -82,11 +83,9 @@ export class DocumentViewer extends Base {
   });
 
   private readonly scrollContainer = viewChild<ElementRef<HTMLElement>>('scrollContainer');
-  private readonly pdfViewer = viewChild(PdfViewerComponent);
-
   private resizeObserver: ResizeObserver | null = null;
-  private pdfResizeSubscription = Subscription.EMPTY;
-  private isPdfLoaded = false;
+  private pdfLayoutSubscription = Subscription.EMPTY;
+  private pdfLayoutReadyAt = 0;
   private touchStartX = 0;
   private touchStartY = 0;
   private touchStartTarget: EventTarget | null = null;
@@ -122,12 +121,12 @@ export class DocumentViewer extends Base {
     this.resizeObserver = new ResizeObserver((entries) => {
       const width = entries[0]?.contentRect.width ?? 0;
       this.isNarrow.set(width > 0 && width < 500);
-      this.schedulePdfResize();
+      this.schedulePdfLayoutUpdate();
     });
     this.resizeObserver.observe(this.hostEl.nativeElement);
     this.destroyRef.onDestroy(() => {
       this.resizeObserver?.disconnect();
-      this.pdfResizeSubscription.unsubscribe();
+      this.pdfLayoutSubscription.unsubscribe();
     });
   }
 
@@ -151,12 +150,12 @@ export class DocumentViewer extends Base {
   }
 
   private async applyProcessedFile(file: FileItem): Promise<void> {
-    this.isPdfLoaded = false;
-    this.pdfResizeSubscription.unsubscribe();
+    this.pdfLayoutSubscription.unsubscribe();
     const result = await this.loader.processFile(file);
     this.fileType.set(result.fileType);
     this.fileName.set(result.fileName);
     this.textContent.set(result.textContent);
+    this.schedulePdfLayoutUpdate();
   }
 
   selectFile(file: FileItem): void {
@@ -185,9 +184,8 @@ export class DocumentViewer extends Base {
   }
 
   closeDocumentView(): void {
+    this.pdfLayoutSubscription.unsubscribe();
     this.isViewingDocument.set(false);
-    this.isPdfLoaded = false;
-    this.pdfResizeSubscription.unsubscribe();
     this.data.set(null);
     this.zoom.set(1.0);
     this.loader.resetState();
@@ -198,25 +196,40 @@ export class DocumentViewer extends Base {
   onPdfLoadSuccess(): void {
     this.loader.isLoading.set(false);
     this.loader.hasError.set(false);
-    this.isPdfLoaded = true;
-    this.schedulePdfResize();
   }
 
-  private schedulePdfResize(): void {
-    if (!this.isPdfLoaded || !this.isViewingDocument() || !this.pdfViewer()) return;
+  private schedulePdfLayoutUpdate(): void {
+    if (
+      this.fileType() !== 'pdf' ||
+      !this.isViewingDocument() ||
+      this.isPdfLayoutReady()
+    ) {
+      return;
+    }
 
-    this.pdfResizeSubscription.unsubscribe();
-    const delay = this.resizeObserver
-      ? DocumentViewer.PDF_RESIZE_DEBOUNCE_MS
-      : WINDOW_ANIMATION_DURATION_MS + DocumentViewer.PDF_RESIZE_DEBOUNCE_MS;
-    this.pdfResizeSubscription = timer(delay)
+    this.pdfLayoutSubscription.unsubscribe();
+    const delay = this.getPdfLayoutDelay();
+
+    this.pdfLayoutSubscription = timer(delay)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.pdfViewer()?.updateSize());
+      .subscribe(() => {
+        this.pdfLayoutReadyAt = 0;
+        this.isPdfLayoutReady.set(true);
+      });
+  }
+
+  private getPdfLayoutDelay(): number {
+    if (this.isPdfLayoutReady()) return DocumentViewer.PDF_LAYOUT_STABLE_MS;
+    if (this.pdfLayoutReadyAt === 0) {
+      this.pdfLayoutReadyAt =
+        Date.now() + WINDOW_ANIMATION_DURATION_MS + DocumentViewer.PDF_LAYOUT_STABLE_MS;
+    }
+    return Math.max(DocumentViewer.PDF_LAYOUT_STABLE_MS, this.pdfLayoutReadyAt - Date.now());
   }
 
   onPdfLoadError(): void {
-    this.isPdfLoaded = false;
-    this.pdfResizeSubscription.unsubscribe();
+    this.pdfLayoutReadyAt = 0;
+    this.pdfLayoutSubscription.unsubscribe();
     this.loader.hasError.set(true);
     this.loader.isLoading.set(false);
   }

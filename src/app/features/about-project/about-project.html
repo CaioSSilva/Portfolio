@@ -98,20 +98,21 @@
           {{ lang.t().aboutProj.resumeDescription }}
         </p>
       </div>
-      <div>
-        <div
-          (click)="downloadReadme()"
-          class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+      <div class="mx-auto flex w-full max-w-md flex-col">
+        <button
+          type="button"
+          (click)="openReadme()"
+          class="group w-full cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
         >
           <div
             class="w-12 h-12 text-white rounded-2xl flex bg-gnome-blue items-center justify-center shrink-0 shadow-sm"
           >
             <i class="fas fa-book"></i>
           </div>
-          <h4 class="font-bold text-sm text-gnome-text">
+          <span class="font-bold text-sm text-gnome-text">
             {{ readmeName() }}
-          </h4>
-        </div>
+          </span>
+        </button>
 
         <p class="text-center p-2 font-bold">{{ lang.t().common.or }}</p>
 
@@ -122,7 +123,7 @@
               `Portfolio-main.zip`
             )
           "
-          class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+          class="group w-full cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
         >
           <div
             class="w-12 h-12 text-white rounded-2xl flex bg-purple-500 items-center justify-center shrink-0 shadow-sm"
@@ -133,17 +134,20 @@
         </div>
         <p class="text-center p-2 font-bold">{{ lang.t().common.or }}</p>
 
-        <div
-          (click)="downloadResume()"
-          class="group cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
+        <button
+          type="button"
+          (click)="openResume()"
+          class="group w-full cursor-pointer flex items-center gap-4 bg-gnome-surface border border-gnome-border p-5 rounded-2xl hover:bg-gnome-header hover:border-gnome-blue/30 transition-all active:scale-[0.98]"
         >
           <div
             class="w-12 h-12 text-white rounded-2xl flex bg-red-400 items-center justify-center shrink-0 shadow-sm"
           >
             <i class="fas fa-file-pdf"></i>
           </div>
-          <h4 class="font-bold text-sm text-gnome-text">Caio Souza Silva - {{ resumeName() }}</h4>
-        </div>
+          <span class="font-bold text-sm text-gnome-text"
+            >Caio Souza Silva - {{ resumeName() }}</span
+          >
+        </button>
       </div>
     </div>
   </div>

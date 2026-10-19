@@ -1,6 +1,6 @@
 # Cai_OS
 
-[🇧🇷 Português (Brasil)](README.pt-BR.md) | [🇺🇸 English](README.md)
+[🇧🇷 Português (Brasil)](https://github.com/CaioSSilva/Portfolio/blob/main/README.pt-BR.md) | [🇺🇸 English](https://github.com/CaioSSilva/Portfolio/blob/main/README.md)
 
 ![Versão](https://img.shields.io/badge/version-3.3.0-blue)
 ![Angular](https://img.shields.io/badge/Angular-22-red)

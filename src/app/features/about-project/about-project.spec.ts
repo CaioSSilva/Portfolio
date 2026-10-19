@@ -9,6 +9,7 @@ import { AppRegistry } from '../../core/services/app-registry';
 import { AppLauncher } from '../../core/services/app-launcher';
 import { ContextMenuService } from '../../core/services/context-menu';
 import { Sound } from '../../core/services/sound';
+import { ProcessManager } from '../../core/services/process-manager';
 
 describe('AboutProject', () => {
   let component: AboutProject;
@@ -74,28 +75,35 @@ describe('AboutProject', () => {
     expect(component.readmeName()).toBe('README.pt-BR.md');
   });
 
-  it('should download the README matching the active language', () => {
-    const fileSystem = TestBed.inject(FileSystem);
-    const fsSpy = vi.spyOn(fileSystem, 'downloadFile').mockImplementation(() => {});
+  it('should open the README matching the active language', () => {
+    const processManager = TestBed.inject(ProcessManager);
+    const openFileSpy = vi.spyOn(processManager, 'openFile').mockImplementation(() => {});
 
     component.lang.setLanguage('pt');
-    component.downloadReadme();
+    component.openReadme();
 
-    expect(fsSpy).toHaveBeenCalledWith(
-      '/data/root/home/documents/README.pt-BR.md',
-      'README.pt-BR.md',
-    );
+    expect(openFileSpy).toHaveBeenCalledWith({
+      id: 'readme-pt-br',
+      name: 'README.pt-BR.md',
+      type: 'file',
+      icon: 'fas fa-file-alt',
+      url: '/data/root/home/documents/README.pt-BR.md',
+    });
   });
 
-  it('should downloadResume call fs.downloadFile with correct path and name', () => {
-    const fileSystem = TestBed.inject(FileSystem);
-    const fsSpy = vi
-      .spyOn(fileSystem, 'downloadFile')
-      .mockImplementation(() => {});
+  it('should open the resume for the active language', () => {
+    const processManager = TestBed.inject(ProcessManager);
+    const openFileSpy = vi.spyOn(processManager, 'openFile').mockImplementation(() => {});
+
     component.lang.setLanguage('en');
-    component.downloadResume();
-    expect(fsSpy).toHaveBeenCalled();
-    const [, name] = fsSpy.mock.calls[0];
-    expect(name).toContain('Resume');
+    component.openResume();
+
+    expect(openFileSpy).toHaveBeenCalledWith({
+      id: 'Curr2',
+      name: 'Resume.pdf',
+      type: 'file',
+      icon: 'fas fa-file-pdf',
+      url: '/data/root/home/documents/Resume.pdf',
+    });
   });
 });

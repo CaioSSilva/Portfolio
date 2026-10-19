@@ -87,6 +87,13 @@ pdf-viewer {
     }
   }
 
+  img {
+    display: inline-block;
+    max-width: 100%;
+    height: auto;
+    vertical-align: middle;
+  }
+
   code {
     font-family: 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
     font-size: 0.83em;
