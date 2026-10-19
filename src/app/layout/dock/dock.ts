@@ -42,10 +42,9 @@ export class Dock {
     this.touchStartX = touch.clientX;
     this.touchStartY = touch.clientY;
 
-    const buttonElement = event.currentTarget as HTMLElement;
     this.longPressTimer = timer(500)
       .pipe(take(1))
-      .subscribe(() => this.apps.openContextMenuAt(buttonElement, appId));
+      .subscribe(() => this.apps.openContextMenuAt(this.touchStartX, this.touchStartY, appId));
   }
 
   onItemTouchMove(event: TouchEvent): void {

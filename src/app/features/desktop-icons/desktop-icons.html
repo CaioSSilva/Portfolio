@@ -6,6 +6,7 @@
     <button
       (click)="item.action()"
       (contextmenu)="appsService.onRightClickApp($event, item.id)"
+      [attr.data-context-menu-app-id]="item.id"
       [attr.aria-label]="item.name"
       class="group h-fit cursor-pointer flex flex-col items-center justify-center rounded-lg p-2 outline-none transition-all duration-150 hover:bg-gnome-text/[0.1] focus:bg-gnome-blue/30 focus:ring-1 focus:ring-gnome-blue/50"
     >

@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { AppDefinition } from '../models/dock';
-import { debounceTime, map } from 'rxjs';
+import { debounceTime, map, Subscription, take, timer } from 'rxjs';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ContextMenuService } from './context-menu';
 import { AppRegistry } from './app-registry';
@@ -14,6 +14,12 @@ export class Apps {
 
   readonly isAppsGridOpen = signal(false);
   readonly searchQuery = signal('');
+
+  private touchLongPressTimer = Subscription.EMPTY;
+  private touchAppId: string | null = null;
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private didSwitchAppOnTouch = false;
 
   readonly appsRegistry = computed(() => this.appRegistry.registry());
   readonly appsDefinition = computed(() => this.appRegistry.definitions());
@@ -51,26 +57,71 @@ export class Apps {
   onRightClickApp(event: MouseEvent, appId: string): void {
     event.preventDefault();
     event.stopPropagation();
-    this.openContextMenuAt(event.currentTarget as HTMLElement, appId);
+    this.openContextMenuAt(event.clientX, event.clientY, appId);
   }
 
-  openContextMenuAt(anchor: HTMLElement, appId: string): void {
-    const menuWidth = 260;
-    const menuHeight = 160;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+  onContextMenuBackdrop(event: MouseEvent): void {
+    event.preventDefault();
+    const appId = this.getAppIdAtPosition(event.clientX, event.clientY);
+    if (appId) this.openContextMenuAt(event.clientX, event.clientY, appId);
+  }
 
-    const rect = anchor.getBoundingClientRect();
-    const anchorCenterX = rect.left + rect.width / 2;
-    const anchorCenterY = rect.top + rect.height / 2;
+  getAppIdAtPosition(x: number, y: number): string | null {
+    const appElement = document
+      .elementsFromPoint(x, y)
+      .map((element) => element.closest<HTMLElement>('[data-context-menu-app-id]'))
+      .find((element) => element !== null);
+    return appElement?.dataset['contextMenuAppId'] ?? null;
+  }
 
-    const menuX = Math.min(Math.max(anchorCenterX - menuWidth / 2, 8), vw - menuWidth - 8);
-    const opensBelow = anchorCenterY < menuHeight + 8;
-    const menuY = opensBelow
-      ? Math.min(anchorCenterY + rect.height / 2 + 8, vh - menuHeight - 8)
-      : Math.max(anchorCenterY - rect.height / 2 - 8, menuHeight + 8);
+  onContextMenuBackdropTouchStart(event: TouchEvent): void {
+    event.stopPropagation();
+    event.preventDefault();
+    const touch = event.touches[0];
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
+    this.touchAppId = this.getAppIdAtPosition(touch.clientX, touch.clientY);
+    this.didSwitchAppOnTouch = false;
 
-    this.contextMenu.openApp(menuX, menuY, appId, opensBelow);
+    if (!this.touchAppId) {
+      this.contextMenu.close();
+      return;
+    }
+
+    this.touchLongPressTimer = timer(500)
+      .pipe(take(1))
+      .subscribe(() => this.openTouchedAppContextMenu());
+  }
+
+  onContextMenuBackdropTouchMove(event: TouchEvent): void {
+    const touch = event.touches[0];
+    if (
+      Math.abs(touch.clientX - this.touchStartX) > 10 ||
+      Math.abs(touch.clientY - this.touchStartY) > 10
+    ) {
+      this.cancelBackdropTouch();
+    }
+  }
+
+  onContextMenuBackdropTouchEnd(): void {
+    this.touchLongPressTimer.unsubscribe();
+    if (!this.didSwitchAppOnTouch) this.contextMenu.close();
+    this.touchAppId = null;
+  }
+
+  openContextMenuAt(x: number, y: number, appId: string): void {
+    this.contextMenu.openApp(x, y, appId);
+  }
+
+  private openTouchedAppContextMenu(): void {
+    if (!this.touchAppId) return;
+    this.didSwitchAppOnTouch = true;
+    this.openContextMenuAt(this.touchStartX, this.touchStartY, this.touchAppId);
+  }
+
+  private cancelBackdropTouch(): void {
+    this.touchLongPressTimer.unsubscribe();
+    this.touchAppId = null;
   }
 
   private resetSearch(): void {

@@ -44,10 +44,11 @@ export class AppsGrid {
     this.touchStartY = touch.clientY;
     this.touchStartTime = Date.now();
 
-    const btn = event.currentTarget as HTMLElement;
     this.longPressTimer = timer(500)
       .pipe(take(1))
-      .subscribe(() => this.appsService.openContextMenuAt(btn, app.id));
+      .subscribe(() =>
+        this.appsService.openContextMenuAt(this.touchStartX, this.touchStartY, app.id),
+      );
   }
 
   onAppTouchEnd(event: TouchEvent, app: AppDefinition): void {

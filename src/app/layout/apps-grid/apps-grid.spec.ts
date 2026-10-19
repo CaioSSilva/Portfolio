@@ -14,13 +14,17 @@ describe('AppsGrid', () => {
   let component: AppsGrid;
   let fixture: ComponentFixture<AppsGrid>;
   let appsSearchQuery: ReturnType<typeof signal<string>>;
+  let isAppsGridOpen: ReturnType<typeof signal<boolean>>;
+  let isContextMenuOpen: ReturnType<typeof signal<boolean>>;
 
   beforeEach(async () => {
     appsSearchQuery = signal('');
+    isAppsGridOpen = signal(false);
+    isContextMenuOpen = signal(false);
 
     const appsMock = {
       searchQuery: appsSearchQuery,
-      isAppsGridOpen: signal(false),
+      isAppsGridOpen,
       filteredApps: signal([]),
       appsRegistry: signal({}),
       appsDefinition: signal([]),
@@ -35,6 +39,8 @@ describe('AppsGrid', () => {
       open: vi.fn(),
       close: vi.fn(),
       menuState: signal(null),
+      isOpen: isContextMenuOpen,
+      activeAppId: signal<string | null>(null),
     };
 
     await TestBed.configureTestingModule({
@@ -57,6 +63,15 @@ describe('AppsGrid', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('keeps grid icons targetable while the context menu is open', () => {
+    isAppsGridOpen.set(true);
+    isContextMenuOpen.set(true);
+    fixture.detectChanges();
+
+    const grid = fixture.nativeElement.querySelector('.grid');
+    expect(grid.classList.contains('pointer-events-none')).toBe(false);
   });
 
   it('onSearch sets appsService.searchQuery from input element value', () => {

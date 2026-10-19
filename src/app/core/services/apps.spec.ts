@@ -17,6 +17,7 @@ describe('Apps', () => {
   };
 
   beforeEach(() => {
+    vi.clearAllMocks();
     appLauncherSpy = { launch: vi.fn() };
     contextMenuSpy = {
       close: vi.fn(),
@@ -83,37 +84,94 @@ describe('Apps', () => {
     expect(service.isAppsGridOpen()).toBe(false);
   });
 
-  it('should call contextMenu.openApp on right-click within window bounds', () => {
+  it('should open the context menu at the right-click position', () => {
     const app = service.appsDefinition()[0];
     const event: Partial<MouseEvent> = {
       preventDefault: vi.fn(),
       stopPropagation: vi.fn(),
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 100, top: 300, width: 60, height: 60 }),
-      } as Partial<EventTarget> as EventTarget,
+      clientX: 120,
+      clientY: 330,
     };
 
     service.onRightClickApp(event as MouseEvent, app.id);
-    expect(contextMenuSpy.openApp).toHaveBeenCalled();
+    expect(contextMenuSpy.openApp).toHaveBeenCalledWith(120, 330, app.id);
   });
 
-  it('should adjust x position when context menu would overflow right edge', () => {
-    const app = service.appsDefinition()[0];
-    const event: Partial<MouseEvent> = {
-      preventDefault: vi.fn(),
-      stopPropagation: vi.fn(),
-      currentTarget: {
-        getBoundingClientRect: () => ({
-          left: window.innerWidth - 10,
-          top: 300,
-          width: 60,
-          height: 60,
-        }),
-      } as Partial<EventTarget> as EventTarget,
-    };
+  it('should open the context menu for an app under the backdrop right-click', () => {
+    const appButton = document.createElement('button');
+    appButton.dataset['contextMenuAppId'] = 'terminal';
+    const icon = document.createElement('i');
+    appButton.append(icon);
+    Object.defineProperty(document, 'elementsFromPoint', {
+      configurable: true,
+      value: vi.fn().mockReturnValue([icon]),
+    });
+    const event = new MouseEvent('contextmenu', { clientX: 240, clientY: 180 });
+    vi.spyOn(event, 'preventDefault');
 
-    service.onRightClickApp(event as MouseEvent, app.id);
-    const [xArg] = contextMenuSpy.openApp.mock.calls[0];
-    expect(xArg).toBeLessThan(window.innerWidth - 10);
+    try {
+      service.onContextMenuBackdrop(event);
+
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(contextMenuSpy.openApp).toHaveBeenCalledWith(240, 180, 'terminal');
+    } finally {
+      Reflect.deleteProperty(document, 'elementsFromPoint');
+    }
+  });
+
+  it('should switch context menu apps after a long touch on the backdrop', () => {
+    contextMenuSpy.close.mockClear();
+    contextMenuSpy.openApp.mockClear();
+    contextMenuSpy.isOpen.mockReturnValue(true);
+    const target = document.createElement('button');
+    target.dataset['contextMenuAppId'] = 'terminal';
+    Object.defineProperty(document, 'elementsFromPoint', {
+      configurable: true,
+      value: vi.fn().mockReturnValue([target]),
+    });
+    const event = new Event('touchstart', { cancelable: true });
+    Object.defineProperty(event, 'touches', {
+      value: [{ clientX: 120, clientY: 160 }],
+    });
+    vi.useFakeTimers();
+
+    try {
+      service.onContextMenuBackdropTouchStart(event as TouchEvent);
+      expect(contextMenuSpy.openApp).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(500);
+      expect(contextMenuSpy.openApp).toHaveBeenCalledWith(120, 160, 'terminal');
+
+      service.onContextMenuBackdropTouchEnd();
+      expect(contextMenuSpy.close).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+      Reflect.deleteProperty(document, 'elementsFromPoint');
+      contextMenuSpy.isOpen.mockReturnValue(false);
+    }
+  });
+
+  it('should close the context menu after a short backdrop touch', () => {
+    contextMenuSpy.close.mockClear();
+    contextMenuSpy.isOpen.mockReturnValue(true);
+    const target = document.createElement('button');
+    target.dataset['contextMenuAppId'] = 'terminal';
+    Object.defineProperty(document, 'elementsFromPoint', {
+      configurable: true,
+      value: vi.fn().mockReturnValue([target]),
+    });
+    const event = new Event('touchstart', { cancelable: true });
+    Object.defineProperty(event, 'touches', {
+      value: [{ clientX: 120, clientY: 160 }],
+    });
+
+    try {
+      service.onContextMenuBackdropTouchStart(event as TouchEvent);
+      service.onContextMenuBackdropTouchEnd();
+      expect(contextMenuSpy.close).toHaveBeenCalledOnce();
+    } finally {
+      Reflect.deleteProperty(document, 'elementsFromPoint');
+      contextMenuSpy.isOpen.mockReturnValue(false);
+    }
   });
 });

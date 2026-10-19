@@ -1,15 +1,21 @@
 @if (contextMenu.isOpen() && contextMenu.activeAppId()) {
   <div
+    (contextmenu)="apps.onContextMenuBackdrop($event)"
     (click)="$event.stopPropagation(); contextMenu.close()"
-    (touchstart)="$event.stopPropagation(); $event.preventDefault(); contextMenu.close()"
+    (touchstart)="apps.onContextMenuBackdropTouchStart($event)"
+    (touchmove)="apps.onContextMenuBackdropTouchMove($event)"
+    (touchend)="apps.onContextMenuBackdropTouchEnd()"
     class="fixed inset-0 z-[19999]"
   ></div>
   <div
+    #menuElement
+    data-context-menu
     (click)="$event.stopPropagation()"
-    class="fixed z-[20000] w-[260px] bg-gnome-bg/95 backdrop-blur-md border border-gnome-border rounded-xl p-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
-    [style.left.px]="contextMenu.position().x"
-    [style.top.px]="contextMenu.position().y"
-    [style.transform]="contextMenu.opensBelow() ? 'none' : 'translateY(-100%)'"
+    [style.visibility]="hasPositionedMenu() ? 'visible' : 'hidden'"
+    [style.transform-origin]="menuTransformOrigin()"
+    class="fixed z-[20000] w-[260px] max-w-[calc(100vw-16px)] max-h-[calc(100dvh-16px)] overflow-y-auto bg-gnome-bg/95 backdrop-blur-md border border-gnome-border rounded-xl p-1.5 shadow-2xl"
+    [style.left.px]="menuPosition().x"
+    [style.top.px]="menuPosition().y"
   >
     @if (screen.isMobile()) {
       @if (processManager.hasActiveProcessesById(contextMenu.activeAppId()!)) {

@@ -55,6 +55,7 @@
         [style.height.px]="settings.dockSize()"
         [attr.aria-label]="getAppLabel(item.id, item.title)"
         [attr.data-dock-id]="item.id"
+        [attr.data-context-menu-app-id]="item.id"
         class="dock-item group relative flex items-center justify-center rounded-[14px] transition-colors duration-200 outline-none hover:bg-gnome-text/10 active:scale-95 cursor-pointer shrink-0"
         [class.bg-gnome-text/10]="item.isActive"
       >
