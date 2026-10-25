@@ -1,97 +1,72 @@
-<div class="flex flex-col h-full w-full bg-gnome-bg overflow-hidden text-gnome-text font-gnome">
-  <div class="flex items-center gap-3 p-2 bg-gnome-header border-b border-gnome-border">
+<div
+  class="flex flex-col h-full min-h-0 w-full overflow-hidden bg-gnome-bg text-gnome-text font-gnome"
+>
+  <div
+    role="toolbar"
+    [attr.aria-label]="lang.t().browser.placeholder"
+    class="flex items-center gap-2 p-2 shrink-0 bg-gnome-header border-b border-gnome-border"
+  >
     <button
+      type="button"
       (click)="goBack()"
       [disabled]="history().length <= 1"
       [title]="lang.t().browser.back"
       [attr.aria-label]="lang.t().browser.back"
-      class="cursor-pointer p-2 flex items-center justify-center hover:bg-gnome-surface rounded-lg transition-colors text-gnome-text-secondary disabled:opacity-30 outline-none"
+      class="w-10 h-10 sm:w-9 sm:h-9 shrink-0 flex items-center justify-center rounded-lg text-gnome-text-secondary cursor-pointer transition-colors hover:bg-gnome-surface focus-visible:ring-2 focus-visible:ring-gnome-blue/50 disabled:opacity-30 disabled:cursor-not-allowed outline-none"
     >
-      <i class="fas fa-arrow-left text-xs" aria-hidden="true"></i>
+      <i class="fas fa-arrow-left fa-fw text-xs" aria-hidden="true"></i>
     </button>
 
-    <div class="flex-1 relative flex items-center group">
-      <i class="fas fa-lock absolute left-3 text-[10px] text-gnome-text-secondary"></i>
+    <div class="flex-1 min-w-0 relative flex items-center">
+      <i
+        class="fas fa-lock absolute left-3 text-[10px] text-gnome-text-secondary pointer-events-none"
+        aria-hidden="true"
+      ></i>
       <input
         type="text"
+        inputmode="url"
+        enterkeyhint="go"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
         [placeholder]="lang.t().browser.placeholder"
+        [attr.aria-label]="lang.t().browser.placeholder"
         [ngModel]="displayUrl()"
         (ngModelChange)="displayUrl.set($event)"
         (keydown.enter)="navigateToUrl()"
-        class="w-full pl-8 pr-3 py-1.5 text-xs bg-gnome-surface border border-gnome-border rounded-lg text-gnome-text outline-none focus:ring-2 focus:ring-gnome-blue/30 transition-all"
+        class="w-full min-w-0 h-10 sm:h-9 pl-8 pr-3 text-base sm:text-xs bg-gnome-surface border border-gnome-border rounded-lg text-gnome-text outline-none transition-all focus:ring-2 focus:ring-gnome-blue/30"
       />
     </div>
 
     <button
+      type="button"
       (click)="navigateToUrl()"
       [title]="lang.t().browser.refresh"
       [attr.aria-label]="lang.t().browser.refresh"
-      class="p-2 hover:bg-gnome-surface rounded-lg transition-colors text-gnome-text-secondary cursor-pointer"
+      class="w-10 h-10 sm:w-9 sm:h-9 shrink-0 flex items-center justify-center rounded-lg text-gnome-text-secondary cursor-pointer transition-colors hover:bg-gnome-surface focus-visible:ring-2 focus-visible:ring-gnome-blue/50 outline-none"
     >
-      <i class="fas fa-redo text-xs" [class.fa-spin]="isLoading()" aria-hidden="true"></i>
+      <i class="fas fa-redo fa-fw text-xs" [class.fa-spin]="isLoading()" aria-hidden="true"></i>
     </button>
   </div>
 
-  <div class="flex-1 relative bg-gnome-bg flex justify-center items-center">
-    @if (hasError()) {
-      <div
-        class="absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center bg-gnome-bg"
-      >
-        <div
-          class="w-16 h-16 bg-gnome-surface rounded-full flex items-center justify-center mb-6 border border-gnome-border"
-        >
-          <i class="fas fa-circle-exclamation text-2xl text-gnome-red"></i>
-        </div>
-        <h2 class="text-xl font-bold">
-          @switch (errorType()) {
-            @case ('invalidUrl') {
-              {{ lang.t().browser.invalidUrlTitle }}
-            }
-            @case ('loadTimeout') {
-              {{ lang.t().browser.loadTimeoutTitle }}
-            }
-            @default {
-              {{ lang.t().browser.connectionFailed }}
-            }
-          }
-        </h2>
-        <p class="text-sm text-gnome-text-secondary mt-3 max-w-sm">
-          @switch (errorType()) {
-            @case ('invalidUrl') {
-              {{ lang.t().browser.invalidUrlMessage }}
-            }
-            @case ('loadTimeout') {
-              {{ lang.t().browser.loadTimeoutMessage }}
-            }
-            @default {
-              {{ lang.t().browser.loadFailedMessage }}
-            }
-          }
-        </p>
-
-        <div class="flex flex-wrap justify-center gap-3 mt-8">
-          @if (errorType() !== 'invalidUrl') {
-            <button
-              (click)="navigateToUrl()"
-              class="px-5 py-2.5 cursor-pointer bg-gnome-surface border border-gnome-border rounded-lg text-sm font-medium hover:bg-gnome-header transition-all cursor-pointer"
-            >
-              {{ lang.t().browser.tryAgain }}
-            </button>
-            <a
-              [href]="navigatedUrl()"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="px-5 py-2.5 bg-gnome-blue hover:bg-gnome-blue-dark text-white rounded-lg text-sm font-medium flex items-center gap-2 cursor-pointer"
-            >
-              <i class="fas fa-external-link-alt text-[10px]" aria-hidden="true"></i>
-              {{ lang.t().browser.externalFallback }}
-            </a>
-          }
-        </div>
-      </div>
+  <section class="flex-1 min-h-0 relative flex justify-center items-center bg-gnome-bg">
+    @if (safeUrl()) {
+      <iframe
+        sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-top-navigation allow-top-navigation-by-user-activation allow-modals allow-downloads"
+        allow="autoplay; encrypted-media; fullscreen"
+        [src]="safeUrl()!"
+        [attr.title]="navigatedUrl()"
+        (load)="onLoad()"
+        (error)="onError()"
+        class="absolute inset-0 w-full h-full border-none bg-white transition-opacity duration-500"
+        [class.opacity-0]="hasError() || isLoading()"
+      ></iframe>
     }
+
     @if (isLoading()) {
       <div
+        role="status"
+        aria-live="polite"
         class="absolute inset-0 z-10 flex items-center justify-center bg-gnome-bg/50 backdrop-blur-sm"
       >
         <div
@@ -99,38 +74,85 @@
         ></div>
       </div>
     }
-    @if (safeUrl()) {
-      <iframe
-        sandbox="allow-scripts allow-popups allow-forms allow-same-origin allow-top-navigation allow-top-navigation-by-user-activation allow-modals allow-downloads"
-        [src]="safeUrl()!"
-        (load)="onLoad()"
-        (error)="onError()"
-        class="w-full h-full border-none bg-white transition-opacity duration-500"
-        [class.opacity-0]="hasError() || isLoading()"
-        allow="autoplay; encrypted-media; fullscreen"
-      ></iframe>
+
+    @if (hasError()) {
+      <div
+        role="alert"
+        class="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 sm:p-8 overflow-y-auto text-center bg-gnome-bg"
+      >
+        <div
+          class="w-16 h-16 shrink-0 mb-6 flex items-center justify-center rounded-full bg-gnome-surface border border-gnome-border"
+        >
+          <i class="fas fa-circle-exclamation text-2xl text-gnome-red" aria-hidden="true"></i>
+        </div>
+
+        @switch (errorType()) {
+          @case ('invalidUrl') {
+            <h2 class="text-xl font-bold">{{ lang.t().browser.invalidUrlTitle }}</h2>
+            <p class="mt-3 max-w-sm text-sm text-gnome-text-secondary">
+              {{ lang.t().browser.invalidUrlMessage }}
+            </p>
+          }
+          @case ('loadTimeout') {
+            <h2 class="text-xl font-bold">{{ lang.t().browser.loadTimeoutTitle }}</h2>
+            <p class="mt-3 max-w-sm text-sm text-gnome-text-secondary">
+              {{ lang.t().browser.loadTimeoutMessage }}
+            </p>
+          }
+          @default {
+            <h2 class="text-xl font-bold">{{ lang.t().browser.connectionFailed }}</h2>
+            <p class="mt-3 max-w-sm text-sm text-gnome-text-secondary">
+              {{ lang.t().browser.loadFailedMessage }}
+            </p>
+          }
+        }
+
+        @if (errorType() !== 'invalidUrl') {
+          <div class="flex flex-wrap justify-center gap-3 mt-8 w-full max-w-md">
+            <button
+              type="button"
+              (click)="navigateToUrl()"
+              class="flex-1 basis-[11rem] px-5 py-2.5 flex items-center justify-center whitespace-nowrap rounded-lg bg-gnome-surface border border-gnome-border text-sm font-medium cursor-pointer transition-all hover:bg-gnome-header focus-visible:ring-2 focus-visible:ring-gnome-blue/50 outline-none"
+            >
+              {{ lang.t().browser.tryAgain }}
+            </button>
+            <a
+              [href]="navigatedUrl()"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex-1 basis-[11rem] px-5 py-2.5 flex items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-gnome-blue text-white text-sm font-medium cursor-pointer transition-colors hover:bg-gnome-blue-dark focus-visible:ring-2 focus-visible:ring-gnome-blue/50 outline-none"
+            >
+              <i class="fas fa-external-link-alt text-[10px]" aria-hidden="true"></i>
+              {{ lang.t().browser.externalFallback }}
+            </a>
+          </div>
+        }
+      </div>
     }
+
     @if (navigatedUrl() && !isLoading() && !hasError()) {
       <button
+        type="button"
         (click)="reportLoadFailure()"
         [title]="lang.t().browser.reportLoadFailure"
         [attr.aria-label]="lang.t().browser.reportLoadFailure"
-        class="absolute bottom-3 right-3 z-10 flex items-center gap-2 px-3 py-2 bg-gnome-header/90 hover:bg-gnome-header border border-gnome-border rounded-lg text-gnome-text-secondary text-xs shadow-lg cursor-pointer"
+        class="absolute bottom-3 right-3 z-10 h-10 sm:h-auto px-3 py-2 flex items-center gap-2 rounded-lg bg-gnome-header/90 border border-gnome-border text-xs text-gnome-text-secondary shadow-lg cursor-pointer transition-colors hover:bg-gnome-header focus-visible:ring-2 focus-visible:ring-gnome-blue/50 outline-none"
       >
         <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
-        {{ lang.t().browser.reportLoadFailure }}
+        <span class="hidden sm:inline">{{ lang.t().browser.reportLoadFailure }}</span>
       </button>
     }
+
     @if (!isLoading() && !hasError() && !safeUrl()) {
-      <div class="flex flex-col items-center">
-        <span class="text-gnome-text text-sm">{{ lang.t().browser.tryToSearch }}</span>
+      <div class="flex flex-col items-center gap-1 px-4 text-center">
+        <span class="text-sm text-gnome-text">{{ lang.t().browser.tryToSearch }}</span>
         <div class="flex items-center justify-center gap-2">
-          <i class="fas fa-info-circle text-[8px] text-gnome-blue mt-1/2"></i>
-          <span class="text-gnome-text-secondary text-xs">{{
+          <i class="fas fa-info-circle text-[8px] text-gnome-blue" aria-hidden="true"></i>
+          <span class="text-xs text-gnome-text-secondary">{{
             lang.t().browser.urlDisclaimer
           }}</span>
         </div>
       </div>
     }
-  </div>
+  </section>
 </div>
